@@ -22,13 +22,14 @@ public:
 
 private:
     enum DocSection {
-        None   = 0x0000,
-        Body   = 0x0001,
-        Descr  = 0x0002,
-        Bynary = 0x0003,
+        None = 0,
+        Body,
+        Descr,
+        Binary,
     };
 
     enum DocKeyword {
+        Empty = 0,
         Image,
         Paragraph,
         Section,
@@ -50,6 +51,7 @@ private:
 private:
     QTextEdit * m_editor;
     QTextCursor m_cursor;
+    QString m_name;
     QString m_text;
     QString m_error;
     QStringList m_tags;
