@@ -97,6 +97,8 @@ void MainWindow::init()
     isUntitled = true;
 
     textEdit = new QTextEdit;
+    textEdit->setAcceptRichText(true);
+
     setCentralWidget(textEdit);
 
     createActions();
@@ -274,7 +276,7 @@ void MainWindow::loadFile(const QString &fileName)
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
-    Fb2Reader handler(textEdit);
+    Fb2Handler handler(textEdit);
     QXmlSimpleReader reader;
     reader.setContentHandler(&handler);
     reader.setErrorHandler(&handler);

@@ -3,7 +3,34 @@
 
 #include "fb2read.h"
 
-Fb2Reader::Fb2Reader(QTextEdit * editor)
+Fb2Handler::SectionHash::SectionHash()
+{
+    insert("body", Body);
+    insert("descriptin", Descr);
+    insert("bynary", Bynary);
+}
+
+Fb2Handler::KeywordHash::KeywordHash()
+{
+    insert("image",   Image);
+    insert("p",       Paragraph);
+    insert("section", Section);
+    insert("title",   Title);
+}
+
+Fb2Handler::DocSection Fb2Handler::GetSection(const QString &name)
+{
+    static SectionHash map;
+    return map[name];
+}
+
+Fb2Handler::DocKeyword Fb2Handler::GetKeyword(const QString &name)
+{
+    static KeywordHash map;
+    return map[name];
+}
+
+Fb2Handler::Fb2Handler(QTextEdit * editor)
     : m_editor(editor)
     , m_cursor(editor->textCursor())
     , m_section(None)
@@ -13,12 +40,12 @@ Fb2Reader::Fb2Reader(QTextEdit * editor)
     m_cursor.movePosition(QTextCursor::Start);
 }
 
-Fb2Reader::~Fb2Reader()
+Fb2Handler::~Fb2Handler()
 {
     m_cursor.endEditBlock();
 }
 
-bool Fb2Reader::startElement(const QString & /* namespaceURI */,
+bool Fb2Handler::startElement(const QString & /* namespaceURI */,
                                const QString & /* localName */,
                                const QString &qName,
                                const QXmlAttributes &attributes)
@@ -33,18 +60,12 @@ bool Fb2Reader::startElement(const QString & /* namespaceURI */,
             };
         } break;
         case 1: {
-            if (name == "body") {
-                m_section = Body;
-            } else if (name == "description") {
-                m_section = Descr;
-            } else if (name == "binary") {
-                m_section = Bynary;
-            } else {
-                m_section = None;
-            }
+                m_section = GetSection(name);
         } break;
         default: {
-            if (name == "p") m_cursor.insertBlock();
+            switch (m_section) {
+                case Body: BodyNew(name, attributes); break;
+            }
         } break;
     }
 
@@ -55,11 +76,19 @@ bool Fb2Reader::startElement(const QString & /* namespaceURI */,
     return true;
 }
 
-bool Fb2Reader::endElement(const QString & /* namespaceURI */,
+bool Fb2Handler::endElement(const QString & /* namespaceURI */,
                              const QString & /* localName */,
                              const QString &qName)
 {
     const QString name = qName.toLower();
+
+    if (name == "section") {
+        if (!m_frames.isEmpty()) {
+            m_cursor.setPosition(m_frames.last()->lastPosition());
+            m_frames.removeLast();
+        }
+    }
+
     int index = m_tags.lastIndexOf(name);
     int count = m_tags.count();
     for (int i = index; i < count; i++) m_tags.removeLast();
@@ -68,7 +97,7 @@ bool Fb2Reader::endElement(const QString & /* namespaceURI */,
     return true;
 }
 
-bool Fb2Reader::characters(const QString &str)
+bool Fb2Handler::characters(const QString &str)
 {
     switch (m_section) {
         case Body: {
@@ -81,7 +110,7 @@ bool Fb2Reader::characters(const QString &str)
     return true;
 }
 
-bool Fb2Reader::fatalError(const QXmlParseException &exception)
+bool Fb2Handler::fatalError(const QXmlParseException &exception)
 {
     QMessageBox::information(
         m_editor->window(),
@@ -94,12 +123,55 @@ bool Fb2Reader::fatalError(const QXmlParseException &exception)
     return false;
 }
 
-QString Fb2Reader::errorString() const
+QString Fb2Handler::errorString() const
 {
     return m_error;
 }
 
+bool Fb2Handler::BodyNew(const QString &name, const QXmlAttributes &attributes)
+{
+    switch (GetKeyword(name)) {
+        case Paragraph: {
+            m_cursor.insertBlock();
+        } break;
+        case Section: {
+            m_frames << m_cursor.currentFrame();
+            QTextFrameFormat format;
+            format.setBorder(1);
+            format.setPadding(8);
+            m_cursor.insertFrame(format);
+        } break;
+        case Image: {
+            int count = attributes.count();
+            for (int i = 0; i < count; i++ ) {
+                if (attributes.localName(i).compare("href", Qt::CaseInsensitive) == 0) {
+                    QString image = attributes.value(i);
+                    while (image.left(1) == "#") image.remove(0, 1);
+                    m_cursor.insertImage(image);
+                    break;
+                }
+            }
+        } break;
+    }
+    return true;
+}
+
+bool Fb2Handler::BodyEnd(const QString &name)
+{
+    return true;
+}
+
 /*
+
+    QMessageBox::information(
+        m_editor->window(),
+        QObject::tr("fb2edit"),
+        QObject::tr("%1=%2\n%1=%3")
+            .arg(attributes.localName(i))
+            .arg(attributes.value(i))
+            .arg(image)
+        );
+
 
 //! [2]
     QTextCursor cursor(editor->textCursor());
