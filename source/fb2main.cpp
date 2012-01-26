@@ -315,17 +315,23 @@ void MainWindow::setCurrentFile(const QString &filename, QTextDocument * documen
 {
     static int sequenceNumber = 1;
 
+    QString title;
     isUntitled = filename.isEmpty();
     if (isUntitled) {
         curFile = tr("book%1.fb2").arg(sequenceNumber++);
+        title = curFile;
     } else {
-        curFile = QFileInfo(filename).canonicalFilePath();
+        QFileInfo info = filename;
+        curFile = info.canonicalFilePath();
+        title = info.fileName();
     }
+    title += QString(" - ") += qApp->applicationName();
 
     if (document) textEdit->setDocument(document); else textEdit->clear();
     textEdit->document()->setModified(false);
     setWindowModified(false);
     setWindowFilePath(curFile);
+    setWindowTitle(title);
 }
 
 QString MainWindow::strippedName(const QString &fullFileName)
@@ -344,4 +350,3 @@ MainWindow *MainWindow::findMainWindow(const QString &fileName)
     }
     return 0;
 }
-
