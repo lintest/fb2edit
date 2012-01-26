@@ -9,6 +9,14 @@
 //
 //   http://blog.sjinks.pro/c-cpp/qt/942-html-parser-qt/
 //
+//
+//     QByteArray data;
+//     QXmlInputSource src;
+//     LibXml2Reader reader;
+//     QDomDocument doc;
+//     src.setData(data);
+//     doc.setContent(&src, &reader);
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include <QtXml/QXmlReader>
