@@ -20,8 +20,9 @@ static QString Value(const QXmlAttributes &attributes, const QString &name)
 
 Fb2Handler::RootHandler::KeywordHash::KeywordHash()
 {
-    insert("body", Body);
+    insert("stylesheet", Style);
     insert("description", Descr);
+    insert("body", Body);
     insert("binary", Binary);
 }
 

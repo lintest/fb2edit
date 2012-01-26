@@ -48,8 +48,9 @@ private:
     private:
         enum Keyword {
             None = 0,
-            Body,
+            Style,
             Descr,
+            Body,
             Binary,
         };
         class KeywordHash : public QHash<QString, Keyword> { public: KeywordHash(); };
