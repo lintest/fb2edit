@@ -226,14 +226,10 @@ bool Fb2Handler::endElement(const QString & namespaceURI, const QString & localN
 
 bool Fb2Handler::fatalError(const QXmlParseException &exception)
 {
-    QMessageBox::information(
-        NULL,
-        QObject::tr("fb2edit"),
-        QObject::tr("Parse error at line %1, column %2:\n%3")
-            .arg(exception.lineNumber())
-            .arg(exception.columnNumber())
-            .arg(exception.message())
-        );
+    qCritical() << QObject::tr("Parse error at line %1, column %2:\n%3")
+       .arg(exception.lineNumber())
+       .arg(exception.columnNumber())
+       .arg(exception.message());
     return false;
 }
 

@@ -10,5 +10,8 @@ SOURCES = \
 RESOURCES = \
     fb2edit.qrc
 
-QT += xml
+TARGET = fb2edit
 
+VERSION = 0.01.1
+
+QT += xml

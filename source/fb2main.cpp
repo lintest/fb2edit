@@ -1,4 +1,5 @@
 #include <QtGui>
+#include <QtDebug>
 
 #include "fb2main.h"
 #include "fb2read.h"
@@ -23,13 +24,7 @@ QTextDocument * MainWindow::LoadDocument(const QString &filename)
 
     QFile file(filename);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(
-            NULL,
-            tr("fb2edit"),
-            tr("Cannot read file %1:\n%2.")
-                .arg(filename)
-                .arg(file.errorString())
-        );
+        qCritical() << tr("Cannot read file %1:\n%2.").arg(filename).arg(file.errorString());
         return NULL;
     }
 
