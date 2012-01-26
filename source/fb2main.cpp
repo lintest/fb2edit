@@ -276,19 +276,23 @@ void MainWindow::loadFile(const QString &fileName)
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
-    Fb2Handler handler(textEdit);
+    QTextDocument * document = new QTextDocument;
+    Fb2Handler handler(*document);
     QXmlSimpleReader reader;
     reader.setContentHandler(&handler);
     reader.setErrorHandler(&handler);
 
     QXmlInputSource source(&file);
-    if (reader.parse(source))
+    if (reader.parse(source)) {
+        setCurrentFile(fileName);
+        textEdit->clear();
+        textEdit->setDocument(document);
         statusBar()->showMessage(tr("File loaded"), 2000);
+    } else {
+        delete document;
+    }
 
     QApplication::restoreOverrideCursor();
-
-    setCurrentFile(fileName);
-    statusBar()->showMessage(tr("File loaded"), 2000);
 }
 
 bool MainWindow::saveFile(const QString &fileName)

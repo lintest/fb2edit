@@ -21,23 +21,23 @@ static QString Value(const QXmlAttributes &attributes, const QString &name)
 Fb2Handler::RootHandler::KeywordHash::KeywordHash()
 {
     insert("body", Body);
-    insert("descriptin", Descr);
+    insert("description", Descr);
     insert("binary", Binary);
 }
 
-Fb2Handler::RootHandler::Keyword Fb2Handler::RootHandler::GetKeyword(const QString &name)
+Fb2Handler::RootHandler::Keyword Fb2Handler::RootHandler::toKeyword(const QString &name)
 {
     static KeywordHash map;
     KeywordHash::const_iterator i = map.find(name);
     return i == map.end() ? None : i.value();
 }
 
-bool Fb2Handler::RootHandler::DoStart(const QString &name, const QXmlAttributes &attributes)
+bool Fb2Handler::RootHandler::doStart(const QString &name, const QXmlAttributes &attributes)
 {
-    switch (GetKeyword(name)) {
-        case Descr  : return m_owner.SetHandler(new DescrHandler(this));
-        case Body   : return m_owner.SetHandler(new BodyHandler(this));
-        case Binary : return m_owner.SetHandler(new ImageHandler(this, attributes));
+    switch (toKeyword(name)) {
+        case Descr  : return m_owner.setHandler(new DescrHandler(this));
+        case Body   : return m_owner.setHandler(new BodyHandler(this));
+        case Binary : return m_owner.setHandler(new BinaryHandler(this, attributes));
     }
     return false;
 }
@@ -46,17 +46,20 @@ bool Fb2Handler::RootHandler::DoStart(const QString &name, const QXmlAttributes 
 //  Fb2Handler::DescrHandler
 //---------------------------------------------------------------------------
 
-bool Fb2Handler::DescrHandler::DoStart(const QString &name, const QXmlAttributes &attributes)
+bool Fb2Handler::DescrHandler::doStart(const QString &name, const QXmlAttributes &attributes)
 {
+    Q_UNUSED(name);
+    Q_UNUSED(attributes);
     return true;
 }
 
-bool Fb2Handler::DescrHandler::DoText(const QString &text)
+bool Fb2Handler::DescrHandler::doText(const QString &text)
 {
+    Q_UNUSED(text);
     return true;
 }
 
-bool Fb2Handler::DescrHandler::DoEnd(const QString &name, bool & exit)
+bool Fb2Handler::DescrHandler::doEnd(const QString &name, bool & exit)
 {
     exit = name == "description";
     return true;
@@ -75,16 +78,16 @@ Fb2Handler::BodyHandler::KeywordHash::KeywordHash()
     insert("title",   Title);
 }
 
-Fb2Handler::BodyHandler::Keyword Fb2Handler::BodyHandler::GetKeyword(const QString &name)
+Fb2Handler::BodyHandler::Keyword Fb2Handler::BodyHandler::toKeyword(const QString &name)
 {
     static KeywordHash map;
     KeywordHash::const_iterator i = map.find(name);
     return i == map.end() ? None : i.value();
 }
 
-bool Fb2Handler::BodyHandler::DoStart(const QString &name, const QXmlAttributes &attributes)
+bool Fb2Handler::BodyHandler::doStart(const QString &name, const QXmlAttributes &attributes)
 {
-    switch (GetKeyword(name)) {
+    switch (toKeyword(name)) {
         case Image: {
             QString image = Value(attributes, "href");
             while (image.left(1) == "#") image.remove(0, 1);
@@ -101,17 +104,18 @@ bool Fb2Handler::BodyHandler::DoStart(const QString &name, const QXmlAttributes 
             m_cursor.insertFrame(format);
         } break;
     }
+    return true;
 }
 
-bool Fb2Handler::BodyHandler::DoText(const QString &text)
+bool Fb2Handler::BodyHandler::doText(const QString &text)
 {
     m_cursor.insertText(text);
     return true;
 }
 
-bool Fb2Handler::BodyHandler::DoEnd(const QString &name, bool & exit)
+bool Fb2Handler::BodyHandler::doEnd(const QString &name, bool & exit)
 {
-    switch (GetKeyword(name)) {
+    switch (toKeyword(name)) {
         case Body: {
             exit = true;
         }; break;
@@ -126,42 +130,64 @@ bool Fb2Handler::BodyHandler::DoEnd(const QString &name, bool & exit)
 }
 
 //---------------------------------------------------------------------------
-//  Fb2Handler::ImageHandler
+//  Fb2Handler::BinaryHandler
 //---------------------------------------------------------------------------
 
-Fb2Handler::ImageHandler::ImageHandler(ContentHandler * parent, const QXmlAttributes &attributes)
+Fb2Handler::BinaryHandler::BinaryHandler(ContentHandler * parent, const QXmlAttributes &attributes)
     : ContentHandler(parent), m_name(Value(attributes, "id"))
 {
+}
+
+bool Fb2Handler::BinaryHandler::doStart(const QString &name, const QXmlAttributes &attributes)
+{
+    Q_UNUSED(name);
+    Q_UNUSED(attributes);
+    return false;
+}
+
+bool Fb2Handler::BinaryHandler::doText(const QString &text)
+{
+    m_text += text;
+    return true;
+}
+
+bool Fb2Handler::BinaryHandler::doEnd(const QString &name, bool & exit)
+{
+    Q_UNUSED(name);
+    QByteArray in; in.append(m_text);
+    QImage img = QImage::fromData(QByteArray::fromBase64(in));
+    if (!m_name.isEmpty()) m_owner.getDocument().addResource(QTextDocument::ImageResource, QUrl(m_name), img);
+    exit = true;
+    return true;
 }
 
 //---------------------------------------------------------------------------
 //  Fb2Handler
 //---------------------------------------------------------------------------
 
-Fb2Handler::Fb2Handler(QTextEdit * editor)
-    : m_editor(editor)
-    , m_cursor(editor->textCursor())
-    , m_section(None)
+Fb2Handler::Fb2Handler(QTextDocument & document)
+    : m_document(document)
+    , m_cursor(&document)
     , m_handler(NULL)
 {
     m_cursor.beginEditBlock();
-    editor->clear();
+    document.clear();
     m_cursor.movePosition(QTextCursor::Start);
 }
 
 Fb2Handler::~Fb2Handler()
 {
-    if (m_handler) delete m_handler;
+    while (m_handler) m_handler = doDelete(m_handler);
     m_cursor.endEditBlock();
 }
 
-bool Fb2Handler::startElement(const QString & /* namespaceURI */,
-                               const QString & /* localName */,
-                               const QString &qName,
-                               const QXmlAttributes &attributes)
+bool Fb2Handler::startElement(const QString & namespaceURI, const QString & localName, const QString &qName, const QXmlAttributes &attributes)
 {
+    Q_UNUSED(namespaceURI);
+    Q_UNUSED(localName);
+
     const QString name = qName.toLower();
-    if (m_handler) return m_handler->DoStart(name, attributes);
+    if (m_handler) return m_handler->doStart(name, attributes);
 
     if (name == "fictionbook") {
         m_handler = new RootHandler(*this);
@@ -174,31 +200,31 @@ bool Fb2Handler::startElement(const QString & /* namespaceURI */,
 
 bool Fb2Handler::characters(const QString &str)
 {
-    return m_handler && m_handler->DoText(str);
+    return m_handler && m_handler->doText(str);
 }
 
-Fb2Handler::ContentHandler * Fb2Handler::Up(Fb2Handler::ContentHandler * handler)
+Fb2Handler::ContentHandler * Fb2Handler::doDelete(Fb2Handler::ContentHandler * handler)
 {
     if (!handler) return NULL;
-    ContentHandler * parent = handler->GetParent();
+    ContentHandler * parent = handler->getParent();
     delete handler;
     return parent;
 }
 
-bool Fb2Handler::endElement(const QString & /* namespaceURI */,
-                             const QString & /* localName */,
-                             const QString &qName)
+bool Fb2Handler::endElement(const QString & namespaceURI, const QString & localName, const QString &qName)
 {
+    Q_UNUSED(namespaceURI);
+    Q_UNUSED(localName);
     bool exit = false;
-    bool ok = m_handler && m_handler->DoEnd(qName.toLower(), exit);
-    if (exit) m_handler = Up(m_handler);
+    bool ok = m_handler && m_handler->doEnd(qName.toLower(), exit);
+    if (exit) m_handler = doDelete(m_handler);
     return ok;
 }
 
 bool Fb2Handler::fatalError(const QXmlParseException &exception)
 {
     QMessageBox::information(
-        m_editor->window(),
+        NULL,
         QObject::tr("fb2edit"),
         QObject::tr("Parse error at line %1, column %2:\n%3")
             .arg(exception.lineNumber())
