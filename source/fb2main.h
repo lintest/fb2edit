@@ -7,6 +7,7 @@ QT_BEGIN_NAMESPACE
 class QAction;
 class QMenu;
 class QTextEdit;
+class QTextDocument;
 QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow
@@ -15,7 +16,8 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow();
-    MainWindow(const QString &fileName);
+    MainWindow(const QString &filename, QTextDocument * document = NULL);
+    static QTextDocument * LoadDocument(const QString &filename);
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -37,9 +39,8 @@ private:
     void readSettings();
     void writeSettings();
     bool maybeSave();
-    void loadFile(const QString &fileName);
     bool saveFile(const QString &fileName);
-    void setCurrentFile(const QString &fileName);
+    void setCurrentFile(const QString &fileName, QTextDocument * document = NULL);
     QString strippedName(const QString &fullFileName);
     MainWindow *findMainWindow(const QString &fileName);
 

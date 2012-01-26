@@ -9,10 +9,44 @@ MainWindow::MainWindow()
     setCurrentFile("");
 }
 
-MainWindow::MainWindow(const QString &fileName)
+MainWindow::MainWindow(const QString &filename, QTextDocument * document)
 {
     init();
-    loadFile(fileName);
+
+    if (!document) document = LoadDocument(filename);
+    setCurrentFile(filename, document);
+}
+
+QTextDocument * MainWindow::LoadDocument(const QString &filename)
+{
+    if (filename.isEmpty()) return NULL;
+
+    QFile file(filename);
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        QMessageBox::warning(
+            NULL,
+            tr("fb2edit"),
+            tr("Cannot read file %1:\n%2.")
+                .arg(filename)
+                .arg(file.errorString())
+        );
+        return NULL;
+    }
+
+    QTextDocument * document = new QTextDocument;
+
+    Fb2Handler handler(*document);
+    QXmlSimpleReader reader;
+    reader.setContentHandler(&handler);
+    reader.setErrorHandler(&handler);
+    QXmlInputSource source(&file);
+
+    if (reader.parse(source)) {
+        return document;
+    } else {
+        delete document;
+        return NULL;
+    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -34,28 +68,26 @@ void MainWindow::newFile()
 
 void MainWindow::open()
 {
-    QString fileName = QFileDialog::getOpenFileName(this);
-    if (!fileName.isEmpty()) {
-        MainWindow *existing = findMainWindow(fileName);
-        if (existing) {
-            existing->show();
-            existing->raise();
-            existing->activateWindow();
-            return;
-        }
+    QString filename = QFileDialog::getOpenFileName(this);
+    if (filename.isEmpty()) return;
 
-        if (isUntitled && textEdit->document()->isEmpty()
-                && !isWindowModified()) {
-            loadFile(fileName);
-        } else {
-            MainWindow *other = new MainWindow(fileName);
-            if (other->isUntitled) {
-                delete other;
-                return;
-            }
-            other->move(x() + 40, y() + 40);
-            other->show();
-        }
+    MainWindow * existing = findMainWindow(filename);
+    if (existing) {
+        existing->show();
+        existing->raise();
+        existing->activateWindow();
+        return;
+    }
+
+    QTextDocument * document = LoadDocument(filename);
+    if (!document) return;
+
+    if (isUntitled && textEdit->document()->isEmpty() && !isWindowModified()) {
+        setCurrentFile(filename, document);
+    } else {
+        MainWindow * other = new MainWindow(filename, document);
+        other->move(x() + 40, y() + 40);
+        other->show();
     }
 }
 
@@ -70,11 +102,8 @@ bool MainWindow::save()
 
 bool MainWindow::saveAs()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"),
-                                                    curFile);
-    if (fileName.isEmpty())
-        return false;
-
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"), curFile);
+    if (fileName.isEmpty()) return false;
     return saveFile(fileName);
 }
 
@@ -259,42 +288,6 @@ bool MainWindow::maybeSave()
     return true;
 }
 
-void MainWindow::loadFile(const QString &fileName)
-{
-
-    QFile file(fileName);
-    if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(
-            this,
-            tr("fb2edit"),
-            tr("Cannot read file %1:\n%2.")
-                .arg(fileName)
-                .arg(file.errorString())
-        );
-        return;
-    }
-
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-
-    QTextDocument * document = new QTextDocument;
-    Fb2Handler handler(*document);
-    QXmlSimpleReader reader;
-    reader.setContentHandler(&handler);
-    reader.setErrorHandler(&handler);
-
-    QXmlInputSource source(&file);
-    if (reader.parse(source)) {
-        setCurrentFile(fileName);
-        textEdit->clear();
-        textEdit->setDocument(document);
-        statusBar()->showMessage(tr("File loaded"), 2000);
-    } else {
-        delete document;
-    }
-
-    QApplication::restoreOverrideCursor();
-}
-
 bool MainWindow::saveFile(const QString &fileName)
 {
     return false;
@@ -318,17 +311,18 @@ bool MainWindow::saveFile(const QString &fileName)
     return true;
 }
 
-void MainWindow::setCurrentFile(const QString &fileName)
+void MainWindow::setCurrentFile(const QString &filename, QTextDocument * document)
 {
     static int sequenceNumber = 1;
 
-    isUntitled = fileName.isEmpty();
+    isUntitled = filename.isEmpty();
     if (isUntitled) {
-        curFile = tr("document%1.txt").arg(sequenceNumber++);
+        curFile = tr("book%1.fb2").arg(sequenceNumber++);
     } else {
-        curFile = QFileInfo(fileName).canonicalFilePath();
+        curFile = QFileInfo(filename).canonicalFilePath();
     }
 
+    if (document) textEdit->setDocument(document); else textEdit->clear();
     textEdit->document()->setModified(false);
     setWindowModified(false);
     setWindowFilePath(curFile);
