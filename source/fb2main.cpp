@@ -116,6 +116,10 @@ void MainWindow::about()
 
 void MainWindow::documentWasModified()
 {
+    QFileInfo info = windowFilePath();
+    QString title = info.fileName();
+    title += QString("[*]") += QString(" - ") += qApp->applicationName();
+    setWindowTitle(title);
     setWindowModified(true);
 }
 
@@ -137,8 +141,7 @@ void MainWindow::init()
 
     readSettings();
 
-    connect(textEdit->document(), SIGNAL(contentsChanged()),
-            this, SLOT(documentWasModified()));
+    connect(textEdit->document(), SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
 
     setUnifiedTitleAndToolBarOnMac(true);
 }
@@ -332,6 +335,8 @@ void MainWindow::setCurrentFile(const QString &filename, QTextDocument * documen
     setWindowModified(false);
     setWindowFilePath(curFile);
     setWindowTitle(title);
+
+    connect(textEdit->document(), SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
 }
 
 QString MainWindow::strippedName(const QString &fullFileName)

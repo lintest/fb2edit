@@ -1,5 +1,6 @@
 #include <QtGui>
 #include <QTextEdit>
+#include <QtDebug>
 
 #include "fb2read.h"
 
@@ -40,6 +41,7 @@ bool Fb2Handler::RootHandler::doStart(const QString &name, const QXmlAttributes 
         case Body   : return m_owner.setHandler(new BodyHandler(this));
         case Binary : return m_owner.setHandler(new BinaryHandler(this, attributes));
     }
+    qCritical() << QObject::tr("Unknown XML tag: ") << name;
     return false;
 }
 
