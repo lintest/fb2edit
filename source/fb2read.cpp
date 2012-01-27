@@ -22,12 +22,14 @@ static QString Value(const QXmlAttributes &attributes, const QString &name)
 Fb2Handler::ContentHandler::ContentHandler(Fb2Handler &owner)
     : m_owner(owner)
     , m_handler(NULL)
+    , m_frame(NULL)
 {
 }
 
 Fb2Handler::ContentHandler::ContentHandler(ContentHandler &parent)
     : m_owner(parent.m_owner)
     , m_handler(NULL)
+    , m_frame(NULL)
 {
 }
 
@@ -53,17 +55,13 @@ bool Fb2Handler::ContentHandler::doEnd(const QString &name, bool & exit)
     if (m_handler) {
         bool ok = m_handler->doEnd(name, exit);
         if (exit) {
-            QTextCursor * cursor = getCursor();
-            if (cursor) {
-                QTextDocument * document = m_handler->getDocument();
-                if (document) cursor->insertFragment(QTextDocumentFragment(document));
-            }
             delete m_handler;
             m_handler = NULL;
             exit = false;
         }
         return ok;
     } else {
+        if (m_frame) cursor().setPosition(m_frame->lastPosition());
         exit = true;
         return true;
     }
@@ -83,8 +81,6 @@ Fb2Handler::RootHandler::KeywordHash::KeywordHash()
 
 Fb2Handler::RootHandler::RootHandler(Fb2Handler & owner)
     : ContentHandler(owner)
-    , m_document(owner.getDocument())
-    , m_cursor(&m_document)
 {
 }
 
@@ -129,17 +125,6 @@ bool Fb2Handler::DescrHandler::doEnd(const QString &name, bool & exit)
 //  Fb2Handler::BodyHandler
 //---------------------------------------------------------------------------
 
-Fb2Handler::BodyHandler::BodyHandler(ContentHandler &parent)
-    : ContentHandler(parent)
-    , m_document()
-    , m_cursor(&m_document)
-{
-    QTextBlockFormat blockFormat;
-    blockFormat.setTopMargin(4);
-    blockFormat.setBottomMargin(4);
-    m_cursor.setBlockFormat(blockFormat);
-}
-
 Fb2Handler::BodyHandler::KeywordHash::KeywordHash()
 {
     insert("image",    Image);
@@ -151,6 +136,16 @@ Fb2Handler::BodyHandler::KeywordHash::KeywordHash()
     insert("poem",     Poem);
     insert("stanza",   Stanza);
     insert("v",        Verse);
+}
+
+Fb2Handler::BodyHandler::BodyHandler(ContentHandler &parent)
+    : ContentHandler(parent)
+    , m_empty(true)
+{
+    QTextBlockFormat blockFormat;
+    blockFormat.setTopMargin(4);
+    blockFormat.setBottomMargin(4);
+    cursor().setBlockFormat(blockFormat);
 }
 
 Fb2Handler::BodyHandler::Keyword Fb2Handler::BodyHandler::toKeyword(const QString &name)
@@ -166,7 +161,7 @@ bool Fb2Handler::BodyHandler::doStart(const QString &name, const QXmlAttributes 
 
     switch (toKeyword(name)) {
         case Paragraph : m_handler = new TextHandler(*this, name); break;
-        case Image     : m_handler = new ImageHandler(*this, m_cursor, attributes); break;
+        case Image     : m_handler = new ImageHandler(*this, attributes); break;
         case Section   : m_handler = new SectionHandler(*this, name, attributes); break;
         case Title     : m_handler = new SectionHandler(*this, name, attributes); break;
         case Poem      : m_handler = new SectionHandler(*this, name, attributes); break;
@@ -180,32 +175,13 @@ bool Fb2Handler::BodyHandler::doStart(const QString &name, const QXmlAttributes 
 bool Fb2Handler::BodyHandler::doText(const QString &text)
 {
     if (m_handler) return m_handler->doText(text);
-    m_cursor.insertText(text);
+    cursor().insertText(text);
     return true;
 }
 
 //---------------------------------------------------------------------------
 //  Fb2Handler::SectionHandler
 //---------------------------------------------------------------------------
-
-Fb2Handler::SectionHandler::SectionHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes)
-    : ContentHandler(parent)
-    , m_document()
-    , m_cursor(&m_document)
-    , m_name(name)
-{
-    QTextFrameFormat frameFormat;
-    frameFormat.setBorder(1);
-    frameFormat.setPadding(8);
-    frameFormat.setTopMargin(4);
-    frameFormat.setBottomMargin(4);
-    m_cursor.insertFrame(frameFormat);
-
-    QTextBlockFormat blockFormat;
-    blockFormat.setTopMargin(4);
-    blockFormat.setBottomMargin(4);
-    m_cursor.setBlockFormat(blockFormat);
-}
 
 Fb2Handler::SectionHandler::KeywordHash::KeywordHash()
 {
@@ -217,6 +193,25 @@ Fb2Handler::SectionHandler::KeywordHash::KeywordHash()
     insert("poem",    Poem);
     insert("stanza",  Stanza);
     insert("v",       Verse);
+}
+
+Fb2Handler::SectionHandler::SectionHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes)
+    : ContentHandler(parent)
+    , m_name(name)
+    , m_empty(true)
+{
+    m_frame = cursor().currentFrame();
+    QTextFrameFormat frameFormat;
+    frameFormat.setBorder(1);
+    frameFormat.setPadding(8);
+    frameFormat.setTopMargin(4);
+    frameFormat.setBottomMargin(4);
+    cursor().insertFrame(frameFormat);
+
+    QTextBlockFormat blockFormat;
+    blockFormat.setTopMargin(4);
+    blockFormat.setBottomMargin(4);
+    cursor().setBlockFormat(blockFormat);
 }
 
 Fb2Handler::SectionHandler::Keyword Fb2Handler::SectionHandler::toKeyword(const QString &name)
@@ -231,7 +226,7 @@ bool Fb2Handler::SectionHandler::doStart(const QString &name, const QXmlAttribut
     if (m_handler) return m_handler->doStart(name, attributes);
     switch (toKeyword(name)) {
         case Paragraph : m_handler = new TextHandler(*this, name); break;
-        case Image     : m_handler = new ImageHandler(*this, m_cursor, attributes); break;
+        case Image     : m_handler = new ImageHandler(*this, attributes); break;
         case Section   : m_handler = new SectionHandler(*this, name, attributes); break;
         case Title     : m_handler = new SectionHandler(*this, name, attributes); break;
         case Poem      : m_handler = new SectionHandler(*this, name, attributes); break;
@@ -244,7 +239,7 @@ bool Fb2Handler::SectionHandler::doStart(const QString &name, const QXmlAttribut
 bool Fb2Handler::SectionHandler::doText(const QString &text)
 {
     if (m_handler) return m_handler->doText(text);
-    m_cursor.insertText(text);
+    cursor().insertText(text);
     return true;
 }
 
@@ -254,14 +249,12 @@ bool Fb2Handler::SectionHandler::doText(const QString &text)
 
 Fb2Handler::TextHandler::TextHandler(ContentHandler &parent, const QString &name)
     : ContentHandler(parent)
-    , m_document()
-    , m_cursor(&m_document)
     , m_name(name)
 {
     QTextBlockFormat blockFormat;
     blockFormat.setTopMargin(4);
     blockFormat.setBottomMargin(4);
-    m_cursor.setBlockFormat(blockFormat);
+    cursor().setBlockFormat(blockFormat);
 }
 
 Fb2Handler::TextHandler::KeywordHash::KeywordHash()
@@ -296,7 +289,7 @@ bool Fb2Handler::TextHandler::doStart(const QString &name, const QXmlAttributes 
 bool Fb2Handler::TextHandler::doText(const QString &text)
 {
     if (m_handler) return m_handler->doText(text);
-    m_cursor.insertText(text);
+    cursor().insertText(text);
     return true;
 }
 
@@ -304,12 +297,12 @@ bool Fb2Handler::TextHandler::doText(const QString &text)
 //  Fb2Handler::ImageHandler
 //---------------------------------------------------------------------------
 
-Fb2Handler::ImageHandler::ImageHandler(ContentHandler &parent, QTextCursor &cursor, const QXmlAttributes &attributes)
+Fb2Handler::ImageHandler::ImageHandler(ContentHandler &parent, const QXmlAttributes &attributes)
     : ContentHandler(parent)
 {
     QString image = Value(attributes, "href");
     while (image.left(1) == "#") image.remove(0, 1);
-    if (!image.isEmpty()) cursor.insertImage(image);
+    if (!image.isEmpty()) cursor().insertImage(image);
 }
 
 bool Fb2Handler::ImageHandler::doStart(const QString &name, const QXmlAttributes &attributes)
@@ -346,7 +339,7 @@ bool Fb2Handler::BinaryHandler::doEnd(const QString &name, bool & exit)
     Q_UNUSED(name);
     QByteArray in; in.append(m_text);
     QImage img = QImage::fromData(QByteArray::fromBase64(in));
-    if (!m_name.isEmpty()) m_owner.getDocument().addResource(QTextDocument::ImageResource, QUrl(m_name), img);
+    if (!m_name.isEmpty()) m_owner.document().addResource(QTextDocument::ImageResource, QUrl(m_name), img);
     exit = true;
     return true;
 }
@@ -357,14 +350,18 @@ bool Fb2Handler::BinaryHandler::doEnd(const QString &name, bool & exit)
 
 Fb2Handler::Fb2Handler(QTextDocument & document)
     : m_document(document)
+    , m_cursor(&document)
     , m_handler(NULL)
 {
+    m_cursor.beginEditBlock();
     document.clear();
+    m_cursor.movePosition(QTextCursor::Start);
 }
 
 Fb2Handler::~Fb2Handler()
 {
     if (m_handler) delete m_handler;
+    m_cursor.endEditBlock();
 }
 
 bool Fb2Handler::startElement(const QString & namespaceURI, const QString & localName, const QString &qName, const QXmlAttributes &attributes)

@@ -33,12 +33,13 @@ private:
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doText(const QString &text);
         virtual bool doEnd(const QString &name, bool & exit);
-        virtual QTextDocument * getDocument() { return NULL; }
-        virtual QTextCursor * getCursor() { return NULL; }
+        QTextDocument & document() { return m_owner.document(); }
+        QTextCursor & cursor() { return m_owner.cursor(); }
     protected:
         void CloseHandler(QTextCursor &cursor);
         Fb2Handler & m_owner;
         ContentHandler * m_handler;
+        QTextFrame * m_frame;
     };
 
     class RootHandler : public ContentHandler
@@ -46,8 +47,6 @@ private:
     public:
         RootHandler(Fb2Handler & owner);
         virtual bool doStart(const QString & name, const QXmlAttributes &attributes);
-        virtual QTextDocument * getDocument() { return &m_document; }
-        virtual QTextCursor * getCursor() { return &m_cursor; }
     private:
         enum Keyword {
             None = 0,
@@ -58,9 +57,6 @@ private:
         };
         class KeywordHash : public QHash<QString, Keyword> { public: KeywordHash(); };
         static Keyword toKeyword(const QString & name);
-    private:
-        QTextDocument & m_document;
-        QTextCursor m_cursor;
     };
 
     class DescrHandler : public ContentHandler
@@ -77,8 +73,6 @@ private:
         BodyHandler(ContentHandler &parent);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doText(const QString &text);
-        virtual QTextDocument * getDocument() { return &m_document; }
-        virtual QTextCursor * getCursor() { return &m_cursor; }
     private:
         enum Keyword {
             None = 0,
@@ -95,8 +89,7 @@ private:
         class KeywordHash : public QHash<QString, Keyword> { public: KeywordHash(); };
         static Keyword toKeyword(const QString &name);
     private:
-        QTextDocument m_document;
-        QTextCursor m_cursor;
+        bool m_empty;
     };
 
     class TextHandler : public ContentHandler
@@ -105,8 +98,6 @@ private:
         TextHandler(ContentHandler &parent, const QString &name);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doText(const QString &text);
-        virtual QTextDocument * getDocument() { return &m_document; }
-        virtual QTextCursor * getCursor() { return &m_cursor; }
     private:
         enum Keyword {
             None = 0,
@@ -123,15 +114,13 @@ private:
         class KeywordHash : public QHash<QString, Keyword> { public: KeywordHash(); };
         static Keyword toKeyword(const QString &name);
     private:
-        QTextDocument m_document;
-        QTextCursor m_cursor;
         QString m_name;
     };
 
     class ImageHandler : public ContentHandler
     {
     public:
-        ImageHandler(ContentHandler &parent, QTextCursor &cursor, const QXmlAttributes &attributes);
+        ImageHandler(ContentHandler &parent, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
     };
 
@@ -141,8 +130,6 @@ private:
         SectionHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doText(const QString &text);
-        virtual QTextDocument * getDocument() { return &m_document; }
-        virtual QTextCursor * getCursor() { return &m_cursor; }
     private:
         enum Keyword {
             None = 0,
@@ -157,9 +144,8 @@ private:
         class KeywordHash : public QHash<QString, Keyword> { public: KeywordHash(); };
         static Keyword toKeyword(const QString &name);
     private:
-        QTextDocument m_document;
-        QTextCursor m_cursor;
         QString m_name;
+        bool m_empty;
     };
 
     class BinaryHandler : public ContentHandler
@@ -176,10 +162,12 @@ private:
 
 public:
     bool setHandler(ContentHandler * handler) { m_handler = handler; return handler; }
-    QTextDocument & getDocument() { return m_document; }
+    QTextDocument & document() { return m_document; }
+    QTextCursor & cursor() { return m_cursor; }
 
 private:
     QTextDocument & m_document;
+    QTextCursor m_cursor;
     ContentHandler * m_handler;
     QString m_error;
 };
