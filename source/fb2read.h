@@ -4,6 +4,9 @@
 #include <QXmlDefaultHandler>
 #include <QTextCursor>
 #include <QStringList>
+#include <QTextFrameFormat>
+#include <QTextBlockFormat>
+#include <QTextCharFormat>
 
 QT_BEGIN_NAMESPACE
 class QTextEdit;
@@ -69,7 +72,7 @@ private:
     class BodyHandler : public ContentHandler
     {
     public:
-        BodyHandler(ContentHandler * parent) : ContentHandler(parent) {}
+        BodyHandler(ContentHandler * parent) : ContentHandler(parent), m_empty(true) {}
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doText(const QString &text);
         virtual bool doEnd(const QString &name, bool & exit);
@@ -81,11 +84,16 @@ private:
             Paragraph,
             Section,
             Title,
+            Poem,
+            Stanza,
+            Verse,
+
         };
         class KeywordHash : public QHash<QString, Keyword> { public: KeywordHash(); };
         static Keyword toKeyword(const QString & name);
     private:
         QList<QTextFrame*> m_frames;
+        bool m_empty;
     };
 
     class BinaryHandler : public ContentHandler

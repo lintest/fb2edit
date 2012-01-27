@@ -41,7 +41,7 @@ bool Fb2Handler::RootHandler::doStart(const QString &name, const QXmlAttributes 
         case Body   : return m_owner.setHandler(new BodyHandler(this));
         case Binary : return m_owner.setHandler(new BinaryHandler(this, attributes));
     }
-    qCritical() << QObject::tr("Unknown XML tag: ") << name;
+    qCritical() << QObject::tr("Unknown XML tag: %1").arg(name);
     return false;
 }
 
@@ -79,6 +79,9 @@ Fb2Handler::BodyHandler::KeywordHash::KeywordHash()
     insert("p",       Paragraph);
     insert("section", Section);
     insert("title",   Title);
+    insert("poem",    Poem);
+    insert("stanza",  Stanza);
+    insert("v",       Verse);
 }
 
 Fb2Handler::BodyHandler::Keyword Fb2Handler::BodyHandler::toKeyword(const QString &name)
@@ -87,6 +90,13 @@ Fb2Handler::BodyHandler::Keyword Fb2Handler::BodyHandler::toKeyword(const QStrin
     KeywordHash::const_iterator i = map.find(name);
     return i == map.end() ? None : i.value();
 }
+
+/*
+Keyword m_keyword;
+QTextBlockFormat m_blockFormat;
+QTextCharFormat m_charFormat;
+QTextFrame * m_frame;
+*/
 
 bool Fb2Handler::BodyHandler::doStart(const QString &name, const QXmlAttributes &attributes)
 {
@@ -97,14 +107,29 @@ bool Fb2Handler::BodyHandler::doStart(const QString &name, const QXmlAttributes 
             if (!image.isEmpty()) m_cursor.insertImage(image);
         } break;
         case Paragraph: {
-            m_cursor.insertBlock();
+            QTextBlockFormat blockFormat = m_cursor.blockFormat();
+            blockFormat.setTopMargin(4);
+            blockFormat.setBottomMargin(4);
+            m_cursor.setBlockFormat(blockFormat);
+            if (m_empty) {
+                m_cursor.setBlockFormat(blockFormat);
+                m_empty = false;
+            } else {
+                m_cursor.insertBlock(blockFormat);
+            }
+        } break;
+        case Poem: {
+
         } break;
         case Section: {
             m_frames << m_cursor.currentFrame();
-            QTextFrameFormat format;
-            format.setBorder(1);
-            format.setPadding(8);
-            m_cursor.insertFrame(format);
+            QTextFrameFormat frameFormat;
+            frameFormat.setBorder(1);
+            frameFormat.setPadding(8);
+            frameFormat.setTopMargin(4);
+            frameFormat.setBottomMargin(4);
+            m_cursor.insertFrame(frameFormat);
+            m_empty = true;
         } break;
     }
     return true;
@@ -176,6 +201,7 @@ Fb2Handler::Fb2Handler(QTextDocument & document)
     m_cursor.beginEditBlock();
     document.clear();
     m_cursor.movePosition(QTextCursor::Start);
+
 }
 
 Fb2Handler::~Fb2Handler()
@@ -201,9 +227,19 @@ bool Fb2Handler::startElement(const QString & namespaceURI, const QString & loca
     }
 }
 
+static bool isWhiteSpace(const QString &str)
+{
+    int size = str.size();
+    for (int i = 0; i < size; i++) if (str[i] != ' ') return false;
+    return true;
+}
+
 bool Fb2Handler::characters(const QString &str)
 {
-    return m_handler && m_handler->doText(str);
+    QString s = str;
+    s.replace(QRegExp("[\t\n\v\f\r]"), " ");
+    if (isWhiteSpace(s)) return true;
+    return m_handler && m_handler->doText(s);
 }
 
 Fb2Handler::ContentHandler * Fb2Handler::doDelete(Fb2Handler::ContentHandler * handler)
