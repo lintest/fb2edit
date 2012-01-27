@@ -209,11 +209,28 @@ Fb2Handler::SectionHandler::SectionHandler(ContentHandler &parent, const QString
     frameFormat.setPadding(8);
     frameFormat.setTopMargin(4);
     frameFormat.setBottomMargin(4);
-    cursor().insertFrame(frameFormat);
+    if (name == "title") {
+        frameFormat.setWidth(QTextLength(QTextLength::PercentageLength, 80));
+    }
+
+//    if (name == "stanza") {
+//        frameFormat.setLeftMargin(20);
+//        frameFormat.setWidth(QTextLength(QTextLength::PercentageLength, 80));
+//        frameFormat.setPosition(QTextFrameFormat::FloatRight);
+
+    if (name == "stanza") {
+        QTextTableFormat format;
+        format.setCellPadding(5);
+        format.setCellSpacing(5);
+        QTextTable * table = cursor().insertTable(1, 1, format);
+    } else {
+        cursor().insertFrame(frameFormat);
+    }
 
     QTextBlockFormat blockFormat;
     blockFormat.setTopMargin(4);
     blockFormat.setBottomMargin(4);
+
     cursor().setBlockFormat(blockFormat);
 }
 
@@ -234,6 +251,7 @@ bool Fb2Handler::SectionHandler::doStart(const QString &name, const QXmlAttribut
         case Paragraph:
         case Emptyline:
         case Image:
+        case Verse:
             if (m_feed) cursor().insertBlock();
             m_feed = true;
             break;
@@ -244,6 +262,7 @@ bool Fb2Handler::SectionHandler::doStart(const QString &name, const QXmlAttribut
     switch (keyword) {
         case Emptyline : m_handler = new ContentHandler(*this); break;
         case Paragraph : m_handler = new TextHandler(*this, name); break;
+        case Verse     : m_handler = new TextHandler(*this, name); break;
         case Section   : m_handler = new SectionHandler(*this, name, attributes); break;
         case Title     : m_handler = new SectionHandler(*this, name, attributes); break;
         case Poem      : m_handler = new SectionHandler(*this, name, attributes); break;
