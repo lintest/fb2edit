@@ -89,7 +89,7 @@ private:
         class KeywordHash : public QHash<QString, Keyword> { public: KeywordHash(); };
         static Keyword toKeyword(const QString &name);
     private:
-        bool m_empty;
+        bool m_feed;
     };
 
     class TextHandler : public ContentHandler
@@ -135,6 +135,7 @@ private:
             None = 0,
             Image,
             Paragraph,
+            Emptyline,
             Section,
             Title,
             Poem,
@@ -145,7 +146,7 @@ private:
         static Keyword toKeyword(const QString &name);
     private:
         QString m_name;
-        bool m_empty;
+        bool m_feed;
     };
 
     class BinaryHandler : public ContentHandler

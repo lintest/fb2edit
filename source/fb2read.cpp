@@ -94,11 +94,13 @@ Fb2Handler::RootHandler::Keyword Fb2Handler::RootHandler::toKeyword(const QStrin
 bool Fb2Handler::RootHandler::doStart(const QString &name, const QXmlAttributes &attributes)
 {
     if (m_handler) return m_handler->doStart(name, attributes);
+
     switch (toKeyword(name)) {
         case Descr  : return m_handler = new DescrHandler(*this);
         case Body   : return m_handler = new BodyHandler(*this);
         case Binary : return m_handler = new BinaryHandler(*this, attributes);
     }
+
     qCritical() << QObject::tr("Unknown XML tag: %1").arg(name);
     return false;
 }
@@ -140,7 +142,7 @@ Fb2Handler::BodyHandler::KeywordHash::KeywordHash()
 
 Fb2Handler::BodyHandler::BodyHandler(ContentHandler &parent)
     : ContentHandler(parent)
-    , m_empty(true)
+    , m_feed(true)
 {
     QTextBlockFormat blockFormat;
     blockFormat.setTopMargin(4);
@@ -185,20 +187,21 @@ bool Fb2Handler::BodyHandler::doText(const QString &text)
 
 Fb2Handler::SectionHandler::KeywordHash::KeywordHash()
 {
-    insert("image",   Image);
-    insert("section", Section);
-    insert("title",   Title);
+    insert("image",      Image);
+    insert("section",    Section);
+    insert("title",      Title);
 
-    insert("p",       Paragraph);
-    insert("poem",    Poem);
-    insert("stanza",  Stanza);
-    insert("v",       Verse);
+    insert("p",          Paragraph);
+    insert("empty-line", Emptyline);
+    insert("poem",       Poem);
+    insert("stanza",     Stanza);
+    insert("v",          Verse);
 }
 
 Fb2Handler::SectionHandler::SectionHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes)
     : ContentHandler(parent)
     , m_name(name)
-    , m_empty(true)
+    , m_feed(false)
 {
     m_frame = cursor().currentFrame();
     QTextFrameFormat frameFormat;
@@ -224,15 +227,31 @@ Fb2Handler::SectionHandler::Keyword Fb2Handler::SectionHandler::toKeyword(const 
 bool Fb2Handler::SectionHandler::doStart(const QString &name, const QXmlAttributes &attributes)
 {
     if (m_handler) return m_handler->doStart(name, attributes);
-    switch (toKeyword(name)) {
+
+    Keyword keyword = toKeyword(name);
+
+    switch (keyword) {
+        case Paragraph:
+        case Emptyline:
+        case Image:
+            if (m_feed) cursor().insertBlock();
+            m_feed = true;
+            break;
+        default:
+            m_feed = false;
+    }
+
+    switch (keyword) {
+        case Emptyline : m_handler = new ContentHandler(*this); break;
         case Paragraph : m_handler = new TextHandler(*this, name); break;
-        case Image     : m_handler = new ImageHandler(*this, attributes); break;
         case Section   : m_handler = new SectionHandler(*this, name, attributes); break;
         case Title     : m_handler = new SectionHandler(*this, name, attributes); break;
         case Poem      : m_handler = new SectionHandler(*this, name, attributes); break;
         case Stanza    : m_handler = new SectionHandler(*this, name, attributes); break;
+        case Image     : m_handler = new ImageHandler(*this, attributes); break;
         default        : m_handler = new TextHandler(*this, name); break;
     }
+
     return true;
 }
 
