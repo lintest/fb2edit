@@ -5,6 +5,7 @@
 #include "fb2read.h"
 
 #include <Qsci/qsciscintilla.h>
+#include <Qsci/qscilexerxml.h>
 
 MainWindow::MainWindow()
 {
@@ -367,8 +368,47 @@ void MainWindow::viewQsci()
     if (centralWidget() == qsciEdit) return;
     if (textEdit) { delete textEdit; textEdit = NULL; }
 
+//  http://qtcoder.blogspot.com/2010/10/qscintills.html
+//  http://www.riverbankcomputing.co.uk/static/Docs/QScintilla2/classQsciScintilla.html
+
     qsciEdit = new QsciScintilla;
+    qsciEdit->setUtf8(true);
+    qsciEdit->setCaretLineVisible(true);
+    qsciEdit->setCaretLineBackgroundColor(QColor("gainsboro"));
+    qsciEdit->setWrapMode(QsciScintilla::WrapWord);
+
+    qsciEdit->setEolMode(QsciScintilla::EolWindows);
+
+    qsciEdit->setAutoIndent(true);
+    qsciEdit->setIndentationGuides(true);
+
+    qsciEdit->setAutoCompletionSource(QsciScintilla::AcsAll);
+    qsciEdit->setAutoCompletionCaseSensitivity(true);
+    qsciEdit->setAutoCompletionReplaceWord(true);
+    qsciEdit->setAutoCompletionShowSingle(true);
+    qsciEdit->setAutoCompletionThreshold(2);
+
+    qsciEdit->setMarginsBackgroundColor(QColor("gainsboro"));
+    qsciEdit->setMarginWidth(0, QString("1000"));
+    qsciEdit->setMarginWidth(1, 0);
+    qsciEdit->setMarginLineNumbers(0, true);
+
+    qsciEdit->setBraceMatching(QsciScintilla::SloppyBraceMatch);
+    qsciEdit->setMatchedBraceBackgroundColor(Qt::yellow);
+    qsciEdit->setUnmatchedBraceForegroundColor(Qt::blue);
+
+    QFont font("Monospace", 10);
+    font.setStyleHint(QFont::TypeWriter);
+    qsciEdit->setFont(font);
+    qsciEdit->setBraceMatching(QsciScintilla::SloppyBraceMatch);
+    qsciEdit->setLexer(new QsciLexerXML);
+
     setCentralWidget(qsciEdit);
+    qsciEdit->setFocus();
+
+//    connect(qsciEdit, SIGNAL(textChanged()), this, SLOT(documentWasModified()));
+//    connect(qsciEdit, SIGNAL(cursorPositionChanged(int, int)), this, SLOT(cursorMoved(int, int)));
+
 }
 
 void MainWindow::viewText()
@@ -379,5 +419,6 @@ void MainWindow::viewText()
     textEdit = new QTextEdit;
     textEdit->setAcceptRichText(true);
     setCentralWidget(textEdit);
+    textEdit->setFocus();
     connect(textEdit->document(), SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
 }
