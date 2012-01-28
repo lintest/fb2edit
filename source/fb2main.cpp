@@ -4,6 +4,8 @@
 #include "fb2main.h"
 #include "fb2read.h"
 
+#include <Qsci/qsciscintilla.h>
+
 MainWindow::MainWindow()
 {
     init();
@@ -126,8 +128,8 @@ void MainWindow::init()
 
     textEdit = new QTextEdit;
     textEdit->setAcceptRichText(true);
-
     setCentralWidget(textEdit);
+    connect(textEdit->document(), SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
 
     createActions();
     createMenus();
@@ -135,8 +137,6 @@ void MainWindow::init()
     createStatusBar();
 
     readSettings();
-
-    connect(textEdit->document(), SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
 
     setUnifiedTitleAndToolBarOnMac(true);
 }
@@ -175,21 +175,31 @@ void MainWindow::createActions()
 
     cutAct = new QAction(QIcon(":/images/cut.png"), tr("Cu&t"), this);
     cutAct->setShortcuts(QKeySequence::Cut);
-    cutAct->setStatusTip(tr("Cut the current selection's contents to the "
-                            "clipboard"));
+    cutAct->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
     connect(cutAct, SIGNAL(triggered()), textEdit, SLOT(cut()));
 
     copyAct = new QAction(QIcon(":/images/copy.png"), tr("&Copy"), this);
     copyAct->setShortcuts(QKeySequence::Copy);
-    copyAct->setStatusTip(tr("Copy the current selection's contents to the "
-                             "clipboard"));
+    copyAct->setStatusTip(tr("Copy the current selection's contents to the clipboard"));
     connect(copyAct, SIGNAL(triggered()), textEdit, SLOT(copy()));
 
     pasteAct = new QAction(QIcon(":/images/paste.png"), tr("&Paste"), this);
     pasteAct->setShortcuts(QKeySequence::Paste);
-    pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current "
-                              "selection"));
+    pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
     connect(pasteAct, SIGNAL(triggered()), textEdit, SLOT(paste()));
+
+    textAct = new QAction(tr("&Text"), this);
+    textAct->setCheckable(true);
+    connect(textAct, SIGNAL(triggered()), this, SLOT(viewText()));
+
+    qsciAct = new QAction(tr("&XML"), this);
+    qsciAct->setCheckable(true);
+    connect(qsciAct, SIGNAL(triggered()), this, SLOT(viewQsci()));
+
+    QActionGroup * viewGroup = new QActionGroup(this);
+    viewGroup->addAction(textAct);
+    viewGroup->addAction(qsciAct);
+    textAct->setChecked(true);
 
     aboutAct = new QAction(tr("&About"), this);
     aboutAct->setStatusTip(tr("Show the application's About box"));
@@ -199,13 +209,10 @@ void MainWindow::createActions()
     aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
-
     cutAct->setEnabled(false);
     copyAct->setEnabled(false);
-    connect(textEdit, SIGNAL(copyAvailable(bool)),
-            cutAct, SLOT(setEnabled(bool)));
-    connect(textEdit, SIGNAL(copyAvailable(bool)),
-            copyAct, SLOT(setEnabled(bool)));
+    connect(textEdit, SIGNAL(copyAvailable(bool)), cutAct, SLOT(setEnabled(bool)));
+    connect(textEdit, SIGNAL(copyAvailable(bool)), copyAct, SLOT(setEnabled(bool)));
 }
 
 //! [implicit tr context]
@@ -225,6 +232,10 @@ void MainWindow::createMenus()
     editMenu->addAction(cutAct);
     editMenu->addAction(copyAct);
     editMenu->addAction(pasteAct);
+
+    editMenu = menuBar()->addMenu(tr("&View"));
+    editMenu->addAction(textAct);
+    editMenu->addAction(qsciAct);
 
     menuBar()->addSeparator();
 
@@ -271,7 +282,7 @@ void MainWindow::writeSettings()
 
 bool MainWindow::maybeSave()
 {
-    if (textEdit->document()->isModified()) {
+    if (textEdit && textEdit->document()->isModified()) {
 	QMessageBox::StandardButton ret;
         ret = QMessageBox::warning(this, tr("SDI"),
                      tr("The document has been modified.\n"
@@ -349,4 +360,24 @@ MainWindow *MainWindow::findMainWindow(const QString &fileName)
             return mainWin;
     }
     return 0;
+}
+
+void MainWindow::viewQsci()
+{
+    if (centralWidget() == qsciEdit) return;
+    if (textEdit) { delete textEdit; textEdit = NULL; }
+
+    qsciEdit = new QsciScintilla;
+    setCentralWidget(qsciEdit);
+}
+
+void MainWindow::viewText()
+{
+    if (centralWidget() == textEdit) return;
+    if (qsciEdit) { delete qsciEdit; qsciEdit = NULL; }
+
+    textEdit = new QTextEdit;
+    textEdit->setAcceptRichText(true);
+    setCentralWidget(textEdit);
+    connect(textEdit->document(), SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
 }

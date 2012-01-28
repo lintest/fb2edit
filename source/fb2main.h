@@ -10,6 +10,8 @@ class QTextEdit;
 class QTextDocument;
 QT_END_NAMESPACE
 
+class QsciScintilla;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -29,6 +31,8 @@ private slots:
     bool saveAs();
     void about();
     void documentWasModified();
+    void viewQsci();
+    void viewText();
 
 private:
     void init();
@@ -45,11 +49,13 @@ private:
     MainWindow *findMainWindow(const QString &fileName);
 
     QTextEdit *textEdit;
+    QsciScintilla *qsciEdit;
     QString curFile;
     bool isUntitled;
 
     QMenu *fileMenu;
     QMenu *editMenu;
+    QMenu *viewMenu;
     QMenu *helpMenu;
     QToolBar *fileToolBar;
     QToolBar *editToolBar;
@@ -62,6 +68,8 @@ private:
     QAction *cutAct;
     QAction *copyAct;
     QAction *pasteAct;
+    QAction *textAct;
+    QAction *qsciAct;
     QAction *aboutAct;
     QAction *aboutQtAct;
 };
