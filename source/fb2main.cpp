@@ -406,6 +406,14 @@ void MainWindow::viewQsci()
     setCentralWidget(qsciEdit);
     qsciEdit->setFocus();
 
+    QString filename = windowFilePath();
+    if (!filename.isEmpty()) {
+        QFile file(filename);
+        if (file.open(QFile::ReadOnly | QFile::Text)) {
+            qsciEdit->read(&file);
+        }
+    }
+
 //    connect(qsciEdit, SIGNAL(textChanged()), this, SLOT(documentWasModified()));
 //    connect(qsciEdit, SIGNAL(cursorPositionChanged(int, int)), this, SLOT(cursorMoved(int, int)));
 
