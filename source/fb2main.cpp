@@ -410,6 +410,7 @@ void MainWindow::viewQsci()
     if (!filename.isEmpty()) {
         QFile file(filename);
         if (file.open(QFile::ReadOnly | QFile::Text)) {
+            qsciEdit->clear();
             qsciEdit->read(&file);
         }
     }
