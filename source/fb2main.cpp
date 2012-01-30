@@ -10,18 +10,39 @@
 MainWindow::MainWindow()
 {
     init();
+    createText();
     setCurrentFile("");
+}
+
+MainWindow::MainWindow(const QString &filename)
+{
+    init();
+    createQsci();
+    loadXML(filename);
+    setCurrentFile(filename);
 }
 
 MainWindow::MainWindow(const QString &filename, QTextDocument * document)
 {
     init();
-
-    if (!document) document = LoadDocument(filename);
+    createText();
+    if (!document) document = loadFB2(filename);
     setCurrentFile(filename, document);
 }
 
-QTextDocument * MainWindow::LoadDocument(const QString &filename)
+bool MainWindow::loadXML(const QString &filename)
+{
+    if (!filename.isEmpty()) {
+        QFile file(filename);
+        if (file.open(QFile::ReadOnly | QFile::Text)) {
+            qsciEdit->clear();
+            return qsciEdit->read(&file);
+        }
+    }
+    return false;
+}
+
+QTextDocument * MainWindow::loadFB2(const QString &filename)
 {
     if (filename.isEmpty()) return NULL;
 
@@ -77,16 +98,29 @@ void MainWindow::open()
         return;
     }
 
-    QTextDocument * document = LoadDocument(filename);
-    if (!document) return;
+    if (textEdit) {
+        QTextDocument * document = loadFB2(filename);
+        if (!document) return;
 
-    if (isUntitled && textEdit->document()->isEmpty() && !isWindowModified()) {
-        setCurrentFile(filename, document);
-    } else {
-        MainWindow * other = new MainWindow(filename, document);
-        other->move(x() + 40, y() + 40);
-        other->show();
+        if (isUntitled && textEdit->document()->isEmpty() && !isWindowModified()) {
+            setCurrentFile(filename, document);
+        } else {
+            MainWindow * other = new MainWindow(filename, document);
+            other->move(x() + 40, y() + 40);
+            other->show();
+        }
+    } else if (qsciEdit) {
+        if (isUntitled && !isWindowModified()) {
+            loadXML(filename);
+            setCurrentFile(filename);
+        } else {
+            MainWindow * other = new MainWindow(filename);
+            other->move(x() + 40, y() + 40);
+            other->show();
+        }
+
     }
+
 }
 
 bool MainWindow::save()
@@ -127,11 +161,6 @@ void MainWindow::init()
 
     isUntitled = true;
 
-    textEdit = new QTextEdit;
-    textEdit->setAcceptRichText(true);
-    setCentralWidget(textEdit);
-    connect(textEdit->document(), SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
-
     createActions();
     createMenus();
     createToolBars();
@@ -140,6 +169,66 @@ void MainWindow::init()
     readSettings();
 
     setUnifiedTitleAndToolBarOnMac(true);
+}
+
+void MainWindow::createText()
+{
+    textEdit = new QTextEdit;
+    textEdit->setAcceptRichText(true);
+    setCentralWidget(textEdit);
+
+    connect(cutAct, SIGNAL(triggered()), textEdit, SLOT(cut()));
+    connect(copyAct, SIGNAL(triggered()), textEdit, SLOT(copy()));
+    connect(pasteAct, SIGNAL(triggered()), textEdit, SLOT(paste()));
+
+    connect(textEdit->document(), SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
+    connect(textEdit, SIGNAL(copyAvailable(bool)), cutAct, SLOT(setEnabled(bool)));
+    connect(textEdit, SIGNAL(copyAvailable(bool)), copyAct, SLOT(setEnabled(bool)));
+}
+
+void MainWindow::createQsci()
+{
+    //  http://qtcoder.blogspot.com/2010/10/qscintills.html
+    //  http://www.riverbankcomputing.co.uk/static/Docs/QScintilla2/classQsciScintilla.html
+
+    qsciEdit = new QsciScintilla;
+    qsciEdit->setUtf8(true);
+    qsciEdit->setCaretLineVisible(true);
+    qsciEdit->setCaretLineBackgroundColor(QColor("gainsboro"));
+    qsciEdit->setWrapMode(QsciScintilla::WrapWord);
+
+    qsciEdit->setEolMode(QsciScintilla::EolWindows);
+
+    qsciEdit->setAutoIndent(true);
+    qsciEdit->setIndentationGuides(true);
+
+    qsciEdit->setAutoCompletionSource(QsciScintilla::AcsAll);
+    qsciEdit->setAutoCompletionCaseSensitivity(true);
+    qsciEdit->setAutoCompletionReplaceWord(true);
+    qsciEdit->setAutoCompletionShowSingle(true);
+    qsciEdit->setAutoCompletionThreshold(2);
+
+    qsciEdit->setMarginsBackgroundColor(QColor("gainsboro"));
+    qsciEdit->setMarginWidth(0, 0);
+    qsciEdit->setMarginLineNumbers(1, true);
+    qsciEdit->setMarginWidth(1, QString("1000"));
+    qsciEdit->setFolding(QsciScintilla::BoxedFoldStyle, 2);
+
+    qsciEdit->setBraceMatching(QsciScintilla::SloppyBraceMatch);
+    qsciEdit->setMatchedBraceBackgroundColor(Qt::yellow);
+    qsciEdit->setUnmatchedBraceForegroundColor(Qt::blue);
+
+    QFont font("Monospace", 10);
+    font.setStyleHint(QFont::TypeWriter);
+    qsciEdit->setFont(font);
+    qsciEdit->setBraceMatching(QsciScintilla::SloppyBraceMatch);
+    qsciEdit->setLexer(new QsciLexerXML);
+
+    setCentralWidget(qsciEdit);
+    qsciEdit->setFocus();
+
+    //    connect(qsciEdit, SIGNAL(textChanged()), this, SLOT(documentWasModified()));
+    //    connect(qsciEdit, SIGNAL(cursorPositionChanged(int, int)), this, SLOT(cursorMoved(int, int)));
 }
 
 void MainWindow::createActions()
@@ -177,17 +266,14 @@ void MainWindow::createActions()
     cutAct = new QAction(QIcon(":/images/cut.png"), tr("Cu&t"), this);
     cutAct->setShortcuts(QKeySequence::Cut);
     cutAct->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
-    connect(cutAct, SIGNAL(triggered()), textEdit, SLOT(cut()));
 
     copyAct = new QAction(QIcon(":/images/copy.png"), tr("&Copy"), this);
     copyAct->setShortcuts(QKeySequence::Copy);
     copyAct->setStatusTip(tr("Copy the current selection's contents to the clipboard"));
-    connect(copyAct, SIGNAL(triggered()), textEdit, SLOT(copy()));
 
     pasteAct = new QAction(QIcon(":/images/paste.png"), tr("&Paste"), this);
     pasteAct->setShortcuts(QKeySequence::Paste);
     pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
-    connect(pasteAct, SIGNAL(triggered()), textEdit, SLOT(paste()));
 
     textAct = new QAction(tr("&Text"), this);
     textAct->setCheckable(true);
@@ -212,15 +298,11 @@ void MainWindow::createActions()
 
     cutAct->setEnabled(false);
     copyAct->setEnabled(false);
-    connect(textEdit, SIGNAL(copyAvailable(bool)), cutAct, SLOT(setEnabled(bool)));
-    connect(textEdit, SIGNAL(copyAvailable(bool)), copyAct, SLOT(setEnabled(bool)));
 }
 
-//! [implicit tr context]
 void MainWindow::createMenus()
 {
     fileMenu = menuBar()->addMenu(tr("&File"));
-//! [implicit tr context]
     fileMenu->addAction(newAct);
     fileMenu->addAction(openAct);
     fileMenu->addAction(saveAct);
@@ -247,11 +329,9 @@ void MainWindow::createMenus()
 
 void MainWindow::createToolBars()
 {
-//! [0]
     fileToolBar = addToolBar(tr("File"));
     fileToolBar->addAction(newAct);
     fileToolBar->addAction(openAct);
-//! [0]
     fileToolBar->addAction(saveAct);
 
     editToolBar = addToolBar(tr("Edit"));
@@ -337,18 +417,15 @@ void MainWindow::setCurrentFile(const QString &filename, QTextDocument * documen
     }
     title += QString(" - ") += qApp->applicationName();
 
-    if (document) textEdit->setDocument(document); else textEdit->clear();
-    textEdit->document()->setModified(false);
+    if (document) {
+        textEdit->setDocument(document);
+        textEdit->document()->setModified(false);
+        connect(textEdit->document(), SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
+    }
+
     setWindowModified(false);
     setWindowFilePath(curFile);
     setWindowTitle(title);
-
-    connect(textEdit->document(), SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
-}
-
-QString MainWindow::strippedName(const QString &fullFileName)
-{
-    return QFileInfo(fullFileName).fileName();
 }
 
 MainWindow *MainWindow::findMainWindow(const QString &fileName)
@@ -367,67 +444,12 @@ void MainWindow::viewQsci()
 {
     if (centralWidget() == qsciEdit) return;
     if (textEdit) { delete textEdit; textEdit = NULL; }
-
-//  http://qtcoder.blogspot.com/2010/10/qscintills.html
-//  http://www.riverbankcomputing.co.uk/static/Docs/QScintilla2/classQsciScintilla.html
-
-    qsciEdit = new QsciScintilla;
-    qsciEdit->setUtf8(true);
-    qsciEdit->setCaretLineVisible(true);
-    qsciEdit->setCaretLineBackgroundColor(QColor("gainsboro"));
-    qsciEdit->setWrapMode(QsciScintilla::WrapWord);
-
-    qsciEdit->setEolMode(QsciScintilla::EolWindows);
-
-    qsciEdit->setAutoIndent(true);
-    qsciEdit->setIndentationGuides(true);
-
-    qsciEdit->setAutoCompletionSource(QsciScintilla::AcsAll);
-    qsciEdit->setAutoCompletionCaseSensitivity(true);
-    qsciEdit->setAutoCompletionReplaceWord(true);
-    qsciEdit->setAutoCompletionShowSingle(true);
-    qsciEdit->setAutoCompletionThreshold(2);
-
-    qsciEdit->setMarginsBackgroundColor(QColor("gainsboro"));
-    qsciEdit->setMarginWidth(0, QString("1000"));
-    qsciEdit->setMarginWidth(1, 0);
-    qsciEdit->setMarginLineNumbers(0, true);
-
-    qsciEdit->setBraceMatching(QsciScintilla::SloppyBraceMatch);
-    qsciEdit->setMatchedBraceBackgroundColor(Qt::yellow);
-    qsciEdit->setUnmatchedBraceForegroundColor(Qt::blue);
-
-    QFont font("Monospace", 10);
-    font.setStyleHint(QFont::TypeWriter);
-    qsciEdit->setFont(font);
-    qsciEdit->setBraceMatching(QsciScintilla::SloppyBraceMatch);
-    qsciEdit->setLexer(new QsciLexerXML);
-
-    setCentralWidget(qsciEdit);
-    qsciEdit->setFocus();
-
-    QString filename = windowFilePath();
-    if (!filename.isEmpty()) {
-        QFile file(filename);
-        if (file.open(QFile::ReadOnly | QFile::Text)) {
-            qsciEdit->clear();
-            qsciEdit->read(&file);
-        }
-    }
-
-//    connect(qsciEdit, SIGNAL(textChanged()), this, SLOT(documentWasModified()));
-//    connect(qsciEdit, SIGNAL(cursorPositionChanged(int, int)), this, SLOT(cursorMoved(int, int)));
-
+    createQsci();
 }
 
 void MainWindow::viewText()
 {
     if (centralWidget() == textEdit) return;
     if (qsciEdit) { delete qsciEdit; qsciEdit = NULL; }
-
-    textEdit = new QTextEdit;
-    textEdit->setAcceptRichText(true);
-    setCentralWidget(textEdit);
-    textEdit->setFocus();
-    connect(textEdit->document(), SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
+    createText();
 }

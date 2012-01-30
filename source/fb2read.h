@@ -72,7 +72,6 @@ private:
     public:
         BodyHandler(ContentHandler &parent);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
-        virtual bool doText(const QString &text);
     private:
         enum Keyword {
             None = 0,
@@ -129,23 +128,64 @@ private:
     public:
         SectionHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
-        virtual bool doText(const QString &text);
     private:
         enum Keyword {
             None = 0,
-            Image,
-            Paragraph,
-            Emptyline,
-            Section,
             Title,
+            Epigraph,
+            Image,
+            Annotation,
+            Section,
+            Paragraph,
             Poem,
-            Stanza,
-            Verse,
+            Subtitle,
+            Cite,
+            Emptyline,
+            Table,
         };
         class KeywordHash : public QHash<QString, Keyword> { public: KeywordHash(); };
         static Keyword toKeyword(const QString &name);
     private:
         QString m_name;
+        bool m_feed;
+    };
+
+    class PoemHandler : public ContentHandler
+    {
+    public:
+        PoemHandler(ContentHandler &parent, const QXmlAttributes &attributes);
+        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
+    private:
+        enum Keyword {
+            None = 0,
+            Title,
+            Epigraph,
+            Stanza,
+            Author,
+            Date,
+        };
+        class KeywordHash : public QHash<QString, Keyword> { public: KeywordHash(); };
+        static Keyword toKeyword(const QString &name);
+    private:
+        QTextTable * m_table;
+        bool m_feed;
+    };
+
+    class StanzaHandler : public ContentHandler
+    {
+    public:
+        StanzaHandler(ContentHandler &parent, const QXmlAttributes &attributes);
+        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
+    private:
+        enum Keyword {
+            None = 0,
+            Title,
+            Subtitle,
+            Verse,
+        };
+        class KeywordHash : public QHash<QString, Keyword> { public: KeywordHash(); };
+        static Keyword toKeyword(const QString &name);
+    private:
         bool m_feed;
     };
 

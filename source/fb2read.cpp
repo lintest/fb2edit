@@ -174,28 +174,23 @@ bool Fb2Handler::BodyHandler::doStart(const QString &name, const QXmlAttributes 
     return true;
 }
 
-bool Fb2Handler::BodyHandler::doText(const QString &text)
-{
-    if (m_handler) return m_handler->doText(text);
-    cursor().insertText(text);
-    return true;
-}
-
 //---------------------------------------------------------------------------
 //  Fb2Handler::SectionHandler
 //---------------------------------------------------------------------------
 
 Fb2Handler::SectionHandler::KeywordHash::KeywordHash()
 {
-    insert("image",      Image);
-    insert("section",    Section);
     insert("title",      Title);
-
+    insert("epigraph",   Epigraph);
+    insert("image",      Image);
+    insert("annotation", Annotation);
+    insert("section",    Section);
     insert("p",          Paragraph);
-    insert("empty-line", Emptyline);
     insert("poem",       Poem);
-    insert("stanza",     Stanza);
-    insert("v",          Verse);
+    insert("subtitle",   Subtitle);
+    insert("cite",       Cite);
+    insert("empty-line", Emptyline);
+    insert("table",      Table);
 }
 
 Fb2Handler::SectionHandler::SectionHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes)
@@ -209,23 +204,8 @@ Fb2Handler::SectionHandler::SectionHandler(ContentHandler &parent, const QString
     frameFormat.setPadding(8);
     frameFormat.setTopMargin(4);
     frameFormat.setBottomMargin(4);
-    if (name == "title") {
-        frameFormat.setWidth(QTextLength(QTextLength::PercentageLength, 80));
-    }
-
-//    if (name == "stanza") {
-//        frameFormat.setLeftMargin(20);
-//        frameFormat.setWidth(QTextLength(QTextLength::PercentageLength, 80));
-//        frameFormat.setPosition(QTextFrameFormat::FloatRight);
-
-    if (name == "stanza") {
-        QTextTableFormat format;
-        format.setCellPadding(5);
-        format.setCellSpacing(5);
-        QTextTable * table = cursor().insertTable(1, 1, format);
-    } else {
-        cursor().insertFrame(frameFormat);
-    }
+    if (name == "title") frameFormat.setWidth(QTextLength(QTextLength::PercentageLength, 80));
+    cursor().insertFrame(frameFormat);
 
     QTextBlockFormat blockFormat;
     blockFormat.setTopMargin(4);
@@ -251,7 +231,6 @@ bool Fb2Handler::SectionHandler::doStart(const QString &name, const QXmlAttribut
         case Paragraph:
         case Emptyline:
         case Image:
-        case Verse:
             if (m_feed) cursor().insertBlock();
             m_feed = true;
             break;
@@ -262,11 +241,9 @@ bool Fb2Handler::SectionHandler::doStart(const QString &name, const QXmlAttribut
     switch (keyword) {
         case Emptyline : m_handler = new ContentHandler(*this); break;
         case Paragraph : m_handler = new TextHandler(*this, name); break;
-        case Verse     : m_handler = new TextHandler(*this, name); break;
         case Section   : m_handler = new SectionHandler(*this, name, attributes); break;
         case Title     : m_handler = new SectionHandler(*this, name, attributes); break;
-        case Poem      : m_handler = new SectionHandler(*this, name, attributes); break;
-        case Stanza    : m_handler = new SectionHandler(*this, name, attributes); break;
+        case Poem      : m_handler = new PoemHandler(*this, attributes); break;
         case Image     : m_handler = new ImageHandler(*this, attributes); break;
         default        : m_handler = new TextHandler(*this, name); break;
     }
@@ -274,10 +251,104 @@ bool Fb2Handler::SectionHandler::doStart(const QString &name, const QXmlAttribut
     return true;
 }
 
-bool Fb2Handler::SectionHandler::doText(const QString &text)
+//---------------------------------------------------------------------------
+//  Fb2Handler::PoemHandler
+//---------------------------------------------------------------------------
+
+Fb2Handler::PoemHandler::KeywordHash::KeywordHash()
 {
-    if (m_handler) return m_handler->doText(text);
-    cursor().insertText(text);
+    insert("title",      Title);
+    insert("epigraph",   Epigraph);
+    insert("stanza",     Stanza);
+    insert("author",     Author);
+    insert("date",       Date);
+}
+
+Fb2Handler::PoemHandler::Keyword Fb2Handler::PoemHandler::toKeyword(const QString &name)
+{
+    static KeywordHash map;
+    KeywordHash::const_iterator i = map.find(name);
+    return i == map.end() ? None : i.value();
+}
+
+Fb2Handler::PoemHandler::PoemHandler(ContentHandler &parent, const QXmlAttributes &attributes)
+    : ContentHandler(parent)
+    , m_feed(false)
+{
+    m_frame = cursor().currentFrame();
+    QTextTableFormat format;
+    format.setBorder(1);
+    format.setCellPadding(8);
+    format.setCellSpacing(0);
+    format.setBorderStyle(QTextFrameFormat::BorderStyle_Solid);
+    m_table = cursor().insertTable(1, 1, format);
+}
+
+bool Fb2Handler::PoemHandler::doStart(const QString &name, const QXmlAttributes &attributes)
+{
+    if (m_handler) return m_handler->doStart(name, attributes);
+
+    Keyword keyword = toKeyword(name);
+
+    switch (keyword) {
+        case Title:
+        case Epigraph:
+        case Stanza:
+        case Author:
+            if (m_feed) m_table->appendRows(1);
+            m_feed = true;
+            m_handler = new StanzaHandler(*this, attributes);
+            break;
+        default:
+            break;
+    }
+
+    return true;
+}
+
+//---------------------------------------------------------------------------
+//  Fb2Handler::StanzaHandler
+//---------------------------------------------------------------------------
+
+Fb2Handler::StanzaHandler::KeywordHash::KeywordHash()
+{
+    insert("title",      Title);
+    insert("subtitle",   Subtitle);
+    insert("v",          Verse);
+}
+
+Fb2Handler::StanzaHandler::Keyword Fb2Handler::StanzaHandler::toKeyword(const QString &name)
+{
+    static KeywordHash map;
+    KeywordHash::const_iterator i = map.find(name);
+    return i == map.end() ? None : i.value();
+}
+
+Fb2Handler::StanzaHandler::StanzaHandler(ContentHandler &parent, const QXmlAttributes &attributes)
+    : ContentHandler(parent)
+    , m_feed(false)
+{
+}
+
+bool Fb2Handler::StanzaHandler::doStart(const QString &name, const QXmlAttributes &attributes)
+{
+    if (m_handler) return m_handler->doStart(name, attributes);
+
+    Keyword keyword = toKeyword(name);
+
+    switch (keyword) {
+//        case Title:
+//        case Subtitle:
+        case Verse:
+            if (m_feed) cursor().insertBlock();
+            m_feed = true;
+            m_handler = new TextHandler(*this, name); break;
+            break;
+        default:
+            break;
+    }
+
+
     return true;
 }
 

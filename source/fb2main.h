@@ -6,6 +6,7 @@
 QT_BEGIN_NAMESPACE
 class QAction;
 class QMenu;
+class QFile;
 class QTextEdit;
 class QTextDocument;
 QT_END_NAMESPACE
@@ -18,8 +19,8 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow();
-    MainWindow(const QString &filename, QTextDocument * document = NULL);
-    static QTextDocument * LoadDocument(const QString &filename);
+    MainWindow(const QString &filename);
+    MainWindow(const QString &filename, QTextDocument * document);
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -35,7 +36,13 @@ private slots:
     void viewText();
 
 private:
+    static QTextDocument * loadFB2(const QString &filename);
+    bool loadXML(const QString &filename);
+
+private:
     void init();
+    void createText();
+    void createQsci();
     void createActions();
     void createMenus();
     void createToolBars();
@@ -45,7 +52,6 @@ private:
     bool maybeSave();
     bool saveFile(const QString &fileName);
     void setCurrentFile(const QString &fileName, QTextDocument * document = NULL);
-    QString strippedName(const QString &fullFileName);
     MainWindow *findMainWindow(const QString &fileName);
 
     QTextEdit *textEdit;
