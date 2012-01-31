@@ -27,8 +27,8 @@ private:
     class ContentHandler
     {
     public:
-        ContentHandler(Fb2Handler &owner);
-        ContentHandler(ContentHandler &parent);
+        ContentHandler(Fb2Handler &owner, const QString &name);
+        ContentHandler(ContentHandler &parent, const QString &name);
         virtual ~ContentHandler();
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doText(const QString &text);
@@ -39,13 +39,13 @@ private:
         void CloseHandler(QTextCursor &cursor);
         Fb2Handler & m_owner;
         ContentHandler * m_handler;
-        QTextFrame * m_frame;
+        const QString m_name;
     };
 
     class RootHandler : public ContentHandler
     {
     public:
-        RootHandler(Fb2Handler & owner);
+        RootHandler(Fb2Handler & owner, const QString &name);
         virtual bool doStart(const QString & name, const QXmlAttributes &attributes);
     private:
         enum Keyword {
@@ -62,7 +62,7 @@ private:
     class DescrHandler : public ContentHandler
     {
     public:
-        DescrHandler(ContentHandler &parent) : ContentHandler(parent) {}
+        DescrHandler(ContentHandler &parent, const QString &name) : ContentHandler(parent, name) {}
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doEnd(const QString &name, bool & exit);
     };
@@ -70,7 +70,7 @@ private:
     class BodyHandler : public ContentHandler
     {
     public:
-        BodyHandler(ContentHandler &parent);
+        BodyHandler(ContentHandler &parent, const QString &name);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
     private:
         enum Keyword {
@@ -94,7 +94,7 @@ private:
     class TextHandler : public ContentHandler
     {
     public:
-        TextHandler(ContentHandler &parent, const QString &name);
+        TextHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doText(const QString &text);
     private:
@@ -112,14 +112,12 @@ private:
         };
         class KeywordHash : public QHash<QString, Keyword> { public: KeywordHash(); };
         static Keyword toKeyword(const QString &name);
-    private:
-        QString m_name;
     };
 
     class ImageHandler : public ContentHandler
     {
     public:
-        ImageHandler(ContentHandler &parent, const QXmlAttributes &attributes);
+        ImageHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
     };
 
@@ -128,6 +126,7 @@ private:
     public:
         SectionHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
+        virtual bool doEnd(const QString &name, bool & exit);
     private:
         enum Keyword {
             None = 0,
@@ -146,15 +145,36 @@ private:
         class KeywordHash : public QHash<QString, Keyword> { public: KeywordHash(); };
         static Keyword toKeyword(const QString &name);
     private:
-        QString m_name;
+        QTextFrame * m_frame;
+        bool m_feed;
+    };
+
+    class TitleHandler : public ContentHandler
+    {
+    public:
+        TitleHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
+        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
+        virtual bool doEnd(const QString &name, bool & exit);
+    private:
+        enum Keyword {
+            None = 0,
+            Paragraph,
+            Emptyline,
+        };
+        class KeywordHash : public QHash<QString, Keyword> { public: KeywordHash(); };
+        static Keyword toKeyword(const QString &name);
+    private:
+        QTextFrame * m_frame;
+        QTextTable * m_table;
         bool m_feed;
     };
 
     class PoemHandler : public ContentHandler
     {
     public:
-        PoemHandler(ContentHandler &parent, const QXmlAttributes &attributes);
+        PoemHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
+        virtual bool doEnd(const QString &name, bool & exit);
     private:
         enum Keyword {
             None = 0,
@@ -167,6 +187,7 @@ private:
         class KeywordHash : public QHash<QString, Keyword> { public: KeywordHash(); };
         static Keyword toKeyword(const QString &name);
     private:
+        QTextFrame * m_frame;
         QTextTable * m_table;
         bool m_feed;
     };
@@ -174,7 +195,7 @@ private:
     class StanzaHandler : public ContentHandler
     {
     public:
-        StanzaHandler(ContentHandler &parent, const QXmlAttributes &attributes);
+        StanzaHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
     private:
         enum Keyword {
@@ -192,12 +213,12 @@ private:
     class BinaryHandler : public ContentHandler
     {
     public:
-        BinaryHandler(ContentHandler &parent, const QXmlAttributes &attributes);
+        BinaryHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doText(const QString &text);
         virtual bool doEnd(const QString &name, bool & exit);
     private:
-        QString m_name;
+        QString m_file;
         QString m_text;
     };
 

@@ -218,11 +218,14 @@ void MainWindow::createQsci()
     qsciEdit->setMatchedBraceBackgroundColor(Qt::yellow);
     qsciEdit->setUnmatchedBraceForegroundColor(Qt::blue);
 
-    QFont font("Monospace", 10);
+    QFont font("Courier", 10);
     font.setStyleHint(QFont::TypeWriter);
-    qsciEdit->setFont(font);
+
+    QsciLexerXML * lexer = new QsciLexerXML;
+    lexer->setFont(font, -1);
+
     qsciEdit->setBraceMatching(QsciScintilla::SloppyBraceMatch);
-    qsciEdit->setLexer(new QsciLexerXML);
+    qsciEdit->setLexer(lexer);
 
     setCentralWidget(qsciEdit);
     qsciEdit->setFocus();
