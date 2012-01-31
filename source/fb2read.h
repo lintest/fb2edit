@@ -12,6 +12,12 @@ QT_BEGIN_NAMESPACE
 class QTextEdit;
 QT_END_NAMESPACE
 
+#define FB2_BEGIN_KEYLIST private: enum Keyword {
+
+#define FB2_END_KEYLIST None }; \
+class KeywordHash : public QHash<QString, Keyword> { public: KeywordHash(); }; \
+static Keyword toKeyword(const QString &name); private:
+
 class Fb2Handler : public QXmlDefaultHandler
 {
 public:
@@ -44,19 +50,16 @@ private:
 
     class RootHandler : public ContentHandler
     {
-    public:
-        RootHandler(Fb2Handler & owner, const QString &name);
-        virtual bool doStart(const QString & name, const QXmlAttributes &attributes);
-    private:
-        enum Keyword {
-            None = 0,
+        FB2_BEGIN_KEYLIST
             Style,
             Descr,
             Body,
             Binary,
-        };
-        class KeywordHash : public QHash<QString, Keyword> { public: KeywordHash(); };
-        static Keyword toKeyword(const QString & name);
+        FB2_END_KEYLIST
+    public:
+        RootHandler(Fb2Handler & owner, const QString &name);
+        virtual bool doStart(const QString & name, const QXmlAttributes &attributes);
+    private:
     };
 
     class DescrHandler : public ContentHandler
@@ -69,12 +72,7 @@ private:
 
     class BodyHandler : public ContentHandler
     {
-    public:
-        BodyHandler(ContentHandler &parent, const QString &name);
-        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
-    private:
-        enum Keyword {
-            None = 0,
+        FB2_BEGIN_KEYLIST
             Image,
             Title,
             Epigraph,
@@ -83,23 +81,17 @@ private:
             Poem,
             Stanza,
             Verse,
-
-        };
-        class KeywordHash : public QHash<QString, Keyword> { public: KeywordHash(); };
-        static Keyword toKeyword(const QString &name);
+       FB2_END_KEYLIST
+    public:
+        BodyHandler(ContentHandler &parent, const QString &name);
+        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
     private:
         bool m_feed;
     };
 
     class TextHandler : public ContentHandler
     {
-    public:
-        TextHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
-        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
-        virtual bool doText(const QString &text);
-    private:
-        enum Keyword {
-            None = 0,
+        FB2_BEGIN_KEYLIST
             Strong,
             Emphasis,
             Style,
@@ -109,9 +101,11 @@ private:
             Sup,
             Code,
             Image,
-        };
-        class KeywordHash : public QHash<QString, Keyword> { public: KeywordHash(); };
-        static Keyword toKeyword(const QString &name);
+        FB2_END_KEYLIST
+    public:
+        TextHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
+        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
+        virtual bool doText(const QString &text);
     };
 
     class ImageHandler : public ContentHandler
@@ -123,13 +117,7 @@ private:
 
     class SectionHandler : public ContentHandler
     {
-    public:
-        SectionHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
-        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
-        virtual bool doEnd(const QString &name, bool & exit);
-    private:
-        enum Keyword {
-            None = 0,
+        FB2_BEGIN_KEYLIST
             Title,
             Epigraph,
             Image,
@@ -141,9 +129,11 @@ private:
             Cite,
             Emptyline,
             Table,
-        };
-        class KeywordHash : public QHash<QString, Keyword> { public: KeywordHash(); };
-        static Keyword toKeyword(const QString &name);
+        FB2_END_KEYLIST
+    public:
+        SectionHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
+        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
+        virtual bool doEnd(const QString &name, bool & exit);
     private:
         QTextFrame * m_frame;
         bool m_feed;
@@ -151,18 +141,14 @@ private:
 
     class TitleHandler : public ContentHandler
     {
+        FB2_BEGIN_KEYLIST
+            Paragraph,
+            Emptyline,
+        FB2_END_KEYLIST
     public:
         TitleHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doEnd(const QString &name, bool & exit);
-    private:
-        enum Keyword {
-            None = 0,
-            Paragraph,
-            Emptyline,
-        };
-        class KeywordHash : public QHash<QString, Keyword> { public: KeywordHash(); };
-        static Keyword toKeyword(const QString &name);
     private:
         QTextFrame * m_frame;
         QTextTable * m_table;
@@ -171,21 +157,17 @@ private:
 
     class PoemHandler : public ContentHandler
     {
-    public:
-        PoemHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
-        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
-        virtual bool doEnd(const QString &name, bool & exit);
-    private:
-        enum Keyword {
-            None = 0,
+        FB2_BEGIN_KEYLIST
             Title,
             Epigraph,
             Stanza,
             Author,
             Date,
-        };
-        class KeywordHash : public QHash<QString, Keyword> { public: KeywordHash(); };
-        static Keyword toKeyword(const QString &name);
+        FB2_END_KEYLIST
+    public:
+        PoemHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
+        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
+        virtual bool doEnd(const QString &name, bool & exit);
     private:
         QTextFrame * m_frame;
         QTextTable * m_table;
@@ -194,18 +176,14 @@ private:
 
     class StanzaHandler : public ContentHandler
     {
-    public:
-        StanzaHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
-        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
-    private:
-        enum Keyword {
-            None = 0,
+        FB2_BEGIN_KEYLIST
             Title,
             Subtitle,
             Verse,
-        };
-        class KeywordHash : public QHash<QString, Keyword> { public: KeywordHash(); };
-        static Keyword toKeyword(const QString &name);
+        FB2_END_KEYLIST
+    public:
+        StanzaHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
+        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
     private:
         bool m_feed;
     };
