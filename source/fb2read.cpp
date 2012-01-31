@@ -4,13 +4,16 @@
 
 #include "fb2read.h"
 
-#define FB2KEYHASH(x) \
+#define FB2_BEGIN_KEYHASH(x) \
 Fb2Handler::x::Keyword Fb2Handler::x::toKeyword(const QString &name) \
 {                                                                    \
     static KeywordHash map;                                          \
     KeywordHash::const_iterator i = map.find(name);                  \
     return i == map.end() ? None : i.value();                        \
 }                                                                    \
+Fb2Handler::x::KeywordHash::KeywordHash() {
+
+#define FB2_END_KEYHASH }
 
 static QString Value(const QXmlAttributes &attributes, const QString &name)
 {
@@ -22,6 +25,7 @@ static QString Value(const QXmlAttributes &attributes, const QString &name)
     }
     return QString();
 }
+
 
 //---------------------------------------------------------------------------
 //  Fb2Handler::ContentHandler
@@ -79,15 +83,12 @@ bool Fb2Handler::ContentHandler::doEnd(const QString &name, bool & exit)
 //  Fb2Handler::RootHandler
 //---------------------------------------------------------------------------
 
-FB2KEYHASH(RootHandler)
-
-Fb2Handler::RootHandler::KeywordHash::KeywordHash()
-{
+FB2_BEGIN_KEYHASH(RootHandler)
     insert("stylesheet", Style);
     insert("description", Descr);
     insert("body", Body);
     insert("binary", Binary);
-}
+FB2_END_KEYHASH
 
 Fb2Handler::RootHandler::RootHandler(Fb2Handler & owner, const QString &name)
     : ContentHandler(owner, name)
@@ -132,20 +133,16 @@ bool Fb2Handler::DescrHandler::doEnd(const QString &name, bool & exit)
 //  Fb2Handler::BodyHandler
 //---------------------------------------------------------------------------
 
-FB2KEYHASH(BodyHandler)
-
-Fb2Handler::BodyHandler::KeywordHash::KeywordHash()
-{
+FB2_BEGIN_KEYHASH(BodyHandler)
     insert("image",    Image);
     insert("title",    Title);
     insert("epigraph", Epigraph);
     insert("section",  Section);
-
     insert("p",        Paragraph);
     insert("poem",     Poem);
     insert("stanza",   Stanza);
     insert("v",        Verse);
-}
+FB2_END_KEYHASH
 
 Fb2Handler::BodyHandler::BodyHandler(ContentHandler &parent, const QString &name)
     : ContentHandler(parent, name)
@@ -178,10 +175,7 @@ bool Fb2Handler::BodyHandler::doStart(const QString &name, const QXmlAttributes 
 //  Fb2Handler::SectionHandler
 //---------------------------------------------------------------------------
 
-FB2KEYHASH(SectionHandler)
-
-Fb2Handler::SectionHandler::KeywordHash::KeywordHash()
-{
+FB2_BEGIN_KEYHASH(SectionHandler)
     insert("title",      Title);
     insert("epigraph",   Epigraph);
     insert("image",      Image);
@@ -193,7 +187,7 @@ Fb2Handler::SectionHandler::KeywordHash::KeywordHash()
     insert("cite",       Cite);
     insert("empty-line", Emptyline);
     insert("table",      Table);
-}
+FB2_END_KEYHASH
 
 Fb2Handler::SectionHandler::SectionHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes)
     : ContentHandler(parent, name)
@@ -256,13 +250,10 @@ bool Fb2Handler::SectionHandler::doEnd(const QString &name, bool & exit)
 //  Fb2Handler::TitleHandler
 //---------------------------------------------------------------------------
 
-FB2KEYHASH(TitleHandler)
-
-Fb2Handler::TitleHandler::KeywordHash::KeywordHash()
-{
+FB2_BEGIN_KEYHASH(TitleHandler)
     insert("p",          Paragraph);
     insert("empty-line", Emptyline);
-}
+FB2_END_KEYHASH
 
 Fb2Handler::TitleHandler::TitleHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes)
     : ContentHandler(parent, name)
@@ -303,16 +294,13 @@ bool Fb2Handler::TitleHandler::doEnd(const QString &name, bool & exit)
 //  Fb2Handler::PoemHandler
 //---------------------------------------------------------------------------
 
-FB2KEYHASH(PoemHandler)
-
-Fb2Handler::PoemHandler::KeywordHash::KeywordHash()
-{
+FB2_BEGIN_KEYHASH(PoemHandler)
     insert("title",      Title);
     insert("epigraph",   Epigraph);
     insert("stanza",     Stanza);
     insert("author",     Author);
     insert("date",       Date);
-}
+FB2_END_KEYHASH
 
 Fb2Handler::PoemHandler::PoemHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes)
     : ContentHandler(parent, name)
@@ -344,7 +332,7 @@ bool Fb2Handler::PoemHandler::doStart(const QString &name, const QXmlAttributes 
             m_handler = new StanzaHandler(*this, name, attributes);
             break;
         default:
-            break;
+            m_handler = new ContentHandler(*this, name); break;
     }
 
     return true;
@@ -361,14 +349,11 @@ bool Fb2Handler::PoemHandler::doEnd(const QString &name, bool & exit)
 //  Fb2Handler::StanzaHandler
 //---------------------------------------------------------------------------
 
-FB2KEYHASH(StanzaHandler)
-
-Fb2Handler::StanzaHandler::KeywordHash::KeywordHash()
-{
+FB2_BEGIN_KEYHASH(StanzaHandler)
     insert("title",      Title);
     insert("subtitle",   Subtitle);
     insert("v",          Verse);
-}
+FB2_END_KEYHASH
 
 Fb2Handler::StanzaHandler::StanzaHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes)
     : ContentHandler(parent, name)
@@ -402,7 +387,17 @@ bool Fb2Handler::StanzaHandler::doStart(const QString &name, const QXmlAttribute
 //  Fb2Handler::TextHandler
 //---------------------------------------------------------------------------
 
-FB2KEYHASH(TextHandler)
+FB2_BEGIN_KEYHASH(TextHandler)
+    insert("strong"        , Strong);
+    insert("emphasis"      , Emphasis);
+    insert("style"         , Style);
+    insert("a"             , Anchor);
+    insert("strikethrough" , Strikethrough);
+    insert("sub"           , Sub);
+    insert("sup"           , Sup);
+    insert("code"          , Code);
+    insert("image"         , Image);
+FB2_END_KEYHASH
 
 Fb2Handler::TextHandler::TextHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes)
     : ContentHandler(parent, name)
@@ -413,24 +408,11 @@ Fb2Handler::TextHandler::TextHandler(ContentHandler &parent, const QString &name
     cursor().setBlockFormat(blockFormat);
 }
 
-Fb2Handler::TextHandler::KeywordHash::KeywordHash()
-{
-    insert("strong"        , Strong);
-    insert("emphasis"      , Emphasis);
-    insert("style"         , Style);
-    insert("a"             , Anchor);
-    insert("strikethrough" , Strikethrough);
-    insert("sub"           , Sub);
-    insert("sup"           , Sup);
-    insert("code"          , Code);
-    insert("image"         , Image);
-}
-
 bool Fb2Handler::TextHandler::doStart(const QString &name, const QXmlAttributes &attributes)
 {
     if (m_handler) return m_handler->doStart(name, attributes);
     switch (toKeyword(name)) {
-        default        : m_handler = new ContentHandler(*this, name); break;
+        default: m_handler = new ContentHandler(*this, name); break;
     }
     return true;
 }
