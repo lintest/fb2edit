@@ -23,7 +23,7 @@ static Keyword toKeyword(const QString &name); private:
 class Fb2Handler : public QXmlDefaultHandler
 {
 public:
-    explicit Fb2Handler(QTextDocument & document);
+    explicit Fb2Handler(Fb2MainDocument & document);
     virtual ~Fb2Handler();
     bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &attributes);
     bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName);
@@ -32,25 +32,20 @@ public:
     QString errorString() const;
 
 private:
-    class ContentHandler
+    class BaseHandler
     {
     public:
-        explicit ContentHandler(Fb2Handler &owner, const QString &name);
-        explicit ContentHandler(ContentHandler &parent, const QString &name);
-        virtual ~ContentHandler();
+        explicit BaseHandler(const QString &name) : m_name(name), m_handler(NULL) {}
+        virtual ~BaseHandler();
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doText(const QString &text);
         virtual bool doEnd(const QString &name, bool & exit);
-        QTextDocument & document() { return m_owner.document(); }
-        QTextCursor & cursor() { return m_owner.cursor(); }
     protected:
-        void CloseHandler(QTextCursor &cursor);
-        Fb2Handler & m_owner;
-        ContentHandler * m_handler;
         const QString m_name;
+        BaseHandler * m_handler;
     };
 
-    class RootHandler : public ContentHandler
+    class RootHandler : public BaseHandler
     {
         FB2_BEGIN_KEYLIST
             Style,
@@ -59,20 +54,35 @@ private:
             Binary,
         FB2_END_KEYLIST
     public:
-        explicit RootHandler(Fb2Handler & owner, const QString &name);
+        explicit RootHandler(Fb2MainDocument &document, const QString &name);
         virtual bool doStart(const QString & name, const QXmlAttributes &attributes);
     private:
+        Fb2MainDocument &m_document;
+        QTextCursor m_cursor1;
+        QTextCursor m_cursor2;
+        bool m_empty;
     };
 
-    class DescrHandler : public ContentHandler
+    class DescrHandler : public BaseHandler
     {
     public:
-        explicit DescrHandler(ContentHandler &parent, const QString &name) : ContentHandler(parent, name) {}
+        explicit DescrHandler(const QString &name) : BaseHandler(name) {}
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doEnd(const QString &name, bool & exit);
     };
 
-    class BodyHandler : public ContentHandler
+    class TextHandler : public BaseHandler
+    {
+    public:
+        explicit TextHandler(QTextCursor &cursor, const QString &name) : BaseHandler(name), m_cursor(cursor) {}
+        explicit TextHandler(TextHandler &parent, const QString &name) : BaseHandler(name), m_cursor(parent.m_cursor) {}
+    protected:
+        QTextCursor & cursor() { return m_cursor; }
+    private:
+        QTextCursor &m_cursor;
+    };
+
+    class BodyHandler : public TextHandler
     {
         FB2_BEGIN_KEYLIST
             Image,
@@ -85,39 +95,20 @@ private:
             Verse,
        FB2_END_KEYLIST
     public:
-        explicit BodyHandler(ContentHandler &parent, const QString &name);
+        explicit BodyHandler(QTextCursor &cursor, const QString &name);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
     private:
         bool m_feed;
     };
 
-    class TextHandler : public ContentHandler
-    {
-        FB2_BEGIN_KEYLIST
-            Strong,
-            Emphasis,
-            Style,
-            Anchor,
-            Strikethrough,
-            Sub,
-            Sup,
-            Code,
-            Image,
-        FB2_END_KEYLIST
-    public:
-        explicit TextHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
-        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
-        virtual bool doText(const QString &text);
-    };
-
-    class ImageHandler : public ContentHandler
+    class ImageHandler : public TextHandler
     {
     public:
-        explicit ImageHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
+        explicit ImageHandler(TextHandler &parent, const QString &name, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
     };
 
-    class SectionHandler : public ContentHandler
+    class SectionHandler : public TextHandler
     {
         FB2_BEGIN_KEYLIST
             Title,
@@ -133,7 +124,7 @@ private:
             Table,
         FB2_END_KEYLIST
     public:
-        explicit SectionHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
+        explicit SectionHandler(TextHandler &parent, const QString &name, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doEnd(const QString &name, bool & exit);
     private:
@@ -141,14 +132,14 @@ private:
         bool m_feed;
     };
 
-    class TitleHandler : public ContentHandler
+    class TitleHandler : public TextHandler
     {
         FB2_BEGIN_KEYLIST
             Paragraph,
             Emptyline,
         FB2_END_KEYLIST
     public:
-        explicit TitleHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
+        explicit TitleHandler(TextHandler &parent, const QString &name, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doEnd(const QString &name, bool & exit);
     private:
@@ -157,7 +148,7 @@ private:
         bool m_feed;
     };
 
-    class PoemHandler : public ContentHandler
+    class PoemHandler : public TextHandler
     {
         FB2_BEGIN_KEYLIST
             Title,
@@ -167,7 +158,7 @@ private:
             Date,
         FB2_END_KEYLIST
     public:
-        explicit PoemHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
+        explicit PoemHandler(TextHandler &parent, const QString &name, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doEnd(const QString &name, bool & exit);
     private:
@@ -176,7 +167,7 @@ private:
         bool m_feed;
     };
 
-    class StanzaHandler : public ContentHandler
+    class StanzaHandler : public TextHandler
     {
         FB2_BEGIN_KEYLIST
             Title,
@@ -184,33 +175,51 @@ private:
             Verse,
         FB2_END_KEYLIST
     public:
-        explicit StanzaHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
+        explicit StanzaHandler(TextHandler &parent, const QString &name, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
     private:
         bool m_feed;
     };
 
-    class BinaryHandler : public ContentHandler
+    class BlockHandler : public TextHandler
+    {
+        FB2_BEGIN_KEYLIST
+            Strong,
+            Emphasis,
+            Style,
+            Anchor,
+            Strikethrough,
+            Sub,
+            Sup,
+            Code,
+            Image,
+        FB2_END_KEYLIST
+    public:
+        explicit BlockHandler(TextHandler &parent, const QString &name, const QXmlAttributes &attributes);
+        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
+        virtual bool doText(const QString &text);
+    };
+
+    class BinaryHandler : public BaseHandler
     {
     public:
-        explicit BinaryHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
+        explicit BinaryHandler(QTextDocument &document, const QString &name, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doText(const QString &text);
         virtual bool doEnd(const QString &name, bool & exit);
     private:
+        QTextDocument & m_document;
         QString m_file;
         QString m_text;
     };
 
 public:
-    bool setHandler(ContentHandler * handler) { m_handler = handler; return handler; }
-    QTextDocument & document() { return m_document; }
-    QTextCursor & cursor() { return m_cursor; }
+    Fb2MainDocument & document() { return m_document; }
 
 private:
-    QTextDocument & m_document;
+    Fb2MainDocument & m_document;
     QTextCursor m_cursor;
-    ContentHandler * m_handler;
+    RootHandler * m_handler;
     QString m_error;
 };
 
