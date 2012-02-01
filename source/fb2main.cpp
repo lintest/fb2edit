@@ -2,7 +2,7 @@
 #include <QtDebug>
 
 #include "fb2main.h"
-#include "fb2read.h"
+#include "fb2doc.h"
 
 #include <Qsci/qsciscintilla.h>
 #include <Qsci/qscilexerxml.h>
@@ -42,7 +42,7 @@ bool MainWindow::loadXML(const QString &filename)
     return false;
 }
 
-QTextDocument * MainWindow::loadFB2(const QString &filename)
+Fb2MainDocument * MainWindow::loadFB2(const QString &filename)
 {
     if (filename.isEmpty()) return NULL;
 
@@ -52,20 +52,7 @@ QTextDocument * MainWindow::loadFB2(const QString &filename)
         return NULL;
     }
 
-    QTextDocument * document = new QTextDocument;
-
-    Fb2Handler handler(*document);
-    QXmlSimpleReader reader;
-    reader.setContentHandler(&handler);
-    reader.setErrorHandler(&handler);
-    QXmlInputSource source(&file);
-
-    if (reader.parse(source)) {
-        return document;
-    } else {
-        delete document;
-        return NULL;
-    }
+    return Fb2MainDocument::load(file);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

@@ -12,15 +12,16 @@ class QTextDocument;
 QT_END_NAMESPACE
 
 class QsciScintilla;
+class Fb2MainDocument;
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow();
-    MainWindow(const QString &filename);
-    MainWindow(const QString &filename, QTextDocument * document);
+    explicit MainWindow();
+    explicit MainWindow(const QString &filename);
+    explicit MainWindow(const QString &filename, QTextDocument * document);
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -36,7 +37,7 @@ private slots:
     void viewText();
 
 private:
-    static QTextDocument * loadFB2(const QString &filename);
+    static Fb2MainDocument * loadFB2(const QString &filename);
     bool loadXML(const QString &filename);
 
 private:

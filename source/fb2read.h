@@ -1,6 +1,8 @@
 #ifndef FB2READ_H
 #define FB2READ_H
 
+#include "fb2doc.h"
+
 #include <QXmlDefaultHandler>
 #include <QTextCursor>
 #include <QStringList>
@@ -21,7 +23,7 @@ static Keyword toKeyword(const QString &name); private:
 class Fb2Handler : public QXmlDefaultHandler
 {
 public:
-    Fb2Handler(QTextDocument & document);
+    explicit Fb2Handler(QTextDocument & document);
     virtual ~Fb2Handler();
     bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &attributes);
     bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName);
@@ -33,8 +35,8 @@ private:
     class ContentHandler
     {
     public:
-        ContentHandler(Fb2Handler &owner, const QString &name);
-        ContentHandler(ContentHandler &parent, const QString &name);
+        explicit ContentHandler(Fb2Handler &owner, const QString &name);
+        explicit ContentHandler(ContentHandler &parent, const QString &name);
         virtual ~ContentHandler();
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doText(const QString &text);
@@ -57,7 +59,7 @@ private:
             Binary,
         FB2_END_KEYLIST
     public:
-        RootHandler(Fb2Handler & owner, const QString &name);
+        explicit RootHandler(Fb2Handler & owner, const QString &name);
         virtual bool doStart(const QString & name, const QXmlAttributes &attributes);
     private:
     };
@@ -65,7 +67,7 @@ private:
     class DescrHandler : public ContentHandler
     {
     public:
-        DescrHandler(ContentHandler &parent, const QString &name) : ContentHandler(parent, name) {}
+        explicit DescrHandler(ContentHandler &parent, const QString &name) : ContentHandler(parent, name) {}
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doEnd(const QString &name, bool & exit);
     };
@@ -83,7 +85,7 @@ private:
             Verse,
        FB2_END_KEYLIST
     public:
-        BodyHandler(ContentHandler &parent, const QString &name);
+        explicit BodyHandler(ContentHandler &parent, const QString &name);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
     private:
         bool m_feed;
@@ -103,7 +105,7 @@ private:
             Image,
         FB2_END_KEYLIST
     public:
-        TextHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
+        explicit TextHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doText(const QString &text);
     };
@@ -111,7 +113,7 @@ private:
     class ImageHandler : public ContentHandler
     {
     public:
-        ImageHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
+        explicit ImageHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
     };
 
@@ -131,7 +133,7 @@ private:
             Table,
         FB2_END_KEYLIST
     public:
-        SectionHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
+        explicit SectionHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doEnd(const QString &name, bool & exit);
     private:
@@ -146,7 +148,7 @@ private:
             Emptyline,
         FB2_END_KEYLIST
     public:
-        TitleHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
+        explicit TitleHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doEnd(const QString &name, bool & exit);
     private:
@@ -165,7 +167,7 @@ private:
             Date,
         FB2_END_KEYLIST
     public:
-        PoemHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
+        explicit PoemHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doEnd(const QString &name, bool & exit);
     private:
@@ -182,7 +184,7 @@ private:
             Verse,
         FB2_END_KEYLIST
     public:
-        StanzaHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
+        explicit StanzaHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
     private:
         bool m_feed;
@@ -191,7 +193,7 @@ private:
     class BinaryHandler : public ContentHandler
     {
     public:
-        BinaryHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
+        explicit BinaryHandler(ContentHandler &parent, const QString &name, const QXmlAttributes &attributes);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doText(const QString &text);
         virtual bool doEnd(const QString &name, bool & exit);
