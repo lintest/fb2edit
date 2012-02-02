@@ -588,3 +588,7 @@ QString Fb2Handler::errorString() const
 {
     return m_error;
 }
+
+#undef FB2_BEGIN_KEYHASH
+
+#undef FB2_END_KEYHASH

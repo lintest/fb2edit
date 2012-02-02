@@ -225,4 +225,8 @@ private:
     QString m_error;
 };
 
+#undef FB2_BEGIN_KEYLIST
+
+#undef FB2_END_KEYLIST
+
 #endif // FB2READ_H
