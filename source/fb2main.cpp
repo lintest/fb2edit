@@ -195,7 +195,7 @@ void MainWindow::createActions()
     tool->addAction(act);
 
     icon = QIcon::fromTheme("document-save-as");
-    act = new QAction(tr("Save &As..."), this);
+    act = new QAction(icon, tr("Save &As..."), this);
     act->setShortcuts(QKeySequence::SaveAs);
     act->setStatusTip(tr("Save the document under a new name"));
     connect(act, SIGNAL(triggered()), this, SLOT(fileSaveAs()));
@@ -272,25 +272,36 @@ void MainWindow::createActions()
     icon = QIcon::fromTheme("format-text-bold", QIcon(":/images/textbold.png"));
     actionTextBold = act = new QAction(icon, tr("Bold"), this);
     act->setShortcuts(QKeySequence::Bold);
+    act->setCheckable(true);
+    connect(act, SIGNAL(triggered()), this, SLOT(textBold()));
     menu->addAction(act);
     tool->addAction(act);
 
     icon = QIcon::fromTheme("format-text-italic", QIcon(":/images/textitalic.png"));
-    actionTextBold = act = new QAction(icon, tr("Italic"), this);
+    actionTextItalic = act = new QAction(icon, tr("Italic"), this);
     act->setShortcuts(QKeySequence::Italic);
+    act->setCheckable(true);
+    connect(act, SIGNAL(triggered()), this, SLOT(textItalic()));
     menu->addAction(act);
     tool->addAction(act);
 
     icon = QIcon::fromTheme("format-text-underline", QIcon(":/images/textunderline.png"));
-    actionTextBold = act = new QAction(icon, tr("Underline"), this);
+    actionTextUnder = act = new QAction(icon, tr("Underline"), this);
     act->setShortcuts(QKeySequence::Underline);
+    act->setCheckable(true);
+    connect(act, SIGNAL(triggered()), this, SLOT(textUnder()));
     menu->addAction(act);
     tool->addAction(act);
 
     icon = QIcon::fromTheme("format-text-strikethrough", QIcon(":/images/textstrike.png"));
     actionTextStrike = act = new QAction(icon, tr("Strikethrough"), this);
+    act->setCheckable(true);
+    connect(act, SIGNAL(triggered()), this, SLOT(textStrike()));
     menu->addAction(act);
     tool->addAction(act);
+
+    // format-text-subscript
+    // format-text-superscript
 
     menu = menuBar()->addMenu(tr("&View"));
 
@@ -556,6 +567,13 @@ void MainWindow::textItalic()
 {
     QTextCharFormat fmt;
     fmt.setFontItalic(actionTextItalic->isChecked());
+    mergeFormatOnWordOrSelection(fmt);
+}
+
+void MainWindow::textStrike()
+{
+    QTextCharFormat fmt;
+    fmt.setFontStrikeOut(actionTextStrike->isChecked());
     mergeFormatOnWordOrSelection(fmt);
 }
 
