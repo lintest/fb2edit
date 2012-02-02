@@ -55,6 +55,7 @@ private:
         FB2_END_KEYLIST
     public:
         explicit RootHandler(Fb2MainDocument &document, const QString &name);
+        virtual ~RootHandler();
         virtual bool doStart(const QString & name, const QXmlAttributes &attributes);
     private:
         Fb2MainDocument &m_document;
@@ -74,12 +75,14 @@ private:
     class TextHandler : public BaseHandler
     {
     public:
-        explicit TextHandler(QTextCursor &cursor, const QString &name) : BaseHandler(name), m_cursor(cursor) {}
-        explicit TextHandler(TextHandler &parent, const QString &name) : BaseHandler(name), m_cursor(parent.m_cursor) {}
+        explicit TextHandler(QTextCursor &cursor, const QString &name);
+        explicit TextHandler(TextHandler &parent, const QString &name);
+        bool TextHandler::doEnd(const QString &name, bool & exit);
     protected:
         QTextCursor & cursor() { return m_cursor; }
-    private:
-        QTextCursor &m_cursor;
+        QTextCursor & m_cursor;
+        QTextBlockFormat m_blockFormat;
+        QTextCharFormat m_charFormat;
     };
 
     class BodyHandler : public TextHandler
@@ -218,7 +221,6 @@ public:
 
 private:
     Fb2MainDocument & m_document;
-    QTextCursor m_cursor;
     RootHandler * m_handler;
     QString m_error;
 };

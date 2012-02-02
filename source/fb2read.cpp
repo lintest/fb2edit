@@ -84,6 +84,14 @@ Fb2Handler::RootHandler::RootHandler(Fb2MainDocument &document, const QString &n
     , m_cursor2(&document.child())
     , m_empty(true)
 {
+    m_cursor1.beginEditBlock();
+    m_cursor2.beginEditBlock();
+}
+
+Fb2Handler::RootHandler::~RootHandler()
+{
+    m_cursor1.endEditBlock();
+    m_cursor2.endEditBlock();
 }
 
 bool Fb2Handler::RootHandler::doStart(const QString &name, const QXmlAttributes &attributes)
@@ -119,6 +127,34 @@ bool Fb2Handler::DescrHandler::doEnd(const QString &name, bool & exit)
     if (name == "description") exit = true;
     return true;
 }
+
+//---------------------------------------------------------------------------
+//  Fb2Handler::TextHandler
+//---------------------------------------------------------------------------
+
+Fb2Handler::TextHandler::TextHandler(QTextCursor &cursor, const QString &name)
+    : BaseHandler(name)
+    , m_cursor(cursor)
+    , m_blockFormat(m_cursor.blockFormat())
+    , m_charFormat(m_cursor.charFormat())
+{
+}
+
+Fb2Handler::TextHandler::TextHandler(TextHandler &parent, const QString &name)
+    : BaseHandler(name)
+    , m_cursor(parent.m_cursor)
+    , m_blockFormat(m_cursor.blockFormat())
+    , m_charFormat(m_cursor.charFormat())
+{
+}
+
+bool Fb2Handler::TextHandler::doEnd(const QString &name, bool & exit)
+{
+    bool ok = BaseHandler::doEnd(name, exit);
+    if (!m_handler) cursor().setCharFormat(m_charFormat);
+    return ok;
+}
+
 
 //---------------------------------------------------------------------------
 //  Fb2Handler::BodyHandler
@@ -487,18 +523,17 @@ bool Fb2Handler::BinaryHandler::doEnd(const QString &name, bool & exit)
 
 Fb2Handler::Fb2Handler(Fb2MainDocument & document)
     : m_document(document)
-    , m_cursor(&document)
     , m_handler(NULL)
 {
-    m_cursor.beginEditBlock();
     document.clear();
-    m_cursor.movePosition(QTextCursor::Start);
+    m_document.child().clear();
 }
 
 Fb2Handler::~Fb2Handler()
 {
+    m_document.clearUndoRedoStacks();
+    m_document.child().clearUndoRedoStacks();
     if (m_handler) delete m_handler;
-    m_cursor.endEditBlock();
 }
 
 bool Fb2Handler::startElement(const QString & namespaceURI, const QString & localName, const QString &qName, const QXmlAttributes &attributes)

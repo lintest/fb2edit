@@ -2,6 +2,7 @@
 #define FB2MAIN_H
 
 #include <QMainWindow>
+#include <QTextCharFormat>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -27,32 +28,41 @@ protected:
     void closeEvent(QCloseEvent *event);
 
 private slots:
-    void newFile();
-    void open();
-    bool save();
-    bool saveAs();
+    void fileNew();
+    void fileOpen();
+    bool fileSave();
+    bool fileSaveAs();
+
     void about();
     void documentWasModified();
     void viewQsci();
     void viewText();
 
+    void textBold();
+    void textUnder();
+    void textItalic();
+
+    void currentCharFormatChanged(const QTextCharFormat &format);
+    void cursorPositionChanged();
+    void clipboardDataChanged();
+
 private:
     static Fb2MainDocument * loadFB2(const QString &filename);
     bool loadXML(const QString &filename);
+    void connectTextDocument(QTextDocument * document);
 
 private:
     void init();
     void createText();
     void createQsci();
     void createActions();
-    void createMenus();
-    void createToolBars();
     void createStatusBar();
     void readSettings();
     void writeSettings();
     bool maybeSave();
     bool saveFile(const QString &fileName);
     void setCurrentFile(const QString &fileName, QTextDocument * document = NULL);
+    void mergeFormatOnWordOrSelection(const QTextCharFormat &format);
     MainWindow *findMainWindow(const QString &fileName);
 
     QTextEdit *textEdit;
@@ -60,25 +70,18 @@ private:
     QString curFile;
     bool isUntitled;
 
-    QMenu *fileMenu;
-    QMenu *editMenu;
-    QMenu *viewMenu;
-    QMenu *helpMenu;
-    QToolBar *fileToolBar;
-    QToolBar *editToolBar;
-    QAction *newAct;
-    QAction *openAct;
-    QAction *saveAct;
-    QAction *saveAsAct;
-    QAction *closeAct;
-    QAction *exitAct;
-    QAction *cutAct;
-    QAction *copyAct;
-    QAction *pasteAct;
-    QAction *textAct;
-    QAction *qsciAct;
-    QAction *aboutAct;
-    QAction *aboutQtAct;
+    QAction
+        *actionUndo,
+        *actionRedo,
+        *actionCut,
+        *actionCopy,
+        *actionPaste,
+        *actionTextBold,
+        *actionTextUnder,
+        *actionTextItalic,
+        *actionTextStrike,
+        *actionTextSub,
+        *actionTextSup;
 };
 
 #endif // FB2MAIN_H
