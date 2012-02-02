@@ -77,7 +77,7 @@ private:
     public:
         explicit TextHandler(QTextCursor &cursor, const QString &name);
         explicit TextHandler(TextHandler &parent, const QString &name);
-        bool TextHandler::doEnd(const QString &name, bool & exit);
+        bool doEnd(const QString &name, bool & exit);
     protected:
         QTextCursor & cursor() { return m_cursor; }
         QTextCursor & m_cursor;

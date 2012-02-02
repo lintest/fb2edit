@@ -158,6 +158,9 @@ void MainWindow::init()
 
 void MainWindow::createActions()
 {
+
+//  http://svn.gnome.org/viewvc/gnome-icon-theme/trunk/24x24/actions/
+
     QIcon icon;
     QAction * act;
     QMenu * menu;
@@ -191,6 +194,7 @@ void MainWindow::createActions()
     menu->addAction(act);
     tool->addAction(act);
 
+    icon = QIcon::fromTheme("document-save-as");
     act = new QAction(tr("Save &As..."), this);
     act->setShortcuts(QKeySequence::SaveAs);
     act->setStatusTip(tr("Save the document under a new name"));
@@ -199,13 +203,15 @@ void MainWindow::createActions()
 
     menu->addSeparator();
 
-    act = new QAction(tr("&Close"), this);
+    icon = QIcon::fromTheme("window-close");
+    act = new QAction(icon, tr("&Close"), this);
     act->setShortcuts(QKeySequence::Close);
     act->setStatusTip(tr("Close this window"));
     connect(act, SIGNAL(triggered()), this, SLOT(close()));
     menu->addAction(act);
 
-    act = new QAction(tr("E&xit"), this);
+    icon = QIcon::fromTheme("application-exit");
+    act = new QAction(icon, tr("E&xit"), this);
     act->setShortcuts(QKeySequence::Quit);
     act->setStatusTip(tr("Exit the application"));
     connect(act, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
@@ -233,7 +239,8 @@ void MainWindow::createActions()
     menu->addSeparator();
     tool->addSeparator();
 
-    actionCut = act = new QAction(QIcon(":/images/cut.png"), tr("Cu&t"), this);
+    icon = QIcon::fromTheme("edit-cut", QIcon(":/images/cut.png"));
+    actionCut = act = new QAction(icon, tr("Cu&t"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Cut);
     act->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
@@ -241,7 +248,8 @@ void MainWindow::createActions()
     menu->addAction(act);
     tool->addAction(act);
 
-    actionCopy = act = new QAction(QIcon(":/images/copy.png"), tr("&Copy"), this);
+    icon = QIcon::fromTheme("edit-copy", QIcon(":/images/copy.png"));
+    actionCopy = act = new QAction(icon, tr("&Copy"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Copy);
     act->setStatusTip(tr("Copy the current selection's contents to the clipboard"));
@@ -249,6 +257,7 @@ void MainWindow::createActions()
     menu->addAction(act);
     tool->addAction(act);
 
+    icon = QIcon::fromTheme("edit-paste", QIcon(":/images/paste.png"));
     actionPaste = act = new QAction(QIcon(":/images/paste.png"), tr("&Paste"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Paste);
@@ -256,6 +265,32 @@ void MainWindow::createActions()
     menu->addAction(act);
     tool->addAction(act);
     clipboardDataChanged();
+
+    menu = menuBar()->addMenu(tr("Format"));
+    tool = addToolBar(tr("Format"));
+
+    icon = QIcon::fromTheme("format-text-bold", QIcon(":/images/textbold.png"));
+    actionTextBold = act = new QAction(icon, tr("Bold"), this);
+    act->setShortcuts(QKeySequence::Bold);
+    menu->addAction(act);
+    tool->addAction(act);
+
+    icon = QIcon::fromTheme("format-text-italic", QIcon(":/images/textitalic.png"));
+    actionTextBold = act = new QAction(icon, tr("Italic"), this);
+    act->setShortcuts(QKeySequence::Italic);
+    menu->addAction(act);
+    tool->addAction(act);
+
+    icon = QIcon::fromTheme("format-text-underline", QIcon(":/images/textunderline.png"));
+    actionTextBold = act = new QAction(icon, tr("Underline"), this);
+    act->setShortcuts(QKeySequence::Underline);
+    menu->addAction(act);
+    tool->addAction(act);
+
+    icon = QIcon::fromTheme("format-text-strikethrough", QIcon(":/images/textstrike.png"));
+    actionTextStrike = act = new QAction(icon, tr("Strikethrough"), this);
+    menu->addAction(act);
+    tool->addAction(act);
 
     menu = menuBar()->addMenu(tr("&View"));
 
@@ -278,7 +313,8 @@ void MainWindow::createActions()
 
     menu = menuBar()->addMenu(tr("&Help"));
 
-    act = new QAction(tr("&About"), this);
+    icon = QIcon::fromTheme("help-about");
+    act = new QAction(icon, tr("&About"), this);
     act->setStatusTip(tr("Show the application's About box"));
     connect(act, SIGNAL(triggered()), this, SLOT(about()));
     menu->addAction(act);
