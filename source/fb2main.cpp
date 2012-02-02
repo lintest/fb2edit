@@ -341,7 +341,6 @@ void MainWindow::connectTextDocument(QTextDocument * document)
     connect(document, SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
     connect(document, SIGNAL(undoAvailable(bool)), actionUndo, SLOT(setEnabled(bool)));
     connect(document, SIGNAL(redoAvailable(bool)), actionRedo, SLOT(setEnabled(bool)));
-
 }
 
 void MainWindow::createText()
@@ -356,6 +355,8 @@ void MainWindow::createText()
 
     connect(textEdit, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)));
     connect(textEdit, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)));
+
+    connect(textEdit, SIGNAL(currentCharFormatChanged(const QTextCharFormat &)), this, SLOT(currentCharFormatChanged(const QTextCharFormat &)));
 
     connect(actionUndo, SIGNAL(triggered()), textEdit, SLOT(undo()));
     connect(actionRedo, SIGNAL(triggered()), textEdit, SLOT(redo()));
@@ -533,8 +534,10 @@ void MainWindow::viewText()
 
 void MainWindow::currentCharFormatChanged(const QTextCharFormat &format)
 {
-//    fontChanged(format.font());
-//    colorChanged(format.foreground().color());
+    actionTextBold   -> setChecked(format.font().bold());
+    actionTextItalic -> setChecked(format.font().italic());
+    actionTextUnder  -> setChecked(format.font().underline());
+    actionTextStrike -> setChecked(format.font().strikeOut());
 }
 
 void MainWindow::cursorPositionChanged()
