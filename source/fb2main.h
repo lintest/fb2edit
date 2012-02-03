@@ -51,7 +51,7 @@ private:
     static Fb2MainDocument * loadFB2(const QString &filename);
     bool loadXML(const QString &filename);
     void connectTextDocument(QTextDocument * document);
-    QIcon MainWindow::icon(const QString &name);
+    QIcon icon(const QString &name);
 
 private:
     void init();
