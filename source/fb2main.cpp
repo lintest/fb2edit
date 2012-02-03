@@ -22,7 +22,7 @@ MainWindow::MainWindow(const QString &filename)
     setCurrentFile(filename);
 }
 
-MainWindow::MainWindow(const QString &filename, QTextDocument * document)
+MainWindow::MainWindow(const QString &filename, Fb2MainDocument * document)
 {
     init();
     createText();
@@ -86,7 +86,7 @@ void MainWindow::fileOpen()
     }
 
     if (textEdit) {
-        QTextDocument * document = loadFB2(filename);
+        Fb2MainDocument * document = loadFB2(filename);
         if (!document) return;
 
         if (isUntitled && textEdit->document()->isEmpty() && !isWindowModified()) {
@@ -150,6 +150,10 @@ void MainWindow::init()
 
     createActions();
     createStatusBar();
+
+    textEdit = NULL;
+    noteEdit = NULL;
+    qsciEdit = NULL;
 
     readSettings();
 
@@ -465,7 +469,7 @@ bool MainWindow::saveFile(const QString &fileName)
     return true;
 }
 
-void MainWindow::setCurrentFile(const QString &filename, QTextDocument * document)
+void MainWindow::setCurrentFile(const QString &filename, Fb2MainDocument * document)
 {
     static int sequenceNumber = 1;
 
@@ -483,8 +487,18 @@ void MainWindow::setCurrentFile(const QString &filename, QTextDocument * documen
 
     if (textEdit && document) {
         textEdit->setDocument(document);
-        textEdit->document()->setModified(false);
         connectTextDocument(textEdit->document());
+        if (!document->child().isEmpty()) {
+            if (!noteEdit) {
+                noteEdit = new QTextEdit(this);
+                noteEdit->setDocument(&document->child());
+                QDockWidget * dock = new QDockWidget("Footnotes", this);
+                dock->setAttribute(Qt::WA_DeleteOnClose);
+                dock->setFeatures(QDockWidget::AllDockWidgetFeatures);
+                dock->setWidget(noteEdit);
+                addDockWidget(Qt::BottomDockWidgetArea, dock);
+            }
+        }
     }
 
     setWindowModified(false);
@@ -520,10 +534,11 @@ void MainWindow::viewText()
 
 void MainWindow::currentCharFormatChanged(const QTextCharFormat &format)
 {
-    actionTextBold   -> setChecked(format.font().bold());
-    actionTextItalic -> setChecked(format.font().italic());
-    actionTextUnder  -> setChecked(format.font().underline());
-    actionTextStrike -> setChecked(format.font().strikeOut());
+    QFont font = format.font();
+    actionTextBold   -> setChecked(font.bold());
+    actionTextItalic -> setChecked(font.italic());
+    actionTextUnder  -> setChecked(font.underline());
+    actionTextStrike -> setChecked(font.strikeOut());
 }
 
 void MainWindow::cursorPositionChanged()

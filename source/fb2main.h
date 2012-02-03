@@ -22,7 +22,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow();
     explicit MainWindow(const QString &filename);
-    explicit MainWindow(const QString &filename, QTextDocument * document);
+    explicit MainWindow(const QString &filename, Fb2MainDocument * document);
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -63,11 +63,12 @@ private:
     void writeSettings();
     bool maybeSave();
     bool saveFile(const QString &fileName);
-    void setCurrentFile(const QString &fileName, QTextDocument * document = NULL);
+    void setCurrentFile(const QString &fileName, Fb2MainDocument * document = NULL);
     void mergeFormatOnWordOrSelection(const QTextCharFormat &format);
     MainWindow *findMainWindow(const QString &fileName);
 
     QTextEdit *textEdit;
+    QTextEdit *noteEdit;
     QsciScintilla *qsciEdit;
     QString curFile;
     bool isUntitled;

@@ -291,11 +291,20 @@ Fb2Handler::TitleHandler::TitleHandler(TextHandler &parent, const QString &name,
     , m_feed(false)
 {
     Q_UNUSED(attributes);
-    QTextTableFormat format;
-    format.setBorder(0);
-    format.setCellPadding(4);
-    format.setCellSpacing(4);
-    m_table = cursor().insertTable(1, 1, format);
+    QTextTableFormat format1;
+    format1.setBorder(0);
+    format1.setCellPadding(4);
+    format1.setCellSpacing(4);
+    format1.setWidth(QTextLength(QTextLength::PercentageLength, 100));
+    m_table = cursor().insertTable(1, 1, format1);
+
+    QTextTableCellFormat format2;
+    format2.setBackground(Qt::darkGreen);
+    m_table->cellAt(cursor()).setFormat(format2);
+
+    QTextCharFormat format3 = cursor().charFormat();
+    format3.setForeground(Qt::white);
+    m_table->cellAt(cursor()).setFormat(format3);
 }
 
 bool Fb2Handler::TitleHandler::doStart(const QString &name, const QXmlAttributes &attributes)
@@ -533,6 +542,10 @@ Fb2Handler::~Fb2Handler()
 {
     m_document.clearUndoRedoStacks();
     m_document.child().clearUndoRedoStacks();
+
+    m_document.setModified(false);
+    m_document.child().setModified(false);
+
     if (m_handler) delete m_handler;
 }
 
