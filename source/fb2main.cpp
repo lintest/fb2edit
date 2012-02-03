@@ -156,12 +156,14 @@ void MainWindow::init()
     setUnifiedTitleAndToolBarOnMac(true);
 }
 
+QIcon MainWindow::icon(const QString &name)
+{
+    QString file = QString(":/images/%1.png").arg(name);
+    return QIcon::fromTheme(name, QIcon(file));
+}
+
 void MainWindow::createActions()
 {
-
-//  http://svn.gnome.org/viewvc/gnome-icon-theme/trunk/24x24/actions/
-
-    QIcon icon;
     QAction * act;
     QMenu * menu;
     QToolBar * tool;
@@ -169,8 +171,7 @@ void MainWindow::createActions()
     menu = menuBar()->addMenu(tr("&File"));
     tool = addToolBar(tr("File"));
 
-    icon = QIcon::fromTheme("document-new", QIcon(":/images/new.png"));
-    act = new QAction(icon, tr("&New"), this);
+    act = new QAction(icon("document-new"), tr("&New"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::New);
     act->setStatusTip(tr("Create a new file"));
@@ -178,24 +179,21 @@ void MainWindow::createActions()
     menu->addAction(act);
     tool->addAction(act);
 
-    icon = QIcon::fromTheme("document-open", QIcon(":/images/open.png"));
-    act = new QAction(icon, tr("&Open..."), this);
+    act = new QAction(icon("document-open"), tr("&Open..."), this);
     act->setShortcuts(QKeySequence::Open);
     act->setStatusTip(tr("Open an existing file"));
     connect(act, SIGNAL(triggered()), this, SLOT(fileOpen()));
     menu->addAction(act);
     tool->addAction(act);
 
-    icon = QIcon::fromTheme("document-save", QIcon(":/images/save.png"));
-    act = new QAction(icon, tr("&Save"), this);
+    act = new QAction(icon("document-save"), tr("&Save"), this);
     act->setShortcuts(QKeySequence::Save);
     act->setStatusTip(tr("Save the document to disk"));
     connect(act, SIGNAL(triggered()), this, SLOT(fileSave()));
     menu->addAction(act);
     tool->addAction(act);
 
-    icon = QIcon::fromTheme("document-save-as");
-    act = new QAction(icon, tr("Save &As..."), this);
+    act = new QAction(icon("document-save-as"), tr("Save &As..."), this);
     act->setShortcuts(QKeySequence::SaveAs);
     act->setStatusTip(tr("Save the document under a new name"));
     connect(act, SIGNAL(triggered()), this, SLOT(fileSaveAs()));
@@ -203,15 +201,13 @@ void MainWindow::createActions()
 
     menu->addSeparator();
 
-    icon = QIcon::fromTheme("window-close");
-    act = new QAction(icon, tr("&Close"), this);
+    act = new QAction(icon("window-close"), tr("&Close"), this);
     act->setShortcuts(QKeySequence::Close);
     act->setStatusTip(tr("Close this window"));
     connect(act, SIGNAL(triggered()), this, SLOT(close()));
     menu->addAction(act);
 
-    icon = QIcon::fromTheme("application-exit");
-    act = new QAction(icon, tr("E&xit"), this);
+    act = new QAction(icon("application-exit"), tr("E&xit"), this);
     act->setShortcuts(QKeySequence::Quit);
     act->setStatusTip(tr("Exit the application"));
     connect(act, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
@@ -222,15 +218,13 @@ void MainWindow::createActions()
 
     connect(QApplication::clipboard(), SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
 
-    icon = QIcon::fromTheme("edit-undo", QIcon(":/images/editundo.png"));
-    actionUndo = act = new QAction(icon, tr("&Undo"), this);
+    actionUndo = act = new QAction(icon("edit-undo"), tr("&Undo"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcut(QKeySequence::Undo);
     menu->addAction(act);
     tool->addAction(act);
 
-    icon = QIcon::fromTheme("edit-redo", QIcon(":/images/editredo.png"));
-    actionRedo = act = new QAction(icon, tr("&Redo"), this);
+    actionRedo = act = new QAction(icon("edit-redo"), tr("&Redo"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcut(QKeySequence::Redo);
     menu->addAction(act);
@@ -239,8 +233,7 @@ void MainWindow::createActions()
     menu->addSeparator();
     tool->addSeparator();
 
-    icon = QIcon::fromTheme("edit-cut", QIcon(":/images/cut.png"));
-    actionCut = act = new QAction(icon, tr("Cu&t"), this);
+    actionCut = act = new QAction(icon("edit-cut"), tr("Cu&t"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Cut);
     act->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
@@ -248,8 +241,7 @@ void MainWindow::createActions()
     menu->addAction(act);
     tool->addAction(act);
 
-    icon = QIcon::fromTheme("edit-copy", QIcon(":/images/copy.png"));
-    actionCopy = act = new QAction(icon, tr("&Copy"), this);
+    actionCopy = act = new QAction(icon("edit-copy"), tr("&Copy"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Copy);
     act->setStatusTip(tr("Copy the current selection's contents to the clipboard"));
@@ -257,8 +249,7 @@ void MainWindow::createActions()
     menu->addAction(act);
     tool->addAction(act);
 
-    icon = QIcon::fromTheme("edit-paste", QIcon(":/images/paste.png"));
-    actionPaste = act = new QAction(QIcon(":/images/paste.png"), tr("&Paste"), this);
+    actionPaste = act = new QAction(icon("edit-paste"), tr("&Paste"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Paste);
     act->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
@@ -269,32 +260,28 @@ void MainWindow::createActions()
     menu = menuBar()->addMenu(tr("Format"));
     tool = addToolBar(tr("Format"));
 
-    icon = QIcon::fromTheme("format-text-bold", QIcon(":/images/textbold.png"));
-    actionTextBold = act = new QAction(icon, tr("Bold"), this);
+    actionTextBold = act = new QAction(icon("format-text-bold"), tr("Bold"), this);
     act->setShortcuts(QKeySequence::Bold);
     act->setCheckable(true);
     connect(act, SIGNAL(triggered()), this, SLOT(textBold()));
     menu->addAction(act);
     tool->addAction(act);
 
-    icon = QIcon::fromTheme("format-text-italic", QIcon(":/images/textitalic.png"));
-    actionTextItalic = act = new QAction(icon, tr("Italic"), this);
+    actionTextItalic = act = new QAction(icon("format-text-italic"), tr("Italic"), this);
     act->setShortcuts(QKeySequence::Italic);
     act->setCheckable(true);
     connect(act, SIGNAL(triggered()), this, SLOT(textItalic()));
     menu->addAction(act);
     tool->addAction(act);
 
-    icon = QIcon::fromTheme("format-text-underline", QIcon(":/images/textunderline.png"));
-    actionTextUnder = act = new QAction(icon, tr("Underline"), this);
+    actionTextUnder = act = new QAction(icon("format-text-underline"), tr("Underline"), this);
     act->setShortcuts(QKeySequence::Underline);
     act->setCheckable(true);
     connect(act, SIGNAL(triggered()), this, SLOT(textUnder()));
     menu->addAction(act);
     tool->addAction(act);
 
-    icon = QIcon::fromTheme("format-text-strikethrough", QIcon(":/images/textstrike.png"));
-    actionTextStrike = act = new QAction(icon, tr("Strikethrough"), this);
+    actionTextStrike = act = new QAction(icon("format-text-strikethrough"), tr("Strikethrough"), this);
     act->setCheckable(true);
     connect(act, SIGNAL(triggered()), this, SLOT(textStrike()));
     menu->addAction(act);
@@ -324,8 +311,7 @@ void MainWindow::createActions()
 
     menu = menuBar()->addMenu(tr("&Help"));
 
-    icon = QIcon::fromTheme("help-about");
-    act = new QAction(icon, tr("&About"), this);
+    act = new QAction(icon("help-about"), tr("&About"), this);
     act->setStatusTip(tr("Show the application's About box"));
     connect(act, SIGNAL(triggered()), this, SLOT(about()));
     menu->addAction(act);
@@ -584,8 +570,10 @@ void MainWindow::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
 {
     if (!textEdit) return;
     QTextCursor cursor = textEdit->textCursor();
+    cursor.beginEditBlock();
     if (!cursor.hasSelection()) cursor.select(QTextCursor::WordUnderCursor);
     cursor.mergeCharFormat(format);
     textEdit->mergeCurrentCharFormat(format);
+    cursor.endEditBlock();
 }
 

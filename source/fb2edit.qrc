@@ -1,15 +1,21 @@
 <RCC>
     <qresource prefix="/">
-        <file>images/copy.png</file>
-        <file>images/cut.png</file>
-        <file>images/new.png</file>
-        <file>images/open.png</file>
-        <file>images/paste.png</file>
-        <file>images/save.png</file>
-        <file>images/textunder.png</file>
-        <file>images/textbold.png</file>
-        <file>images/textitalic.png</file>
-        <file>images/editundo.png</file>
-        <file>images/editredo.png</file>
+        <file>images/application-exit.png</file>
+        <file>images/document-new.png</file>
+        <file>images/document-open.png</file>
+        <file>images/document-properties.png</file>
+        <file>images/document-save.png</file>
+        <file>images/edit-copy.png</file>
+        <file>images/edit-cut.png</file>
+        <file>images/edit-find.png</file>
+        <file>images/edit-find-replace.png</file>
+        <file>images/edit-paste.png</file>
+        <file>images/edit-redo.png</file>
+        <file>images/edit-undo.png</file>
+        <file>images/format-text-bold.png</file>
+        <file>images/format-text-italic.png</file>
+        <file>images/format-text-strikethrough.png</file>
+        <file>images/format-text-underline.png</file>
+        <file>images/window-close.png</file>
     </qresource>
 </RCC>
