@@ -32,6 +32,17 @@ public:
     QString errorString() const;
 
 private:
+    class Fb2TextCursor : public QTextCursor
+    {
+    public:
+        explicit Fb2TextCursor(QTextDocument *document, bool foot)
+            : QTextCursor(document), m_foot(foot) {}
+        bool foot()
+            { return m_foot; }
+    private:
+        const bool m_foot;
+    };
+
     class BaseHandler
     {
     public:
@@ -59,8 +70,8 @@ private:
         virtual bool doStart(const QString & name, const QXmlAttributes &attributes);
     private:
         Fb2MainDocument &m_document;
-        QTextCursor m_cursor1;
-        QTextCursor m_cursor2;
+        Fb2TextCursor m_cursor1;
+        Fb2TextCursor m_cursor2;
         bool m_empty;
     };
 
@@ -75,12 +86,12 @@ private:
     class TextHandler : public BaseHandler
     {
     public:
-        explicit TextHandler(QTextCursor &cursor, const QString &name);
+        explicit TextHandler(Fb2TextCursor &cursor, const QString &name);
         explicit TextHandler(TextHandler &parent, const QString &name);
         bool doEnd(const QString &name, bool & exit);
     protected:
-        QTextCursor & cursor() { return m_cursor; }
-        QTextCursor & m_cursor;
+        Fb2TextCursor & cursor() { return m_cursor; }
+        Fb2TextCursor & m_cursor;
         QTextBlockFormat m_blockFormat;
         QTextCharFormat m_charFormat;
     };
@@ -98,7 +109,7 @@ private:
             Verse,
        FB2_END_KEYLIST
     public:
-        explicit BodyHandler(QTextCursor &cursor, const QString &name);
+        explicit BodyHandler(Fb2TextCursor &cursor, const QString &name);
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
     private:
         bool m_feed;

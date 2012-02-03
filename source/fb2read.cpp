@@ -80,8 +80,8 @@ FB2_END_KEYHASH
 Fb2Handler::RootHandler::RootHandler(Fb2MainDocument &document, const QString &name)
     : BaseHandler(name)
     , m_document(document)
-    , m_cursor1(&document)
-    , m_cursor2(&document.child())
+    , m_cursor1(&document, false)
+    , m_cursor2(&document.child(), true)
     , m_empty(true)
 {
     m_cursor1.beginEditBlock();
@@ -132,7 +132,7 @@ bool Fb2Handler::DescrHandler::doEnd(const QString &name, bool & exit)
 //  Fb2Handler::TextHandler
 //---------------------------------------------------------------------------
 
-Fb2Handler::TextHandler::TextHandler(QTextCursor &cursor, const QString &name)
+Fb2Handler::TextHandler::TextHandler(Fb2TextCursor &cursor, const QString &name)
     : BaseHandler(name)
     , m_cursor(cursor)
     , m_blockFormat(m_cursor.blockFormat())
@@ -171,7 +171,7 @@ FB2_BEGIN_KEYHASH(BodyHandler)
     insert("v",        Verse);
 FB2_END_KEYHASH
 
-Fb2Handler::BodyHandler::BodyHandler(QTextCursor &cursor, const QString &name)
+Fb2Handler::BodyHandler::BodyHandler(Fb2TextCursor &cursor, const QString &name)
     : TextHandler(cursor, name)
     , m_feed(false)
 {
@@ -291,6 +291,7 @@ Fb2Handler::TitleHandler::TitleHandler(TextHandler &parent, const QString &name,
     , m_feed(false)
 {
     Q_UNUSED(attributes);
+
     QTextTableFormat format1;
     format1.setBorder(0);
     format1.setCellPadding(4);
@@ -300,11 +301,8 @@ Fb2Handler::TitleHandler::TitleHandler(TextHandler &parent, const QString &name,
 
     QTextTableCellFormat format2;
     format2.setBackground(Qt::darkGreen);
+    format2.setForeground(Qt::white);
     m_table->cellAt(cursor()).setFormat(format2);
-
-    QTextCharFormat format3 = cursor().charFormat();
-    format3.setForeground(Qt::white);
-    m_table->cellAt(cursor()).setFormat(format3);
 }
 
 bool Fb2Handler::TitleHandler::doStart(const QString &name, const QXmlAttributes &attributes)

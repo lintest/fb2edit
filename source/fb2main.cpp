@@ -299,17 +299,18 @@ void MainWindow::createActions()
     QAction * actText = act = new QAction(tr("&Text"), this);
     act->setCheckable(true);
     connect(act, SIGNAL(triggered()), this, SLOT(viewText()));
-    menu->addAction(act);
 
     QAction * actQsci = act = new QAction(tr("&XML"), this);
     act->setCheckable(true);
     connect(act, SIGNAL(triggered()), this, SLOT(viewQsci()));
-    menu->addAction(act);
 
     QActionGroup * viewGroup = new QActionGroup(this);
     viewGroup->addAction(actText);
     viewGroup->addAction(actQsci);
     actText->setChecked(true);
+
+    menu->addAction(actText);
+    menu->addAction(actQsci);
 
     menuBar()->addSeparator();
 
