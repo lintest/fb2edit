@@ -46,7 +46,7 @@ private:
     class BaseHandler
     {
     public:
-        explicit BaseHandler(const QString &name) : m_name(name), m_handler(NULL) {}
+        explicit BaseHandler(const QString &name) : m_name(name), m_handler(NULL), m_closed(false) {}
         virtual ~BaseHandler();
         virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
         virtual bool doText(const QString &text);
@@ -54,6 +54,7 @@ private:
     protected:
         const QString m_name;
         BaseHandler * m_handler;
+        bool m_closed;
     };
 
     class RootHandler : public BaseHandler

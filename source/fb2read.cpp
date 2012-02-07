@@ -53,15 +53,14 @@ bool Fb2Handler::BaseHandler::doEnd(const QString &name, bool & exit)
 {
     if (m_handler) {
         bool ok = m_handler->doEnd(name, exit);
-        if (exit) {
+        if (m_handler->m_closed) {
             delete m_handler;
             m_handler = NULL;
-            exit = false;
         }
         return ok;
     } else {
         if (name != m_name) qCritical() << QObject::tr("Conglict XML tags: <%1> - </%2>").arg(m_name).arg(name);
-        exit = true;
+        m_closed = true;
         return true;
     }
 }
@@ -124,7 +123,8 @@ bool Fb2Handler::DescrHandler::doStart(const QString &name, const QXmlAttributes
 bool Fb2Handler::DescrHandler::doEnd(const QString &name, bool & exit)
 {
     Q_UNUSED(name);
-    if (name == "description") exit = true;
+    Q_UNUSED(exit);
+    if (name == "description") m_closed = true;
     return true;
 }
 
@@ -271,7 +271,7 @@ bool Fb2Handler::SectionHandler::doStart(const QString &name, const QXmlAttribut
 bool Fb2Handler::SectionHandler::doEnd(const QString &name, bool & exit)
 {
     bool ok = BaseHandler::doEnd(name, exit);
-    if (exit && m_frame) cursor().setPosition(m_frame->lastPosition());
+    if (m_closed && m_frame) cursor().setPosition(m_frame->lastPosition());
     return ok;
 }
 
@@ -323,7 +323,7 @@ bool Fb2Handler::TitleHandler::doStart(const QString &name, const QXmlAttributes
 bool Fb2Handler::TitleHandler::doEnd(const QString &name, bool & exit)
 {
     bool ok = BaseHandler::doEnd(name, exit);
-    if (exit && m_frame) cursor().setPosition(m_frame->lastPosition());
+    if (m_closed && m_frame) cursor().setPosition(m_frame->lastPosition());
     return ok;
 }
 
@@ -379,7 +379,7 @@ bool Fb2Handler::PoemHandler::doStart(const QString &name, const QXmlAttributes 
 bool Fb2Handler::PoemHandler::doEnd(const QString &name, bool & exit)
 {
     bool ok = BaseHandler::doEnd(name, exit);
-    if (exit && m_frame) cursor().setPosition(m_frame->lastPosition());
+    if (m_closed && m_frame) cursor().setPosition(m_frame->lastPosition());
     return ok;
 }
 
@@ -520,7 +520,7 @@ bool Fb2Handler::BinaryHandler::doEnd(const QString &name, bool & exit)
     QByteArray in; in.append(m_text);
     QImage img = QImage::fromData(QByteArray::fromBase64(in));
     if (!m_file.isEmpty()) m_document.addResource(QTextDocument::ImageResource, QUrl(m_file), img);
-    exit = true;
+    m_closed = true;
     return true;
 }
 
