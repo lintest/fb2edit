@@ -48,10 +48,17 @@ private:
     public:
         explicit BaseHandler(const QString &name) : m_name(name), m_handler(NULL), m_closed(false) {}
         virtual ~BaseHandler();
-        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
-        virtual bool doText(const QString &text);
-        virtual bool doEnd(const QString &name, bool & exit);
+        bool doStart(const QString &name, const QXmlAttributes &attributes);
+        bool doText(const QString &text);
+        bool doEnd(const QString &name, bool & found);
     protected:
+        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes)
+            { Q_UNUSED(name); Q_UNUSED(attributes); return NULL; }
+        virtual void TxtTag(const QString &text)
+            { Q_UNUSED(text); }
+        virtual void EndTag(const QString &name)
+            { Q_UNUSED(name); }
+    private:
         const QString m_name;
         BaseHandler * m_handler;
         bool m_closed;
@@ -68,7 +75,8 @@ private:
     public:
         explicit RootHandler(Fb2MainDocument &document, const QString &name);
         virtual ~RootHandler();
-        virtual bool doStart(const QString & name, const QXmlAttributes &attributes);
+    protected:
+        virtual BaseHandler * NewTag(const QString & name, const QXmlAttributes &attributes);
     private:
         Fb2MainDocument &m_document;
         Fb2TextCursor m_cursor1;
@@ -80,8 +88,8 @@ private:
     {
     public:
         explicit DescrHandler(const QString &name) : BaseHandler(name) {}
-        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
-        virtual bool doEnd(const QString &name, bool & exit);
+    protected:
+        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
     };
 
     class TextHandler : public BaseHandler
@@ -89,7 +97,8 @@ private:
     public:
         explicit TextHandler(Fb2TextCursor &cursor, const QString &name);
         explicit TextHandler(TextHandler &parent, const QString &name);
-        bool doEnd(const QString &name, bool & exit);
+    protected:
+        virtual void EndTag(const QString &name);
     protected:
         Fb2TextCursor & cursor() { return m_cursor; }
         Fb2TextCursor & m_cursor;
@@ -111,7 +120,8 @@ private:
        FB2_END_KEYLIST
     public:
         explicit BodyHandler(Fb2TextCursor &cursor, const QString &name);
-        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
+    protected:
+        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
     private:
         bool m_feed;
     };
@@ -120,7 +130,8 @@ private:
     {
     public:
         explicit ImageHandler(TextHandler &parent, const QString &name, const QXmlAttributes &attributes);
-        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
+    protected:
+        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
     };
 
     class SectionHandler : public TextHandler
@@ -140,8 +151,9 @@ private:
         FB2_END_KEYLIST
     public:
         explicit SectionHandler(TextHandler &parent, const QString &name, const QXmlAttributes &attributes);
-        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
-        virtual bool doEnd(const QString &name, bool & exit);
+    protected:
+        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
+        virtual void EndTag(const QString &name);
     private:
         QTextFrame * m_frame;
         bool m_feed;
@@ -155,8 +167,9 @@ private:
         FB2_END_KEYLIST
     public:
         explicit TitleHandler(TextHandler &parent, const QString &name, const QXmlAttributes &attributes);
-        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
-        virtual bool doEnd(const QString &name, bool & exit);
+    protected:
+        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
+        virtual void EndTag(const QString &name);
     private:
         QTextFrame * m_frame;
         QTextTable * m_table;
@@ -174,8 +187,9 @@ private:
         FB2_END_KEYLIST
     public:
         explicit PoemHandler(TextHandler &parent, const QString &name, const QXmlAttributes &attributes);
-        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
-        virtual bool doEnd(const QString &name, bool & exit);
+    protected:
+        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
+        virtual void EndTag(const QString &name);
     private:
         QTextFrame * m_frame;
         QTextTable * m_table;
@@ -191,7 +205,8 @@ private:
         FB2_END_KEYLIST
     public:
         explicit StanzaHandler(TextHandler &parent, const QString &name, const QXmlAttributes &attributes);
-        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
+    protected:
+        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
     private:
         bool m_feed;
     };
@@ -211,17 +226,18 @@ private:
         FB2_END_KEYLIST
     public:
         explicit BlockHandler(TextHandler &parent, const QString &name, const QXmlAttributes &attributes);
-        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
-        virtual bool doText(const QString &text);
+    protected:
+        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
+        virtual void TxtTag(const QString &text);
     };
 
     class BinaryHandler : public BaseHandler
     {
     public:
         explicit BinaryHandler(QTextDocument &document, const QString &name, const QXmlAttributes &attributes);
-        virtual bool doStart(const QString &name, const QXmlAttributes &attributes);
-        virtual bool doText(const QString &text);
-        virtual bool doEnd(const QString &name, bool & exit);
+    protected:
+        virtual void TxtTag(const QString &text);
+        virtual void EndTag(const QString &name);
     private:
         QTextDocument & m_document;
         QString m_file;

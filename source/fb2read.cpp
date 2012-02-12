@@ -26,7 +26,6 @@ static QString Value(const QXmlAttributes &attributes, const QString &name)
     return QString();
 }
 
-
 //---------------------------------------------------------------------------
 //  Fb2Handler::BaseHandler
 //---------------------------------------------------------------------------
@@ -39,30 +38,32 @@ Fb2Handler::BaseHandler::~BaseHandler()
 bool Fb2Handler::BaseHandler::doStart(const QString &name, const QXmlAttributes &attributes)
 {
     if (m_handler) return m_handler->doStart(name, attributes);
+    m_handler = NewTag(name, attributes); if (m_handler) return true;
+//    qCritical() << QObject::tr("Unknown XML child tag: <%1> <%2>").arg(m_name).arg(name);
     m_handler = new BaseHandler(name);
     return true;
 }
 
 bool Fb2Handler::BaseHandler::doText(const QString &text)
 {
-    if (m_handler) return m_handler->doText(text);
+    if (m_handler) m_handler->doText(text); else TxtTag(text);
     return true;
 }
 
-bool Fb2Handler::BaseHandler::doEnd(const QString &name, bool & exit)
+bool Fb2Handler::BaseHandler::doEnd(const QString &name, bool & exists)
 {
     if (m_handler) {
-        bool ok = m_handler->doEnd(name, exit);
-        if (m_handler->m_closed) {
-            delete m_handler;
-            m_handler = NULL;
-        }
-        return ok;
-    } else {
-        if (name != m_name) qCritical() << QObject::tr("Conglict XML tags: <%1> - </%2>").arg(m_name).arg(name);
-        m_closed = true;
-        return true;
+        bool found = exists || name == m_name;
+        m_handler->doEnd(name, found);
+        if (m_handler->m_closed) { delete m_handler; m_handler = NULL; }
+        if (found) { exists = true; return true; }
     }
+    bool found = name == m_name;
+    if (!found) qCritical() << QObject::tr("Conglict XML tags: <%1> - </%2>").arg(m_name).arg(name);
+    m_closed = found || exists;
+    if (m_closed) EndTag(m_name);
+    exists = found;
+    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -93,39 +94,25 @@ Fb2Handler::RootHandler::~RootHandler()
     m_cursor2.endEditBlock();
 }
 
-bool Fb2Handler::RootHandler::doStart(const QString &name, const QXmlAttributes &attributes)
+Fb2Handler::BaseHandler * Fb2Handler::RootHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
-    if (m_handler) return m_handler->doStart(name, attributes);
-
     switch (toKeyword(name)) {
-        case Descr  : m_handler = new DescrHandler(name); break;
-        case Body   : m_handler = new BodyHandler(m_empty ? m_cursor1 : m_cursor2, name); m_empty = false; break;
-        case Binary : m_handler = new BinaryHandler(m_document, name, attributes); break;
-        default:
-            qCritical() << QObject::tr("Unknown XML tag: %1").arg(name);
-            m_handler = new BaseHandler(name);
+        case Body   : { BaseHandler * handler = new BodyHandler(m_empty ? m_cursor1 : m_cursor2, name); m_empty = false; return handler; }
+        case Descr  : return new DescrHandler(name);
+        case Binary : return new BinaryHandler(m_document, name, attributes);
+        default: return NULL;
     }
-
-    return true;
 }
 
 //---------------------------------------------------------------------------
 //  Fb2Handler::DescrHandler
 //---------------------------------------------------------------------------
 
-bool Fb2Handler::DescrHandler::doStart(const QString &name, const QXmlAttributes &attributes)
+Fb2Handler::BaseHandler * Fb2Handler::DescrHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
     Q_UNUSED(name);
     Q_UNUSED(attributes);
-    return true;
-}
-
-bool Fb2Handler::DescrHandler::doEnd(const QString &name, bool & exit)
-{
-    Q_UNUSED(name);
-    Q_UNUSED(exit);
-    if (name == "description") m_closed = true;
-    return true;
+    return new BaseHandler(name);
 }
 
 //---------------------------------------------------------------------------
@@ -148,13 +135,11 @@ Fb2Handler::TextHandler::TextHandler(TextHandler &parent, const QString &name)
 {
 }
 
-bool Fb2Handler::TextHandler::doEnd(const QString &name, bool & exit)
+void Fb2Handler::TextHandler::EndTag(const QString &name)
 {
-    bool ok = BaseHandler::doEnd(name, exit);
-    if (!m_handler) cursor().setCharFormat(m_charFormat);
-    return ok;
+    Q_UNUSED(name);
+    cursor().setCharFormat(m_charFormat);
 }
-
 
 //---------------------------------------------------------------------------
 //  Fb2Handler::BodyHandler
@@ -181,21 +166,17 @@ Fb2Handler::BodyHandler::BodyHandler(Fb2TextCursor &cursor, const QString &name)
     cursor.setBlockFormat(blockFormat);
 }
 
-bool Fb2Handler::BodyHandler::doStart(const QString &name, const QXmlAttributes &attributes)
+Fb2Handler::BaseHandler * Fb2Handler::BodyHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
-    if (m_handler) return m_handler->doStart(name, attributes);
-
     switch (toKeyword(name)) {
-        case Paragraph : m_handler = new BlockHandler(*this, name, attributes); break;
-        case Image     : m_handler = new ImageHandler(*this, name, attributes); break;
-        case Section   : m_handler = new SectionHandler(*this, name, attributes); break;
-        case Title     : m_handler = new TitleHandler(*this, name, attributes); break;
-        case Poem      : m_handler = new SectionHandler(*this, name, attributes); break;
-        case Stanza    : m_handler = new SectionHandler(*this, name, attributes); break;
-        default        : m_handler = new BaseHandler(name); break;
+        case Paragraph : return new BlockHandler(*this, name, attributes);
+        case Image     : return new ImageHandler(*this, name, attributes);
+        case Section   : return new SectionHandler(*this, name, attributes);
+        case Title     : return new TitleHandler(*this, name, attributes);
+        case Poem      : return new SectionHandler(*this, name, attributes);
+        case Stanza    : return new SectionHandler(*this, name, attributes);
+        default: return NULL;
     }
-
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -238,10 +219,8 @@ Fb2Handler::SectionHandler::SectionHandler(TextHandler &parent, const QString &n
     cursor().setBlockFormat(blockFormat);
 }
 
-bool Fb2Handler::SectionHandler::doStart(const QString &name, const QXmlAttributes &attributes)
+Fb2Handler::BaseHandler * Fb2Handler::SectionHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
-    if (m_handler) return m_handler->doStart(name, attributes);
-
     Keyword keyword = toKeyword(name);
 
     switch (keyword) {
@@ -256,23 +235,21 @@ bool Fb2Handler::SectionHandler::doStart(const QString &name, const QXmlAttribut
     }
 
     switch (keyword) {
-        case Emptyline : m_handler = new BaseHandler(name); break;
-        case Paragraph : m_handler = new BlockHandler(*this, name, attributes); break;
-        case Section   : m_handler = new SectionHandler(*this, name, attributes); break;
-        case Title     : m_handler = new TitleHandler(*this, name, attributes); break;
-        case Poem      : m_handler = new PoemHandler(*this, name, attributes); break;
-        case Image     : m_handler = new ImageHandler(*this, name, attributes); break;
-        default        : m_handler = new BaseHandler(name); break;
+        case Emptyline : return new BaseHandler(name); break;
+        case Paragraph : return new BlockHandler(*this, name, attributes); break;
+        case Section   : return new SectionHandler(*this, name, attributes); break;
+        case Title     : return new TitleHandler(*this, name, attributes); break;
+        case Poem      : return new PoemHandler(*this, name, attributes); break;
+        case Image     : return new ImageHandler(*this, name, attributes); break;
+        default: return NULL;
     }
-
-    return true;
+;
 }
 
-bool Fb2Handler::SectionHandler::doEnd(const QString &name, bool & exit)
+void Fb2Handler::SectionHandler::EndTag(const QString &name)
 {
-    bool ok = BaseHandler::doEnd(name, exit);
-    if (m_closed && m_frame) cursor().setPosition(m_frame->lastPosition());
-    return ok;
+    Q_UNUSED(name);
+    if (m_frame) cursor().setPosition(m_frame->lastPosition());
 }
 
 //---------------------------------------------------------------------------
@@ -305,26 +282,21 @@ Fb2Handler::TitleHandler::TitleHandler(TextHandler &parent, const QString &name,
     m_table->cellAt(cursor()).setFormat(format2);
 }
 
-bool Fb2Handler::TitleHandler::doStart(const QString &name, const QXmlAttributes &attributes)
+Fb2Handler::BaseHandler * Fb2Handler::TitleHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
-    if (m_handler) return m_handler->doStart(name, attributes);
-
     if (m_feed) cursor().insertBlock(); else m_feed = true;
 
     switch (toKeyword(name)) {
-        case Paragraph : m_handler = new BlockHandler(*this, name, attributes); break;
-        case Emptyline : m_handler = new BlockHandler(*this, name, attributes); break;
-        default: m_handler = new BaseHandler(name); break;
+        case Paragraph : return new BlockHandler(*this, name, attributes); break;
+        case Emptyline : return new BlockHandler(*this, name, attributes); break;
+        default: return NULL;
     }
-
-    return true;
 }
 
-bool Fb2Handler::TitleHandler::doEnd(const QString &name, bool & exit)
+void Fb2Handler::TitleHandler::EndTag(const QString &name)
 {
-    bool ok = BaseHandler::doEnd(name, exit);
-    if (m_closed && m_frame) cursor().setPosition(m_frame->lastPosition());
-    return ok;
+    Q_UNUSED(name);
+    if (m_frame) cursor().setPosition(m_frame->lastPosition());
 }
 
 //---------------------------------------------------------------------------
@@ -354,33 +326,25 @@ Fb2Handler::PoemHandler::PoemHandler(TextHandler &parent, const QString &name, c
     m_table = cursor().insertTable(1, 1, format);
 }
 
-bool Fb2Handler::PoemHandler::doStart(const QString &name, const QXmlAttributes &attributes)
+Fb2Handler::BaseHandler * Fb2Handler::PoemHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
-    if (m_handler) return m_handler->doStart(name, attributes);
-
-    Keyword keyword = toKeyword(name);
-
-    switch (keyword) {
+    switch (toKeyword(name)) {
         case Title:
         case Epigraph:
         case Stanza:
         case Author:
             if (m_feed) m_table->appendRows(1);
             m_feed = true;
-            m_handler = new StanzaHandler(*this, name, attributes);
-            break;
+            return new StanzaHandler(*this, name, attributes);
         default:
-            m_handler = new BaseHandler(name);
+            return NULL;
     }
-
-    return true;
 }
 
-bool Fb2Handler::PoemHandler::doEnd(const QString &name, bool & exit)
+void Fb2Handler::PoemHandler::EndTag(const QString &name)
 {
-    bool ok = BaseHandler::doEnd(name, exit);
-    if (m_closed && m_frame) cursor().setPosition(m_frame->lastPosition());
-    return ok;
+    Q_UNUSED(name);
+    if (m_frame) cursor().setPosition(m_frame->lastPosition());
 }
 
 //---------------------------------------------------------------------------
@@ -400,10 +364,8 @@ Fb2Handler::StanzaHandler::StanzaHandler(TextHandler &parent, const QString &nam
     Q_UNUSED(attributes);
 }
 
-bool Fb2Handler::StanzaHandler::doStart(const QString &name, const QXmlAttributes &attributes)
+Fb2Handler::BaseHandler * Fb2Handler::StanzaHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
-    if (m_handler) return m_handler->doStart(name, attributes);
-
     Keyword keyword = toKeyword(name);
 
     switch (keyword) {
@@ -417,15 +379,10 @@ bool Fb2Handler::StanzaHandler::doStart(const QString &name, const QXmlAttribute
 
     switch (keyword) {
         case Title:
-        case Subtitle:
-            m_handler = new TitleHandler(*this, name, attributes); break;
-        case Verse:
-            m_handler = new BlockHandler(*this, name, attributes); break;
-        default:
-            m_handler = new BaseHandler(name); break;
+        case Subtitle : return new TitleHandler(*this, name, attributes);
+        case Verse    : return new BlockHandler(*this, name, attributes);
+        default: return NULL;
     }
-
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -454,21 +411,17 @@ Fb2Handler::BlockHandler::BlockHandler(TextHandler &parent, const QString &name,
     cursor().setBlockFormat(blockFormat);
 }
 
-bool Fb2Handler::BlockHandler::doStart(const QString &name, const QXmlAttributes &attributes)
+Fb2Handler::BaseHandler * Fb2Handler::BlockHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
     Q_UNUSED(attributes);
-    if (m_handler) return m_handler->doStart(name, attributes);
     switch (toKeyword(name)) {
-        default: m_handler = new BaseHandler(name); break;
+        default: return new BaseHandler(name); break;
     }
-    return true;
 }
 
-bool Fb2Handler::BlockHandler::doText(const QString &text)
+void Fb2Handler::BlockHandler::TxtTag(const QString &text)
 {
-    if (m_handler) return m_handler->doText(text);
     cursor().insertText(text);
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -483,7 +436,7 @@ Fb2Handler::ImageHandler::ImageHandler(TextHandler &parent, const QString &name,
     if (!image.isEmpty()) cursor().insertImage(image);
 }
 
-bool Fb2Handler::ImageHandler::doStart(const QString &name, const QXmlAttributes &attributes)
+Fb2Handler::BaseHandler * Fb2Handler::ImageHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
     Q_UNUSED(name);
     Q_UNUSED(attributes);
@@ -501,27 +454,17 @@ Fb2Handler::BinaryHandler::BinaryHandler(QTextDocument &document, const QString 
 {
 }
 
-bool Fb2Handler::BinaryHandler::doStart(const QString &name, const QXmlAttributes &attributes)
-{
-    Q_UNUSED(name);
-    Q_UNUSED(attributes);
-    return false;
-}
-
-bool Fb2Handler::BinaryHandler::doText(const QString &text)
+void Fb2Handler::BinaryHandler::TxtTag(const QString &text)
 {
     m_text += text;
-    return true;
 }
 
-bool Fb2Handler::BinaryHandler::doEnd(const QString &name, bool & exit)
+void Fb2Handler::BinaryHandler::EndTag(const QString &name)
 {
     Q_UNUSED(name);
     QByteArray in; in.append(m_text);
     QImage img = QImage::fromData(QByteArray::fromBase64(in));
     if (!m_file.isEmpty()) m_document.addResource(QTextDocument::ImageResource, QUrl(m_file), img);
-    m_closed = true;
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -582,8 +525,8 @@ bool Fb2Handler::endElement(const QString & namespaceURI, const QString & localN
 {
     Q_UNUSED(namespaceURI);
     Q_UNUSED(localName);
-    bool exit = false;
-    return m_handler && m_handler->doEnd(qName.toLower(), exit);
+    bool found = false;
+    return m_handler && m_handler->doEnd(qName.toLower(), found);
 }
 
 bool Fb2Handler::fatalError(const QXmlParseException &exception)
