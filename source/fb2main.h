@@ -27,6 +27,9 @@ public:
 protected:
     void closeEvent(QCloseEvent *event);
 
+public slots:
+    void logMessage(const QString &message);
+
 private slots:
     void fileNew();
     void fileOpen();
@@ -69,6 +72,7 @@ private:
 
     QTextEdit *textEdit;
     QTextEdit *noteEdit;
+    QTextEdit *messageEdit;
     QsciScintilla *qsciEdit;
     QString curFile;
     bool isUntitled;

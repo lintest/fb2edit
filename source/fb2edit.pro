@@ -1,7 +1,8 @@
 HEADERS = \
     fb2main.h \
     fb2read.h \
-    fb2doc.h
+    fb2doc.h \
+    fb2app.h
 
 SOURCES = \
     fb2app.cpp \

@@ -498,6 +498,8 @@ bool Fb2Handler::startElement(const QString & namespaceURI, const QString & loca
     const QString name = qName.toLower();
     if (m_handler) return m_handler->doStart(name, attributes);
 
+    qCritical() << name;
+
     if (name == "fictionbook") {
         m_handler = new RootHandler(m_document, name);
         return true;

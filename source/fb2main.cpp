@@ -30,6 +30,40 @@ MainWindow::MainWindow(const QString &filename, Fb2MainDocument * document)
     setCurrentFile(filename, document);
 }
 
+void MainWindow::init()
+{
+    connect(qApp, SIGNAL(logMessage(QString)), SLOT(logMessage(QString)));
+
+    setAttribute(Qt::WA_DeleteOnClose);
+
+    isUntitled = true;
+
+    createActions();
+    createStatusBar();
+
+    textEdit = NULL;
+    noteEdit = NULL;
+    qsciEdit = NULL;
+    messageEdit = NULL;
+
+    readSettings();
+
+    setUnifiedTitleAndToolBarOnMac(true);
+}
+
+void MainWindow::logMessage(const QString &message)
+{
+    if (!messageEdit) {
+        messageEdit = new QTextEdit(this);
+        QDockWidget * dock = new QDockWidget(tr("Message log"), this);
+        dock->setAttribute(Qt::WA_DeleteOnClose);
+        dock->setFeatures(QDockWidget::AllDockWidgetFeatures);
+        dock->setWidget(messageEdit);
+        addDockWidget(Qt::BottomDockWidgetArea, dock);
+    }
+    messageEdit->append(message);
+}
+
 bool MainWindow::loadXML(const QString &filename)
 {
     if (!filename.isEmpty()) {
@@ -140,24 +174,6 @@ void MainWindow::documentWasModified()
     title += QString("[*]") += QString(" - ") += qApp->applicationName();
     setWindowTitle(title);
     setWindowModified(true);
-}
-
-void MainWindow::init()
-{
-    setAttribute(Qt::WA_DeleteOnClose);
-
-    isUntitled = true;
-
-    createActions();
-    createStatusBar();
-
-    textEdit = NULL;
-    noteEdit = NULL;
-    qsciEdit = NULL;
-
-    readSettings();
-
-    setUnifiedTitleAndToolBarOnMac(true);
 }
 
 QIcon MainWindow::icon(const QString &name)
