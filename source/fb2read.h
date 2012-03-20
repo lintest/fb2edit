@@ -3,6 +3,8 @@
 
 #include "fb2doc.h"
 
+#include <QMutex>
+#include <QThread>
 #include <QXmlDefaultHandler>
 #include <QTextCursor>
 #include <QStringList>
@@ -13,6 +15,33 @@
 QT_BEGIN_NAMESPACE
 class QTextEdit;
 QT_END_NAMESPACE
+
+class Fb2MainDocumen;
+
+class Fb2ReadThread : public QThread
+{
+    Q_OBJECT
+
+public:
+    Fb2ReadThread(QObject *parent, const QString &filename);
+    ~Fb2ReadThread();
+    void Read(const QString &filename);
+
+signals:
+    void sendDocument(QString filename, Fb2MainDocument * document);
+
+public slots:
+    void stopProcess();
+
+protected:
+    void run();
+
+private:
+    const QString m_filename;
+    bool m_abort;
+    QMutex mutex;
+};
+
 
 #define FB2_BEGIN_KEYLIST private: enum Keyword {
 

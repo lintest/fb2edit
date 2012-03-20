@@ -3,6 +3,7 @@
 
 #include "fb2main.h"
 #include "fb2doc.h"
+#include "fb2read.h"
 
 #include <Qsci/qsciscintilla.h>
 #include <Qsci/qscilexerxml.h>
@@ -26,12 +27,15 @@ MainWindow::MainWindow(const QString &filename, Fb2MainDocument * document)
 {
     init();
     createText();
-    if (!document) document = loadFB2(filename);
-    setCurrentFile(filename, document);
+    thread = new Fb2ReadThread(this, filename);
+    connect(thread, SIGNAL(sendDocument(const QString&, Fb2MainDocument*)), SLOT(sendDocument(const QString&, Fb2MainDocument*)));
+    thread->start();
 }
 
 void MainWindow::init()
 {
+    thread = NULL;
+
     connect(qApp, SIGNAL(logMessage(QString)), SLOT(logMessage(QString)));
 
     setAttribute(Qt::WA_DeleteOnClose);
@@ -76,19 +80,6 @@ bool MainWindow::loadXML(const QString &filename)
     return false;
 }
 
-Fb2MainDocument * MainWindow::loadFB2(const QString &filename)
-{
-    if (filename.isEmpty()) return NULL;
-
-    QFile file(filename);
-    if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        qCritical() << tr("Cannot read file %1:\n%2.").arg(filename).arg(file.errorString());
-        return NULL;
-    }
-
-    return Fb2MainDocument::load(file);
-}
-
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (maybeSave()) {
@@ -120,13 +111,12 @@ void MainWindow::fileOpen()
     }
 
     if (textEdit) {
-        Fb2MainDocument * document = loadFB2(filename);
-        if (!document) return;
-
         if (isUntitled && textEdit->document()->isEmpty() && !isWindowModified()) {
-            setCurrentFile(filename, document);
+            thread = new Fb2ReadThread(this, filename);
+            connect(thread, SIGNAL(sendDocument(const QString&, Fb2MainDocument*)), SLOT(sendDocument(const QString&, Fb2MainDocument*)));
+            thread->start();
         } else {
-            MainWindow * other = new MainWindow(filename, document);
+            MainWindow * other = new MainWindow(filename, NULL);
             other->move(x() + 40, y() + 40);
             other->show();
         }
@@ -142,6 +132,11 @@ void MainWindow::fileOpen()
 
     }
 
+}
+
+void MainWindow::sendDocument(const QString &filename, Fb2MainDocument * document)
+{
+    setCurrentFile(filename, document);
 }
 
 bool MainWindow::fileSave()

@@ -8,6 +8,7 @@ QT_BEGIN_NAMESPACE
 class QAction;
 class QMenu;
 class QFile;
+class QThread;
 class QTextEdit;
 class QTextDocument;
 QT_END_NAMESPACE
@@ -29,6 +30,7 @@ protected:
 
 public slots:
     void logMessage(const QString &message);
+    void sendDocument(const QString &filename, Fb2MainDocument * document);
 
 private slots:
     void fileNew();
@@ -51,7 +53,6 @@ private slots:
     void clipboardDataChanged();
 
 private:
-    static Fb2MainDocument * loadFB2(const QString &filename);
     bool loadXML(const QString &filename);
     void connectTextDocument(QTextDocument * document);
     QIcon icon(const QString &name);
@@ -70,6 +71,7 @@ private:
     void mergeFormatOnWordOrSelection(const QTextCharFormat &format);
     MainWindow *findMainWindow(const QString &fileName);
 
+    QThread *thread;
     QTextEdit *textEdit;
     QTextEdit *noteEdit;
     QTextEdit *messageEdit;

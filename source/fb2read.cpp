@@ -4,6 +4,60 @@
 
 #include "fb2read.h"
 
+//---------------------------------------------------------------------------
+//  Fb2ReadThread
+//---------------------------------------------------------------------------
+
+Fb2ReadThread::Fb2ReadThread(QObject *parent, const QString &filename)
+    : QThread(parent)
+    , m_filename(filename)
+    , m_abort(false)
+{
+}
+
+Fb2ReadThread::~Fb2ReadThread()
+{
+    QMutexLocker locker(&mutex);
+    Q_UNUSED(locker);
+    m_abort = true;
+    wait();
+}
+
+void Fb2ReadThread::stopProcess()
+{
+    QMutexLocker locker(&mutex);
+    Q_UNUSED(locker);
+    m_abort = true;
+}
+
+void Fb2ReadThread::run()
+{
+    QFile file(m_filename);
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        qCritical() << tr("Cannot read file %1:\n%2.").arg(m_filename).arg(file.errorString());
+        return;
+    }
+
+    Fb2MainDocument * document = new Fb2MainDocument();
+
+    Fb2Handler handler(*document);
+    QXmlSimpleReader reader;
+    reader.setContentHandler(&handler);
+    reader.setErrorHandler(&handler);
+    QXmlInputSource source(&file);
+
+    if (reader.parse(source)) {
+        document->moveToThread(QApplication::instance()->thread());
+        emit sendDocument(m_filename, document);
+    } else {
+        delete document;
+    }
+}
+
+//---------------------------------------------------------------------------
+//  Fb2Handler::BaseHandler
+//---------------------------------------------------------------------------
+
 #define FB2_BEGIN_KEYHASH(x) \
 Fb2Handler::x::Keyword Fb2Handler::x::toKeyword(const QString &name) \
 {                                                                    \
@@ -25,10 +79,6 @@ static QString Value(const QXmlAttributes &attributes, const QString &name)
     }
     return QString();
 }
-
-//---------------------------------------------------------------------------
-//  Fb2Handler::BaseHandler
-//---------------------------------------------------------------------------
 
 Fb2Handler::BaseHandler::~BaseHandler()
 {

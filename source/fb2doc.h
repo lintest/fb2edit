@@ -21,7 +21,6 @@ class Fb2MainDocument : public QTextDocument
 {
     Q_OBJECT
 public:
-    static Fb2MainDocument * load(QIODevice &io);
     explicit Fb2MainDocument(QObject *parent = 0) : QTextDocument(parent), m_child(*this) {}
     Fb2ChildDocument & child() { return m_child; }
 private:
