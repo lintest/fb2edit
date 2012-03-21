@@ -59,13 +59,25 @@ void MainWindow::logMessage(const QString &message)
 {
     if (!messageEdit) {
         messageEdit = new QTextEdit(this);
+        connect(messageEdit, SIGNAL(destroyed()), SLOT(logDestroyed()));
         QDockWidget * dock = new QDockWidget(tr("Message log"), this);
         dock->setAttribute(Qt::WA_DeleteOnClose);
         dock->setFeatures(QDockWidget::AllDockWidgetFeatures);
         dock->setWidget(messageEdit);
         addDockWidget(Qt::BottomDockWidgetArea, dock);
+        messageEdit->setMaximumHeight(80);
     }
     messageEdit->append(message);
+}
+
+void MainWindow::logShowed()
+{
+    messageEdit->setMaximumHeight(QWIDGETSIZE_MAX);
+}
+
+void MainWindow::logDestroyed()
+{
+    messageEdit = NULL;
 }
 
 bool MainWindow::loadXML(const QString &filename)
@@ -392,7 +404,7 @@ void MainWindow::createQsci()
     qsciEdit->setMarginsBackgroundColor(QColor("gainsboro"));
     qsciEdit->setMarginWidth(0, 0);
     qsciEdit->setMarginLineNumbers(1, true);
-    qsciEdit->setMarginWidth(1, QString("1000"));
+    qsciEdit->setMarginWidth(1, QString("10000"));
     qsciEdit->setFolding(QsciScintilla::BoxedFoldStyle, 2);
 
     qsciEdit->setBraceMatching(QsciScintilla::SloppyBraceMatch);

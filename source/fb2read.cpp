@@ -328,17 +328,21 @@ Fb2Handler::TitleHandler::TitleHandler(TextHandler &parent, const QString &name,
 {
     Q_UNUSED(attributes);
 
-    QTextTableFormat format1;
-    format1.setBorder(0);
-    format1.setCellPadding(4);
-    format1.setCellSpacing(4);
-    format1.setWidth(QTextLength(QTextLength::PercentageLength, 100));
-    m_table = cursor().insertTable(1, 1, format1);
+    QTextTableFormat tableFormat;
+    tableFormat.setBorder(0);
+    tableFormat.setCellPadding(4);
+    tableFormat.setCellSpacing(4);
+    tableFormat.setWidth(QTextLength(QTextLength::PercentageLength, 100));
+    m_table = cursor().insertTable(1, 1, tableFormat);
 
-    QTextTableCellFormat format2;
-    format2.setBackground(Qt::darkGreen);
-    format2.setForeground(Qt::white);
-    m_table->cellAt(cursor()).setFormat(format2);
+    QTextTableCellFormat cellFormat;
+    cellFormat.setBackground(Qt::darkGreen);
+    cellFormat.setForeground(Qt::white);
+    m_table->cellAt(cursor()).setFormat(cellFormat);
+
+    QTextBlockFormat blockFormat;
+    blockFormat.setAlignment(Qt::AlignHCenter);
+    cursor().mergeBlockFormat(blockFormat);
 }
 
 Fb2Handler::BaseHandler * Fb2Handler::TitleHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
@@ -467,7 +471,7 @@ Fb2Handler::BlockHandler::BlockHandler(TextHandler &parent, const QString &name,
     QTextBlockFormat blockFormat;
     blockFormat.setTopMargin(4);
     blockFormat.setBottomMargin(4);
-    cursor().setBlockFormat(blockFormat);
+    cursor().mergeBlockFormat(blockFormat);
 }
 
 Fb2Handler::BaseHandler * Fb2Handler::BlockHandler::NewTag(const QString &name, const QXmlAttributes &attributes)

@@ -41,6 +41,8 @@ private slots:
 
     void about();
     void documentWasModified();
+    void logDestroyed();
+    void logShowed();
     void viewQsci();
     void viewText();
 
