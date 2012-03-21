@@ -17,5 +17,7 @@
         <file>images/format-text-strikethrough.png</file>
         <file>images/format-text-underline.png</file>
         <file>images/window-close.png</file>
+        <file>images/zoom-out.png</file>
+        <file>images/zoom-in.png</file>
     </qresource>
 </RCC>

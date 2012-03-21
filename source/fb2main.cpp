@@ -332,6 +332,19 @@ void MainWindow::createActions()
 
     menu->addAction(actText);
     menu->addAction(actQsci);
+    menu->addSeparator();
+
+    tool = addToolBar(tr("Zoom"));
+
+    actionZoomIn = act = new QAction(icon("zoom-in"), tr("Zoom in"), this);
+    act->setShortcuts(QKeySequence::ZoomIn);
+    menu->addAction(act);
+    tool->addAction(act);
+
+    actionZoomOut = act = new QAction(icon("zoom-out"), tr("Zoom out"), this);
+    act->setShortcuts(QKeySequence::ZoomOut);
+    menu->addAction(act);
+    tool->addAction(act);
 
     menuBar()->addSeparator();
 
@@ -372,6 +385,9 @@ void MainWindow::createText()
 
     connect(actionUndo, SIGNAL(triggered()), textEdit, SLOT(undo()));
     connect(actionRedo, SIGNAL(triggered()), textEdit, SLOT(redo()));
+
+    connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
+    connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
 
     actionUndo->setEnabled(false);
     actionRedo->setEnabled(false);

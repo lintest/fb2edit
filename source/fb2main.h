@@ -93,7 +93,10 @@ private:
         *actionTextItalic,
         *actionTextStrike,
         *actionTextSub,
-        *actionTextSup;
+        *actionTextSup,
+        *actionZoomIn,
+        *actionZoomOut
+    ;
 };
 
 #endif // FB2MAIN_H
