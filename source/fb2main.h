@@ -15,6 +15,7 @@ QT_END_NAMESPACE
 
 class QsciScintilla;
 class Fb2MainDocument;
+class Fb2ReadThread;
 
 class MainWindow : public QMainWindow
 {
@@ -30,7 +31,7 @@ protected:
 
 public slots:
     void logMessage(const QString &message);
-    void sendDocument(const QString &filename, Fb2MainDocument * document);
+    void sendDocument();
 
 private slots:
     void fileNew();
@@ -67,11 +68,11 @@ private:
     void writeSettings();
     bool maybeSave();
     bool saveFile(const QString &fileName);
-    void setCurrentFile(const QString &fileName, Fb2MainDocument * document = NULL);
+    void setCurrentFile(const QString &fileName, QTextDocument * document = NULL);
     void mergeFormatOnWordOrSelection(const QTextCharFormat &format);
     MainWindow *findMainWindow(const QString &fileName);
 
-    QThread *thread;
+    Fb2ReadThread *thread;
     QTextEdit *textEdit;
     QTextEdit *noteEdit;
     QTextEdit *messageEdit;

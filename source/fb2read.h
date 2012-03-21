@@ -26,18 +26,21 @@ public:
     Fb2ReadThread(QObject *parent, const QString &filename);
     ~Fb2ReadThread();
     void Read(const QString &filename);
+    QTextDocument * doc();
+    const QString & file();
 
 signals:
-    void sendDocument(QString filename, Fb2MainDocument * document);
+    void sendDocument();
 
 public slots:
-    void stopProcess();
+    void stop();
 
 protected:
     void run();
 
 private:
     const QString m_filename;
+    QTextDocument * m_document;
     bool m_abort;
     QMutex mutex;
 };
@@ -52,7 +55,7 @@ static Keyword toKeyword(const QString &name); private:
 class Fb2Handler : public QXmlDefaultHandler
 {
 public:
-    explicit Fb2Handler(Fb2MainDocument & document);
+    explicit Fb2Handler(QTextDocument & document);
     virtual ~Fb2Handler();
     bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &attributes);
     bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName);
@@ -102,14 +105,13 @@ private:
             Binary,
         FB2_END_KEYLIST
     public:
-        explicit RootHandler(Fb2MainDocument &document, const QString &name);
+        explicit RootHandler(QTextDocument &document, const QString &name);
         virtual ~RootHandler();
     protected:
         virtual BaseHandler * NewTag(const QString & name, const QXmlAttributes &attributes);
     private:
-        Fb2MainDocument &m_document;
+        QTextDocument &m_document;
         Fb2TextCursor m_cursor1;
-        Fb2TextCursor m_cursor2;
         bool m_empty;
     };
 
@@ -274,10 +276,10 @@ private:
     };
 
 public:
-    Fb2MainDocument & document() { return m_document; }
+    QTextDocument & document() { return m_document; }
 
 private:
-    Fb2MainDocument & m_document;
+    QTextDocument & m_document;
     RootHandler * m_handler;
     QString m_error;
 };

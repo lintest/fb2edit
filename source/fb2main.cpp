@@ -28,7 +28,7 @@ MainWindow::MainWindow(const QString &filename, Fb2MainDocument * document)
     init();
     createText();
     thread = new Fb2ReadThread(this, filename);
-    connect(thread, SIGNAL(sendDocument(const QString&, Fb2MainDocument*)), SLOT(sendDocument(const QString&, Fb2MainDocument*)));
+    connect(thread, SIGNAL(sendDocument()), SLOT(sendDocument()));
     thread->start();
 }
 
@@ -113,7 +113,7 @@ void MainWindow::fileOpen()
     if (textEdit) {
         if (isUntitled && textEdit->document()->isEmpty() && !isWindowModified()) {
             thread = new Fb2ReadThread(this, filename);
-            connect(thread, SIGNAL(sendDocument(const QString&, Fb2MainDocument*)), SLOT(sendDocument(const QString&, Fb2MainDocument*)));
+            connect(thread, SIGNAL(sendDocument()), SLOT(sendDocument()));
             thread->start();
         } else {
             MainWindow * other = new MainWindow(filename, NULL);
@@ -129,14 +129,12 @@ void MainWindow::fileOpen()
             other->move(x() + 40, y() + 40);
             other->show();
         }
-
     }
-
 }
 
-void MainWindow::sendDocument(const QString &filename, Fb2MainDocument * document)
+void MainWindow::sendDocument()
 {
-    setCurrentFile(filename, document);
+    setCurrentFile(thread->file(), thread->doc());
 }
 
 bool MainWindow::fileSave()
@@ -481,7 +479,7 @@ bool MainWindow::saveFile(const QString &fileName)
     return true;
 }
 
-void MainWindow::setCurrentFile(const QString &filename, Fb2MainDocument * document)
+void MainWindow::setCurrentFile(const QString &filename, QTextDocument * document)
 {
     static int sequenceNumber = 1;
 
@@ -498,19 +496,10 @@ void MainWindow::setCurrentFile(const QString &filename, Fb2MainDocument * docum
     title += QString(" - ") += qApp->applicationName();
 
     if (textEdit && document) {
+        document->clearUndoRedoStacks();
+        document->setModified(false);
         textEdit->setDocument(document);
         connectTextDocument(textEdit->document());
-        if (!document->child().isEmpty()) {
-            if (!noteEdit) {
-                noteEdit = new QTextEdit(this);
-                noteEdit->setDocument(&document->child());
-                QDockWidget * dock = new QDockWidget("Footnotes", this);
-                dock->setAttribute(Qt::WA_DeleteOnClose);
-                dock->setFeatures(QDockWidget::AllDockWidgetFeatures);
-                dock->setWidget(noteEdit);
-                addDockWidget(Qt::BottomDockWidgetArea, dock);
-            }
-        }
     }
 
     setWindowModified(false);

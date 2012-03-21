@@ -10,6 +10,7 @@
 
 Fb2ReadThread::Fb2ReadThread(QObject *parent, const QString &filename)
     : QThread(parent)
+    , m_document(NULL)
     , m_filename(filename)
     , m_abort(false)
 {
@@ -17,13 +18,26 @@ Fb2ReadThread::Fb2ReadThread(QObject *parent, const QString &filename)
 
 Fb2ReadThread::~Fb2ReadThread()
 {
-    QMutexLocker locker(&mutex);
-    Q_UNUSED(locker);
-    m_abort = true;
+    stop();
     wait();
+    if (m_document) delete m_document;
 }
 
-void Fb2ReadThread::stopProcess()
+QTextDocument * Fb2ReadThread::doc()
+{
+    QMutexLocker locker(&mutex);
+    Q_UNUSED(locker);
+    return m_document ? m_document->clone() : NULL;
+}
+
+const QString & Fb2ReadThread::file()
+{
+    QMutexLocker locker(&mutex);
+    Q_UNUSED(locker);
+    return m_filename;
+}
+
+void Fb2ReadThread::stop()
 {
     QMutexLocker locker(&mutex);
     Q_UNUSED(locker);
@@ -38,20 +52,18 @@ void Fb2ReadThread::run()
         return;
     }
 
-    Fb2MainDocument * document = new Fb2MainDocument();
-
-    Fb2Handler handler(*document);
+    m_document = new QTextDocument();
+    Fb2Handler handler(*m_document);
     QXmlSimpleReader reader;
     reader.setContentHandler(&handler);
     reader.setErrorHandler(&handler);
     QXmlInputSource source(&file);
 
-    if (reader.parse(source)) {
-        document->moveToThread(QApplication::instance()->thread());
-        emit sendDocument(m_filename, document);
-    } else {
-        delete document;
-    }
+    bool ok = reader.parse(source);
+
+    m_document->moveToThread(QApplication::instance()->thread());
+
+    if (ok) emit sendDocument();
 }
 
 //---------------------------------------------------------------------------
@@ -127,27 +139,24 @@ FB2_BEGIN_KEYHASH(RootHandler)
     insert("binary", Binary);
 FB2_END_KEYHASH
 
-Fb2Handler::RootHandler::RootHandler(Fb2MainDocument &document, const QString &name)
+Fb2Handler::RootHandler::RootHandler(QTextDocument &document, const QString &name)
     : BaseHandler(name)
     , m_document(document)
     , m_cursor1(&document, false)
-    , m_cursor2(&document.child(), true)
     , m_empty(true)
 {
     m_cursor1.beginEditBlock();
-    m_cursor2.beginEditBlock();
 }
 
 Fb2Handler::RootHandler::~RootHandler()
 {
     m_cursor1.endEditBlock();
-    m_cursor2.endEditBlock();
 }
 
 Fb2Handler::BaseHandler * Fb2Handler::RootHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
     switch (toKeyword(name)) {
-        case Body   : { BaseHandler * handler = new BodyHandler(m_empty ? m_cursor1 : m_cursor2, name); m_empty = false; return handler; }
+        case Body   : { BaseHandler * handler = new BodyHandler(m_cursor1, name); m_empty = false; return handler; }
         case Descr  : return new DescrHandler(name);
         case Binary : return new BinaryHandler(m_document, name, attributes);
         default: return NULL;
@@ -521,22 +530,15 @@ void Fb2Handler::BinaryHandler::EndTag(const QString &name)
 //  Fb2Handler
 //---------------------------------------------------------------------------
 
-Fb2Handler::Fb2Handler(Fb2MainDocument & document)
+Fb2Handler::Fb2Handler(QTextDocument & document)
     : m_document(document)
     , m_handler(NULL)
 {
     document.clear();
-    m_document.child().clear();
 }
 
 Fb2Handler::~Fb2Handler()
 {
-    m_document.clearUndoRedoStacks();
-    m_document.child().clearUndoRedoStacks();
-
-    m_document.setModified(false);
-    m_document.child().setModified(false);
-
     if (m_handler) delete m_handler;
 }
 
