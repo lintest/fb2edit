@@ -331,7 +331,7 @@ Fb2Handler::TitleHandler::TitleHandler(TextHandler &parent, const QString &name,
     QTextTableFormat tableFormat;
     tableFormat.setBorder(0);
     tableFormat.setCellPadding(4);
-    tableFormat.setCellSpacing(4);
+    tableFormat.setCellSpacing(0);
     tableFormat.setWidth(QTextLength(QTextLength::PercentageLength, 100));
     m_table = cursor().insertTable(1, 1, tableFormat);
 
@@ -469,8 +469,8 @@ Fb2Handler::BlockHandler::BlockHandler(TextHandler &parent, const QString &name,
 {
     Q_UNUSED(attributes);
     QTextBlockFormat blockFormat;
-    blockFormat.setTopMargin(4);
-    blockFormat.setBottomMargin(4);
+    blockFormat.setTopMargin(6);
+    blockFormat.setBottomMargin(6);
     cursor().mergeBlockFormat(blockFormat);
 }
 
