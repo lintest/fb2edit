@@ -314,18 +314,17 @@ void MainWindow::createActions()
     menu->addAction(act);
     tool->addAction(act);
 
-    actionTextSup = act = new QAction(tr("Superscript"), this);
+    actionTextSup = act = new QAction(icon("format-text-superscript"), tr("Superscript"), this);
     act->setCheckable(true);
     connect(act, SIGNAL(triggered()), SLOT(textSup()));
     menu->addAction(act);
+    tool->addAction(act);
 
-    actionTextSub = act = new QAction(tr("Subscript"), this);
+    actionTextSub = act = new QAction(icon("format-text-subscript"), tr("Subscript"), this);
     act->setCheckable(true);
     connect(act, SIGNAL(triggered()), SLOT(textSub()));
     menu->addAction(act);
-
-    // format-text-subscript
-    // format-text-superscript
+    tool->addAction(act);
 
     menu = menuBar()->addMenu(tr("&View"));
 

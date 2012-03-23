@@ -15,6 +15,8 @@
         <file>images/16x16/format-text-bold.png</file>
         <file>images/16x16/format-text-italic.png</file>
         <file>images/16x16/format-text-strikethrough.png</file>
+        <file>images/16x16/format-text-subscript.png</file>
+        <file>images/16x16/format-text-superscript.png</file>
         <file>images/16x16/format-text-underline.png</file>
         <file>images/16x16/window-close.png</file>
         <file>images/16x16/zoom-in.png</file>
@@ -34,6 +36,8 @@
         <file>images/24x24/format-text-bold.png</file>
         <file>images/24x24/format-text-italic.png</file>
         <file>images/24x24/format-text-strikethrough.png</file>
+        <file>images/24x24/format-text-subscript.png</file>
+        <file>images/24x24/format-text-superscript.png</file>
         <file>images/24x24/format-text-underline.png</file>
         <file>images/24x24/window-close.png</file>
         <file>images/24x24/zoom-in.png</file>
