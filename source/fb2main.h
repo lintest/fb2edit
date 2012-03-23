@@ -50,6 +50,8 @@ private slots:
     void textUnder();
     void textItalic();
     void textStrike();
+    void textSub();
+    void textSup();
 
     void currentCharFormatChanged(const QTextCharFormat &format);
     void cursorPositionChanged();

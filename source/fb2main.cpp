@@ -183,8 +183,10 @@ void MainWindow::documentWasModified()
 
 QIcon MainWindow::icon(const QString &name)
 {
-    QString file = QString(":/images/%1.png").arg(name);
-    return QIcon::fromTheme(name, QIcon(file));
+    QIcon icon;
+    icon.addFile(QString(":/images/24x24/%1.png").arg(name), QSize(24,24));
+    icon.addFile(QString(":/images/16x16/%1.png").arg(name), QSize(16,16));
+    return QIcon::fromTheme(name, icon);
 }
 
 void MainWindow::createActions()
@@ -288,29 +290,39 @@ void MainWindow::createActions()
     actionTextBold = act = new QAction(icon("format-text-bold"), tr("Bold"), this);
     act->setShortcuts(QKeySequence::Bold);
     act->setCheckable(true);
-    connect(act, SIGNAL(triggered()), this, SLOT(textBold()));
+    connect(act, SIGNAL(triggered()), SLOT(textBold()));
     menu->addAction(act);
     tool->addAction(act);
 
     actionTextItalic = act = new QAction(icon("format-text-italic"), tr("Italic"), this);
     act->setShortcuts(QKeySequence::Italic);
     act->setCheckable(true);
-    connect(act, SIGNAL(triggered()), this, SLOT(textItalic()));
+    connect(act, SIGNAL(triggered()), SLOT(textItalic()));
     menu->addAction(act);
     tool->addAction(act);
 
     actionTextUnder = act = new QAction(icon("format-text-underline"), tr("Underline"), this);
     act->setShortcuts(QKeySequence::Underline);
     act->setCheckable(true);
-    connect(act, SIGNAL(triggered()), this, SLOT(textUnder()));
+    connect(act, SIGNAL(triggered()), SLOT(textUnder()));
     menu->addAction(act);
     tool->addAction(act);
 
     actionTextStrike = act = new QAction(icon("format-text-strikethrough"), tr("Strikethrough"), this);
     act->setCheckable(true);
-    connect(act, SIGNAL(triggered()), this, SLOT(textStrike()));
+    connect(act, SIGNAL(triggered()), SLOT(textStrike()));
     menu->addAction(act);
     tool->addAction(act);
+
+    actionTextSup = act = new QAction(tr("Superscript"), this);
+    act->setCheckable(true);
+    connect(act, SIGNAL(triggered()), SLOT(textSup()));
+    menu->addAction(act);
+
+    actionTextSub = act = new QAction(tr("Subscript"), this);
+    act->setCheckable(true);
+    connect(act, SIGNAL(triggered()), SLOT(textSub()));
+    menu->addAction(act);
 
     // format-text-subscript
     // format-text-superscript
@@ -381,7 +393,7 @@ void MainWindow::createText()
     connect(textEdit, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)));
     connect(textEdit, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)));
 
-    connect(textEdit, SIGNAL(currentCharFormatChanged(const QTextCharFormat &)), this, SLOT(currentCharFormatChanged(const QTextCharFormat &)));
+    connect(textEdit, SIGNAL(currentCharFormatChanged(const QTextCharFormat &)), SLOT(currentCharFormatChanged(const QTextCharFormat &)));
 
     connect(actionUndo, SIGNAL(triggered()), textEdit, SLOT(undo()));
     connect(actionRedo, SIGNAL(triggered()), textEdit, SLOT(redo()));
@@ -568,6 +580,8 @@ void MainWindow::currentCharFormatChanged(const QTextCharFormat &format)
     actionTextItalic -> setChecked(font.italic());
     actionTextUnder  -> setChecked(font.underline());
     actionTextStrike -> setChecked(font.strikeOut());
+    actionTextSub    -> setChecked(format.verticalAlignment() == QTextCharFormat::AlignSubScript);
+    actionTextSup    -> setChecked(format.verticalAlignment() == QTextCharFormat::AlignSuperScript);
 }
 
 void MainWindow::cursorPositionChanged()
@@ -607,6 +621,20 @@ void MainWindow::textStrike()
 {
     QTextCharFormat fmt;
     fmt.setFontStrikeOut(actionTextStrike->isChecked());
+    mergeFormatOnWordOrSelection(fmt);
+}
+
+void MainWindow::textSub()
+{
+    QTextCharFormat fmt;
+    fmt.setVerticalAlignment(actionTextSub->isChecked() ? QTextCharFormat::AlignSubScript : QTextCharFormat::AlignNormal);
+    mergeFormatOnWordOrSelection(fmt);
+}
+
+void MainWindow::textSup()
+{
+    QTextCharFormat fmt;
+    fmt.setVerticalAlignment(actionTextSup->isChecked() ? QTextCharFormat::AlignSuperScript : QTextCharFormat::AlignNormal);
     mergeFormatOnWordOrSelection(fmt);
 }
 
