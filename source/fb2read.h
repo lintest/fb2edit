@@ -128,6 +128,7 @@ private:
     public:
         explicit TextHandler(Fb2TextCursor &cursor, const QString &name);
         explicit TextHandler(TextHandler &parent, const QString &name);
+        virtual BaseHandler * NewTag(const QString & name, const QXmlAttributes &attributes);
     protected:
         virtual void EndTag(const QString &name);
     protected:
@@ -260,6 +261,17 @@ private:
     protected:
         virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
         virtual void TxtTag(const QString &text);
+    };
+
+    class UnknowHandler : public TextHandler
+    {
+    public:
+        explicit UnknowHandler(TextHandler &parent, const QString &name);
+    protected:
+        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
+        virtual void TxtTag(const QString &text);
+    private:
+        TextHandler &m_parent;
     };
 
     class BinaryHandler : public BaseHandler

@@ -194,6 +194,11 @@ Fb2Handler::TextHandler::TextHandler(TextHandler &parent, const QString &name)
 {
 }
 
+Fb2Handler::BaseHandler * Fb2Handler::TextHandler::NewTag(const QString & name, const QXmlAttributes &attributes)
+{
+    return BaseHandler::NewTag(name, attributes);
+}
+
 void Fb2Handler::TextHandler::EndTag(const QString &name)
 {
     Q_UNUSED(name);
@@ -300,7 +305,7 @@ Fb2Handler::BaseHandler * Fb2Handler::SectionHandler::NewTag(const QString &name
         case Title     : return new TitleHandler(*this, name, attributes); break;
         case Poem      : return new PoemHandler(*this, name, attributes); break;
         case Image     : return new ImageHandler(*this, name, attributes); break;
-        default: return NULL;
+        default        : return new UnknowHandler(*this, name); break;
     }
 ;
 }
@@ -352,7 +357,7 @@ Fb2Handler::BaseHandler * Fb2Handler::TitleHandler::NewTag(const QString &name, 
     switch (toKeyword(name)) {
         case Paragraph : return new BlockHandler(*this, name, attributes); break;
         case Emptyline : return new BlockHandler(*this, name, attributes); break;
-        default: return NULL;
+        default        : return new UnknowHandler(*this, name); break;
     }
 }
 
@@ -478,7 +483,7 @@ Fb2Handler::BaseHandler * Fb2Handler::BlockHandler::NewTag(const QString &name, 
 {
     Q_UNUSED(attributes);
     switch (toKeyword(name)) {
-        default: return new BaseHandler(name); break;
+        default: return new UnknowHandler(*this, name); break;
     }
 }
 
@@ -504,6 +509,26 @@ Fb2Handler::BaseHandler * Fb2Handler::ImageHandler::NewTag(const QString &name, 
     Q_UNUSED(name);
     Q_UNUSED(attributes);
     return false;
+}
+
+//---------------------------------------------------------------------------
+//  Fb2Handler::UnknowHandler
+//---------------------------------------------------------------------------
+
+Fb2Handler::UnknowHandler::UnknowHandler(TextHandler &parent, const QString &name)
+    : TextHandler(parent, name)
+    , m_parent(parent)
+{
+}
+
+Fb2Handler::BaseHandler * Fb2Handler::UnknowHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
+{
+    return m_parent.NewTag(name, attributes);
+}
+
+void Fb2Handler::UnknowHandler::TxtTag(const QString &text)
+{
+    cursor().insertText(text);
 }
 
 //---------------------------------------------------------------------------
