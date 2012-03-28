@@ -47,7 +47,6 @@ private slots:
     void viewText();
 
     void textBold();
-    void textUnder();
     void textItalic();
     void textStrike();
     void textSub();
@@ -91,7 +90,6 @@ private:
         *actionCopy,
         *actionPaste,
         *actionTextBold,
-        *actionTextUnder,
         *actionTextItalic,
         *actionTextStrike,
         *actionTextSub,

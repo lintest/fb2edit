@@ -150,6 +150,14 @@ Fb2Handler::RootHandler::RootHandler(QTextDocument &document, const QString &nam
 
 Fb2Handler::RootHandler::~RootHandler()
 {
+    QTextBlockFormat blockFormat;
+    blockFormat.setTopMargin(6);
+    blockFormat.setBottomMargin(6);
+
+    m_cursor1.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
+    m_cursor1.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    m_cursor1.mergeBlockFormat(blockFormat);
+
     m_cursor1.endEditBlock();
 }
 
@@ -224,10 +232,6 @@ Fb2Handler::BodyHandler::BodyHandler(Fb2TextCursor &cursor, const QString &name)
     : TextHandler(cursor, name)
     , m_feed(false)
 {
-    QTextBlockFormat blockFormat;
-    blockFormat.setTopMargin(4);
-    blockFormat.setBottomMargin(4);
-    cursor.setBlockFormat(blockFormat);
 }
 
 Fb2Handler::BaseHandler * Fb2Handler::BodyHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
@@ -275,12 +279,6 @@ Fb2Handler::SectionHandler::SectionHandler(TextHandler &parent, const QString &n
     frameFormat.setBottomMargin(4);
     if (name == "title") frameFormat.setWidth(QTextLength(QTextLength::PercentageLength, 80));
     cursor().insertFrame(frameFormat);
-
-    QTextBlockFormat blockFormat;
-    blockFormat.setTopMargin(4);
-    blockFormat.setBottomMargin(4);
-
-    cursor().setBlockFormat(blockFormat);
 }
 
 Fb2Handler::BaseHandler * Fb2Handler::SectionHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
@@ -291,6 +289,7 @@ Fb2Handler::BaseHandler * Fb2Handler::SectionHandler::NewTag(const QString &name
         case Paragraph:
         case Emptyline:
         case Image:
+        case Title:
             if (m_feed) cursor().insertBlock();
             m_feed = true;
             break;
@@ -462,29 +461,42 @@ FB2_BEGIN_KEYHASH(BlockHandler)
     insert("emphasis"      , Emphasis);
     insert("style"         , Style);
     insert("a"             , Anchor);
-    insert("strikethrough" , Strikethrough);
+    insert("strikethrough" , Strike);
     insert("sub"           , Sub);
     insert("sup"           , Sup);
     insert("code"          , Code);
     insert("image"         , Image);
 FB2_END_KEYHASH
 
-Fb2Handler::BlockHandler::BlockHandler(TextHandler &parent, const QString &name, const QXmlAttributes &attributes)
+Fb2Handler::BlockHandler::BlockHandler(TextHandler &parent, const QString &name, const QXmlAttributes &attributes, QTextCharFormat * format)
     : TextHandler(parent, name)
 {
     Q_UNUSED(attributes);
-    QTextBlockFormat blockFormat;
-    blockFormat.setTopMargin(6);
-    blockFormat.setBottomMargin(6);
-    cursor().mergeBlockFormat(blockFormat);
+    if (format) cursor().mergeCharFormat(*format);
 }
 
 Fb2Handler::BaseHandler * Fb2Handler::BlockHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
     Q_UNUSED(attributes);
+    QTextCharFormat format;
     switch (toKeyword(name)) {
-        default: return new UnknowHandler(*this, name); break;
+        case Image    : return new ImageHandler(*this, name, attributes);
+        case Strong   : format.setFontWeight(QFont::Bold);  break;
+        case Emphasis : format.setFontItalic(true); break;
+        case Strike   : format.setFontStrikeOut(true); break;
+        case Sub      : format.setVerticalAlignment(QTextCharFormat::AlignSubScript); break;
+        case Sup      : format.setVerticalAlignment(QTextCharFormat::AlignSuperScript); break;
+        case Anchor   : {
+            QString href = Value(attributes, "href");
+            if (!href.isEmpty()) {
+                format.setAnchorHref(href);
+                format.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+            }
+        } break;
+        default:
+            return new UnknowHandler(*this, name); break;
     }
+    return new BlockHandler(*this, name, attributes, &format);
 }
 
 void Fb2Handler::BlockHandler::TxtTag(const QString &text)

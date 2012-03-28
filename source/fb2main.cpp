@@ -301,13 +301,6 @@ void MainWindow::createActions()
     menu->addAction(act);
     tool->addAction(act);
 
-    actionTextUnder = act = new QAction(icon("format-text-underline"), tr("Underline"), this);
-    act->setShortcuts(QKeySequence::Underline);
-    act->setCheckable(true);
-    connect(act, SIGNAL(triggered()), SLOT(textUnder()));
-    menu->addAction(act);
-    tool->addAction(act);
-
     actionTextStrike = act = new QAction(icon("format-text-strikethrough"), tr("Strikethrough"), this);
     act->setCheckable(true);
     connect(act, SIGNAL(triggered()), SLOT(textStrike()));
@@ -577,7 +570,6 @@ void MainWindow::currentCharFormatChanged(const QTextCharFormat &format)
     QFont font = format.font();
     actionTextBold   -> setChecked(font.bold());
     actionTextItalic -> setChecked(font.italic());
-    actionTextUnder  -> setChecked(font.underline());
     actionTextStrike -> setChecked(font.strikeOut());
     actionTextSub    -> setChecked(format.verticalAlignment() == QTextCharFormat::AlignSubScript);
     actionTextSup    -> setChecked(format.verticalAlignment() == QTextCharFormat::AlignSuperScript);
@@ -599,13 +591,6 @@ void MainWindow::textBold()
 {
     QTextCharFormat fmt;
     fmt.setFontWeight(actionTextBold->isChecked() ? QFont::Bold : QFont::Normal);
-    mergeFormatOnWordOrSelection(fmt);
-}
-
-void MainWindow::textUnder()
-{
-    QTextCharFormat fmt;
-    fmt.setFontUnderline(actionTextUnder->isChecked());
     mergeFormatOnWordOrSelection(fmt);
 }
 

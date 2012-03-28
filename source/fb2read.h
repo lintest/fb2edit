@@ -250,14 +250,14 @@ private:
             Emphasis,
             Style,
             Anchor,
-            Strikethrough,
+            Strike,
             Sub,
             Sup,
             Code,
             Image,
         FB2_END_KEYLIST
     public:
-        explicit BlockHandler(TextHandler &parent, const QString &name, const QXmlAttributes &attributes);
+        explicit BlockHandler(TextHandler &parent, const QString &name, const QXmlAttributes &attributes, QTextCharFormat *format = NULL);
     protected:
         virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
         virtual void TxtTag(const QString &text);
