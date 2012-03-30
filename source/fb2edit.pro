@@ -3,7 +3,8 @@ HEADERS = \
     fb2doc.h \
     fb2main.h \
     fb2read.h \
-    fb2tree.h
+    fb2tree.h \
+    fb2edit.h
 
 SOURCES = \
     fb2app.cpp \

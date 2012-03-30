@@ -4,6 +4,7 @@
 
 #include "fb2main.h"
 #include "fb2doc.h"
+#include "fb2edit.h"
 #include "fb2read.h"
 #include "fb2tree.h"
 
@@ -391,7 +392,7 @@ void MainWindow::connectTextDocument(QTextDocument * document)
 
 void MainWindow::createText()
 {
-    textEdit = new QTextEdit;
+    textEdit = new Fb2TextEdit;
     textEdit->setAcceptRichText(true);
     setCentralWidget(textEdit);
 

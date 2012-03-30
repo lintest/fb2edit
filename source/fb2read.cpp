@@ -10,8 +10,8 @@
 
 Fb2ReadThread::Fb2ReadThread(QObject *parent, const QString &filename)
     : QThread(parent)
-    , m_document(NULL)
     , m_filename(filename)
+    , m_document(NULL)
     , m_abort(false)
 {
 }
@@ -165,7 +165,7 @@ Fb2Handler::BaseHandler * Fb2Handler::RootHandler::NewTag(const QString &name, c
 {
     switch (toKeyword(name)) {
         case Body   : { BaseHandler * handler = new BodyHandler(m_cursor, name); m_empty = false; return handler; }
-        case Descr  : return new DescrHandler(name);
+        case Descr  : return new DescrHandler(m_cursor, name);
         case Binary : return new BinaryHandler(m_document, name, attributes);
         default: return NULL;
     }
@@ -175,11 +175,43 @@ Fb2Handler::BaseHandler * Fb2Handler::RootHandler::NewTag(const QString &name, c
 //  Fb2Handler::DescrHandler
 //---------------------------------------------------------------------------
 
+FB2_BEGIN_KEYHASH(DescrHandler)
+    insert( "title-info"   , Title   );
+    insert( "publish-info" , Publish );
+FB2_END_KEYHASH
+
 Fb2Handler::BaseHandler * Fb2Handler::DescrHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
-    Q_UNUSED(name);
     Q_UNUSED(attributes);
-    return new BaseHandler(name);
+    switch (toKeyword(name)) {
+        case Title   : return new HeaderHandler(*this, name);
+        case Publish : return new BaseHandler(name);
+        default: return NULL;
+    }
+}
+
+//---------------------------------------------------------------------------
+//  Fb2Handler::HeaderHandler
+//---------------------------------------------------------------------------
+
+FB2_BEGIN_KEYHASH(HeaderHandler)
+    insert( "book-title"   , Title    );
+    insert( "author"       , Author   );
+    insert( "sequence"     , Sequence );
+    insert( "genre"        , Genre    );
+    insert( "lang"         , Lang     );
+    insert( "annotation"   , Annot    );
+    insert( "coverpage"    , Cover    );
+FB2_END_KEYHASH
+
+Fb2Handler::BaseHandler * Fb2Handler::HeaderHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
+{
+    Q_UNUSED(attributes);
+    switch (toKeyword(name)) {
+        case Title   : return new BaseHandler(name);
+        case Annot   : return new BaseHandler(name);
+        default: return NULL;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -230,8 +262,15 @@ FB2_END_KEYHASH
 
 Fb2Handler::BodyHandler::BodyHandler(Fb2TextCursor &cursor, const QString &name)
     : TextHandler(cursor, name)
+    , m_frame(cursor.currentFrame())
     , m_feed(false)
 {
+    QTextFrameFormat frameFormat;
+    frameFormat.setBorder(1);
+    frameFormat.setPadding(8);
+    frameFormat.setTopMargin(4);
+    frameFormat.setBottomMargin(4);
+    cursor.insertFrame(frameFormat);
 }
 
 Fb2Handler::BaseHandler * Fb2Handler::BodyHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
@@ -245,6 +284,12 @@ Fb2Handler::BaseHandler * Fb2Handler::BodyHandler::NewTag(const QString &name, c
         case Stanza    : return new SectionHandler(*this, name, attributes);
         default: return NULL;
     }
+}
+
+void Fb2Handler::BodyHandler::EndTag(const QString &name)
+{
+    Q_UNUSED(name);
+    if (m_frame) cursor().setPosition(m_frame->lastPosition());
 }
 
 //---------------------------------------------------------------------------

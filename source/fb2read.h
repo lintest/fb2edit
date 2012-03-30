@@ -16,7 +16,16 @@ QT_BEGIN_NAMESPACE
 class QTextEdit;
 QT_END_NAMESPACE
 
-class Fb2MainDocumen;
+class Fb2TextCursor : public QTextCursor
+{
+public:
+    explicit Fb2TextCursor(QTextDocument *document, bool foot)
+        : QTextCursor(document), m_foot(foot) {}
+    bool foot()
+        { return m_foot; }
+private:
+    const bool m_foot;
+};
 
 class Fb2ReadThread : public QThread
 {
@@ -64,17 +73,6 @@ public:
     QString errorString() const;
 
 private:
-    class Fb2TextCursor : public QTextCursor
-    {
-    public:
-        explicit Fb2TextCursor(QTextDocument *document, bool foot)
-            : QTextCursor(document), m_foot(foot) {}
-        bool foot()
-            { return m_foot; }
-    private:
-        const bool m_foot;
-    };
-
     class BaseHandler
     {
     public:
@@ -115,14 +113,6 @@ private:
         bool m_empty;
     };
 
-    class DescrHandler : public BaseHandler
-    {
-    public:
-        explicit DescrHandler(const QString &name) : BaseHandler(name) {}
-    protected:
-        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
-    };
-
     class TextHandler : public BaseHandler
     {
     public:
@@ -136,6 +126,36 @@ private:
         Fb2TextCursor & m_cursor;
         QTextBlockFormat m_blockFormat;
         QTextCharFormat m_charFormat;
+    };
+
+    class DescrHandler : public TextHandler
+    {
+        FB2_BEGIN_KEYLIST
+            Title,
+            Publish,
+        FB2_END_KEYLIST
+    public:
+        explicit DescrHandler(Fb2TextCursor &cursor, const QString &name) : TextHandler(cursor, name) {}
+    protected:
+        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
+    };
+
+    class HeaderHandler : public TextHandler
+    {
+        FB2_BEGIN_KEYLIST
+            Author,
+            Title,
+            Sequence,
+            Genre,
+            Lang,
+            Annot,
+            Cover,
+        FB2_END_KEYLIST
+    public:
+        explicit HeaderHandler(TextHandler &parent, const QString &name) : TextHandler(parent, name) {}
+    protected:
+        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
+        QString m_title;
     };
 
     class BodyHandler : public TextHandler
@@ -154,7 +174,9 @@ private:
         explicit BodyHandler(Fb2TextCursor &cursor, const QString &name);
     protected:
         virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
+        virtual void EndTag(const QString &name);
     private:
+        QTextFrame * m_frame;
         bool m_feed;
     };
 
