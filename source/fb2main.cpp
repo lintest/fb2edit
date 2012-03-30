@@ -1,9 +1,11 @@
 #include <QtGui>
 #include <QtDebug>
+#include <QTreeView>
 
 #include "fb2main.h"
 #include "fb2doc.h"
 #include "fb2read.h"
+#include "fb2tree.h"
 
 #include <Qsci/qsciscintilla.h>
 #include <Qsci/qscilexerxml.h>
@@ -48,6 +50,7 @@ void MainWindow::init()
     textEdit = NULL;
     noteEdit = NULL;
     qsciEdit = NULL;
+    treeView = NULL;
     messageEdit = NULL;
 
     readSettings();
@@ -78,6 +81,11 @@ void MainWindow::logShowed()
 void MainWindow::logDestroyed()
 {
     messageEdit = NULL;
+}
+
+void MainWindow::treeDestroyed()
+{
+    treeView = NULL;
 }
 
 bool MainWindow::loadXML(const QString &filename)
@@ -147,6 +155,15 @@ void MainWindow::fileOpen()
 void MainWindow::sendDocument()
 {
     setCurrentFile(thread->file(), thread->doc());
+    treeView = new QTreeView(this);
+    treeView->setModel(new Fb2TreeModel(*textEdit));
+    treeView->setHeaderHidden(true);
+    connect(messageEdit, SIGNAL(destroyed()), SLOT(treeDestroyed()));
+    QDockWidget * dock = new QDockWidget(tr("Contents"), this);
+    dock->setAttribute(Qt::WA_DeleteOnClose);
+    dock->setFeatures(QDockWidget::AllDockWidgetFeatures);
+    dock->setWidget(treeView);
+    addDockWidget(Qt::LeftDockWidgetArea, dock);
 }
 
 bool MainWindow::fileSave()

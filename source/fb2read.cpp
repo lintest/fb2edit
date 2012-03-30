@@ -142,10 +142,10 @@ FB2_END_KEYHASH
 Fb2Handler::RootHandler::RootHandler(QTextDocument &document, const QString &name)
     : BaseHandler(name)
     , m_document(document)
-    , m_cursor1(&document, false)
+    , m_cursor(&document, false)
     , m_empty(true)
 {
-    m_cursor1.beginEditBlock();
+    m_cursor.beginEditBlock();
 }
 
 Fb2Handler::RootHandler::~RootHandler()
@@ -154,17 +154,17 @@ Fb2Handler::RootHandler::~RootHandler()
     blockFormat.setTopMargin(6);
     blockFormat.setBottomMargin(6);
 
-    m_cursor1.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
-    m_cursor1.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-    m_cursor1.mergeBlockFormat(blockFormat);
+    m_cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
+    m_cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    m_cursor.mergeBlockFormat(blockFormat);
 
-    m_cursor1.endEditBlock();
+    m_cursor.endEditBlock();
 }
 
 Fb2Handler::BaseHandler * Fb2Handler::RootHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
     switch (toKeyword(name)) {
-        case Body   : { BaseHandler * handler = new BodyHandler(m_cursor1, name); m_empty = false; return handler; }
+        case Body   : { BaseHandler * handler = new BodyHandler(m_cursor, name); m_empty = false; return handler; }
         case Descr  : return new DescrHandler(name);
         case Binary : return new BinaryHandler(m_document, name, attributes);
         default: return NULL;

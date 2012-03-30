@@ -10,6 +10,7 @@ class QMenu;
 class QFile;
 class QThread;
 class QTextEdit;
+class QTreeView;
 class QTextDocument;
 QT_END_NAMESPACE
 
@@ -41,6 +42,7 @@ private slots:
 
     void about();
     void documentWasModified();
+    void treeDestroyed();
     void logDestroyed();
     void logShowed();
     void viewQsci();
@@ -80,6 +82,7 @@ private:
     QTextEdit *noteEdit;
     QTextEdit *messageEdit;
     QsciScintilla *qsciEdit;
+    QTreeView * treeView;
     QString curFile;
     bool isUntitled;
 

@@ -111,7 +111,7 @@ private:
         virtual BaseHandler * NewTag(const QString & name, const QXmlAttributes &attributes);
     private:
         QTextDocument &m_document;
-        Fb2TextCursor m_cursor1;
+        Fb2TextCursor m_cursor;
         bool m_empty;
     };
 
