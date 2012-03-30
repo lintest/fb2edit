@@ -1,4 +1,4 @@
-#include "libxml2reader.h"
+#include "fb2xml2.h"
 #include <cstring>
 #include <libxml/tree.h>
 #include <libxml/parser.h>
