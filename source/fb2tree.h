@@ -4,6 +4,38 @@
 #include <QAbstractItemModel>
 #include <QTextEdit>
 
+class Fb2TreeItem: public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit Fb2TreeItem(QTextFrame *frame, Fb2TreeItem *parent = 0);
+
+    virtual ~Fb2TreeItem();
+
+    Fb2TreeItem * item(int index) const;
+
+    int index(Fb2TreeItem * child) const {
+        return m_list.indexOf(child);
+    }
+
+    int count() const {
+        return m_list.size();
+    }
+
+    Fb2TreeItem * parent() const {
+        return m_parent;
+    }
+
+    QString text() const;
+
+private:
+    QList<Fb2TreeItem*> m_list;
+    QString m_text;
+    QTextFrame * m_frame;
+    Fb2TreeItem * m_parent;
+};
+
 class Fb2TreeModel: public QAbstractItemModel
 {
     Q_OBJECT
@@ -20,10 +52,11 @@ public:
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
 protected:
-    QTextFrame * frame(const QModelIndex &index) const;
+    Fb2TreeItem * item(const QModelIndex &index) const;
 
 private:
     QTextEdit & m_text;
+    Fb2TreeItem * m_root;
 };
 
 #endif // FB2TREE_H
