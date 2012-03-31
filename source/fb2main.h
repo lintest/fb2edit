@@ -8,6 +8,7 @@ QT_BEGIN_NAMESPACE
 class QAction;
 class QMenu;
 class QFile;
+class QModelIndex;
 class QThread;
 class QTextEdit;
 class QTreeView;
@@ -42,6 +43,7 @@ private slots:
 
     void about();
     void documentWasModified();
+    void treeActivated(const QModelIndex &index);
     void treeDestroyed();
     void logDestroyed();
     void logShowed();

@@ -84,6 +84,34 @@ void MainWindow::logDestroyed()
     messageEdit = NULL;
 }
 
+static QTextFrame * findFrame(QTextFrame *root, const QModelIndex &index)
+{
+    if (!index.isValid()) return root;
+    if (QTextFrame *frame = findFrame(root, index.parent())) {
+        QTextFrame *child = static_cast<QTextFrame*>(index.internalPointer());
+        int i = frame->childFrames().indexOf(child);
+        if (i >= 0) return child;
+    }
+    return NULL;
+}
+
+void MainWindow::treeActivated(const QModelIndex &index)
+{
+    if (!treeView) return;
+    if (!textEdit) return;
+    if (!textEdit->document()) return;
+
+    QTextFrame * frame = textEdit->document()->rootFrame();
+    if (!frame) return;
+
+    QTextCursor cursor = textEdit->textCursor();
+    frame = findFrame(frame, index);
+    if (!frame) return;
+
+    cursor.setPosition(frame->firstPosition());
+    textEdit->setTextCursor(cursor);
+}
+
 void MainWindow::treeDestroyed()
 {
     treeView = NULL;
@@ -159,7 +187,8 @@ void MainWindow::sendDocument()
     treeView = new QTreeView(this);
     treeView->setModel(new Fb2TreeModel(*textEdit));
     treeView->setHeaderHidden(true);
-    connect(messageEdit, SIGNAL(destroyed()), SLOT(treeDestroyed()));
+    connect(treeView, SIGNAL(activated(QModelIndex)), SLOT(treeActivated(QModelIndex)));
+    connect(treeView, SIGNAL(destroyed()), SLOT(treeDestroyed()));
     QDockWidget * dock = new QDockWidget(tr("Contents"), this);
     dock->setAttribute(Qt::WA_DeleteOnClose);
     dock->setFeatures(QDockWidget::AllDockWidgetFeatures);
