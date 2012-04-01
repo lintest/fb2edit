@@ -100,3 +100,17 @@ QVariant Fb2TreeModel::data(const QModelIndex &index, int role) const
     Fb2TreeItem * i  = item(index);
     return i ? i->text() : QVariant();
 }
+
+void Fb2TreeModel::select(const QModelIndex &index)
+{
+    Fb2TreeItem * i = item(index);
+    if (!i) return;
+
+    QTextFrame * f = i->frame();
+    if (!f) return;
+
+    QTextCursor cursor = m_text.textCursor();
+    cursor.setPosition(f->firstPosition());
+    m_text.moveCursor(QTextCursor::End);
+    m_text.setTextCursor(cursor);
+}

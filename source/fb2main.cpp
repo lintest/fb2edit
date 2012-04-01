@@ -101,15 +101,8 @@ void MainWindow::treeActivated(const QModelIndex &index)
     if (!textEdit) return;
     if (!textEdit->document()) return;
 
-    QTextFrame * frame = textEdit->document()->rootFrame();
-    if (!frame) return;
-
-    QTextCursor cursor = textEdit->textCursor();
-    frame = findFrame(frame, index);
-    if (!frame) return;
-
-    cursor.setPosition(frame->firstPosition());
-    textEdit->setTextCursor(cursor);
+    Fb2TreeModel *model = static_cast<Fb2TreeModel*>(treeView->model());
+    model->select(index);
 }
 
 void MainWindow::treeDestroyed()

@@ -27,6 +27,10 @@ public:
         return m_parent;
     }
 
+    QTextFrame * frame() const {
+        return m_frame;
+    }
+
     QString text() const;
 
 private:
@@ -43,6 +47,7 @@ class Fb2TreeModel: public QAbstractItemModel
 public:
     explicit Fb2TreeModel(QTextEdit &text, QObject *parent = 0);
     virtual ~Fb2TreeModel();
+    void select(const QModelIndex &index);
 
 public:
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
