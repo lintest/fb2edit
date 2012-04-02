@@ -15,6 +15,8 @@ public:
 
     Fb2TreeItem * item(const QModelIndex &index) const;
 
+    Fb2TreeItem * item(int row) const;
+
     int index(Fb2TreeItem * child) const {
         return m_list.indexOf(child);
     }

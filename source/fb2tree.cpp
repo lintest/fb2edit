@@ -34,6 +34,12 @@ Fb2TreeItem * Fb2TreeItem::item(const QModelIndex &index) const
     return m_list[row];
 }
 
+Fb2TreeItem * Fb2TreeItem::item(int row) const
+{
+    if (row < 0 || row >= m_list.size()) return NULL;
+    return m_list[row];
+}
+
 QString Fb2TreeItem::text() const
 {
     return tr("<section>") + m_text;
@@ -60,10 +66,11 @@ Fb2TreeModel::~Fb2TreeModel()
 
 Fb2TreeItem * Fb2TreeModel::item(const QModelIndex &index) const
 {
-    if (!m_root) return NULL;
-    if (!index.isValid()) return m_root;
-    Fb2TreeItem * parent = item(index.parent());
-    return parent ? parent->item(index) : NULL;
+    if (index.isValid()) {
+        return static_cast<Fb2TreeItem*>(index.internalPointer());
+    } else {
+        return m_root;
+    }
 }
 
 int Fb2TreeModel::columnCount(const QModelIndex &parent) const
@@ -74,16 +81,22 @@ int Fb2TreeModel::columnCount(const QModelIndex &parent) const
 
 QModelIndex Fb2TreeModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if (!m_root) return QModelIndex();
-    Fb2TreeItem * i  = item(parent);
-    return i ? createIndex(row, column, (void*)i) : QModelIndex();
+    if (!m_root || row < 0 || column < 0) return QModelIndex();
+    if (Fb2TreeItem *owner = item(parent)) {
+        if (Fb2TreeItem *child = owner->item(row)) {
+            return createIndex(row, column, (void*)child);
+        }
+    }
+    return QModelIndex();
 }
 
 QModelIndex Fb2TreeModel::parent(const QModelIndex &child) const
 {
-    if (Fb2TreeItem * parent = static_cast<Fb2TreeItem*>(child.internalPointer())) {
-        if (Fb2TreeItem * owner = parent->parent()) {
-            return createIndex(owner->index(parent), 0, (void*)owner);
+    if (Fb2TreeItem * node = static_cast<Fb2TreeItem*>(child.internalPointer())) {
+        if (Fb2TreeItem * parent = node->parent()) {
+            if (Fb2TreeItem * owner = parent->parent()) {
+                return createIndex(owner->index(parent), 0, (void*)parent);
+            }
         }
     }
     return QModelIndex();
@@ -91,14 +104,15 @@ QModelIndex Fb2TreeModel::parent(const QModelIndex &child) const
 
 int Fb2TreeModel::rowCount(const QModelIndex &parent) const
 {
-    Fb2TreeItem * i  = item(parent);
-    return i ? i->count() : 0;
+    if (parent.column() > 0) return 0;
+    Fb2TreeItem *owner = item(parent);
+    return owner ? owner->count() : 0;
 }
 
 QVariant Fb2TreeModel::data(const QModelIndex &index, int role) const
 {
     if (role != Qt::DisplayRole) return QVariant();
-    Fb2TreeItem * i  = item(index);
+    Fb2TreeItem * i = item(index);
     return i ? i->text() : QVariant();
 }
 
