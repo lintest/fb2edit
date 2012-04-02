@@ -27,10 +27,11 @@ Fb2TreeItem::~Fb2TreeItem()
     }
 }
 
-Fb2TreeItem * Fb2TreeItem::item(int index) const
+Fb2TreeItem * Fb2TreeItem::item(const QModelIndex &index) const
 {
-    if (index < 0 || index >= m_list.size()) return NULL;
-    return m_list[index];
+    int row = index.row();
+    if (row < 0 || row >= m_list.size()) return NULL;
+    return m_list[row];
 }
 
 QString Fb2TreeItem::text() const
@@ -62,7 +63,7 @@ Fb2TreeItem * Fb2TreeModel::item(const QModelIndex &index) const
     if (!m_root) return NULL;
     if (!index.isValid()) return m_root;
     Fb2TreeItem * parent = item(index.parent());
-    return parent ? parent->item(index.row()) : NULL;
+    return parent ? parent->item(index) : NULL;
 }
 
 int Fb2TreeModel::columnCount(const QModelIndex &parent) const

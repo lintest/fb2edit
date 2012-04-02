@@ -1,5 +1,5 @@
-#ifndef FB2EDIT_H
-#define FB2EDIT_H
+#ifndef FB2TEXT_H
+#define FB2TEXT_H
 
 #include <QResizeEvent>
 #include <QTextEdit>
@@ -35,4 +35,4 @@ private:
     QSize m_size;
 };
 
-#endif // FB2EDIT_H
+#endif // FB2TEXT_H

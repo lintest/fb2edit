@@ -13,7 +13,7 @@ public:
 
     virtual ~Fb2TreeItem();
 
-    Fb2TreeItem * item(int index) const;
+    Fb2TreeItem * item(const QModelIndex &index) const;
 
     int index(Fb2TreeItem * child) const {
         return m_list.indexOf(child);

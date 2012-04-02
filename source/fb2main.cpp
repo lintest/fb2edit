@@ -4,8 +4,8 @@
 
 #include "fb2main.h"
 #include "fb2doc.h"
-#include "fb2edit.h"
 #include "fb2read.h"
+#include "fb2text.h"
 #include "fb2tree.h"
 
 #include <Qsci/qsciscintilla.h>
