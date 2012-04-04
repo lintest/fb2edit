@@ -7,6 +7,7 @@
 #include <QThread>
 #include <QXmlDefaultHandler>
 #include <QTextCursor>
+#include <QTextDocument>
 #include <QStringList>
 #include <QTextFrameFormat>
 #include <QTextBlockFormat>
@@ -35,8 +36,8 @@ public:
     Fb2ReadThread(QObject *parent, const QString &filename);
     ~Fb2ReadThread();
     void Read(const QString &filename);
-    QTextDocument * doc();
-    const QString & file();
+    QString file();
+    QString html();
 
 signals:
     void sendDocument();
@@ -49,7 +50,7 @@ protected:
 
 private:
     const QString m_filename;
-    QTextDocument * m_document;
+    QString m_html;
     bool m_abort;
     QMutex mutex;
 };

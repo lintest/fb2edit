@@ -1,6 +1,8 @@
 #include <QtGui>
 #include <QtDebug>
 #include <QTreeView>
+#include <QtWebKit\QWebView>
+#include <QtWebKit\QWebFrame>
 
 #include "fb2main.h"
 #include "fb2doc.h"
@@ -97,12 +99,6 @@ static QTextFrame * findFrame(QTextFrame *root, const QModelIndex &index)
 
 void MainWindow::treeActivated(const QModelIndex &index)
 {
-    if (!treeView) return;
-    if (!textEdit) return;
-    if (!textEdit->document()) return;
-
-    Fb2TreeModel *model = static_cast<Fb2TreeModel*>(treeView->model());
-    model->select(index);
 }
 
 void MainWindow::treeDestroyed()
@@ -153,7 +149,7 @@ void MainWindow::fileOpen()
     }
 
     if (textEdit) {
-        if (isUntitled && textEdit->document()->isEmpty() && !isWindowModified()) {
+        if (isUntitled && !isWindowModified()) {
             thread = new Fb2ReadThread(this, filename);
             connect(thread, SIGNAL(sendDocument()), SLOT(sendDocument()));
             thread->start();
@@ -176,9 +172,11 @@ void MainWindow::fileOpen()
 
 void MainWindow::sendDocument()
 {
-    setCurrentFile(thread->file(), thread->doc());
+    setCurrentFile(thread->file(), thread->html());
+    return;
+
     treeView = new QTreeView(this);
-    treeView->setModel(new Fb2TreeModel(*textEdit));
+//    treeView->setModel(new Fb2TreeModel(*textEdit));
     treeView->setHeaderHidden(true);
     connect(treeView, SIGNAL(activated(QModelIndex)), SLOT(treeActivated(QModelIndex)));
     connect(treeView, SIGNAL(destroyed()), SLOT(treeDestroyed()));
@@ -414,29 +412,10 @@ void MainWindow::connectTextDocument(QTextDocument * document)
 
 void MainWindow::createText()
 {
-    textEdit = new Fb2TextEdit;
-    textEdit->setAcceptRichText(true);
+    textEdit = new QWebView(this);
+    textEdit->page()->setContentEditable(true);
     setCentralWidget(textEdit);
-
-    connect(actionCut, SIGNAL(triggered()), textEdit, SLOT(cut()));
-    connect(actionCopy, SIGNAL(triggered()), textEdit, SLOT(copy()));
-    connect(actionPaste, SIGNAL(triggered()), textEdit, SLOT(paste()));
-
-    connect(textEdit, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)));
-    connect(textEdit, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)));
-
-    connect(textEdit, SIGNAL(currentCharFormatChanged(const QTextCharFormat &)), SLOT(currentCharFormatChanged(const QTextCharFormat &)));
-
-    connect(actionUndo, SIGNAL(triggered()), textEdit, SLOT(undo()));
-    connect(actionRedo, SIGNAL(triggered()), textEdit, SLOT(redo()));
-
-    connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
-    connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
-
-    actionUndo->setEnabled(false);
-    actionRedo->setEnabled(false);
-
-    connectTextDocument(textEdit->document());
+    textEdit->setFocus();
 }
 
 void MainWindow::createQsci()
@@ -513,8 +492,8 @@ void MainWindow::writeSettings()
 
 bool MainWindow::maybeSave()
 {
-    if (textEdit && textEdit->document()->isModified()) {
-	QMessageBox::StandardButton ret;
+    if (textEdit && textEdit->isModified()) {
+        QMessageBox::StandardButton ret;
         ret = QMessageBox::warning(this, tr("SDI"),
                      tr("The document has been modified.\n"
                         "Do you want to save your changes?"),
@@ -543,7 +522,7 @@ bool MainWindow::saveFile(const QString &fileName)
 
     QTextStream out(&file);
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    out << textEdit->toPlainText();
+//    out << textEdit->toPlainText();
     QApplication::restoreOverrideCursor();
 
     setCurrentFile(fileName);
@@ -551,7 +530,7 @@ bool MainWindow::saveFile(const QString &fileName)
     return true;
 }
 
-void MainWindow::setCurrentFile(const QString &filename, QTextDocument * document)
+void MainWindow::setCurrentFile(const QString &filename, const QString &html)
 {
     static int sequenceNumber = 1;
 
@@ -567,12 +546,8 @@ void MainWindow::setCurrentFile(const QString &filename, QTextDocument * documen
     }
     title += QString(" - ") += qApp->applicationName();
 
-    if (textEdit && document) {
-        document->clearUndoRedoStacks();
-        document->setModified(false);
-        textEdit->setDocument(document);
-        connectTextDocument(textEdit->document());
-    }
+    textEdit->setHtml(html);
+    textEdit->page()->setContentEditable(true);
 
     setWindowModified(false);
     setWindowFilePath(curFile);
@@ -594,8 +569,14 @@ MainWindow *MainWindow::findMainWindow(const QString &fileName)
 void MainWindow::viewQsci()
 {
     if (centralWidget() == qsciEdit) return;
-    if (textEdit) { delete textEdit; textEdit = NULL; }
+    QString html;
+    if (textEdit) {
+        html = textEdit->page()->mainFrame()->toHtml();
+        delete textEdit;
+        textEdit = NULL;
+    }
     createQsci();
+    qsciEdit->setText(html);
 }
 
 void MainWindow::viewText()
@@ -664,6 +645,7 @@ void MainWindow::textSup()
 
 void MainWindow::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
 {
+/*
     if (!textEdit) return;
     QTextCursor cursor = textEdit->textCursor();
     cursor.beginEditBlock();
@@ -671,5 +653,6 @@ void MainWindow::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
     cursor.mergeCharFormat(format);
     textEdit->mergeCurrentCharFormat(format);
     cursor.endEditBlock();
+*/
 }
 

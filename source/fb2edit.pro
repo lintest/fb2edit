@@ -21,5 +21,6 @@ TARGET = fb2edit
 VERSION = 0.01.1
 
 QT += xml
+QT += webkit
 
 LIBS += -lqscintilla2

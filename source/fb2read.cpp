@@ -11,7 +11,6 @@
 Fb2ReadThread::Fb2ReadThread(QObject *parent, const QString &filename)
     : QThread(parent)
     , m_filename(filename)
-    , m_document(NULL)
     , m_abort(false)
 {
 }
@@ -20,21 +19,20 @@ Fb2ReadThread::~Fb2ReadThread()
 {
     stop();
     wait();
-    if (m_document) delete m_document;
 }
 
-QTextDocument * Fb2ReadThread::doc()
-{
-    QMutexLocker locker(&mutex);
-    Q_UNUSED(locker);
-    return m_document ? m_document->clone() : NULL;
-}
-
-const QString & Fb2ReadThread::file()
+QString Fb2ReadThread::file()
 {
     QMutexLocker locker(&mutex);
     Q_UNUSED(locker);
     return m_filename;
+}
+
+QString Fb2ReadThread::html()
+{
+    QMutexLocker locker(&mutex);
+    Q_UNUSED(locker);
+    return m_html;
 }
 
 void Fb2ReadThread::stop()
@@ -52,18 +50,17 @@ void Fb2ReadThread::run()
         return;
     }
 
-    m_document = new QTextDocument();
-    Fb2Handler handler(*m_document);
+    QTextDocument document;
+    Fb2Handler handler(document);
     QXmlSimpleReader reader;
     reader.setContentHandler(&handler);
     reader.setErrorHandler(&handler);
     QXmlInputSource source(&file);
 
-    bool ok = reader.parse(source);
-
-    m_document->moveToThread(QApplication::instance()->thread());
-
-    if (ok) emit sendDocument();
+    if (reader.parse(source)) {
+        m_html = document.toHtml();
+        emit sendDocument();
+    }
 }
 
 //---------------------------------------------------------------------------
