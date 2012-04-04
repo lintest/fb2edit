@@ -13,6 +13,7 @@ class QThread;
 class QTextEdit;
 class QTreeView;
 class QTextDocument;
+class QWebView;
 QT_END_NAMESPACE
 
 class QsciScintilla;
@@ -75,12 +76,12 @@ private:
     void writeSettings();
     bool maybeSave();
     bool saveFile(const QString &fileName);
-    void setCurrentFile(const QString &fileName, QTextDocument * document = NULL);
+    void setCurrentFile(const QString &fileName, const QString &html = QString());
     void mergeFormatOnWordOrSelection(const QTextCharFormat &format);
     MainWindow *findMainWindow(const QString &fileName);
 
     Fb2ReadThread *thread;
-    QTextEdit *textEdit;
+    QWebView *textEdit;
     QTextEdit *noteEdit;
     QTextEdit *messageEdit;
     QsciScintilla *qsciEdit;
