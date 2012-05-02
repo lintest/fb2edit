@@ -1,8 +1,8 @@
 #include <QtGui>
 #include <QtDebug>
 #include <QTreeView>
-#include <QtWebKit\QWebView>
-#include <QtWebKit\QWebFrame>
+#include <QWebView>
+#include <QWebFrame>
 
 #include "fb2main.h"
 #include "fb2doc.h"

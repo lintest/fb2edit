@@ -12,21 +12,11 @@
 #include <QTextFrameFormat>
 #include <QTextBlockFormat>
 #include <QTextCharFormat>
+#include <QXmlStreamWriter>
 
 QT_BEGIN_NAMESPACE
 class QTextEdit;
 QT_END_NAMESPACE
-
-class Fb2TextCursor : public QTextCursor
-{
-public:
-    explicit Fb2TextCursor(QTextDocument *document, bool foot)
-        : QTextCursor(document), m_foot(foot) {}
-    bool foot()
-        { return m_foot; }
-private:
-    const bool m_foot;
-};
 
 class Fb2ReadThread : public QThread
 {
@@ -65,7 +55,7 @@ static Keyword toKeyword(const QString &name); private:
 class Fb2Handler : public QXmlDefaultHandler
 {
 public:
-    explicit Fb2Handler(QTextDocument & document);
+    explicit Fb2Handler(QString &string);
     virtual ~Fb2Handler();
     bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &attributes);
     bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName);
@@ -104,44 +94,29 @@ private:
             Binary,
         FB2_END_KEYLIST
     public:
-        explicit RootHandler(QTextDocument &document, const QString &name);
+        explicit RootHandler(QXmlStreamWriter &writer, const QString &name);
         virtual ~RootHandler();
     protected:
         virtual BaseHandler * NewTag(const QString & name, const QXmlAttributes &attributes);
     private:
-        QTextDocument &m_document;
-        Fb2TextCursor m_cursor;
-        bool m_empty;
+        QXmlStreamWriter &m_writer;
     };
 
-    class TextHandler : public BaseHandler
-    {
-    public:
-        explicit TextHandler(Fb2TextCursor &cursor, const QString &name);
-        explicit TextHandler(TextHandler &parent, const QString &name);
-        virtual BaseHandler * NewTag(const QString & name, const QXmlAttributes &attributes);
-    protected:
-        virtual void EndTag(const QString &name);
-    protected:
-        Fb2TextCursor & cursor() { return m_cursor; }
-        Fb2TextCursor & m_cursor;
-        QTextBlockFormat m_blockFormat;
-        QTextCharFormat m_charFormat;
-    };
-
-    class DescrHandler : public TextHandler
+    class DescrHandler : public BaseHandler
     {
         FB2_BEGIN_KEYLIST
             Title,
             Publish,
         FB2_END_KEYLIST
     public:
-        explicit DescrHandler(Fb2TextCursor &cursor, const QString &name) : TextHandler(cursor, name) {}
+        explicit DescrHandler(QXmlStreamWriter &writer, const QString &name) : BaseHandler(name), m_writer(writer) {}
     protected:
         virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
+    protected:
+        QXmlStreamWriter &m_writer;
     };
 
-    class HeaderHandler : public TextHandler
+    class HeaderHandler : public BaseHandler
     {
         FB2_BEGIN_KEYLIST
             Author,
@@ -153,168 +128,62 @@ private:
             Cover,
         FB2_END_KEYLIST
     public:
-        explicit HeaderHandler(TextHandler &parent, const QString &name) : TextHandler(parent, name) {}
+        explicit HeaderHandler(QXmlStreamWriter &writer, const QString &name) : BaseHandler(name), m_writer(writer) {}
     protected:
         virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
-        QString m_title;
+    protected:
+        QXmlStreamWriter &m_writer;
     };
 
-    class BodyHandler : public TextHandler
+    class BodyHandler : public BaseHandler
     {
         FB2_BEGIN_KEYLIST
-            Image,
-            Title,
-            Epigraph,
             Section,
-            Paragraph,
-            Poem,
-            Stanza,
-            Verse,
-       FB2_END_KEYLIST
-    public:
-        explicit BodyHandler(Fb2TextCursor &cursor, const QString &name);
-    protected:
-        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
-        virtual void EndTag(const QString &name);
-    private:
-        QTextFrame * m_frame;
-        bool m_feed;
-    };
-
-    class ImageHandler : public TextHandler
-    {
-    public:
-        explicit ImageHandler(TextHandler &parent, const QString &name, const QXmlAttributes &attributes);
-    protected:
-        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
-    };
-
-    class SectionHandler : public TextHandler
-    {
-        FB2_BEGIN_KEYLIST
-            Title,
-            Epigraph,
-            Image,
-            Annotation,
-            Section,
-            Paragraph,
-            Poem,
-            Subtitle,
-            Cite,
-            Emptyline,
-            Table,
-        FB2_END_KEYLIST
-    public:
-        explicit SectionHandler(TextHandler &parent, const QString &name, const QXmlAttributes &attributes);
-    protected:
-        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
-        virtual void EndTag(const QString &name);
-    private:
-        QTextFrame * m_frame;
-        bool m_feed;
-    };
-
-    class TitleHandler : public TextHandler
-    {
-        FB2_BEGIN_KEYLIST
-            Paragraph,
-            Emptyline,
-        FB2_END_KEYLIST
-    public:
-        explicit TitleHandler(TextHandler &parent, const QString &name, const QXmlAttributes &attributes);
-    protected:
-        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
-        virtual void EndTag(const QString &name);
-    private:
-        QTextFrame * m_frame;
-        QTextTable * m_table;
-        bool m_feed;
-    };
-
-    class PoemHandler : public TextHandler
-    {
-        FB2_BEGIN_KEYLIST
-            Title,
-            Epigraph,
-            Stanza,
-            Author,
-            Date,
-        FB2_END_KEYLIST
-    public:
-        explicit PoemHandler(TextHandler &parent, const QString &name, const QXmlAttributes &attributes);
-    protected:
-        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
-        virtual void EndTag(const QString &name);
-    private:
-        QTextFrame * m_frame;
-        QTextTable * m_table;
-        bool m_feed;
-    };
-
-    class StanzaHandler : public TextHandler
-    {
-        FB2_BEGIN_KEYLIST
-            Title,
-            Subtitle,
-            Verse,
-        FB2_END_KEYLIST
-    public:
-        explicit StanzaHandler(TextHandler &parent, const QString &name, const QXmlAttributes &attributes);
-    protected:
-        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
-    private:
-        bool m_feed;
-    };
-
-    class BlockHandler : public TextHandler
-    {
-        FB2_BEGIN_KEYLIST
-            Strong,
-            Emphasis,
-            Style,
             Anchor,
+            Table,
+            Image,
+            Parag,
+            Style,
+            Strong,
+            Emphas,
             Strike,
             Sub,
             Sup,
             Code,
-            Image,
-        FB2_END_KEYLIST
+       FB2_END_KEYLIST
     public:
-        explicit BlockHandler(TextHandler &parent, const QString &name, const QXmlAttributes &attributes, QTextCharFormat *format = NULL);
+        explicit BodyHandler(QXmlStreamWriter &writer, const QString &name, const QString &tag, const QString &style = QString());
+        virtual ~BodyHandler();
+        virtual void TxtTag(const QString &text);
     protected:
         virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
-        virtual void TxtTag(const QString &text);
+    protected:
+        QXmlStreamWriter &m_writer;
     };
 
-    class UnknowHandler : public TextHandler
+    class ImageHandler : public BaseHandler
     {
     public:
-        explicit UnknowHandler(TextHandler &parent, const QString &name);
-    protected:
-        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
-        virtual void TxtTag(const QString &text);
-    private:
-        TextHandler &m_parent;
+        explicit ImageHandler(QXmlStreamWriter &writer, const QString &name, const QXmlAttributes &attributes);
     };
 
     class BinaryHandler : public BaseHandler
     {
     public:
-        explicit BinaryHandler(QTextDocument &document, const QString &name, const QXmlAttributes &attributes);
+        explicit BinaryHandler(const QString &name, const QXmlAttributes &attributes);
     protected:
         virtual void TxtTag(const QString &text);
         virtual void EndTag(const QString &name);
     private:
-        QTextDocument & m_document;
         QString m_file;
         QString m_text;
     };
 
 public:
-    QTextDocument & document() { return m_document; }
+    static bool toHTML(const QString &filename, QString &html);
 
 private:
-    QTextDocument & m_document;
+    QXmlStreamWriter m_writer;
     RootHandler * m_handler;
     QString m_error;
 };
