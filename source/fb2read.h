@@ -152,7 +152,7 @@ private:
             Code,
        FB2_END_KEYLIST
     public:
-        explicit BodyHandler(QXmlStreamWriter &writer, const QString &name, const QString &tag, const QString &style = QString());
+        explicit BodyHandler(QXmlStreamWriter &writer, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style = QString());
         virtual ~BodyHandler();
         virtual void TxtTag(const QString &text);
     protected:
@@ -161,7 +161,13 @@ private:
         QXmlStreamWriter &m_writer;
     };
 
-    class ImageHandler : public BaseHandler
+    class AnchorHandler : public BodyHandler
+    {
+    public:
+        explicit AnchorHandler(QXmlStreamWriter &writer, const QString &name, const QXmlAttributes &attributes);
+    };
+
+    class ImageHandler : public BodyHandler
     {
     public:
         explicit ImageHandler(QXmlStreamWriter &writer, const QString &name, const QXmlAttributes &attributes);

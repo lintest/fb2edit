@@ -100,6 +100,7 @@ private:
         *actionTextStrike,
         *actionTextSub,
         *actionTextSup,
+        *actionZoomOrig,
         *actionZoomIn,
         *actionZoomOut
     ;

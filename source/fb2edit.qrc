@@ -19,6 +19,7 @@
         <file>images/16x16/format-text-superscript.png</file>
         <file>images/16x16/window-close.png</file>
         <file>images/16x16/zoom-in.png</file>
+        <file>images/16x16/zoom-original.png</file>
         <file>images/16x16/zoom-out.png</file>
         <file>images/24x24/application-exit.png</file>
         <file>images/24x24/document-new.png</file>
@@ -39,6 +40,7 @@
         <file>images/24x24/format-text-superscript.png</file>
         <file>images/24x24/window-close.png</file>
         <file>images/24x24/zoom-in.png</file>
+        <file>images/24x24/zoom-original.png</file>
         <file>images/24x24/zoom-out.png</file>
     </qresource>
 </RCC>

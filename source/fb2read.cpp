@@ -141,7 +141,7 @@ Fb2Handler::RootHandler::~RootHandler()
 Fb2Handler::BaseHandler * Fb2Handler::RootHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
     switch (toKeyword(name)) {
-        case Body   : return new BodyHandler(m_writer, name, "div", name);
+        case Body   : return new BodyHandler(m_writer, name, attributes, "div", name);
         case Descr  : return new DescrHandler(m_writer, name);
         case Binary : return new BinaryHandler(name, attributes);
         default: return NULL;
@@ -224,11 +224,13 @@ FB2_BEGIN_KEYHASH(BodyHandler)
     FB2_KEY( Code,     "code"          );
 FB2_END_KEYHASH
 
-Fb2Handler::BodyHandler::BodyHandler(QXmlStreamWriter &writer, const QString &name, const QString &tag, const QString &style)
+Fb2Handler::BodyHandler::BodyHandler(QXmlStreamWriter &writer, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style)
     : BaseHandler(name)
     , m_writer(writer)
 {
     m_writer.writeStartElement(tag);
+    QString id = Value(attributes, "id");
+    if (!id.isEmpty()) m_writer.writeAttribute("id", id);
     if (!style.isEmpty()) m_writer.writeAttribute("style", style);
 }
 
@@ -240,15 +242,16 @@ Fb2Handler::BodyHandler::~BodyHandler()
 Fb2Handler::BaseHandler * Fb2Handler::BodyHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
     switch (toKeyword(name)) {
-        case Section   : return new BodyHandler(m_writer, name, "div", name);
-        case Parag     : return new BodyHandler(m_writer, name, "p");
-        case Strong    : return new BodyHandler(m_writer, name, "b");
-        case Emphas    : return new BodyHandler(m_writer, name, "i");
-        case Strike    : return new BodyHandler(m_writer, name, "s");
-        case Code      : return new BodyHandler(m_writer, name, "tt");
-        case Sub       : return new BodyHandler(m_writer, name, "sub");
-        case Sup       : return new BodyHandler(m_writer, name, "sup");
+        case Section   : return new BodyHandler(m_writer, name, attributes, "div", name);
+        case Anchor    : return new AnchorHandler(m_writer, name, attributes);
         case Image     : return new ImageHandler(m_writer, name, attributes);
+        case Parag     : return new BodyHandler(m_writer, name, attributes, "p");
+        case Strong    : return new BodyHandler(m_writer, name, attributes, "b");
+        case Emphas    : return new BodyHandler(m_writer, name, attributes, "i");
+        case Strike    : return new BodyHandler(m_writer, name, attributes, "s");
+        case Code      : return new BodyHandler(m_writer, name, attributes, "tt");
+        case Sub       : return new BodyHandler(m_writer, name, attributes, "sub");
+        case Sup       : return new BodyHandler(m_writer, name, attributes, "sup");
         default: return NULL;
     }
 }
@@ -259,48 +262,25 @@ void Fb2Handler::BodyHandler::TxtTag(const QString &text)
 }
 
 //---------------------------------------------------------------------------
-//  Fb2Handler::BlockHandler
+//  Fb2Handler::AnchorHandler
 //---------------------------------------------------------------------------
 
-/*
-
-Fb2Handler::BaseHandler * Fb2Handler::BlockHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
+Fb2Handler::AnchorHandler::AnchorHandler(QXmlStreamWriter &writer, const QString &name, const QXmlAttributes &attributes)
+    : BodyHandler(writer, name, attributes, "a")
 {
-    Q_UNUSED(attributes);
-    QTextCharFormat format;
-    switch (toKeyword(name)) {
-        case Image    : return new ImageHandler(*this, name, attributes);
-        case Strong   : format.setFontWeight(QFont::Bold);  break;
-        case Emphasis : format.setFontItalic(true); break;
-        case Strike   : format.setFontStrikeOut(true); break;
-        case Sub      : format.setVerticalAlignment(QTextCharFormat::AlignSubScript); break;
-        case Sup      : format.setVerticalAlignment(QTextCharFormat::AlignSuperScript); break;
-        case Anchor   : {
-            QString href = Value(attributes, "href");
-            if (!href.isEmpty()) {
-                format.setAnchorHref(href);
-                format.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-            }
-        } break;
-        default:
-            return new UnknowHandler(*this, name); break;
-    }
-    return new BlockHandler(*this, name, attributes, &format);
+    QString href = Value(attributes, "href");
+    writer.writeAttribute("href", href);
 }
-
-*/
 
 //---------------------------------------------------------------------------
 //  Fb2Handler::ImageHandler
 //---------------------------------------------------------------------------
 
 Fb2Handler::ImageHandler::ImageHandler(QXmlStreamWriter &writer, const QString &name, const QXmlAttributes &attributes)
-    : BaseHandler(name)
+    : BodyHandler(writer, name, attributes, "img")
 {
-    QString image = Value(attributes, "href");
-    writer.writeStartElement("img");
-    writer.writeAttribute("href", image);
-    writer.writeEndElement();
+    QString href = Value(attributes, "href");
+    writer.writeAttribute("src", href);
 }
 
 //---------------------------------------------------------------------------
@@ -335,6 +315,7 @@ Fb2Handler::Fb2Handler(QString &string)
     , m_writer(&string)
     , m_handler(NULL)
 {
+    m_writer.setAutoFormatting(true);
 }
 
 Fb2Handler::~Fb2Handler()

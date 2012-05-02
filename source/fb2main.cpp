@@ -388,6 +388,10 @@ void MainWindow::createActions()
     menu->addAction(act);
     tool->addAction(act);
 
+    actionZoomOrig = act = new QAction(icon("zoom-original"), tr("Zoom original"), this);
+    menu->addAction(act);
+    tool->addAction(act);
+
     menuBar()->addSeparator();
 
     menu = menuBar()->addMenu(tr("&Help"));
