@@ -100,9 +100,9 @@ private:
         *actionTextStrike,
         *actionTextSub,
         *actionTextSup,
-        *actionZoomOrig,
         *actionZoomIn,
-        *actionZoomOut
+        *actionZoomOut,
+        *actionZoomOrig
     ;
 };
 

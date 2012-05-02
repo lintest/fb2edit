@@ -9,6 +9,8 @@
 #include "fb2read.h"
 #include "fb2text.h"
 #include "fb2tree.h"
+#include "fb2view.h"
+#include "fb2main.h"
 
 #include <Qsci/qsciscintilla.h>
 #include <Qsci/qscilexerxml.h>
@@ -232,6 +234,7 @@ void MainWindow::createActions()
     QAction * act;
     QMenu * menu;
     QToolBar * tool;
+    QList<QAction*> actions;
 
     menu = menuBar()->addMenu(tr("&File"));
     tool = addToolBar(tr("File"));
@@ -416,10 +419,13 @@ void MainWindow::connectTextDocument(QTextDocument * document)
 
 void MainWindow::createText()
 {
-    textEdit = new QWebView(this);
-    textEdit->page()->setContentEditable(true);
+    textEdit = new Fb2WebView(this);
     setCentralWidget(textEdit);
     textEdit->setFocus();
+
+    connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
+    connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
+    connect(actionZoomOrig, SIGNAL(triggered()), textEdit, SLOT(zoomOrig()));
 }
 
 void MainWindow::createQsci()
@@ -550,8 +556,7 @@ void MainWindow::setCurrentFile(const QString &filename, const QString &html)
     }
     title += QString(" - ") += qApp->applicationName();
 
-    textEdit->setHtml(html);
-    textEdit->page()->setContentEditable(true);
+    textEdit->setHtml(html, QUrl("fb2://s/"));
 
     setWindowModified(false);
     setWindowFilePath(curFile);

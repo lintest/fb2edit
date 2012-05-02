@@ -280,6 +280,7 @@ Fb2Handler::ImageHandler::ImageHandler(QXmlStreamWriter &writer, const QString &
     : BodyHandler(writer, name, attributes, "img")
 {
     QString href = Value(attributes, "href");
+    while (href.left(1) == "#") href.remove(0, 1);
     writer.writeAttribute("src", href);
 }
 
