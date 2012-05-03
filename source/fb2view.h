@@ -3,10 +3,28 @@
 
 #include <QMap>
 #include <QNetworkAccessManager>
+#include <QNetworkReply>
 #include <QResizeEvent>
 #include <QTimer>
 #include <QThread>
 #include <QWebView>
+
+class Fb2ImageReply : public QNetworkReply
+{
+    Q_OBJECT
+public:
+    explicit Fb2ImageReply(QNetworkAccessManager::Operation op, const QNetworkRequest &request, const QByteArray &data);
+    void abort();
+    qint64 bytesAvailable() const;
+    bool isSequential() const;
+
+protected:
+    qint64 readData(char *data, qint64 maxSize);
+
+private:
+    QByteArray content;
+    qint64 offset;
+};
 
 class Fb2NetworkAccessManager : public QNetworkAccessManager
 {
@@ -19,7 +37,11 @@ protected:
     virtual QNetworkReply *createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData = 0);
 
 private:
-    QMap<QString, QByteArray> m_images;
+    QNetworkReply *imageRequest(Operation op, const QNetworkRequest &request);
+
+private:
+    typedef QMap<QString, QByteArray> ImageMap;
+    ImageMap m_images;
 
 };
 
