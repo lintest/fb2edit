@@ -1,6 +1,7 @@
 #ifndef FB2READ_H
 #define FB2READ_H
 
+#include <QByteArray>
 #include <QMutex>
 #include <QThread>
 #include <QXmlDefaultHandler>
@@ -18,18 +19,20 @@ class Fb2ReadThread : public QThread
 public:
     Fb2ReadThread(QObject *parent, const QString &filename);
     ~Fb2ReadThread();
-    void Read(const QString &filename);
-    QString file();
-    QString html();
+    void onImage(const QString &name, const QByteArray &data);
 
 signals:
-    void sendDocument();
+    void image(QString name, QByteArray data);
+    void html(QString html);
 
 public slots:
     void stop();
 
 protected:
     void run();
+
+private:
+    bool parse();
 
 private:
     const QString m_filename;
@@ -48,7 +51,7 @@ static Keyword toKeyword(const QString &name); private:
 class Fb2Handler : public QXmlDefaultHandler
 {
 public:
-    explicit Fb2Handler(QString &string);
+    explicit Fb2Handler(Fb2ReadThread &thread, QString &string);
     virtual ~Fb2Handler();
     bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &attributes);
     bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName);
@@ -87,11 +90,12 @@ private:
             Binary,
         FB2_END_KEYLIST
     public:
-        explicit RootHandler(QXmlStreamWriter &writer, const QString &name);
+        explicit RootHandler(Fb2ReadThread &thread, QXmlStreamWriter &writer, const QString &name);
         virtual ~RootHandler();
     protected:
         virtual BaseHandler * NewTag(const QString & name, const QXmlAttributes &attributes);
     private:
+        Fb2ReadThread &m_thread;
         QXmlStreamWriter &m_writer;
     };
 
@@ -169,20 +173,19 @@ private:
     class BinaryHandler : public BaseHandler
     {
     public:
-        explicit BinaryHandler(const QString &name, const QXmlAttributes &attributes);
+        explicit BinaryHandler(Fb2ReadThread &thread, const QString &name, const QXmlAttributes &attributes);
     protected:
         virtual void TxtTag(const QString &text);
         virtual void EndTag(const QString &name);
     private:
+        Fb2ReadThread &m_thread;
         QString m_file;
         QString m_text;
     };
 
-public:
-    static bool toHTML(const QString &filename, QString &html);
-
 private:
     QXmlStreamWriter m_writer;
+    Fb2ReadThread & m_thread;
     RootHandler * m_handler;
     QString m_error;
 };

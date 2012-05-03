@@ -20,20 +20,6 @@ Fb2ReadThread::~Fb2ReadThread()
     wait();
 }
 
-QString Fb2ReadThread::file()
-{
-    QMutexLocker locker(&mutex);
-    Q_UNUSED(locker);
-    return m_filename;
-}
-
-QString Fb2ReadThread::html()
-{
-    QMutexLocker locker(&mutex);
-    Q_UNUSED(locker);
-    return m_html;
-}
-
 void Fb2ReadThread::stop()
 {
     QMutexLocker locker(&mutex);
@@ -43,9 +29,27 @@ void Fb2ReadThread::stop()
 
 void Fb2ReadThread::run()
 {
-    if (Fb2Handler::toHTML(m_filename, m_html)) {
-        emit sendDocument();
+    if (parse()) emit html(m_html);
+}
+
+void Fb2ReadThread::onImage(const QString &name, const QByteArray &data)
+{
+    emit image(name, data);
+}
+
+bool Fb2ReadThread::parse()
+{
+    QFile file(m_filename);
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        qCritical() << QObject::tr("Cannot read file %1:\n%2.").arg(m_filename).arg(file.errorString());
+        return false;
     }
+    Fb2Handler handler(*this, m_html);
+    QXmlSimpleReader reader;
+    reader.setContentHandler(&handler);
+    reader.setErrorHandler(&handler);
+    QXmlInputSource source(&file);
+    return reader.parse(source);
 }
 
 //---------------------------------------------------------------------------
@@ -123,8 +127,9 @@ FB2_BEGIN_KEYHASH(RootHandler)
     insert("binary", Binary);
 FB2_END_KEYHASH
 
-Fb2Handler::RootHandler::RootHandler(QXmlStreamWriter &writer, const QString &name)
+Fb2Handler::RootHandler::RootHandler(Fb2ReadThread &thread, QXmlStreamWriter &writer, const QString &name)
     : BaseHandler(name)
+    , m_thread(thread)
     , m_writer(writer)
 {
     m_writer.writeStartElement("html");
@@ -142,7 +147,7 @@ Fb2Handler::BaseHandler * Fb2Handler::RootHandler::NewTag(const QString &name, c
     switch (toKeyword(name)) {
         case Body   : return new BodyHandler(m_writer, name, attributes, "div", name);
         case Descr  : return new DescrHandler(m_writer, name);
-        case Binary : return new BinaryHandler(name, attributes);
+        case Binary : return new BinaryHandler(m_thread, name, attributes);
         default: return NULL;
     }
 }
@@ -287,8 +292,9 @@ Fb2Handler::ImageHandler::ImageHandler(QXmlStreamWriter &writer, const QString &
 //  Fb2Handler::BinaryHandler
 //---------------------------------------------------------------------------
 
-Fb2Handler::BinaryHandler::BinaryHandler(const QString &name, const QXmlAttributes &attributes)
+Fb2Handler::BinaryHandler::BinaryHandler(Fb2ReadThread &thread, const QString &name, const QXmlAttributes &attributes)
     : BaseHandler(name)
+    , m_thread(thread)
     , m_file(Value(attributes, "id"))
 {
 }
@@ -302,17 +308,17 @@ void Fb2Handler::BinaryHandler::EndTag(const QString &name)
 {
     Q_UNUSED(name);
     QByteArray in; in.append(m_text);
-    QImage img = QImage::fromData(QByteArray::fromBase64(in));
-//    if (!m_file.isEmpty()) m_document.addResource(QTextDocument::ImageResource, QUrl(m_file), img);
+    if (!m_file.isEmpty()) m_thread.onImage(m_file, QByteArray::fromBase64(in));
 }
 
 //---------------------------------------------------------------------------
 //  Fb2Handler
 //---------------------------------------------------------------------------
 
-Fb2Handler::Fb2Handler(QString &string)
+Fb2Handler::Fb2Handler(Fb2ReadThread &thread, QString &string)
     : QXmlDefaultHandler()
     , m_writer(&string)
+    , m_thread(thread)
     , m_handler(NULL)
 {
     m_writer.setAutoFormatting(true);
@@ -334,7 +340,7 @@ bool Fb2Handler::startElement(const QString & namespaceURI, const QString & loca
     qCritical() << name;
 
     if (name == "fictionbook") {
-        m_handler = new RootHandler(m_writer, name);
+        m_handler = new RootHandler(m_thread, m_writer, name);
         return true;
     } else {
         m_error = QObject::tr("The file is not an FB2 file.");
@@ -376,22 +382,6 @@ bool Fb2Handler::fatalError(const QXmlParseException &exception)
 QString Fb2Handler::errorString() const
 {
     return m_error;
-}
-
-bool Fb2Handler::toHTML(const QString &filename, QString &html)
-{
-    QFile file(filename);
-    if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        qCritical() << QObject::tr("Cannot read file %1:\n%2.").arg(filename).arg(file.errorString());
-        return false;
-    }
-
-    Fb2Handler handler(html);
-    QXmlSimpleReader reader;
-    reader.setContentHandler(&handler);
-    reader.setErrorHandler(&handler);
-    QXmlInputSource source(&file);
-    return reader.parse(source);
 }
 
 #undef FB2_BEGIN_KEYHASH

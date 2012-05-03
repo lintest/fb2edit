@@ -1,9 +1,11 @@
 #ifndef FB2VIEW_H
 #define FB2VIEW_H
 
+#include <QMap>
 #include <QNetworkAccessManager>
 #include <QResizeEvent>
 #include <QTimer>
+#include <QThread>
 #include <QWebView>
 
 class Fb2NetworkAccessManager : public QNetworkAccessManager
@@ -11,9 +13,13 @@ class Fb2NetworkAccessManager : public QNetworkAccessManager
     Q_OBJECT
 public:
     explicit Fb2NetworkAccessManager(QObject *parent = 0);
+    void insert(const QString &file, const QByteArray &data);
 
 protected:
     virtual QNetworkReply *createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData = 0);
+
+private:
+    QMap<QString, QByteArray> m_images;
 
 };
 
@@ -53,16 +59,20 @@ class Fb2WebView : public Fb2BaseWebView
     Q_OBJECT
 public:
     explicit Fb2WebView(QWidget *parent = 0);
+    bool load(const QString &filename);
     
 signals:
     
 public slots:
+    void image(QString file, QByteArray data);
+    void html(QString html);
     void zoomIn();
     void zoomOut();
     void zoomOrig();
 
 private:
     Fb2NetworkAccessManager m_network;
+    QThread *m_thread;
 };
 
 #endif // FB2VIEW_H

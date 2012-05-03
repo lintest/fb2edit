@@ -150,9 +150,8 @@ void MainWindow::fileOpen()
 
     if (textEdit) {
         if (isUntitled && !isWindowModified()) {
-            thread = new Fb2ReadThread(this, filename);
-            connect(thread, SIGNAL(sendDocument()), SLOT(sendDocument()));
-            thread->start();
+            Fb2WebView *view = dynamic_cast<Fb2WebView*>(textEdit);
+            view->load(filename);
         } else {
             MainWindow * other = new MainWindow(filename, NULL);
             other->move(x() + 40, y() + 40);
@@ -172,7 +171,7 @@ void MainWindow::fileOpen()
 
 void MainWindow::sendDocument()
 {
-    setCurrentFile(thread->file(), thread->html());
+//    setCurrentFile(thread->file(), thread->html());
     return;
 
     treeView = new QTreeView(this);

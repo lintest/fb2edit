@@ -1,4 +1,6 @@
 #include "fb2view.h"
+#include "fb2read.h"
+
 #include <QtDebug>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -20,12 +22,18 @@ QNetworkReply * Fb2NetworkAccessManager::createRequest(Operation op, const QNetw
     return QNetworkAccessManager::createRequest(op, request, outgoingData);
 }
 
+void Fb2NetworkAccessManager::insert(const QString &file, const QByteArray &data)
+{
+    m_images.insert(file, data);
+}
+
 //---------------------------------------------------------------------------
 //  Fb2WebView
 //---------------------------------------------------------------------------
 
 Fb2WebView::Fb2WebView(QWidget *parent)
     : Fb2BaseWebView(parent)
+    , m_thread(0)
 {
     page()->setContentEditable(true);
     QWebSettings *settings = page()->settings();
@@ -35,6 +43,28 @@ Fb2WebView::Fb2WebView(QWidget *parent)
     settings->setAttribute(QWebSettings::PluginsEnabled, false);
     settings->setAttribute(QWebSettings::ZoomTextOnly, true);
     page()->setNetworkAccessManager(&m_network);
+}
+
+bool Fb2WebView::load(const QString &filename)
+{
+    if (m_thread) return false;
+    m_thread = new Fb2ReadThread(this, filename);
+    connect(m_thread, SIGNAL(image(QString, QByteArray)), SLOT(image(QString, QByteArray)));
+    connect(m_thread, SIGNAL(html(QString)), SLOT(html(QString)));
+    m_thread->start();
+}
+
+void Fb2WebView::image(QString file, QByteArray data)
+{
+    m_network.insert(file, data);
+    qCritical() << file;
+}
+
+void Fb2WebView::html(QString html)
+{
+    setHtml(html, QUrl("fb2://s/"));
+    if (m_thread) m_thread->deleteLater();
+    m_thread = 0;
 }
 
 void Fb2WebView::zoomIn()
