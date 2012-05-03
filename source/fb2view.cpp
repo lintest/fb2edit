@@ -25,7 +25,7 @@ QNetworkReply * Fb2NetworkAccessManager::createRequest(Operation op, const QNetw
 //---------------------------------------------------------------------------
 
 Fb2WebView::Fb2WebView(QWidget *parent)
-    : QWebView(parent)
+    : Fb2BaseWebView(parent)
 {
     page()->setContentEditable(true);
     QWebSettings *settings = page()->settings();

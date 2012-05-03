@@ -1,17 +1,10 @@
 #ifndef FB2READ_H
 #define FB2READ_H
 
-#include "fb2doc.h"
-
 #include <QMutex>
 #include <QThread>
 #include <QXmlDefaultHandler>
-#include <QTextCursor>
-#include <QTextDocument>
 #include <QStringList>
-#include <QTextFrameFormat>
-#include <QTextBlockFormat>
-#include <QTextCharFormat>
 #include <QXmlStreamWriter>
 
 QT_BEGIN_NAMESPACE

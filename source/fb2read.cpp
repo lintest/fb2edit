@@ -1,5 +1,4 @@
 #include <QtGui>
-#include <QTextEdit>
 #include <QtDebug>
 
 #include "fb2read.h"

@@ -5,9 +5,7 @@
 #include <QWebFrame>
 
 #include "fb2main.h"
-#include "fb2doc.h"
 #include "fb2read.h"
-#include "fb2text.h"
 #include "fb2tree.h"
 #include "fb2view.h"
 #include "fb2main.h"
@@ -595,16 +593,6 @@ void MainWindow::viewText()
     createText();
 }
 
-void MainWindow::currentCharFormatChanged(const QTextCharFormat &format)
-{
-    QFont font = format.font();
-    actionTextBold   -> setChecked(font.bold());
-    actionTextItalic -> setChecked(font.italic());
-    actionTextStrike -> setChecked(font.strikeOut());
-    actionTextSub    -> setChecked(format.verticalAlignment() == QTextCharFormat::AlignSubScript);
-    actionTextSup    -> setChecked(format.verticalAlignment() == QTextCharFormat::AlignSuperScript);
-}
-
 void MainWindow::cursorPositionChanged()
 {
  //   alignmentChanged(textEdit->alignment());
@@ -619,49 +607,21 @@ void MainWindow::clipboardDataChanged()
 
 void MainWindow::textBold()
 {
-    QTextCharFormat fmt;
-    fmt.setFontWeight(actionTextBold->isChecked() ? QFont::Bold : QFont::Normal);
-    mergeFormatOnWordOrSelection(fmt);
 }
 
 void MainWindow::textItalic()
 {
-    QTextCharFormat fmt;
-    fmt.setFontItalic(actionTextItalic->isChecked());
-    mergeFormatOnWordOrSelection(fmt);
 }
 
 void MainWindow::textStrike()
 {
-    QTextCharFormat fmt;
-    fmt.setFontStrikeOut(actionTextStrike->isChecked());
-    mergeFormatOnWordOrSelection(fmt);
 }
 
 void MainWindow::textSub()
 {
-    QTextCharFormat fmt;
-    fmt.setVerticalAlignment(actionTextSub->isChecked() ? QTextCharFormat::AlignSubScript : QTextCharFormat::AlignNormal);
-    mergeFormatOnWordOrSelection(fmt);
 }
 
 void MainWindow::textSup()
 {
-    QTextCharFormat fmt;
-    fmt.setVerticalAlignment(actionTextSup->isChecked() ? QTextCharFormat::AlignSuperScript : QTextCharFormat::AlignNormal);
-    mergeFormatOnWordOrSelection(fmt);
-}
-
-void MainWindow::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
-{
-/*
-    if (!textEdit) return;
-    QTextCursor cursor = textEdit->textCursor();
-    cursor.beginEditBlock();
-    if (!cursor.hasSelection()) cursor.select(QTextCursor::WordUnderCursor);
-    cursor.mergeCharFormat(format);
-    textEdit->mergeCurrentCharFormat(format);
-    cursor.endEditBlock();
-*/
 }
 

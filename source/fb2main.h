@@ -2,7 +2,6 @@
 #define FB2MAIN_H
 
 #include <QMainWindow>
-#include <QTextCharFormat>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -57,7 +56,6 @@ private slots:
     void textSub();
     void textSup();
 
-    void currentCharFormatChanged(const QTextCharFormat &format);
     void cursorPositionChanged();
     void clipboardDataChanged();
 
@@ -77,7 +75,6 @@ private:
     bool maybeSave();
     bool saveFile(const QString &fileName);
     void setCurrentFile(const QString &fileName, const QString &html = QString());
-    void mergeFormatOnWordOrSelection(const QTextCharFormat &format);
     MainWindow *findMainWindow(const QString &fileName);
 
     Fb2ReadThread *thread;
