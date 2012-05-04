@@ -29,12 +29,12 @@ void Fb2ReadThread::stop()
 
 void Fb2ReadThread::run()
 {
-    if (parse()) emit html(m_html);
+    if (parse()) emit html(m_filename, m_html);
 }
 
-void Fb2ReadThread::onImage(const QString &name, const QByteArray &data)
+void Fb2ReadThread::onFile(const QString &name, const QString &path)
 {
-    emit image(name, data);
+    emit file(name, path);
 }
 
 bool Fb2ReadThread::parse()
@@ -44,12 +44,46 @@ bool Fb2ReadThread::parse()
         qCritical() << QObject::tr("Cannot read file %1:\n%2.").arg(m_filename).arg(file.errorString());
         return false;
     }
-    Fb2Handler handler(*this, m_html);
+    Fb2Handler handler(*this);
     QXmlSimpleReader reader;
     reader.setContentHandler(&handler);
     reader.setErrorHandler(&handler);
     QXmlInputSource source(&file);
     return reader.parse(source);
+}
+
+//---------------------------------------------------------------------------
+//  Fb2HtmlWriter
+//---------------------------------------------------------------------------
+
+Fb2HtmlWriter::Fb2HtmlWriter(Fb2ReadThread &thread)
+    : QXmlStreamWriter(thread.data())
+    , m_thread(thread)
+{
+}
+
+QString Fb2HtmlWriter::addFile(const QString &name, const QByteArray &data)
+{
+    QString path = getFile(name);
+    QFile file(path);
+    if (file.open(QIODevice::WriteOnly)) {
+        file.write(data);
+        m_thread.onFile(name, path);
+    }
+    return path;
+}
+
+QString Fb2HtmlWriter::getFile(const QString &name)
+{
+    StringHash::const_iterator i = m_hash.find(name);
+    if (i == m_hash.end()) {
+        QTemporaryFile file;
+        file.setAutoRemove(false);
+        file.open();
+        return m_hash.insert(name, file.fileName()).value();
+    } else {
+        return i.value();
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -127,9 +161,8 @@ FB2_BEGIN_KEYHASH(RootHandler)
     insert("binary", Binary);
 FB2_END_KEYHASH
 
-Fb2Handler::RootHandler::RootHandler(Fb2ReadThread &thread, QXmlStreamWriter &writer, const QString &name)
+Fb2Handler::RootHandler::RootHandler(Fb2HtmlWriter &writer, const QString &name)
     : BaseHandler(name)
-    , m_thread(thread)
     , m_writer(writer)
 {
     m_writer.writeStartElement("html");
@@ -147,7 +180,7 @@ Fb2Handler::BaseHandler * Fb2Handler::RootHandler::NewTag(const QString &name, c
     switch (toKeyword(name)) {
         case Body   : return new BodyHandler(m_writer, name, attributes, "div", name);
         case Descr  : return new DescrHandler(m_writer, name);
-        case Binary : return new BinaryHandler(m_thread, name, attributes);
+        case Binary : return new BinaryHandler(m_writer, name, attributes);
         default: return NULL;
     }
 }
@@ -228,7 +261,7 @@ FB2_BEGIN_KEYHASH(BodyHandler)
     FB2_KEY( Code,     "code"          );
 FB2_END_KEYHASH
 
-Fb2Handler::BodyHandler::BodyHandler(QXmlStreamWriter &writer, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style)
+Fb2Handler::BodyHandler::BodyHandler(Fb2HtmlWriter &writer, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style)
     : BaseHandler(name)
     , m_writer(writer)
 {
@@ -269,7 +302,7 @@ void Fb2Handler::BodyHandler::TxtTag(const QString &text)
 //  Fb2Handler::AnchorHandler
 //---------------------------------------------------------------------------
 
-Fb2Handler::AnchorHandler::AnchorHandler(QXmlStreamWriter &writer, const QString &name, const QXmlAttributes &attributes)
+Fb2Handler::AnchorHandler::AnchorHandler(Fb2HtmlWriter &writer, const QString &name, const QXmlAttributes &attributes)
     : BodyHandler(writer, name, attributes, "a")
 {
     QString href = Value(attributes, "href");
@@ -280,23 +313,31 @@ Fb2Handler::AnchorHandler::AnchorHandler(QXmlStreamWriter &writer, const QString
 //  Fb2Handler::ImageHandler
 //---------------------------------------------------------------------------
 
-Fb2Handler::ImageHandler::ImageHandler(QXmlStreamWriter &writer, const QString &name, const QXmlAttributes &attributes)
+Fb2Handler::ImageHandler::ImageHandler(Fb2HtmlWriter &writer, const QString &name, const QXmlAttributes &attributes)
     : BodyHandler(writer, name, attributes, "img")
 {
     QString href = Value(attributes, "href");
     while (href.left(1) == "#") href.remove(0, 1);
-    writer.writeAttribute("src", href);
+    QString path = writer.getFile(href);
+    writer.writeAttribute("src", path);
+    writer.writeAttribute("alt", href);
 }
 
 //---------------------------------------------------------------------------
 //  Fb2Handler::BinaryHandler
 //---------------------------------------------------------------------------
 
-Fb2Handler::BinaryHandler::BinaryHandler(Fb2ReadThread &thread, const QString &name, const QXmlAttributes &attributes)
+Fb2Handler::BinaryHandler::BinaryHandler(Fb2HtmlWriter &writer, const QString &name, const QXmlAttributes &attributes)
     : BaseHandler(name)
-    , m_thread(thread)
+    , m_writer(writer)
     , m_file(Value(attributes, "id"))
 {
+}
+
+Fb2Handler::BinaryHandler::~BinaryHandler()
+{
+    QByteArray in; in.append(m_text);
+    if (!m_file.isEmpty()) m_writer.addFile(m_file, QByteArray::fromBase64(in));
 }
 
 void Fb2Handler::BinaryHandler::TxtTag(const QString &text)
@@ -304,21 +345,13 @@ void Fb2Handler::BinaryHandler::TxtTag(const QString &text)
     m_text += text;
 }
 
-void Fb2Handler::BinaryHandler::EndTag(const QString &name)
-{
-    Q_UNUSED(name);
-    QByteArray in; in.append(m_text);
-    if (!m_file.isEmpty()) m_thread.onImage(m_file, QByteArray::fromBase64(in));
-}
-
 //---------------------------------------------------------------------------
 //  Fb2Handler
 //---------------------------------------------------------------------------
 
-Fb2Handler::Fb2Handler(Fb2ReadThread &thread, QString &string)
+Fb2Handler::Fb2Handler(Fb2ReadThread &thread)
     : QXmlDefaultHandler()
-    , m_writer(&string)
-    , m_thread(thread)
+    , m_writer(thread)
     , m_handler(NULL)
 {
     m_writer.setAutoFormatting(true);
@@ -340,7 +373,7 @@ bool Fb2Handler::startElement(const QString & namespaceURI, const QString & loca
     qCritical() << name;
 
     if (name == "fictionbook") {
-        m_handler = new RootHandler(m_thread, m_writer, name);
+        m_handler = new RootHandler(m_writer, name);
         return true;
     } else {
         m_error = QObject::tr("The file is not an FB2 file.");

@@ -21,6 +21,5 @@ VERSION = 0.01.1
 
 QT += xml
 QT += webkit
-QT += network
 
 LIBS += -lqscintilla2

@@ -19,11 +19,12 @@ class Fb2ReadThread : public QThread
 public:
     Fb2ReadThread(QObject *parent, const QString &filename);
     ~Fb2ReadThread();
-    void onImage(const QString &name, const QByteArray &data);
+    void onFile(const QString &name, const QString &path);
+    QString * data() { return &m_html; }
 
 signals:
-    void image(QString name, QByteArray data);
-    void html(QString html);
+    void file(QString name, QString path);
+    void html(QString name, QString html);
 
 public slots:
     void stop();
@@ -41,6 +42,17 @@ private:
     QMutex mutex;
 };
 
+class Fb2HtmlWriter : public QXmlStreamWriter
+{
+public:
+    explicit Fb2HtmlWriter(Fb2ReadThread &thread);
+    QString addFile(const QString &name, const QByteArray &data);
+    QString getFile(const QString &name);
+private:
+    typedef QHash<QString, QString> StringHash;
+    Fb2ReadThread &m_thread;
+    StringHash m_hash;
+};
 
 #define FB2_BEGIN_KEYLIST private: enum Keyword {
 
@@ -51,7 +63,7 @@ static Keyword toKeyword(const QString &name); private:
 class Fb2Handler : public QXmlDefaultHandler
 {
 public:
-    explicit Fb2Handler(Fb2ReadThread &thread, QString &string);
+    explicit Fb2Handler(Fb2ReadThread &thread);
     virtual ~Fb2Handler();
     bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &attributes);
     bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName);
@@ -90,13 +102,12 @@ private:
             Binary,
         FB2_END_KEYLIST
     public:
-        explicit RootHandler(Fb2ReadThread &thread, QXmlStreamWriter &writer, const QString &name);
+        explicit RootHandler(Fb2HtmlWriter &writer, const QString &name);
         virtual ~RootHandler();
     protected:
         virtual BaseHandler * NewTag(const QString & name, const QXmlAttributes &attributes);
     private:
-        Fb2ReadThread &m_thread;
-        QXmlStreamWriter &m_writer;
+        Fb2HtmlWriter &m_writer;
     };
 
     class DescrHandler : public BaseHandler
@@ -106,11 +117,11 @@ private:
             Publish,
         FB2_END_KEYLIST
     public:
-        explicit DescrHandler(QXmlStreamWriter &writer, const QString &name) : BaseHandler(name), m_writer(writer) {}
+        explicit DescrHandler(Fb2HtmlWriter &writer, const QString &name) : BaseHandler(name), m_writer(writer) {}
     protected:
         virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
     protected:
-        QXmlStreamWriter &m_writer;
+        Fb2HtmlWriter &m_writer;
     };
 
     class HeaderHandler : public BaseHandler
@@ -125,11 +136,11 @@ private:
             Cover,
         FB2_END_KEYLIST
     public:
-        explicit HeaderHandler(QXmlStreamWriter &writer, const QString &name) : BaseHandler(name), m_writer(writer) {}
+        explicit HeaderHandler(Fb2HtmlWriter &writer, const QString &name) : BaseHandler(name), m_writer(writer) {}
     protected:
         virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
     protected:
-        QXmlStreamWriter &m_writer;
+        Fb2HtmlWriter &m_writer;
     };
 
     class BodyHandler : public BaseHandler
@@ -149,43 +160,42 @@ private:
             Code,
        FB2_END_KEYLIST
     public:
-        explicit BodyHandler(QXmlStreamWriter &writer, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style = QString());
+        explicit BodyHandler(Fb2HtmlWriter &writer, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style = QString());
         virtual ~BodyHandler();
         virtual void TxtTag(const QString &text);
     protected:
         virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
     protected:
-        QXmlStreamWriter &m_writer;
+        Fb2HtmlWriter &m_writer;
     };
 
     class AnchorHandler : public BodyHandler
     {
     public:
-        explicit AnchorHandler(QXmlStreamWriter &writer, const QString &name, const QXmlAttributes &attributes);
+        explicit AnchorHandler(Fb2HtmlWriter &writer, const QString &name, const QXmlAttributes &attributes);
     };
 
     class ImageHandler : public BodyHandler
     {
     public:
-        explicit ImageHandler(QXmlStreamWriter &writer, const QString &name, const QXmlAttributes &attributes);
+        explicit ImageHandler(Fb2HtmlWriter &writer, const QString &name, const QXmlAttributes &attributes);
     };
 
     class BinaryHandler : public BaseHandler
     {
     public:
-        explicit BinaryHandler(Fb2ReadThread &thread, const QString &name, const QXmlAttributes &attributes);
+        explicit BinaryHandler(Fb2HtmlWriter &writer, const QString &name, const QXmlAttributes &attributes);
+        virtual ~BinaryHandler();
     protected:
         virtual void TxtTag(const QString &text);
-        virtual void EndTag(const QString &name);
     private:
-        Fb2ReadThread &m_thread;
+        Fb2HtmlWriter &m_writer;
         QString m_file;
         QString m_text;
     };
 
 private:
-    QXmlStreamWriter m_writer;
-    Fb2ReadThread & m_thread;
+    Fb2HtmlWriter m_writer;
     RootHandler * m_handler;
     QString m_error;
 };
