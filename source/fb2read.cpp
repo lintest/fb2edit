@@ -166,6 +166,12 @@ Fb2Handler::RootHandler::RootHandler(Fb2HtmlWriter &writer, const QString &name)
     , m_writer(writer)
 {
     m_writer.writeStartElement("html");
+    m_writer.writeStartElement("head");
+    m_writer.writeStartElement("link");
+    m_writer.writeAttribute("rel", "stylesheet");
+    m_writer.writeAttribute("href", "qrc:/images/style.css");
+    m_writer.writeEndElement();
+    m_writer.writeEndElement();
     m_writer.writeStartElement("body");
 }
 
@@ -268,7 +274,7 @@ Fb2Handler::BodyHandler::BodyHandler(Fb2HtmlWriter &writer, const QString &name,
     m_writer.writeStartElement(tag);
     QString id = Value(attributes, "id");
     if (!id.isEmpty()) m_writer.writeAttribute("id", id);
-    if (!style.isEmpty()) m_writer.writeAttribute("style", style);
+    if (!style.isEmpty()) m_writer.writeAttribute("class", style);
 }
 
 Fb2Handler::BodyHandler::~BodyHandler()

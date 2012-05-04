@@ -1,0 +1,15 @@
+div.section {
+  border-top: none; 
+  border-bottom: none; 
+  border-left: 1px solid green; 
+  border-right: none; 
+  padding-top: 0; 
+  padding-bottom: 0; 
+  padding-left: 3; 
+  padding-right: 0;
+}
+div.title {
+  color: white;
+  background: green;
+  text-align: center;
+}
