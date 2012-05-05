@@ -221,8 +221,8 @@ void MainWindow::documentWasModified()
 QIcon MainWindow::icon(const QString &name)
 {
     QIcon icon;
-    icon.addFile(QString(":/images/24x24/%1.png").arg(name), QSize(24,24));
-    icon.addFile(QString(":/images/16x16/%1.png").arg(name), QSize(16,16));
+    icon.addFile(QString(":/res/24/%1.png").arg(name), QSize(24,24));
+    icon.addFile(QString(":/res/16/%1.png").arg(name), QSize(16,16));
     return QIcon::fromTheme(name, icon);
 }
 
