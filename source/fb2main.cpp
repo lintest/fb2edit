@@ -417,12 +417,7 @@ void Fb2MainWindow::createText()
     setCentralWidget(textEdit);
     textEdit->setFocus();
 
-    connect(textEdit->page(), SIGNAL(contentChanged()), this, SLOT(contentChanged()));
-    connect(textEdit->page(), SIGNAL(selectionChanged()), this, SLOT(contentChanged()));
-
-    connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
-    connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
-    connect(actionZoomOrig, SIGNAL(triggered()), textEdit, SLOT(zoomOrig()));
+    connect(textEdit, SIGNAL(selectionChanged()), this, SLOT(contentChanged()));
 
     connect(actionUndo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Undo), SIGNAL(triggered()));
     connect(actionRedo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Redo), SIGNAL(triggered()));
@@ -439,9 +434,13 @@ void Fb2MainWindow::createText()
     connect(actionTextStrike, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleStrikethrough), SIGNAL(triggered()));
     connect(actionTextSub, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSubscript), SIGNAL(triggered()));
     connect(actionTextSup, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSuperscript), SIGNAL(triggered()));
+
+    connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
+    connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
+    connect(actionZoomOrig, SIGNAL(triggered()), textEdit, SLOT(zoomOrig()));
 }
 
-void Fb2MainWindow::contentChanged()
+void Fb2MainWindow::selectionChanged()
 {
     actionCut->setEnabled(textEdit->CutEnabled());
     actionCopy->setEnabled(textEdit->CopyEnabled());
@@ -508,7 +507,6 @@ void Fb2MainWindow::createQsci()
     qsciEdit->setFocus();
 
     //    connect(qsciEdit, SIGNAL(textChanged()), this, SLOT(documentWasModified()));
-    //    connect(qsciEdit, SIGNAL(cursorPositionChanged(int, int)), this, SLOT(cursorMoved(int, int)));
 
     actionUndo->setEnabled(false);
     actionRedo->setEnabled(false);
@@ -628,11 +626,6 @@ void Fb2MainWindow::viewText()
     if (centralWidget() == textEdit) return;
     if (qsciEdit) { delete qsciEdit; qsciEdit = NULL; }
     createText();
-}
-
-void Fb2MainWindow::cursorPositionChanged()
-{
- //   alignmentChanged(textEdit->alignment());
 }
 
 void Fb2MainWindow::clipboardDataChanged()

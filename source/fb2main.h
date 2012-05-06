@@ -54,9 +54,8 @@ private slots:
     void textSub();
     void textSup();
 
-    void cursorPositionChanged();
     void clipboardDataChanged();
-    void contentChanged();
+    void selectionChanged();
     void undoChanged();
     void redoChanged();
 
