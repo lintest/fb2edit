@@ -194,16 +194,17 @@ bool Fb2MainWindow::fileSaveAs()
 
 void Fb2MainWindow::about()
 {
-   QMessageBox::about(this, tr("About SDI"),
-            tr("The <b>SDI</b> example demonstrates how to write single "
-               "document interface applications using Qt."));
+    QMessageBox::about(this, tr("About fb2edit"),
+        tr("The <b>fb2edit</b> is application for editing FB2-files."));
 }
 
 void Fb2MainWindow::documentWasModified()
 {
+    if (isWindowModified()) return;
     QFileInfo info = windowFilePath();
     QString title = info.fileName();
-    title += QString("[*]") += QString(" - ") += qApp->applicationName();
+    if (textEdit && textEdit->isModified()) title += QString("[*]");
+    title += QString(" - ") += qApp->applicationName();
     setWindowTitle(title);
     setWindowModified(true);
 }
@@ -320,32 +321,27 @@ void Fb2MainWindow::createActions()
     actionTextBold = act = new QAction(icon("format-text-bold"), tr("Bold"), this);
     act->setShortcuts(QKeySequence::Bold);
     act->setCheckable(true);
-    connect(act, SIGNAL(triggered()), SLOT(textBold()));
     menu->addAction(act);
     tool->addAction(act);
 
     actionTextItalic = act = new QAction(icon("format-text-italic"), tr("Italic"), this);
     act->setShortcuts(QKeySequence::Italic);
     act->setCheckable(true);
-    connect(act, SIGNAL(triggered()), SLOT(textItalic()));
     menu->addAction(act);
     tool->addAction(act);
 
     actionTextStrike = act = new QAction(icon("format-text-strikethrough"), tr("Strikethrough"), this);
     act->setCheckable(true);
-    connect(act, SIGNAL(triggered()), SLOT(textStrike()));
     menu->addAction(act);
     tool->addAction(act);
 
     actionTextSup = act = new QAction(icon("format-text-superscript"), tr("Superscript"), this);
     act->setCheckable(true);
-    connect(act, SIGNAL(triggered()), SLOT(textSup()));
     menu->addAction(act);
     tool->addAction(act);
 
     actionTextSub = act = new QAction(icon("format-text-subscript"), tr("Subscript"), this);
     act->setCheckable(true);
-    connect(act, SIGNAL(triggered()), SLOT(textSub()));
     menu->addAction(act);
     tool->addAction(act);
 
