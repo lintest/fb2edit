@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     app.setApplicationName("fb2edit");
     app.setOrganizationName("LinTest");
 
-    MainWindow * mainWin = new MainWindow;
+    Fb2MainWindow * mainWin = new Fb2MainWindow;
     mainWin->show();
 
     qInstallMsgHandler(fb2MessageHandler);

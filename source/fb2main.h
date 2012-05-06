@@ -8,10 +8,9 @@ class QAction;
 class QMenu;
 class QFile;
 class QModelIndex;
-class QThread;
 class QTextEdit;
+class QThread;
 class QTreeView;
-class QTextDocument;
 class QWebView;
 QT_END_NAMESPACE
 
@@ -19,14 +18,14 @@ class QsciScintilla;
 class Fb2MainDocument;
 class Fb2ReadThread;
 
-class MainWindow : public QMainWindow
+class Fb2MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow();
-    explicit MainWindow(const QString &filename);
-    explicit MainWindow(const QString &filename, Fb2MainDocument * document);
+    explicit Fb2MainWindow();
+    explicit Fb2MainWindow(const QString &filename);
+    explicit Fb2MainWindow(const QString &filename, Fb2MainDocument * document);
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -61,7 +60,6 @@ private slots:
 
 private:
     bool loadXML(const QString &filename);
-    void connectTextDocument(QTextDocument * document);
     QIcon icon(const QString &name);
 
 private:
@@ -75,7 +73,7 @@ private:
     bool maybeSave();
     bool saveFile(const QString &fileName);
     void setCurrentFile(const QString &fileName, const QString &html = QString());
-    MainWindow *findMainWindow(const QString &fileName);
+    Fb2MainWindow *findFb2MainWindow(const QString &fileName);
 
     Fb2ReadThread *thread;
     QWebView *textEdit;
@@ -87,11 +85,14 @@ private:
     bool isUntitled;
 
     QAction
+        *actionBack,
+        *actionForward,
         *actionUndo,
         *actionRedo,
         *actionCut,
         *actionCopy,
         *actionPaste,
+        *actionSelect,
         *actionTextBold,
         *actionTextItalic,
         *actionTextStrike,

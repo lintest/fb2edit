@@ -13,14 +13,14 @@
 #include <Qsci/qsciscintilla.h>
 #include <Qsci/qscilexerxml.h>
 
-MainWindow::MainWindow()
+Fb2MainWindow::Fb2MainWindow()
 {
     init();
     createText();
     setCurrentFile("");
 }
 
-MainWindow::MainWindow(const QString &filename)
+Fb2MainWindow::Fb2MainWindow(const QString &filename)
 {
     init();
     createQsci();
@@ -28,7 +28,7 @@ MainWindow::MainWindow(const QString &filename)
     setCurrentFile(filename);
 }
 
-MainWindow::MainWindow(const QString &filename, Fb2MainDocument * document)
+Fb2MainWindow::Fb2MainWindow(const QString &filename, Fb2MainDocument * document)
 {
     init();
     createText();
@@ -37,7 +37,7 @@ MainWindow::MainWindow(const QString &filename, Fb2MainDocument * document)
     thread->start();
 }
 
-void MainWindow::init()
+void Fb2MainWindow::init()
 {
     thread = NULL;
 
@@ -61,7 +61,7 @@ void MainWindow::init()
     setUnifiedTitleAndToolBarOnMac(true);
 }
 
-void MainWindow::logMessage(const QString &message)
+void Fb2MainWindow::logMessage(const QString &message)
 {
     if (!messageEdit) {
         messageEdit = new QTextEdit(this);
@@ -76,12 +76,12 @@ void MainWindow::logMessage(const QString &message)
     messageEdit->append(message);
 }
 
-void MainWindow::logShowed()
+void Fb2MainWindow::logShowed()
 {
     messageEdit->setMaximumHeight(QWIDGETSIZE_MAX);
 }
 
-void MainWindow::logDestroyed()
+void Fb2MainWindow::logDestroyed()
 {
     messageEdit = NULL;
 }
@@ -97,16 +97,16 @@ static QTextFrame * findFrame(QTextFrame *root, const QModelIndex &index)
     return NULL;
 }
 
-void MainWindow::treeActivated(const QModelIndex &index)
+void Fb2MainWindow::treeActivated(const QModelIndex &index)
 {
 }
 
-void MainWindow::treeDestroyed()
+void Fb2MainWindow::treeDestroyed()
 {
     treeView = NULL;
 }
 
-bool MainWindow::loadXML(const QString &filename)
+bool Fb2MainWindow::loadXML(const QString &filename)
 {
     if (!filename.isEmpty()) {
         QFile file(filename);
@@ -118,7 +118,7 @@ bool MainWindow::loadXML(const QString &filename)
     return false;
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)
+void Fb2MainWindow::closeEvent(QCloseEvent *event)
 {
     if (maybeSave()) {
         writeSettings();
@@ -128,19 +128,19 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 }
 
-void MainWindow::fileNew()
+void Fb2MainWindow::fileNew()
 {
-    MainWindow *other = new MainWindow;
+    Fb2MainWindow *other = new Fb2MainWindow;
     other->move(x() + 40, y() + 40);
     other->show();
 }
 
-void MainWindow::fileOpen()
+void Fb2MainWindow::fileOpen()
 {
     QString filename = QFileDialog::getOpenFileName(this);
     if (filename.isEmpty()) return;
 
-    MainWindow * existing = findMainWindow(filename);
+    Fb2MainWindow * existing = findFb2MainWindow(filename);
     if (existing) {
         existing->show();
         existing->raise();
@@ -153,7 +153,7 @@ void MainWindow::fileOpen()
             Fb2WebView *view = dynamic_cast<Fb2WebView*>(textEdit);
             view->load(filename);
         } else {
-            MainWindow * other = new MainWindow(filename, NULL);
+            Fb2MainWindow * other = new Fb2MainWindow(filename, NULL);
             other->move(x() + 40, y() + 40);
             other->show();
         }
@@ -162,14 +162,14 @@ void MainWindow::fileOpen()
             loadXML(filename);
             setCurrentFile(filename);
         } else {
-            MainWindow * other = new MainWindow(filename);
+            Fb2MainWindow * other = new Fb2MainWindow(filename);
             other->move(x() + 40, y() + 40);
             other->show();
         }
     }
 }
 
-void MainWindow::sendDocument()
+void Fb2MainWindow::sendDocument()
 {
 //    setCurrentFile(thread->file(), thread->html());
     return;
@@ -186,7 +186,7 @@ void MainWindow::sendDocument()
     addDockWidget(Qt::LeftDockWidgetArea, dock);
 }
 
-bool MainWindow::fileSave()
+bool Fb2MainWindow::fileSave()
 {
     if (isUntitled) {
         return fileSaveAs();
@@ -195,21 +195,21 @@ bool MainWindow::fileSave()
     }
 }
 
-bool MainWindow::fileSaveAs()
+bool Fb2MainWindow::fileSaveAs()
 {
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"), curFile);
     if (fileName.isEmpty()) return false;
     return saveFile(fileName);
 }
 
-void MainWindow::about()
+void Fb2MainWindow::about()
 {
    QMessageBox::about(this, tr("About SDI"),
             tr("The <b>SDI</b> example demonstrates how to write single "
                "document interface applications using Qt."));
 }
 
-void MainWindow::documentWasModified()
+void Fb2MainWindow::documentWasModified()
 {
     QFileInfo info = windowFilePath();
     QString title = info.fileName();
@@ -218,7 +218,7 @@ void MainWindow::documentWasModified()
     setWindowModified(true);
 }
 
-QIcon MainWindow::icon(const QString &name)
+QIcon Fb2MainWindow::icon(const QString &name)
 {
     QIcon icon;
     icon.addFile(QString(":/res/24/%1.png").arg(name), QSize(24,24));
@@ -226,7 +226,7 @@ QIcon MainWindow::icon(const QString &name)
     return QIcon::fromTheme(name, icon);
 }
 
-void MainWindow::createActions()
+void Fb2MainWindow::createActions()
 {
     QAction * act;
     QMenu * menu;
@@ -406,15 +406,15 @@ void MainWindow::createActions()
     connect(act, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     menu->addAction(act);
 }
-
-void MainWindow::connectTextDocument(QTextDocument * document)
+/*
+void Fb2MainWindow::connectTextDocument(QTextDocument * document)
 {
     connect(document, SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
     connect(document, SIGNAL(undoAvailable(bool)), actionUndo, SLOT(setEnabled(bool)));
     connect(document, SIGNAL(redoAvailable(bool)), actionRedo, SLOT(setEnabled(bool)));
 }
-
-void MainWindow::createText()
+*/
+void Fb2MainWindow::createText()
 {
     textEdit = new Fb2WebView(this);
     setCentralWidget(textEdit);
@@ -423,9 +423,11 @@ void MainWindow::createText()
     connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
     connect(actionZoomOrig, SIGNAL(triggered()), textEdit, SLOT(zoomOrig()));
+
+    QAction *action = textEdit->pageAction(QWebPage::Undo);
 }
 
-void MainWindow::createQsci()
+void Fb2MainWindow::createQsci()
 {
     //  http://qtcoder.blogspot.com/2010/10/qscintills.html
     //  http://www.riverbankcomputing.co.uk/static/Docs/QScintilla2/classQsciScintilla.html
@@ -476,12 +478,12 @@ void MainWindow::createQsci()
     actionRedo->setEnabled(false);
 }
 
-void MainWindow::createStatusBar()
+void Fb2MainWindow::createStatusBar()
 {
     statusBar()->showMessage(tr("Ready"));
 }
 
-void MainWindow::readSettings()
+void Fb2MainWindow::readSettings()
 {
     QSettings settings;
     QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
@@ -490,14 +492,14 @@ void MainWindow::readSettings()
     resize(size);
 }
 
-void MainWindow::writeSettings()
+void Fb2MainWindow::writeSettings()
 {
     QSettings settings;
     settings.setValue("pos", pos());
     settings.setValue("size", size());
 }
 
-bool MainWindow::maybeSave()
+bool Fb2MainWindow::maybeSave()
 {
     if (textEdit && textEdit->isModified()) {
         QMessageBox::StandardButton ret;
@@ -514,7 +516,7 @@ bool MainWindow::maybeSave()
     return true;
 }
 
-bool MainWindow::saveFile(const QString &fileName)
+bool Fb2MainWindow::saveFile(const QString &fileName)
 {
     return false;
 
@@ -537,7 +539,7 @@ bool MainWindow::saveFile(const QString &fileName)
     return true;
 }
 
-void MainWindow::setCurrentFile(const QString &filename, const QString &html)
+void Fb2MainWindow::setCurrentFile(const QString &filename, const QString &html)
 {
     static int sequenceNumber = 1;
 
@@ -560,19 +562,19 @@ void MainWindow::setCurrentFile(const QString &filename, const QString &html)
     setWindowTitle(title);
 }
 
-MainWindow *MainWindow::findMainWindow(const QString &fileName)
+Fb2MainWindow *Fb2MainWindow::findFb2MainWindow(const QString &fileName)
 {
     QString canonicalFilePath = QFileInfo(fileName).canonicalFilePath();
 
     foreach (QWidget *widget, qApp->topLevelWidgets()) {
-        MainWindow *mainWin = qobject_cast<MainWindow *>(widget);
+        Fb2MainWindow *mainWin = qobject_cast<Fb2MainWindow *>(widget);
         if (mainWin && mainWin->curFile == canonicalFilePath)
             return mainWin;
     }
     return 0;
 }
 
-void MainWindow::viewQsci()
+void Fb2MainWindow::viewQsci()
 {
     if (centralWidget() == qsciEdit) return;
     QString html;
@@ -585,42 +587,42 @@ void MainWindow::viewQsci()
     qsciEdit->setText(html);
 }
 
-void MainWindow::viewText()
+void Fb2MainWindow::viewText()
 {
     if (centralWidget() == textEdit) return;
     if (qsciEdit) { delete qsciEdit; qsciEdit = NULL; }
     createText();
 }
 
-void MainWindow::cursorPositionChanged()
+void Fb2MainWindow::cursorPositionChanged()
 {
  //   alignmentChanged(textEdit->alignment());
 }
 
-void MainWindow::clipboardDataChanged()
+void Fb2MainWindow::clipboardDataChanged()
 {
     if (const QMimeData *md = QApplication::clipboard()->mimeData()) {
         actionPaste->setEnabled(md->hasText());
     }
 }
 
-void MainWindow::textBold()
+void Fb2MainWindow::textBold()
 {
 }
 
-void MainWindow::textItalic()
+void Fb2MainWindow::textItalic()
 {
 }
 
-void MainWindow::textStrike()
+void Fb2MainWindow::textStrike()
 {
 }
 
-void MainWindow::textSub()
+void Fb2MainWindow::textSub()
 {
 }
 
-void MainWindow::textSup()
+void Fb2MainWindow::textSup()
 {
 }
 

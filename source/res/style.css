@@ -1,3 +1,6 @@
+body {
+  font-family: serif;
+}
 div.section {
   border-top: none; 
   border-bottom: none; 
@@ -12,4 +15,5 @@ div.title {
   color: white;
   background: green;
   text-align: center;
+  font-family: sans-serif;
 }
