@@ -45,12 +45,32 @@ public:
     explicit Fb2WebView(QWidget *parent = 0);
     virtual ~Fb2WebView();
     bool load(const QString &filename);
-    
+
+    bool UndoEnabled();
+    bool RedoEnabled();
+    bool CutEnabled();
+    bool CopyEnabled();
+    bool BoldChecked();
+    bool ItalicChecked();
+    bool StrikeChecked();
+    bool SubChecked();
+    bool SupChecked();
+
 signals:
     
 public slots:
     void file(QString name, QString path);
     void html(QString name, QString html);
+/*
+    void Undo();
+    void Redo();
+    void Cut();
+    void Copy();
+    void Paste();
+    void Bold();
+    void Italic();
+    void Strike();
+*/
     void zoomIn();
     void zoomOut();
     void zoomOrig();

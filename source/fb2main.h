@@ -11,12 +11,12 @@ class QModelIndex;
 class QTextEdit;
 class QThread;
 class QTreeView;
-class QWebView;
 QT_END_NAMESPACE
 
 class QsciScintilla;
 class Fb2MainDocument;
 class Fb2ReadThread;
+class Fb2WebView;
 
 class Fb2MainWindow : public QMainWindow
 {
@@ -32,7 +32,6 @@ protected:
 
 public slots:
     void logMessage(const QString &message);
-    void sendDocument();
 
 private slots:
     void fileNew();
@@ -57,6 +56,9 @@ private slots:
 
     void cursorPositionChanged();
     void clipboardDataChanged();
+    void contentChanged();
+    void undoChanged();
+    void redoChanged();
 
 private:
     bool loadXML(const QString &filename);
@@ -76,7 +78,7 @@ private:
     Fb2MainWindow *findFb2MainWindow(const QString &fileName);
 
     Fb2ReadThread *thread;
-    QWebView *textEdit;
+    Fb2WebView *textEdit;
     QTextEdit *noteEdit;
     QTextEdit *messageEdit;
     QsciScintilla *qsciEdit;

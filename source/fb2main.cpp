@@ -1,7 +1,6 @@
 #include <QtGui>
 #include <QtDebug>
 #include <QTreeView>
-#include <QWebView>
 #include <QWebFrame>
 
 #include "fb2main.h"
@@ -150,8 +149,7 @@ void Fb2MainWindow::fileOpen()
 
     if (textEdit) {
         if (isUntitled && !isWindowModified()) {
-            Fb2WebView *view = dynamic_cast<Fb2WebView*>(textEdit);
-            view->load(filename);
+            textEdit->load(filename);
         } else {
             Fb2MainWindow * other = new Fb2MainWindow(filename, NULL);
             other->move(x() + 40, y() + 40);
@@ -168,14 +166,11 @@ void Fb2MainWindow::fileOpen()
         }
     }
 }
-
+/*
 void Fb2MainWindow::sendDocument()
 {
-//    setCurrentFile(thread->file(), thread->html());
-    return;
-
     treeView = new QTreeView(this);
-//    treeView->setModel(new Fb2TreeModel(*textEdit));
+    treeView->setModel(new Fb2TreeModel(*textEdit));
     treeView->setHeaderHidden(true);
     connect(treeView, SIGNAL(activated(QModelIndex)), SLOT(treeActivated(QModelIndex)));
     connect(treeView, SIGNAL(destroyed()), SLOT(treeDestroyed()));
@@ -185,7 +180,7 @@ void Fb2MainWindow::sendDocument()
     dock->setWidget(treeView);
     addDockWidget(Qt::LeftDockWidgetArea, dock);
 }
-
+*/
 bool Fb2MainWindow::fileSave()
 {
     if (isUntitled) {
@@ -286,12 +281,14 @@ void Fb2MainWindow::createActions()
     actionUndo = act = new QAction(icon("edit-undo"), tr("&Undo"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcut(QKeySequence::Undo);
+    act->setEnabled(false);
     menu->addAction(act);
     tool->addAction(act);
 
     actionRedo = act = new QAction(icon("edit-redo"), tr("&Redo"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcut(QKeySequence::Redo);
+    act->setEnabled(false);
     menu->addAction(act);
     tool->addAction(act);
 
@@ -420,11 +417,50 @@ void Fb2MainWindow::createText()
     setCentralWidget(textEdit);
     textEdit->setFocus();
 
+    connect(textEdit->page(), SIGNAL(contentChanged()), this, SLOT(contentChanged()));
+    connect(textEdit->page(), SIGNAL(selectionChanged()), this, SLOT(contentChanged()));
+
     connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
     connect(actionZoomOrig, SIGNAL(triggered()), textEdit, SLOT(zoomOrig()));
 
-    QAction *action = textEdit->pageAction(QWebPage::Undo);
+    connect(actionUndo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Undo), SIGNAL(triggered()));
+    connect(actionRedo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Redo), SIGNAL(triggered()));
+
+    connect(textEdit->pageAction(QWebPage::Undo), SIGNAL(changed()), this, SLOT(undoChanged()));
+    connect(textEdit->pageAction(QWebPage::Redo), SIGNAL(changed()), this, SLOT(redoChanged()));
+
+    connect(actionCut, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Cut), SIGNAL(triggered()));
+    connect(actionCopy, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Copy), SIGNAL(triggered()));
+    connect(actionPaste, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Paste), SIGNAL(triggered()));
+
+    connect(actionTextBold, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleBold), SIGNAL(triggered()));
+    connect(actionTextItalic, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleItalic), SIGNAL(triggered()));
+    connect(actionTextStrike, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleStrikethrough), SIGNAL(triggered()));
+    connect(actionTextSub, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSubscript), SIGNAL(triggered()));
+    connect(actionTextSup, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSuperscript), SIGNAL(triggered()));
+}
+
+void Fb2MainWindow::contentChanged()
+{
+    actionCut->setEnabled(textEdit->CutEnabled());
+    actionCopy->setEnabled(textEdit->CopyEnabled());
+
+    actionTextBold->setChecked(textEdit->BoldChecked());
+    actionTextItalic->setChecked(textEdit->ItalicChecked());
+    actionTextStrike->setChecked(textEdit->StrikeChecked());
+    actionTextSub->setChecked(textEdit->SubChecked());
+    actionTextSup->setChecked(textEdit->SupChecked());
+}
+
+void Fb2MainWindow::undoChanged()
+{
+    actionUndo->setEnabled(textEdit->UndoEnabled());
+}
+
+void Fb2MainWindow::redoChanged()
+{
+    actionRedo->setEnabled(textEdit->RedoEnabled());
 }
 
 void Fb2MainWindow::createQsci()

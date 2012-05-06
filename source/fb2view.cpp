@@ -1,6 +1,7 @@
 #include "fb2view.h"
 #include "fb2read.h"
 
+#include <QAction>
 #include <QtDebug>
 
 //---------------------------------------------------------------------------
@@ -62,4 +63,49 @@ void Fb2WebView::zoomOut()
 void Fb2WebView::zoomOrig()
 {
     setZoomFactor(1);
+}
+
+bool Fb2WebView::UndoEnabled()
+{
+    return pageAction(QWebPage::Undo)->isEnabled();
+}
+
+bool Fb2WebView::RedoEnabled()
+{
+    return pageAction(QWebPage::Redo)->isEnabled();
+}
+
+bool Fb2WebView::CutEnabled()
+{
+    return pageAction(QWebPage::Cut)->isEnabled();
+}
+
+bool Fb2WebView::CopyEnabled()
+{
+    return pageAction(QWebPage::Copy)->isEnabled();
+}
+
+bool Fb2WebView::BoldChecked()
+{
+    return pageAction(QWebPage::ToggleBold)->isChecked();
+}
+
+bool Fb2WebView::ItalicChecked()
+{
+    return pageAction(QWebPage::ToggleItalic)->isChecked();
+}
+
+bool Fb2WebView::StrikeChecked()
+{
+    return pageAction(QWebPage::ToggleStrikethrough)->isChecked();
+}
+
+bool Fb2WebView::SubChecked()
+{
+    return pageAction(QWebPage::ToggleSubscript)->isChecked();
+}
+
+bool Fb2WebView::SupChecked()
+{
+    return pageAction(QWebPage::ToggleSuperscript)->isChecked();
 }
