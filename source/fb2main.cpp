@@ -15,31 +15,25 @@
 Fb2MainWindow::Fb2MainWindow()
 {
     init();
+    setCurrentFile();
     createText();
-    setCurrentFile("");
 }
 
-Fb2MainWindow::Fb2MainWindow(const QString &filename)
+Fb2MainWindow::Fb2MainWindow(const QString &filename, ViewMode mode)
 {
     init();
-    createQsci();
-    loadXML(filename);
     setCurrentFile(filename);
-}
-
-Fb2MainWindow::Fb2MainWindow(const QString &filename, Fb2MainDocument * document)
-{
-    init();
-    createText();
-    thread = new Fb2ReadThread(this, filename);
-    connect(thread, SIGNAL(sendDocument()), SLOT(sendDocument()));
-    thread->start();
+    if (mode == FB2) {
+        createText();
+        textEdit->load(filename);
+    } else {
+        createQsci();
+        loadXML(filename);
+    }
 }
 
 void Fb2MainWindow::init()
 {
-    thread = NULL;
-
     connect(qApp, SIGNAL(logMessage(QString)), SLOT(logMessage(QString)));
 
     setAttribute(Qt::WA_DeleteOnClose);
@@ -149,18 +143,19 @@ void Fb2MainWindow::fileOpen()
 
     if (textEdit) {
         if (isUntitled && !isWindowModified()) {
+            setCurrentFile(filename);
             textEdit->load(filename);
         } else {
-            Fb2MainWindow * other = new Fb2MainWindow(filename, NULL);
+            Fb2MainWindow * other = new Fb2MainWindow(filename, FB2);
             other->move(x() + 40, y() + 40);
             other->show();
         }
     } else if (qsciEdit) {
         if (isUntitled && !isWindowModified()) {
-            loadXML(filename);
             setCurrentFile(filename);
+            loadXML(filename);
         } else {
-            Fb2MainWindow * other = new Fb2MainWindow(filename);
+            Fb2MainWindow * other = new Fb2MainWindow(filename, XML);
             other->move(x() + 40, y() + 40);
             other->show();
         }
@@ -403,21 +398,15 @@ void Fb2MainWindow::createActions()
     connect(act, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     menu->addAction(act);
 }
-/*
-void Fb2MainWindow::connectTextDocument(QTextDocument * document)
-{
-    connect(document, SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
-    connect(document, SIGNAL(undoAvailable(bool)), actionUndo, SLOT(setEnabled(bool)));
-    connect(document, SIGNAL(redoAvailable(bool)), actionRedo, SLOT(setEnabled(bool)));
-}
-*/
+
 void Fb2MainWindow::createText()
 {
     textEdit = new Fb2WebView(this);
     setCentralWidget(textEdit);
     textEdit->setFocus();
 
-    connect(textEdit, SIGNAL(selectionChanged()), this, SLOT(contentChanged()));
+    connect(textEdit->page(), SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
+    connect(textEdit, SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
 
     connect(actionUndo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Undo), SIGNAL(triggered()));
     connect(actionRedo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Redo), SIGNAL(triggered()));
@@ -573,7 +562,7 @@ bool Fb2MainWindow::saveFile(const QString &fileName)
     return true;
 }
 
-void Fb2MainWindow::setCurrentFile(const QString &filename, const QString &html)
+void Fb2MainWindow::setCurrentFile(const QString &filename)
 {
     static int sequenceNumber = 1;
 
@@ -588,8 +577,6 @@ void Fb2MainWindow::setCurrentFile(const QString &filename, const QString &html)
         title = info.fileName();
     }
     title += QString(" - ") += qApp->applicationName();
-
-    textEdit->setHtml(html, QUrl("fb2://s/"));
 
     setWindowModified(false);
     setWindowFilePath(curFile);
@@ -633,25 +620,5 @@ void Fb2MainWindow::clipboardDataChanged()
     if (const QMimeData *md = QApplication::clipboard()->mimeData()) {
         actionPaste->setEnabled(md->hasText());
     }
-}
-
-void Fb2MainWindow::textBold()
-{
-}
-
-void Fb2MainWindow::textItalic()
-{
-}
-
-void Fb2MainWindow::textStrike()
-{
-}
-
-void Fb2MainWindow::textSub()
-{
-}
-
-void Fb2MainWindow::textSup()
-{
 }
 

@@ -9,13 +9,11 @@ class QMenu;
 class QFile;
 class QModelIndex;
 class QTextEdit;
-class QThread;
 class QTreeView;
 QT_END_NAMESPACE
 
 class QsciScintilla;
 class Fb2MainDocument;
-class Fb2ReadThread;
 class Fb2WebView;
 
 class Fb2MainWindow : public QMainWindow
@@ -23,9 +21,9 @@ class Fb2MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
+    enum ViewMode { FB2, XML };
     explicit Fb2MainWindow();
-    explicit Fb2MainWindow(const QString &filename);
-    explicit Fb2MainWindow(const QString &filename, Fb2MainDocument * document);
+    explicit Fb2MainWindow(const QString &filename, ViewMode mode = FB2);
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -48,12 +46,6 @@ private slots:
     void viewQsci();
     void viewText();
 
-    void textBold();
-    void textItalic();
-    void textStrike();
-    void textSub();
-    void textSup();
-
     void clipboardDataChanged();
     void selectionChanged();
     void undoChanged();
@@ -73,10 +65,9 @@ private:
     void writeSettings();
     bool maybeSave();
     bool saveFile(const QString &fileName);
-    void setCurrentFile(const QString &fileName, const QString &html = QString());
+    void setCurrentFile(const QString &fileName = QString());
     Fb2MainWindow *findFb2MainWindow(const QString &fileName);
 
-    Fb2ReadThread *thread;
     Fb2WebView *textEdit;
     QTextEdit *noteEdit;
     QTextEdit *messageEdit;
