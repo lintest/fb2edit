@@ -20,6 +20,7 @@ Fb2WebView::Fb2WebView(QWidget *parent)
     settings->setAttribute(QWebSettings::PrivateBrowsingEnabled, true);
     settings->setAttribute(QWebSettings::PluginsEnabled, false);
     settings->setAttribute(QWebSettings::ZoomTextOnly, true);
+    settings->setUserStyleSheetUrl(QUrl::fromLocalFile(":/res/style.css"));
 }
 
 Fb2WebView::~Fb2WebView()
