@@ -3,6 +3,8 @@
 
 #include <QAbstractItemModel>
 #include <QTextEdit>
+#include <QWebElement>
+#include <QWebView>
 
 class Fb2TreeItem: public QObject
 {
@@ -10,6 +12,7 @@ class Fb2TreeItem: public QObject
 
 public:
     explicit Fb2TreeItem(QTextFrame *frame, Fb2TreeItem *parent = 0);
+    explicit Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent = 0);
 
     virtual ~Fb2TreeItem();
 
@@ -37,9 +40,11 @@ public:
 
 private:
     QList<Fb2TreeItem*> m_list;
+    QString m_name;
     QString m_text;
     QTextFrame * m_frame;
     Fb2TreeItem * m_parent;
+    QWebElement m_element;
 };
 
 class Fb2TreeModel: public QAbstractItemModel
@@ -47,7 +52,7 @@ class Fb2TreeModel: public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit Fb2TreeModel(QTextEdit &text, QObject *parent = 0);
+    explicit Fb2TreeModel(QWebView &view, QObject *parent = 0);
     virtual ~Fb2TreeModel();
     void select(const QModelIndex &index);
 
@@ -62,7 +67,7 @@ protected:
     Fb2TreeItem * item(const QModelIndex &index) const;
 
 private:
-    QTextEdit & m_text;
+    QWebView & m_view;
     Fb2TreeItem * m_root;
 };
 

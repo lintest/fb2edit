@@ -17,6 +17,7 @@ Fb2MainWindow::Fb2MainWindow()
     init();
     setCurrentFile();
     createText();
+    createTree();
 }
 
 Fb2MainWindow::Fb2MainWindow(const QString &filename, ViewMode mode)
@@ -25,6 +26,7 @@ Fb2MainWindow::Fb2MainWindow(const QString &filename, ViewMode mode)
     setCurrentFile(filename);
     if (mode == FB2) {
         createText();
+        createTree();
         textEdit->load(filename);
     } else {
         createQsci();
@@ -161,21 +163,7 @@ void Fb2MainWindow::fileOpen()
         }
     }
 }
-/*
-void Fb2MainWindow::sendDocument()
-{
-    treeView = new QTreeView(this);
-    treeView->setModel(new Fb2TreeModel(*textEdit));
-    treeView->setHeaderHidden(true);
-    connect(treeView, SIGNAL(activated(QModelIndex)), SLOT(treeActivated(QModelIndex)));
-    connect(treeView, SIGNAL(destroyed()), SLOT(treeDestroyed()));
-    QDockWidget * dock = new QDockWidget(tr("Contents"), this);
-    dock->setAttribute(Qt::WA_DeleteOnClose);
-    dock->setFeatures(QDockWidget::AllDockWidgetFeatures);
-    dock->setWidget(treeView);
-    addDockWidget(Qt::LeftDockWidgetArea, dock);
-}
-*/
+
 bool Fb2MainWindow::fileSave()
 {
     if (isUntitled) {
@@ -395,20 +383,35 @@ void Fb2MainWindow::createActions()
     menu->addAction(act);
 }
 
+void Fb2MainWindow::createTree()
+{
+    if (treeView) return;
+    treeView = new QTreeView(this);
+    treeView->setHeaderHidden(true);
+    connect(treeView, SIGNAL(activated(QModelIndex)), SLOT(treeActivated(QModelIndex)));
+    connect(treeView, SIGNAL(destroyed()), SLOT(treeDestroyed()));
+    QDockWidget * dock = new QDockWidget(tr("Contents"), this);
+    dock->setAttribute(Qt::WA_DeleteOnClose);
+    dock->setFeatures(QDockWidget::AllDockWidgetFeatures);
+    dock->setWidget(treeView);
+    addDockWidget(Qt::LeftDockWidgetArea, dock);
+}
+
 void Fb2MainWindow::createText()
 {
+    if (textEdit) return;
     textEdit = new Fb2WebView(this);
     setCentralWidget(textEdit);
     textEdit->setFocus();
 
-    connect(textEdit->page(), SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
-    connect(textEdit, SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
+    connect(textEdit->page(), SIGNAL(contentsChanged()), SLOT(documentWasModified()));
+    connect(textEdit, SIGNAL(selectionChanged()), SLOT(selectionChanged()));
+    connect(textEdit, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
 
+    connect(textEdit->pageAction(QWebPage::Undo), SIGNAL(changed()), SLOT(undoChanged()));
+    connect(textEdit->pageAction(QWebPage::Redo), SIGNAL(changed()), SLOT(redoChanged()));
     connect(actionUndo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Undo), SIGNAL(triggered()));
     connect(actionRedo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Redo), SIGNAL(triggered()));
-
-    connect(textEdit->pageAction(QWebPage::Undo), SIGNAL(changed()), this, SLOT(undoChanged()));
-    connect(textEdit->pageAction(QWebPage::Redo), SIGNAL(changed()), this, SLOT(redoChanged()));
 
     connect(actionCut, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Cut), SIGNAL(triggered()));
     connect(actionCopy, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Copy), SIGNAL(triggered()));
@@ -425,6 +428,11 @@ void Fb2MainWindow::createText()
     connect(actionZoomOrig, SIGNAL(triggered()), textEdit, SLOT(zoomOrig()));
 }
 
+void Fb2MainWindow::loadFinished(bool ok)
+{
+    if (treeView) treeView->setModel(new Fb2TreeModel(*textEdit));
+}
+
 void Fb2MainWindow::selectionChanged()
 {
     actionCut->setEnabled(textEdit->CutEnabled());
@@ -435,6 +443,9 @@ void Fb2MainWindow::selectionChanged()
     actionTextStrike->setChecked(textEdit->StrikeChecked());
     actionTextSub->setChecked(textEdit->SubChecked());
     actionTextSup->setChecked(textEdit->SupChecked());
+
+    QString script = "document.getSelection().baseNode.parentNode.tagName";
+    qCritical() << textEdit->page()->mainFrame()->evaluateJavaScript(script).toString();
 }
 
 void Fb2MainWindow::undoChanged()
@@ -452,6 +463,7 @@ void Fb2MainWindow::createQsci()
     //  http://qtcoder.blogspot.com/2010/10/qscintills.html
     //  http://www.riverbankcomputing.co.uk/static/Docs/QScintilla2/classQsciScintilla.html
 
+    if (qsciEdit) return;
     qsciEdit = new QsciScintilla;
     qsciEdit->setUtf8(true);
     qsciEdit->setCaretLineVisible(true);

@@ -47,6 +47,7 @@ private slots:
     void viewText();
 
     void clipboardDataChanged();
+    void loadFinished(bool ok);
     void selectionChanged();
     void undoChanged();
     void redoChanged();
@@ -57,6 +58,7 @@ private:
 
 private:
     void init();
+    void createTree();
     void createText();
     void createQsci();
     void createActions();

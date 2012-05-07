@@ -4,6 +4,10 @@
 #include <QTextDocument>
 #include <QTextDocumentFragment>
 #include <QTextFrame>
+#include <QWebElement>
+#include <QWebFrame>
+#include <QWebPage>
+#include <QWebView>
 
 Fb2TreeItem::Fb2TreeItem(QTextFrame *frame, Fb2TreeItem *parent)
     : QObject(parent)
@@ -17,6 +21,29 @@ Fb2TreeItem::Fb2TreeItem(QTextFrame *frame, Fb2TreeItem *parent)
     m_text = fragment.toPlainText().simplified().left(255);
     foreach (QTextFrame * frame, frame->childFrames()) {
         m_list << new Fb2TreeItem(frame, this);
+    }
+}
+
+Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent)
+    : QObject(parent)
+    , m_frame(0)
+    , m_parent(parent)
+    , m_element(element)
+{
+    m_name = element.tagName().toLower();
+    QString style = element.attribute("class").toLower();
+    if (!style.isEmpty()) m_name = style;
+    if (style == "title") {
+        QString text = element.toPlainText().simplified().left(255);
+        if (m_parent) m_parent->m_text = text; else m_text = text;
+    } else if (m_name == "img") {
+        m_text = element.attribute("alt");
+    }
+    QWebElement child = element.firstChild();
+    while (!child.isNull()) {
+        QString tag = child.tagName().toLower();
+        if (tag != "p") m_list << new Fb2TreeItem(child, this);
+        child = child.nextSibling();
     }
 }
 
@@ -42,20 +69,27 @@ Fb2TreeItem * Fb2TreeItem::item(int row) const
 
 QString Fb2TreeItem::text() const
 {
-    return tr("<section>") + m_text;
+    return QString("<%1> %2").arg(m_name).arg(m_text);
 }
 
 //---------------------------------------------------------------------------
 //  Fb2TreeModel
 //---------------------------------------------------------------------------
 
-Fb2TreeModel::Fb2TreeModel(QTextEdit &text, QObject *parent)
+Fb2TreeModel::Fb2TreeModel(QWebView &view, QObject *parent)
     : QAbstractItemModel(parent)
-    , m_text(text)
+    , m_view(view)
     , m_root(NULL)
 {
-    if (QTextDocument * doc = text.document()) {
-        m_root = new Fb2TreeItem(doc->rootFrame());
+    QWebElement doc = view.page()->mainFrame()->documentElement();
+    QWebElement child = doc.firstChild();
+    while (!child.isNull()) {
+        if (child.tagName().toLower() == "body") {
+            m_root = new Fb2TreeItem(child);
+            break;
+        } else {
+            child = child.nextSibling();
+        }
     }
 }
 
@@ -118,6 +152,7 @@ QVariant Fb2TreeModel::data(const QModelIndex &index, int role) const
 
 void Fb2TreeModel::select(const QModelIndex &index)
 {
+/*
     Fb2TreeItem * i = item(index);
     if (!i) return;
 
@@ -128,4 +163,5 @@ void Fb2TreeModel::select(const QModelIndex &index)
     cursor.setPosition(f->firstPosition());
     m_text.moveCursor(QTextCursor::End);
     m_text.setTextCursor(cursor);
+*/
 }
