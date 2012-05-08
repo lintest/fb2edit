@@ -1,32 +1,13 @@
 #include "fb2tree.h"
 
 #include <QtDebug>
-#include <QTextDocument>
-#include <QTextDocumentFragment>
-#include <QTextFrame>
-#include <QWebElement>
 #include <QWebFrame>
 #include <QWebPage>
 #include <QWebView>
-
-Fb2TreeItem::Fb2TreeItem(QTextFrame *frame, Fb2TreeItem *parent)
-    : QObject(parent)
-    , m_frame(frame)
-    , m_parent(parent)
-{
-    QTextCursor cursor(m_frame);
-    cursor.setPosition(m_frame->firstPosition(), QTextCursor::MoveAnchor);
-    cursor.setPosition(m_frame->lastPosition(), QTextCursor::KeepAnchor);
-    QTextDocumentFragment fragment(cursor);
-    m_text = fragment.toPlainText().simplified().left(255);
-    foreach (QTextFrame * frame, frame->childFrames()) {
-        m_list << new Fb2TreeItem(frame, this);
-    }
-}
+#include <QTreeView>
 
 Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent)
     : QObject(parent)
-    , m_frame(0)
     , m_parent(parent)
     , m_element(element)
 {
@@ -96,6 +77,16 @@ Fb2TreeModel::Fb2TreeModel(QWebView &view, QObject *parent)
 Fb2TreeModel::~Fb2TreeModel()
 {
     if (m_root) delete m_root;
+}
+
+void Fb2TreeModel::expand(QTreeView *view)
+{
+    QModelIndex parent = QModelIndex();
+    int count = rowCount(parent);
+    for (int i = 0; i < count; i++) {
+        QModelIndex child = index(i, 0, parent);
+        view->expand(child);
+    }
 }
 
 Fb2TreeItem * Fb2TreeModel::item(const QModelIndex &index) const

@@ -2,16 +2,18 @@
 #define FB2TREE_H
 
 #include <QAbstractItemModel>
-#include <QTextEdit>
 #include <QWebElement>
 #include <QWebView>
+
+QT_BEGIN_NAMESPACE
+class QTreeView;
+QT_END_NAMESPACE
 
 class Fb2TreeItem: public QObject
 {
     Q_OBJECT
 
 public:
-    explicit Fb2TreeItem(QTextFrame *frame, Fb2TreeItem *parent = 0);
     explicit Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent = 0);
 
     virtual ~Fb2TreeItem();
@@ -32,17 +34,12 @@ public:
         return m_parent;
     }
 
-    QTextFrame * frame() const {
-        return m_frame;
-    }
-
     QString text() const;
 
 private:
     QList<Fb2TreeItem*> m_list;
     QString m_name;
     QString m_text;
-    QTextFrame * m_frame;
     Fb2TreeItem * m_parent;
     QWebElement m_element;
 };
@@ -55,6 +52,7 @@ public:
     explicit Fb2TreeModel(QWebView &view, QObject *parent = 0);
     virtual ~Fb2TreeModel();
     void select(const QModelIndex &index);
+    void expand(QTreeView *view);
 
 public:
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;

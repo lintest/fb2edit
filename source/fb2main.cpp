@@ -438,7 +438,10 @@ void Fb2MainWindow::createText()
 
 void Fb2MainWindow::loadFinished(bool ok)
 {
-    if (treeView) treeView->setModel(new Fb2TreeModel(*textEdit));
+    if (!treeView) return ;
+    Fb2TreeModel *model = new Fb2TreeModel(*textEdit);
+    treeView->setModel(model);
+    model->expand(treeView);
 }
 
 void Fb2MainWindow::selectionChanged()

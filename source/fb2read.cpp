@@ -169,12 +169,6 @@ Fb2Handler::RootHandler::RootHandler(Fb2HtmlWriter &writer, const QString &name)
     m_writer.writeStartElement("body");
 }
 
-Fb2Handler::RootHandler::~RootHandler()
-{
-    m_writer.writeEndElement();
-    m_writer.writeEndElement();
-}
-
 Fb2Handler::BaseHandler * Fb2Handler::RootHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
     switch (toKeyword(name)) {
@@ -183,6 +177,13 @@ Fb2Handler::BaseHandler * Fb2Handler::RootHandler::NewTag(const QString &name, c
         case Binary : return new BinaryHandler(m_writer, name, attributes);
         default: return NULL;
     }
+}
+
+void Fb2Handler::RootHandler::EndTag(const QString &name)
+{
+    Q_UNUSED(name);
+    m_writer.writeEndElement();
+    m_writer.writeEndElement();
 }
 
 //---------------------------------------------------------------------------
@@ -264,16 +265,13 @@ FB2_END_KEYHASH
 Fb2Handler::BodyHandler::BodyHandler(Fb2HtmlWriter &writer, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style)
     : BaseHandler(name)
     , m_writer(writer)
+    , m_tag(tag)
+    , m_style(style)
 {
     m_writer.writeStartElement(tag);
     QString id = Value(attributes, "id");
     if (!id.isEmpty()) m_writer.writeAttribute("id", id);
     if (!style.isEmpty()) m_writer.writeAttribute("class", style);
-}
-
-Fb2Handler::BodyHandler::~BodyHandler()
-{
-    m_writer.writeEndElement();
 }
 
 Fb2Handler::BaseHandler * Fb2Handler::BodyHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
@@ -296,6 +294,12 @@ Fb2Handler::BaseHandler * Fb2Handler::BodyHandler::NewTag(const QString &name, c
 void Fb2Handler::BodyHandler::TxtTag(const QString &text)
 {
     m_writer.writeCharacters(text);
+}
+
+void Fb2Handler::BodyHandler::EndTag(const QString &name)
+{
+    Q_UNUSED(name);
+    m_writer.writeEndElement();
 }
 
 //---------------------------------------------------------------------------
@@ -334,16 +338,18 @@ Fb2Handler::BinaryHandler::BinaryHandler(Fb2HtmlWriter &writer, const QString &n
 {
 }
 
-Fb2Handler::BinaryHandler::~BinaryHandler()
-{
-    QByteArray in; in.append(m_text);
-    if (!m_file.isEmpty()) m_writer.addFile(m_file, QByteArray::fromBase64(in));
-}
-
 void Fb2Handler::BinaryHandler::TxtTag(const QString &text)
 {
     m_text += text;
 }
+
+void Fb2Handler::BinaryHandler::EndTag(const QString &name)
+{
+    Q_UNUSED(name);
+    QByteArray in; in.append(m_text);
+    if (!m_file.isEmpty()) m_writer.addFile(m_file, QByteArray::fromBase64(in));
+}
+
 
 //---------------------------------------------------------------------------
 //  Fb2Handler

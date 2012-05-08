@@ -87,6 +87,8 @@ private:
             { Q_UNUSED(text); }
         virtual void EndTag(const QString &name)
             { Q_UNUSED(name); }
+        const QString & Name() const
+            { return m_name; }
     private:
         const QString m_name;
         BaseHandler * m_handler;
@@ -103,9 +105,9 @@ private:
         FB2_END_KEYLIST
     public:
         explicit RootHandler(Fb2HtmlWriter &writer, const QString &name);
-        virtual ~RootHandler();
     protected:
         virtual BaseHandler * NewTag(const QString & name, const QXmlAttributes &attributes);
+        virtual void EndTag(const QString &name);
     private:
         Fb2HtmlWriter &m_writer;
     };
@@ -161,12 +163,14 @@ private:
        FB2_END_KEYLIST
     public:
         explicit BodyHandler(Fb2HtmlWriter &writer, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style = QString());
-        virtual ~BodyHandler();
         virtual void TxtTag(const QString &text);
     protected:
         virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
+        virtual void EndTag(const QString &name);
     protected:
         Fb2HtmlWriter &m_writer;
+        QString m_tag;
+        QString m_style;
     };
 
     class AnchorHandler : public BodyHandler
@@ -185,9 +189,9 @@ private:
     {
     public:
         explicit BinaryHandler(Fb2HtmlWriter &writer, const QString &name, const QXmlAttributes &attributes);
-        virtual ~BinaryHandler();
     protected:
         virtual void TxtTag(const QString &text);
+        virtual void EndTag(const QString &name);
     private:
         Fb2HtmlWriter &m_writer;
         QString m_file;
