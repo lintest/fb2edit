@@ -3,6 +3,8 @@
 
 #include <QAction>
 #include <QtDebug>
+#include <QWebElement>
+#include <QWebFrame>
 
 //---------------------------------------------------------------------------
 //  Fb2WebView
@@ -15,17 +17,29 @@ Fb2WebView::Fb2WebView(QWidget *parent)
     page()->setContentEditable(true);
     QWebSettings *settings = page()->settings();
     settings->setAttribute(QWebSettings::AutoLoadImages, true);
+    settings->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
     settings->setAttribute(QWebSettings::JavaEnabled, false);
     settings->setAttribute(QWebSettings::JavascriptEnabled, true);
     settings->setAttribute(QWebSettings::PrivateBrowsingEnabled, true);
     settings->setAttribute(QWebSettings::PluginsEnabled, false);
     settings->setAttribute(QWebSettings::ZoomTextOnly, true);
     settings->setUserStyleSheetUrl(QUrl::fromLocalFile(":/res/style.css"));
+    connect(page(), SIGNAL(contentsChanged()), this, SLOT(fixContents()));
 }
 
 Fb2WebView::~Fb2WebView()
 {
     foreach (QString value, m_files) QFile::remove(value);
+}
+
+void Fb2WebView::fixContents()
+{
+    QWebElement doc = page()->mainFrame()->documentElement();
+    while (true) {
+        QWebElement span = doc.findFirst("span");
+        if (span.isNull()) break;
+        span.setOuterXml(span.toInnerXml());
+    }
 }
 
 bool Fb2WebView::load(const QString &filename)

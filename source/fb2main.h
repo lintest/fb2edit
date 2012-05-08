@@ -51,6 +51,7 @@ private slots:
     void selectionChanged();
     void undoChanged();
     void redoChanged();
+    void showInspector();
 
 private:
     bool loadXML(const QString &filename);
@@ -92,6 +93,7 @@ private:
         *actionTextStrike,
         *actionTextSub,
         *actionTextSup,
+        *actionInspect,
         *actionZoomIn,
         *actionZoomOut,
         *actionZoomOrig

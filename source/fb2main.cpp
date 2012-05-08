@@ -1,6 +1,7 @@
 #include <QtGui>
 #include <QtDebug>
 #include <QTreeView>
+#include <QWebInspector>
 #include <QWebFrame>
 
 #include "fb2main.h"
@@ -368,6 +369,12 @@ void Fb2MainWindow::createActions()
     menu->addAction(act);
     tool->addAction(act);
 
+    menu->addSeparator();
+
+    act = new QAction(tr("Web inspector"), this);
+    connect(act, SIGNAL(triggered()), this, SLOT(showInspector()));
+    menu->addAction(act);
+
     menuBar()->addSeparator();
 
     menu = menuBar()->addMenu(tr("&Help"));
@@ -426,6 +433,7 @@ void Fb2MainWindow::createText()
     connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
     connect(actionZoomOrig, SIGNAL(triggered()), textEdit, SLOT(zoomOrig()));
+
 }
 
 void Fb2MainWindow::loadFinished(bool ok)
@@ -444,8 +452,8 @@ void Fb2MainWindow::selectionChanged()
     actionTextSub->setChecked(textEdit->SubChecked());
     actionTextSup->setChecked(textEdit->SupChecked());
 
-    QString script = "document.getSelection().baseNode.parentNode.tagName";
-    qCritical() << textEdit->page()->mainFrame()->evaluateJavaScript(script).toString();
+//    QString script = "document.getSelection().baseNode.parentNode.tagName";
+//    qCritical() << textEdit->page()->mainFrame()->evaluateJavaScript(script).toString();
 }
 
 void Fb2MainWindow::undoChanged()
@@ -630,3 +638,10 @@ void Fb2MainWindow::clipboardDataChanged()
     }
 }
 
+void Fb2MainWindow::showInspector()
+{
+    if (!textEdit) return;
+    QWebInspector *inspector = new QWebInspector();
+    inspector->setPage(textEdit->page());
+    inspector->show();
+}

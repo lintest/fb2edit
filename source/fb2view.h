@@ -75,6 +75,9 @@ public slots:
     void zoomOut();
     void zoomOrig();
 
+private slots:
+    void fixContents();
+
 private:
     typedef QHash<QString, QString> StringHash;
     StringHash m_files;
