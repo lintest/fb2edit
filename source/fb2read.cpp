@@ -59,6 +59,7 @@ bool Fb2ReadThread::parse()
 Fb2HtmlWriter::Fb2HtmlWriter(Fb2ReadThread &thread)
     : QXmlStreamWriter(thread.data())
     , m_thread(thread)
+    , m_id(0)
 {
 }
 
@@ -84,6 +85,11 @@ QString Fb2HtmlWriter::getFile(const QString &name)
     } else {
         return i.value();
     }
+}
+
+QString Fb2HtmlWriter::newId()
+{
+    return QString("FB2E%1").arg(++m_id);
 }
 
 //---------------------------------------------------------------------------
@@ -271,7 +277,11 @@ Fb2Handler::BodyHandler::BodyHandler(Fb2HtmlWriter &writer, const QString &name,
     if (m_tag.isEmpty()) return;
     m_writer.writeStartElement(tag);
     QString id = Value(attributes, "id");
-    if (!id.isEmpty()) m_writer.writeAttribute("id", id);
+    if (!id.isEmpty()) {
+        m_writer.writeAttribute("id", id);
+    } else if (m_tag == "div" || m_tag == "img") {
+        m_writer.writeAttribute("id", m_writer.newId());
+    }
     if (!style.isEmpty()) m_writer.writeAttribute("class", style);
 }
 

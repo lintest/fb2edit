@@ -82,19 +82,11 @@ void Fb2MainWindow::logDestroyed()
     messageEdit = NULL;
 }
 
-static QTextFrame * findFrame(QTextFrame *root, const QModelIndex &index)
-{
-    if (!index.isValid()) return root;
-    if (QTextFrame *frame = findFrame(root, index.parent())) {
-        QTextFrame *child = static_cast<QTextFrame*>(index.internalPointer());
-        int i = frame->childFrames().indexOf(child);
-        if (i >= 0) return child;
-    }
-    return NULL;
-}
-
 void Fb2MainWindow::treeActivated(const QModelIndex &index)
 {
+    if (!treeView) return;
+    Fb2TreeModel *model = dynamic_cast<Fb2TreeModel*>(treeView->model());
+    if (model) model->select(index);
 }
 
 void Fb2MainWindow::treeDestroyed()

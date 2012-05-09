@@ -42,9 +42,9 @@ void Fb2WebView::fixContents()
     }
 }
 
-bool Fb2WebView::load(const QString &filename)
+void Fb2WebView::load(const QString &filename)
 {
-    if (m_thread) return false;
+    if (m_thread) return;
     m_thread = new Fb2ReadThread(this, filename);
     connect(m_thread, SIGNAL(file(QString, QString)), SLOT(file(QString, QString)));
     connect(m_thread, SIGNAL(html(QString, QString)), SLOT(html(QString, QString)));

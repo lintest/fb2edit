@@ -48,10 +48,12 @@ public:
     explicit Fb2HtmlWriter(Fb2ReadThread &thread);
     QString addFile(const QString &name, const QByteArray &data);
     QString getFile(const QString &name);
+    QString newId();
 private:
     typedef QHash<QString, QString> StringHash;
     Fb2ReadThread &m_thread;
     StringHash m_hash;
+    int m_id;
 };
 
 #define FB2_BEGIN_KEYLIST private: enum Keyword {

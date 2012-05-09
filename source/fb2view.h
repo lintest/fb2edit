@@ -44,7 +44,7 @@ class Fb2WebView : public Fb2BaseWebView
 public:
     explicit Fb2WebView(QWidget *parent = 0);
     virtual ~Fb2WebView();
-    bool load(const QString &filename);
+    void load(const QString &filename);
 
     bool UndoEnabled();
     bool RedoEnabled();

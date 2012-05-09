@@ -20,6 +20,7 @@ Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent)
     } else if (m_name == "img") {
         m_text = element.attribute("alt");
     }
+    m_id = element.attribute("id");
     QWebElement child = element.firstChild();
     while (!child.isNull()) {
         QString tag = child.tagName().toLower();
@@ -143,16 +144,7 @@ QVariant Fb2TreeModel::data(const QModelIndex &index, int role) const
 
 void Fb2TreeModel::select(const QModelIndex &index)
 {
-/*
-    Fb2TreeItem * i = item(index);
-    if (!i) return;
-
-    QTextFrame * f = i->frame();
-    if (!f) return;
-
-    QTextCursor cursor = m_text.textCursor();
-    cursor.setPosition(f->firstPosition());
-    m_text.moveCursor(QTextCursor::End);
-    m_text.setTextCursor(cursor);
-*/
+    Fb2TreeItem *node = item(index);
+    if (!node || node->id().isEmpty()) return;
+    m_view.page()->mainFrame()->scrollToAnchor(node->id());
 }

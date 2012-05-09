@@ -36,12 +36,17 @@ public:
 
     QString text() const;
 
+    const QString & id() const {
+        return m_id;
+    }
+
 private:
     QList<Fb2TreeItem*> m_list;
     QString m_name;
     QString m_text;
     Fb2TreeItem * m_parent;
     QWebElement m_element;
+    QString m_id;
 };
 
 class Fb2TreeModel: public QAbstractItemModel
