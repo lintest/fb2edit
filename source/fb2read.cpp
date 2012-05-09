@@ -268,6 +268,7 @@ Fb2Handler::BodyHandler::BodyHandler(Fb2HtmlWriter &writer, const QString &name,
     , m_tag(tag)
     , m_style(style)
 {
+    if (m_tag.isEmpty()) return;
     m_writer.writeStartElement(tag);
     QString id = Value(attributes, "id");
     if (!id.isEmpty()) m_writer.writeAttribute("id", id);
@@ -276,19 +277,20 @@ Fb2Handler::BodyHandler::BodyHandler(Fb2HtmlWriter &writer, const QString &name,
 
 Fb2Handler::BaseHandler * Fb2Handler::BodyHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
+    QString tag, style;
     switch (toKeyword(name)) {
-        case Section   : return new BodyHandler(m_writer, name, attributes, "div", name);
         case Anchor    : return new AnchorHandler(m_writer, name, attributes);
         case Image     : return new ImageHandler(m_writer, name, attributes);
-        case Parag     : return new BodyHandler(m_writer, name, attributes, "p");
-        case Strong    : return new BodyHandler(m_writer, name, attributes, "b");
-        case Emphas    : return new BodyHandler(m_writer, name, attributes, "i");
-        case Strike    : return new BodyHandler(m_writer, name, attributes, "s");
-        case Code      : return new BodyHandler(m_writer, name, attributes, "tt");
-        case Sub       : return new BodyHandler(m_writer, name, attributes, "sub");
-        case Sup       : return new BodyHandler(m_writer, name, attributes, "sup");
-        default: return NULL;
+        case Section   : tag = "div"; style = name; break;
+        case Parag     : tag = "p";   break;
+        case Strong    : tag = "b";   break;
+        case Emphas    : tag = "i";   break;
+        case Strike    : tag = "s";   break;
+        case Code      : tag = "tt";  break;
+        case Sub       : tag = "sub"; break;
+        case Sup       : tag = "sup"; break;
     }
+    return new BodyHandler(m_writer, name, attributes, tag, style);
 }
 
 void Fb2Handler::BodyHandler::TxtTag(const QString &text)
@@ -299,6 +301,7 @@ void Fb2Handler::BodyHandler::TxtTag(const QString &text)
 void Fb2Handler::BodyHandler::EndTag(const QString &name)
 {
     Q_UNUSED(name);
+    if (m_tag.isEmpty()) return;
     m_writer.writeEndElement();
 }
 
