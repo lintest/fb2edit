@@ -41,6 +41,9 @@ public:
     }
 
 private:
+    void addChildren(QWebElement &parent);
+
+private:
     QList<Fb2TreeItem*> m_list;
     QString m_name;
     QString m_text;

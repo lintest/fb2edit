@@ -15,24 +15,37 @@ Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent)
     QString style = element.attribute("class").toLower();
     if (!style.isEmpty()) m_name = style;
     if (style == "title") {
-        QString text = element.toPlainText().simplified().left(255);
-        if (m_parent) m_parent->m_text = text; else m_text = text;
+        m_text = element.toPlainText().simplified().left(255);
+        if (m_parent) m_parent->m_text += m_text += " ";
+    } else if (style == "subtitle") {
+        m_text = element.toPlainText().simplified().left(255);
     } else if (m_name == "img") {
         m_text = element.attribute("alt");
     }
     m_id = element.attribute("id");
-    QWebElement child = element.firstChild();
-    while (!child.isNull()) {
-        QString tag = child.tagName().toLower();
-        if (tag != "p") m_list << new Fb2TreeItem(child, this);
-        child = child.nextSibling();
-    }
+    addChildren(element);
 }
 
 Fb2TreeItem::~Fb2TreeItem()
 {
     foreach (Fb2TreeItem * item, m_list) {
         delete item;
+    }
+}
+
+void Fb2TreeItem::addChildren(QWebElement &parent)
+{
+    QWebElement child = parent.firstChild();
+    while (!child.isNull()) {
+        QString tag = child.tagName().toLower();
+        if (tag == "div") {
+            m_list << new Fb2TreeItem(child, this);
+        } else if (tag == "img") {
+            m_list << new Fb2TreeItem(child, this);
+        } else {
+            addChildren(child);
+        }
+        child = child.nextSibling();
     }
 }
 
