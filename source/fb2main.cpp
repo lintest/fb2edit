@@ -92,6 +92,7 @@ void Fb2MainWindow::treeActivated(const QModelIndex &index)
 void Fb2MainWindow::treeDestroyed()
 {
     treeView = NULL;
+    dockTree = NULL;
 }
 
 bool Fb2MainWindow::loadXML(const QString &filename)
@@ -389,11 +390,11 @@ void Fb2MainWindow::createTree()
     treeView->setHeaderHidden(true);
     connect(treeView, SIGNAL(activated(QModelIndex)), SLOT(treeActivated(QModelIndex)));
     connect(treeView, SIGNAL(destroyed()), SLOT(treeDestroyed()));
-    QDockWidget * dock = new QDockWidget(tr("Contents"), this);
-    dock->setAttribute(Qt::WA_DeleteOnClose);
-    dock->setFeatures(QDockWidget::AllDockWidgetFeatures);
-    dock->setWidget(treeView);
-    addDockWidget(Qt::LeftDockWidgetArea, dock);
+    dockTree = new QDockWidget(tr("Contents"), this);
+    dockTree->setAttribute(Qt::WA_DeleteOnClose);
+    dockTree->setFeatures(QDockWidget::AllDockWidgetFeatures);
+    dockTree->setWidget(treeView);
+    addDockWidget(Qt::LeftDockWidgetArea, dockTree);
 }
 
 void Fb2MainWindow::createText()
@@ -614,6 +615,10 @@ void Fb2MainWindow::viewQsci()
         html = textEdit->page()->mainFrame()->toHtml();
         delete textEdit;
         textEdit = NULL;
+    }
+    if (dockTree) {
+        delete dockTree;
+        dockTree = NULL;
     }
     createQsci();
     qsciEdit->setText(html);

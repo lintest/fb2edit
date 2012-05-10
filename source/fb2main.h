@@ -5,8 +5,9 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QMenu;
+class QDockWidget;
 class QFile;
+class QMenu;
 class QModelIndex;
 class QTextEdit;
 class QTreeView;
@@ -74,6 +75,7 @@ private:
     Fb2WebView *textEdit;
     QTextEdit *noteEdit;
     QTextEdit *messageEdit;
+    QDockWidget *dockTree;
     QsciScintilla *qsciEdit;
     QTreeView * treeView;
     QString curFile;
