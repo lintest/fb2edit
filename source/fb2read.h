@@ -2,10 +2,10 @@
 #define FB2READ_H
 
 #include <QByteArray>
+#include <QHash>
 #include <QMutex>
 #include <QThread>
 #include <QXmlDefaultHandler>
-#include <QStringList>
 #include <QXmlStreamWriter>
 
 QT_BEGIN_NAMESPACE
