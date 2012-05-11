@@ -43,5 +43,6 @@
         <file>res/24/zoom-original.png</file>
         <file>res/24/zoom-out.png</file>
         <file>res/style.css</file>
+        <file>ts/ru.qm</file>
     </qresource>
 </RCC>

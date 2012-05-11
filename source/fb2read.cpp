@@ -41,7 +41,7 @@ bool Fb2ReadThread::parse()
 {
     QFile file(m_filename);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        qCritical() << QObject::tr("Cannot read file %1:\n%2.").arg(m_filename).arg(file.errorString());
+        qCritical() << QObject::tr("Cannot read file %1: %2.").arg(m_filename).arg(file.errorString());
         return false;
     }
     Fb2Handler handler(*this);
@@ -424,7 +424,7 @@ bool Fb2Handler::endElement(const QString & namespaceURI, const QString & localN
 
 bool Fb2Handler::fatalError(const QXmlParseException &exception)
 {
-    qCritical() << QObject::tr("Parse error at line %1, column %2:\n%3")
+    qCritical() << QObject::tr("Parse error at line %1, column %2: %3")
        .arg(exception.lineNumber())
        .arg(exception.columnNumber())
        .arg(exception.message());

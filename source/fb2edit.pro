@@ -17,6 +17,8 @@ RESOURCES = \
 
 TARGET = fb2edit
 
+TRANSLATIONS = ts/ru.ts
+
 VERSION = 0.01.1
 
 QT += xml

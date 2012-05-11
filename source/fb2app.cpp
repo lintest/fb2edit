@@ -38,6 +38,10 @@ int main(int argc, char *argv[])
     app.setApplicationName("fb2edit");
     app.setOrganizationName("LinTest");
 
+    QTranslator translator;
+    translator.load(QLocale::system().name(), ":ts");
+    app.installTranslator(&translator);
+
     Fb2MainWindow * mainWin = new Fb2MainWindow;
     mainWin->show();
 

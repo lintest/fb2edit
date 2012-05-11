@@ -169,7 +169,7 @@ bool Fb2MainWindow::fileSave()
 
 bool Fb2MainWindow::fileSaveAs()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"), curFile);
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save As..."), curFile);
     if (fileName.isEmpty()) return false;
     return saveFile(fileName);
 }
@@ -297,7 +297,7 @@ void Fb2MainWindow::createActions()
     tool->addAction(act);
     clipboardDataChanged();
 
-    menu = menuBar()->addMenu(tr("Format"));
+    menu = menuBar()->addMenu(tr("Fo&rmat"));
     tool = addToolBar(tr("Format"));
 
     actionTextBold = act = new QAction(icon("format-text-bold"), tr("Bold"), this);
@@ -539,8 +539,7 @@ bool Fb2MainWindow::maybeSave()
     if (textEdit && textEdit->isModified()) {
         QMessageBox::StandardButton ret;
         ret = QMessageBox::warning(this, tr("SDI"),
-                     tr("The document has been modified.\n"
-                        "Do you want to save your changes?"),
+                     tr("The document has been modified. Do you want to save your changes?"),
                      QMessageBox::Save | QMessageBox::Discard
 		     | QMessageBox::Cancel);
         if (ret == QMessageBox::Save)
@@ -557,10 +556,7 @@ bool Fb2MainWindow::saveFile(const QString &fileName)
 
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        QMessageBox::warning(this, tr("SDI"),
-                             tr("Cannot write file %1:\n%2.")
-                             .arg(fileName)
-                             .arg(file.errorString()));
+        QMessageBox::warning(this, tr("SDI"), tr("Cannot write file %1: %2.").arg(fileName).arg(file.errorString()));
         return false;
     }
 
@@ -581,7 +577,7 @@ void Fb2MainWindow::setCurrentFile(const QString &filename)
     QString title;
     isUntitled = filename.isEmpty();
     if (isUntitled) {
-        curFile = tr("book%1.fb2").arg(sequenceNumber++);
+        curFile = QString("book%1.fb2").arg(sequenceNumber++);
         title = curFile;
     } else {
         QFileInfo info = filename;
