@@ -8,10 +8,6 @@
 #include <QXmlDefaultHandler>
 #include <QXmlStreamWriter>
 
-QT_BEGIN_NAMESPACE
-class QTextEdit;
-QT_END_NAMESPACE
-
 class Fb2ReadThread : public QThread
 {
     Q_OBJECT
