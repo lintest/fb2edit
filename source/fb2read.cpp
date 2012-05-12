@@ -130,7 +130,7 @@ bool Fb2Handler::BaseHandler::doStart(const QString &name, const QXmlAttributes 
     if (m_handler) return m_handler->doStart(name, attributes);
     m_handler = NewTag(name, attributes); if (m_handler) return true;
 //    qCritical() << QObject::tr("Unknown XML child tag: <%1> <%2>").arg(m_name).arg(name);
-    m_handler = new BaseHandler(name);
+    m_handler = new BaseHandler(m_writer, name);
     return true;
 }
 
@@ -168,8 +168,7 @@ FB2_BEGIN_KEYHASH(RootHandler)
 FB2_END_KEYHASH
 
 Fb2Handler::RootHandler::RootHandler(Fb2HtmlWriter &writer, const QString &name)
-    : BaseHandler(name)
-    , m_writer(writer)
+    : BaseHandler(writer, name)
 {
     m_writer.writeStartElement("html");
     m_writer.writeStartElement("body");
@@ -197,8 +196,10 @@ void Fb2Handler::RootHandler::EndTag(const QString &name)
 //---------------------------------------------------------------------------
 
 FB2_BEGIN_KEYHASH(DescrHandler)
-    insert( "title-info"   , Title   );
-    insert( "publish-info" , Publish );
+    insert( "title-info"    , Title    );
+    insert( "document-info" , Document );
+    insert( "publish-info"  , Publish  );
+    insert( "custom-info"   , Custom   );
 FB2_END_KEYHASH
 
 Fb2Handler::BaseHandler * Fb2Handler::DescrHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
@@ -206,7 +207,7 @@ Fb2Handler::BaseHandler * Fb2Handler::DescrHandler::NewTag(const QString &name, 
     Q_UNUSED(attributes);
     switch (toKeyword(name)) {
         case Title   : return new HeaderHandler(m_writer, name);
-        case Publish : return new BaseHandler(name);
+        case Publish : return new BaseHandler(m_writer, name);
         default: return NULL;
     }
 }
@@ -229,8 +230,8 @@ Fb2Handler::BaseHandler * Fb2Handler::HeaderHandler::NewTag(const QString &name,
 {
     Q_UNUSED(attributes);
     switch (toKeyword(name)) {
-        case Title   : return new BaseHandler(name);
-        case Annot   : return new BaseHandler(name);
+        case Title   : return new BaseHandler(m_writer, name);
+        case Annot   : return new BaseHandler(m_writer, name);
         default: return NULL;
     }
 }
@@ -269,8 +270,7 @@ FB2_BEGIN_KEYHASH(BodyHandler)
 FB2_END_KEYHASH
 
 Fb2Handler::BodyHandler::BodyHandler(Fb2HtmlWriter &writer, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style)
-    : BaseHandler(name)
-    , m_writer(writer)
+    : BaseHandler(writer, name)
     , m_parent(NULL)
     , m_tag(tag)
     , m_style(style)
@@ -279,8 +279,7 @@ Fb2Handler::BodyHandler::BodyHandler(Fb2HtmlWriter &writer, const QString &name,
 }
 
 Fb2Handler::BodyHandler::BodyHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style)
-    : BaseHandler(name)
-    , m_writer(parent->m_writer)
+    : BaseHandler(parent->m_writer, name)
     , m_parent(parent)
     , m_tag(tag)
     , m_style(style)
@@ -371,8 +370,7 @@ Fb2Handler::ImageHandler::ImageHandler(BodyHandler *parent, const QString &name,
 //---------------------------------------------------------------------------
 
 Fb2Handler::BinaryHandler::BinaryHandler(Fb2HtmlWriter &writer, const QString &name, const QXmlAttributes &attributes)
-    : BaseHandler(name)
-    , m_writer(writer)
+    : BaseHandler(writer, name)
     , m_file(Value(attributes, "id"))
 {
 }

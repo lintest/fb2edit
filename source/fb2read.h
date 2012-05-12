@@ -73,7 +73,8 @@ private:
     class BaseHandler
     {
     public:
-        explicit BaseHandler(const QString &name) : m_name(name), m_handler(NULL), m_closed(false) {}
+        explicit BaseHandler(Fb2HtmlWriter &writer, const QString &name)
+            : m_writer(writer), m_name(name), m_handler(0), m_closed(false) {}
         virtual ~BaseHandler();
         bool doStart(const QString &name, const QXmlAttributes &attributes);
         bool doText(const QString &text);
@@ -87,6 +88,8 @@ private:
             { Q_UNUSED(name); }
         const QString & Name() const
             { return m_name; }
+    protected:
+        Fb2HtmlWriter &m_writer;
     private:
         const QString m_name;
         BaseHandler * m_handler;
@@ -106,22 +109,20 @@ private:
     protected:
         virtual BaseHandler * NewTag(const QString & name, const QXmlAttributes &attributes);
         virtual void EndTag(const QString &name);
-    private:
-        Fb2HtmlWriter &m_writer;
     };
 
     class DescrHandler : public BaseHandler
     {
         FB2_BEGIN_KEYLIST
             Title,
+            Document,
             Publish,
+            Custom,
         FB2_END_KEYLIST
     public:
-        explicit DescrHandler(Fb2HtmlWriter &writer, const QString &name) : BaseHandler(name), m_writer(writer) {}
+        explicit DescrHandler(Fb2HtmlWriter &writer, const QString &name) : BaseHandler(writer, name) {}
     protected:
         virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
-    protected:
-        Fb2HtmlWriter &m_writer;
     };
 
     class HeaderHandler : public BaseHandler
@@ -136,11 +137,9 @@ private:
             Cover,
         FB2_END_KEYLIST
     public:
-        explicit HeaderHandler(Fb2HtmlWriter &writer, const QString &name) : BaseHandler(name), m_writer(writer) {}
+        explicit HeaderHandler(Fb2HtmlWriter &writer, const QString &name) : BaseHandler(writer, name) {}
     protected:
         virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
-    protected:
-        Fb2HtmlWriter &m_writer;
     };
 
     class BodyHandler : public BaseHandler
@@ -170,7 +169,6 @@ private:
         void Init(const QXmlAttributes &attributes);
         bool isNotes() const;
     protected:
-        Fb2HtmlWriter &m_writer;
         BodyHandler *m_parent;
         QString m_tag;
         QString m_style;
@@ -196,7 +194,6 @@ private:
         virtual void TxtTag(const QString &text);
         virtual void EndTag(const QString &name);
     private:
-        Fb2HtmlWriter &m_writer;
         QString m_file;
         QString m_text;
     };
