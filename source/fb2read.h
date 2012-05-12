@@ -111,7 +111,17 @@ private:
         virtual void EndTag(const QString &name);
     };
 
-    class DescrHandler : public BaseHandler
+    class HeadHandler : public BaseHandler
+    {
+    public:
+        explicit HeadHandler(Fb2HtmlWriter &writer, const QString &name);
+    protected:
+        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
+        virtual void TxtTag(const QString &text);
+        virtual void EndTag(const QString &name);
+    };
+
+    class DescrHandler : public HeadHandler
     {
         FB2_BEGIN_KEYLIST
             Title,
@@ -120,24 +130,15 @@ private:
             Custom,
         FB2_END_KEYLIST
     public:
-        explicit DescrHandler(Fb2HtmlWriter &writer, const QString &name) : BaseHandler(writer, name) {}
+        explicit DescrHandler(Fb2HtmlWriter &writer, const QString &name) : HeadHandler(writer, name) {}
     protected:
         virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
     };
 
-    class HeaderHandler : public BaseHandler
+    class TitleHandler : public HeadHandler
     {
-        FB2_BEGIN_KEYLIST
-            Author,
-            Title,
-            Sequence,
-            Genre,
-            Lang,
-            Annot,
-            Cover,
-        FB2_END_KEYLIST
     public:
-        explicit HeaderHandler(Fb2HtmlWriter &writer, const QString &name) : BaseHandler(writer, name) {}
+        explicit TitleHandler(Fb2HtmlWriter &writer, const QString &name) : HeadHandler(writer, name) {}
     protected:
         virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
     };
@@ -163,8 +164,8 @@ private:
         explicit BodyHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style = QString());
     protected:
         virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
-        virtual void EndTag(const QString &name);
         virtual void TxtTag(const QString &text);
+        virtual void EndTag(const QString &name);
     protected:
         void Init(const QXmlAttributes &attributes);
         bool isNotes() const;

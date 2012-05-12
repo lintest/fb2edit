@@ -25,10 +25,12 @@ div.description div.title-info div.annotation {
   border-top-right-radius: 10;
   border-bottom-left-radius: 10;
   border-bottom-right-radius: 10;
+  margin-top: 1em;
+  margin-bottom: 1em;
 }
 
 div.section {
-  border-top: none; 
+  border-top: none;
   border-bottom: none; 
   border-left: thin solid green; 
   border-right: none; 

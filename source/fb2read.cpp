@@ -192,6 +192,35 @@ void Fb2Handler::RootHandler::EndTag(const QString &name)
 }
 
 //---------------------------------------------------------------------------
+//  Fb2Handler::HeadHandler
+//---------------------------------------------------------------------------
+
+Fb2Handler::HeadHandler::HeadHandler(Fb2HtmlWriter &writer, const QString &name)
+    : BaseHandler(writer, name)
+{
+    m_writer.writeStartElement("div");
+    m_writer.writeAttribute("class", name);
+}
+
+Fb2Handler::BaseHandler * Fb2Handler::HeadHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
+{
+    Q_UNUSED(attributes);
+    return new HeadHandler(m_writer, name);
+}
+
+void Fb2Handler::HeadHandler::TxtTag(const QString &text)
+{
+    m_writer.writeCharacters(text);
+}
+
+void Fb2Handler::HeadHandler::EndTag(const QString &name)
+{
+    Q_UNUSED(name);
+    m_writer.writeCharacters(" ");
+    m_writer.writeEndElement();
+}
+
+//---------------------------------------------------------------------------
 //  Fb2Handler::DescrHandler
 //---------------------------------------------------------------------------
 
@@ -206,34 +235,25 @@ Fb2Handler::BaseHandler * Fb2Handler::DescrHandler::NewTag(const QString &name, 
 {
     Q_UNUSED(attributes);
     switch (toKeyword(name)) {
-        case Title   : return new HeaderHandler(m_writer, name);
-        case Publish : return new BaseHandler(m_writer, name);
-        default: return NULL;
+        case Title :
+            return new TitleHandler(m_writer, name);
+        case Document :
+        case Publish :
+        case Custom :
+            return new HeadHandler(m_writer, name);
+        default:
+            return NULL;
     }
 }
 
 //---------------------------------------------------------------------------
-//  Fb2Handler::HeaderHandler
+//  Fb2Handler::TitleHandler
 //---------------------------------------------------------------------------
 
-FB2_BEGIN_KEYHASH(HeaderHandler)
-    insert( "book-title"   , Title    );
-    insert( "author"       , Author   );
-    insert( "sequence"     , Sequence );
-    insert( "genre"        , Genre    );
-    insert( "lang"         , Lang     );
-    insert( "annotation"   , Annot    );
-    insert( "coverpage"    , Cover    );
-FB2_END_KEYHASH
-
-Fb2Handler::BaseHandler * Fb2Handler::HeaderHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
+Fb2Handler::BaseHandler * Fb2Handler::TitleHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
-    Q_UNUSED(attributes);
-    switch (toKeyword(name)) {
-        case Title   : return new BaseHandler(m_writer, name);
-        case Annot   : return new BaseHandler(m_writer, name);
-        default: return NULL;
-    }
+    if (name == "annotation") return new BodyHandler(m_writer, name, attributes, "div", name);
+    return new HeadHandler(m_writer, name);
 }
 
 //---------------------------------------------------------------------------
@@ -331,6 +351,7 @@ void Fb2Handler::BodyHandler::EndTag(const QString &name)
 {
     Q_UNUSED(name);
     if (m_tag.isEmpty()) return;
+    if (m_tag == "div") m_writer.writeCharacters(" ");
     m_writer.writeEndElement();
 }
 

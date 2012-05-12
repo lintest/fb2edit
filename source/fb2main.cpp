@@ -608,7 +608,7 @@ void Fb2MainWindow::viewQsci()
     if (centralWidget() == qsciEdit) return;
     QString html;
     if (textEdit) {
-        html = textEdit->page()->mainFrame()->toHtml();
+        html = textEdit->toXml();
         delete textEdit;
         textEdit = NULL;
     }

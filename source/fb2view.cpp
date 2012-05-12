@@ -32,6 +32,11 @@ Fb2WebView::~Fb2WebView()
     foreach (QString value, m_files) QFile::remove(value);
 }
 
+QString Fb2WebView::toXml()
+{
+    return page()->mainFrame()->documentElement().toOuterXml();
+}
+
 void Fb2WebView::fixContents()
 {
     QWebElement doc = page()->mainFrame()->documentElement();
