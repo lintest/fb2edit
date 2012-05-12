@@ -282,7 +282,10 @@ Fb2Handler::BodyHandler::BodyHandler(Fb2HtmlWriter &writer, const QString &name,
     } else if (m_tag == "div" || m_tag == "img") {
         m_writer.writeAttribute("id", m_writer.newId());
     }
-    if (!style.isEmpty()) m_writer.writeAttribute("class", style);
+    if (!m_style.isEmpty()) {
+        if (m_style == "body" && Value(attributes, "name").toLower() == "notes") m_style = "notes";
+        m_writer.writeAttribute("class", m_style);
+    }
 }
 
 Fb2Handler::BaseHandler * Fb2Handler::BodyHandler::NewTag(const QString &name, const QXmlAttributes &attributes)

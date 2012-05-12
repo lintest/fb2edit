@@ -25,3 +25,6 @@ QT += xml
 QT += webkit
 
 LIBS += -lqscintilla2
+
+OTHER_FILES += \
+    res/style.css

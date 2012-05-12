@@ -1,9 +1,11 @@
 body {
   font-family: serif;
 }
+
 div.description {
   display: none;
 }
+
 div.annotation {
   padding-left: 10;
   padding-right: 10;
@@ -15,6 +17,7 @@ div.annotation {
   border-bottom-left-radius: 10;
   border-bottom-right-radius: 10;
 }
+
 div.section {
   border-top: none; 
   border-bottom: none; 
@@ -25,12 +28,23 @@ div.section {
   padding-left: 4; 
   padding-right: 0;
 }
+
 div.title {
   color: white;
   background: green;
   text-align: center;
   font-family: sans-serif;
 }
+
+div.subtitle {
+  color: white;
+  background: #d8a903;
+  text-align: center;
+  font-family: sans-serif;
+  margin-left: 5%;
+  margin-right: 5%;
+}
+
 div.poem {
   border-left: thin solid blue; 
   margin-left: 5%;
@@ -43,6 +57,20 @@ div.poem div {
 }
 
 div.poem p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+div.notes div.section div.title {
+  font: inherit;
+  float: left;
+  margin-left: 4;
+  margin-right: 4;
+  padding-left: 4;
+  padding-right: 4;
+}
+
+div.notes div.section div.title p {
   margin-top: 0;
   margin-bottom: 0;
 }
