@@ -35,10 +35,8 @@ Fb2WebView::~Fb2WebView()
 void Fb2WebView::fixContents()
 {
     QWebElement doc = page()->mainFrame()->documentElement();
-    while (true) {
-        QWebElement span = doc.findFirst("span");
-        if (span.isNull()) break;
-        span.setOuterXml(span.toInnerXml());
+    foreach (QWebElement span, doc.findAll("span.apple-style-span[style]")) {
+        span.removeAttribute("style");
     }
 }
 
