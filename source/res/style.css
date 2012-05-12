@@ -45,8 +45,14 @@ div.subtitle {
   margin-right: 5%;
 }
 
+div.cite {
+  border-left: 2 dotted teal;
+  margin-left: 5%;
+  padding-left: 4;
+}
+
 div.poem {
-  border-left: thin solid blue; 
+  border-left: thin solid blue;
   margin-left: 5%;
   padding-left: 4; 
 }
