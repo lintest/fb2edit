@@ -271,13 +271,30 @@ FB2_END_KEYHASH
 Fb2Handler::BodyHandler::BodyHandler(Fb2HtmlWriter &writer, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style)
     : BaseHandler(name)
     , m_writer(writer)
+    , m_parent(NULL)
     , m_tag(tag)
     , m_style(style)
 {
+    Init(attributes);
+}
+
+Fb2Handler::BodyHandler::BodyHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style)
+    : BaseHandler(name)
+    , m_writer(parent->m_writer)
+    , m_parent(parent)
+    , m_tag(tag)
+    , m_style(style)
+{
+    Init(attributes);
+}
+
+void Fb2Handler::BodyHandler::Init(const QXmlAttributes &attributes)
+{
     if (m_tag.isEmpty()) return;
-    m_writer.writeStartElement(tag);
+    m_writer.writeStartElement(m_tag);
     QString id = Value(attributes, "id");
     if (!id.isEmpty()) {
+        if (m_style == "section" && isNotes()) m_style = "note";
         m_writer.writeAttribute("id", id);
     } else if (m_tag == "div" || m_tag == "img") {
         m_writer.writeAttribute("id", m_writer.newId());
@@ -292,8 +309,8 @@ Fb2Handler::BaseHandler * Fb2Handler::BodyHandler::NewTag(const QString &name, c
 {
     QString tag, style;
     switch (toKeyword(name)) {
-        case Anchor    : return new AnchorHandler(m_writer, name, attributes);
-        case Image     : return new ImageHandler(m_writer, name, attributes);
+        case Anchor    : return new AnchorHandler(this, name, attributes);
+        case Image     : return new ImageHandler(this, name, attributes);
         case Section   : tag = "div"; style = name; break;
         case Parag     : tag = "p";   break;
         case Strong    : tag = "b";   break;
@@ -303,7 +320,7 @@ Fb2Handler::BaseHandler * Fb2Handler::BodyHandler::NewTag(const QString &name, c
         case Sub       : tag = "sub"; break;
         case Sup       : tag = "sup"; break;
     }
-    return new BodyHandler(m_writer, name, attributes, tag, style);
+    return new BodyHandler(this, name, attributes, tag, style);
 }
 
 void Fb2Handler::BodyHandler::TxtTag(const QString &text)
@@ -318,29 +335,35 @@ void Fb2Handler::BodyHandler::EndTag(const QString &name)
     m_writer.writeEndElement();
 }
 
+bool Fb2Handler::BodyHandler::isNotes() const
+{
+    if (m_style == "notes") return true;
+    return m_parent ? m_parent->isNotes() : false;
+}
+
 //---------------------------------------------------------------------------
 //  Fb2Handler::AnchorHandler
 //---------------------------------------------------------------------------
 
-Fb2Handler::AnchorHandler::AnchorHandler(Fb2HtmlWriter &writer, const QString &name, const QXmlAttributes &attributes)
-    : BodyHandler(writer, name, attributes, "a")
+Fb2Handler::AnchorHandler::AnchorHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &attributes)
+    : BodyHandler(parent, name, attributes, "a")
 {
     QString href = Value(attributes, "href");
-    writer.writeAttribute("href", href);
+    m_writer.writeAttribute("href", href);
 }
 
 //---------------------------------------------------------------------------
 //  Fb2Handler::ImageHandler
 //---------------------------------------------------------------------------
 
-Fb2Handler::ImageHandler::ImageHandler(Fb2HtmlWriter &writer, const QString &name, const QXmlAttributes &attributes)
-    : BodyHandler(writer, name, attributes, "img")
+Fb2Handler::ImageHandler::ImageHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &attributes)
+    : BodyHandler(parent, name, attributes, "img")
 {
     QString href = Value(attributes, "href");
     while (href.left(1) == "#") href.remove(0, 1);
-    QString path = writer.getFile(href);
-    writer.writeAttribute("src", path);
-    writer.writeAttribute("alt", href);
+    QString path = m_writer.getFile(href);
+    m_writer.writeAttribute("src", path);
+    m_writer.writeAttribute("alt", href);
 }
 
 //---------------------------------------------------------------------------

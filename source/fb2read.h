@@ -161,12 +161,17 @@ private:
        FB2_END_KEYLIST
     public:
         explicit BodyHandler(Fb2HtmlWriter &writer, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style = QString());
-        virtual void TxtTag(const QString &text);
+        explicit BodyHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style = QString());
     protected:
         virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
         virtual void EndTag(const QString &name);
+        virtual void TxtTag(const QString &text);
+    protected:
+        void Init(const QXmlAttributes &attributes);
+        bool isNotes() const;
     protected:
         Fb2HtmlWriter &m_writer;
+        BodyHandler *m_parent;
         QString m_tag;
         QString m_style;
     };
@@ -174,13 +179,13 @@ private:
     class AnchorHandler : public BodyHandler
     {
     public:
-        explicit AnchorHandler(Fb2HtmlWriter &writer, const QString &name, const QXmlAttributes &attributes);
+        explicit AnchorHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &attributes);
     };
 
     class ImageHandler : public BodyHandler
     {
     public:
-        explicit ImageHandler(Fb2HtmlWriter &writer, const QString &name, const QXmlAttributes &attributes);
+        explicit ImageHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &attributes);
     };
 
     class BinaryHandler : public BaseHandler

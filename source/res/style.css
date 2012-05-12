@@ -67,7 +67,18 @@ div.poem p {
   margin-bottom: 0;
 }
 
-div.notes div.section div.title {
+div.note {
+  border-top: none;
+  border-bottom: none;
+  border-left: thin solid green;
+  border-right: none;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4;
+  padding-right: 0;
+}
+
+div.note div.title {
   font: inherit;
   float: left;
   margin-left: 4;
@@ -76,7 +87,7 @@ div.notes div.section div.title {
   padding-right: 4;
 }
 
-div.notes div.section div.title p {
+div.note div.title p {
   margin-top: 0;
   margin-bottom: 0;
 }

@@ -99,7 +99,8 @@ void Fb2TreeModel::expand(QTreeView *view)
     int count = rowCount(parent);
     for (int i = 0; i < count; i++) {
         QModelIndex child = index(i, 0, parent);
-        view->expand(child);
+        Fb2TreeItem *node = item(child);
+        if (node && node->name() == "body") view->expand(child);
     }
 }
 

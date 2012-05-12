@@ -40,6 +40,10 @@ public:
         return m_id;
     }
 
+    const QString & name() const {
+        return m_name;
+    }
+
 private:
     void addChildren(QWebElement &parent);
 
