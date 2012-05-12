@@ -13,11 +13,11 @@ SOURCES = \
     fb2view.cpp
 
 RESOURCES = \
-    fb2edit.qrc
+    res/fb2edit.qrc
 
 TARGET = fb2edit
 
-TRANSLATIONS = ts/ru.ts
+TRANSLATIONS = res/ts/ru.ts
 
 VERSION = 0.01.1
 
@@ -26,5 +26,4 @@ QT += webkit
 
 LIBS += -lqscintilla2
 
-OTHER_FILES += \
-    res/style.css
+OTHER_FILES += res/style.css

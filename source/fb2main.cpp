@@ -194,8 +194,8 @@ void Fb2MainWindow::documentWasModified()
 QIcon Fb2MainWindow::icon(const QString &name)
 {
     QIcon icon;
-    icon.addFile(QString(":/res/24/%1.png").arg(name), QSize(24,24));
-    icon.addFile(QString(":/res/16/%1.png").arg(name), QSize(16,16));
+    icon.addFile(QString(":/24/%1.png").arg(name), QSize(24,24));
+    icon.addFile(QString(":/16/%1.png").arg(name), QSize(16,16));
     return QIcon::fromTheme(name, icon);
 }
 
