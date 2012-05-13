@@ -12,7 +12,6 @@ Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent)
 {
     m_name = element.tagName().toLower();
     QString style = element.attribute("class").toLower();
-    if (!style.isEmpty()) m_name = style;
     if (m_name == "div") {
         if (style == "title") {
             m_text = element.toPlainText().simplified().left(255);
@@ -20,6 +19,7 @@ Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent)
         } else if (style == "subtitle") {
             m_text = element.toPlainText().simplified().left(255);
         }
+        if (!style.isEmpty()) m_name = style;
     } else if (m_name == "img") {
         m_text = element.attribute("alt");
     }
