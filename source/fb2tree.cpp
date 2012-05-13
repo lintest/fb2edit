@@ -9,16 +9,17 @@
 Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent)
     : QObject(parent)
     , m_parent(parent)
-    , m_element(element)
 {
     m_name = element.tagName().toLower();
     QString style = element.attribute("class").toLower();
     if (!style.isEmpty()) m_name = style;
-    if (style == "title") {
-        m_text = element.toPlainText().simplified().left(255);
-        if (m_parent) m_parent->m_text += m_text += " ";
-    } else if (style == "subtitle") {
-        m_text = element.toPlainText().simplified().left(255);
+    if (m_name == "div") {
+        if (style == "title") {
+            m_text = element.toPlainText().simplified().left(255);
+            if (m_parent) m_parent->m_text += m_text += " ";
+        } else if (style == "subtitle") {
+            m_text = element.toPlainText().simplified().left(255);
+        }
     } else if (m_name == "img") {
         m_text = element.attribute("alt");
     }
@@ -39,7 +40,8 @@ void Fb2TreeItem::addChildren(QWebElement &parent)
     while (!child.isNull()) {
         QString tag = child.tagName().toLower();
         if (tag == "div") {
-            m_list << new Fb2TreeItem(child, this);
+            QString style = child.attribute("style");
+            if (style != "display:none") m_list << new Fb2TreeItem(child, this);
         } else if (tag == "img") {
             m_list << new Fb2TreeItem(child, this);
         } else {

@@ -232,6 +232,12 @@ FB2_BEGIN_KEYHASH(DescrHandler)
     insert( "custom-info"   , Custom   );
 FB2_END_KEYHASH
 
+Fb2Handler::DescrHandler::DescrHandler(Fb2HtmlWriter &writer, const QString &name)
+    : HeadHandler(writer, name)
+{
+    m_writer.writeAttribute("id", m_writer.newId());
+}
+
 Fb2Handler::BaseHandler * Fb2Handler::DescrHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
     Q_UNUSED(attributes);
@@ -250,6 +256,12 @@ Fb2Handler::BaseHandler * Fb2Handler::DescrHandler::NewTag(const QString &name, 
 //---------------------------------------------------------------------------
 //  Fb2Handler::TitleHandler
 //---------------------------------------------------------------------------
+
+Fb2Handler::TitleHandler::TitleHandler(Fb2HtmlWriter &writer, const QString &name)
+    : HeadHandler(writer, name)
+{
+    m_writer.writeAttribute("id", m_writer.newId());
+}
 
 Fb2Handler::BaseHandler * Fb2Handler::TitleHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {

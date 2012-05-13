@@ -52,7 +52,6 @@ private:
     QString m_name;
     QString m_text;
     Fb2TreeItem * m_parent;
-    QWebElement m_element;
     QString m_id;
 };
 

@@ -130,7 +130,7 @@ private:
             Custom,
         FB2_END_KEYLIST
     public:
-        explicit DescrHandler(Fb2HtmlWriter &writer, const QString &name) : HeadHandler(writer, name) {}
+        explicit DescrHandler(Fb2HtmlWriter &writer, const QString &name);
     protected:
         virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
     };
@@ -138,7 +138,7 @@ private:
     class TitleHandler : public HeadHandler
     {
     public:
-        explicit TitleHandler(Fb2HtmlWriter &writer, const QString &name) : HeadHandler(writer, name) {}
+        explicit TitleHandler(Fb2HtmlWriter &writer, const QString &name);
     protected:
         virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
     };
