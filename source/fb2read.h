@@ -114,7 +114,7 @@ private:
     class HeadHandler : public BaseHandler
     {
     public:
-        explicit HeadHandler(Fb2HtmlWriter &writer, const QString &name);
+        explicit HeadHandler(Fb2HtmlWriter &writer, const QString &name, bool hide = false);
     protected:
         virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
         virtual void TxtTag(const QString &text);

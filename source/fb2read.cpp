@@ -195,11 +195,12 @@ void Fb2Handler::RootHandler::EndTag(const QString &name)
 //  Fb2Handler::HeadHandler
 //---------------------------------------------------------------------------
 
-Fb2Handler::HeadHandler::HeadHandler(Fb2HtmlWriter &writer, const QString &name)
+Fb2Handler::HeadHandler::HeadHandler(Fb2HtmlWriter &writer, const QString &name, bool hide)
     : BaseHandler(writer, name)
 {
     m_writer.writeStartElement("div");
     m_writer.writeAttribute("class", name);
+    if (hide) m_writer.writeAttribute("style", "display:none");
 }
 
 Fb2Handler::BaseHandler * Fb2Handler::HeadHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
@@ -240,7 +241,7 @@ Fb2Handler::BaseHandler * Fb2Handler::DescrHandler::NewTag(const QString &name, 
         case Document :
         case Publish :
         case Custom :
-            return new HeadHandler(m_writer, name);
+            return new HeadHandler(m_writer, name, true);
         default:
             return NULL;
     }
@@ -253,7 +254,7 @@ Fb2Handler::BaseHandler * Fb2Handler::DescrHandler::NewTag(const QString &name, 
 Fb2Handler::BaseHandler * Fb2Handler::TitleHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
     if (name == "annotation") return new BodyHandler(m_writer, name, attributes, "div", name);
-    return new HeadHandler(m_writer, name);
+    return new HeadHandler(m_writer, name, true);
 }
 
 //---------------------------------------------------------------------------

@@ -2,20 +2,7 @@ body {
   font-family: serif;
 }
 
-div.description div {
-  display: none;
-}
-
-div.description div.title-info {
-  display: block;
-}
-
-div.description div.title-info . {
-  display: none;
-}
-
-div.description div.title-info div.annotation {
-  display: block;
+div.description div.annotation {
   padding-left: 10;
   padding-right: 10;
   border-width: thin;
@@ -52,19 +39,19 @@ div.subtitle {
   background: #d8a903;
   text-align: center;
   font-family: sans-serif;
-  margin-left: 5%;
-  margin-right: 5%;
+  margin-left: 2%;
+  margin-right: 2%;
 }
 
 div.epigraph {
   border-left: 2 dotted purple;
-  margin-left: 10%;
+  margin-left: 15%;
   padding-left: 4;
 }
 
 div.cite {
   border-left: 2 dotted teal;
-  margin-left: 5%;
+  margin-left: 10%;
   padding-left: 4;
 }
 
