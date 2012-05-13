@@ -11,7 +11,8 @@ SOURCES = \
     fb2main.cpp \
     fb2read.cpp \
     fb2tree.cpp \
-    fb2view.cpp
+    fb2view.cpp \
+    fb2xml.cpp
 
 RESOURCES = \
     res/fb2edit.qrc

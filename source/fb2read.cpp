@@ -107,42 +107,6 @@ static QString Value(const QXmlAttributes &attributes, const QString &name)
     return QString();
 }
 
-Fb2ReadHandler::BaseHandler::~BaseHandler()
-{
-    if (m_handler) delete m_handler;
-}
-
-bool Fb2ReadHandler::BaseHandler::doStart(const QString &name, const QXmlAttributes &attributes)
-{
-    if (m_handler) return m_handler->doStart(name, attributes);
-    m_handler = NewTag(name, attributes); if (m_handler) return true;
-//    qCritical() << QObject::tr("Unknown XML child tag: <%1> <%2>").arg(m_name).arg(name);
-    m_handler = new BaseHandler(m_writer, name);
-    return true;
-}
-
-bool Fb2ReadHandler::BaseHandler::doText(const QString &text)
-{
-    if (m_handler) m_handler->doText(text); else TxtTag(text);
-    return true;
-}
-
-bool Fb2ReadHandler::BaseHandler::doEnd(const QString &name, bool & exists)
-{
-    if (m_handler) {
-        bool found = exists || name == m_name;
-        m_handler->doEnd(name, found);
-        if (m_handler->m_closed) { delete m_handler; m_handler = NULL; }
-        if (found) { exists = true; return true; }
-    }
-    bool found = name == m_name;
-    if (!found) qCritical() << QObject::tr("Conglict XML tags: <%1> - </%2>").arg(m_name).arg(name);
-    m_closed = found || exists;
-    if (m_closed) EndTag(m_name);
-    exists = found;
-    return true;
-}
-
 //---------------------------------------------------------------------------
 //  Fb2ReadHandler::RootHandler
 //---------------------------------------------------------------------------
@@ -161,7 +125,7 @@ Fb2ReadHandler::RootHandler::RootHandler(Fb2ReadWriter &writer, const QString &n
     m_writer.writeStartElement("body");
 }
 
-Fb2ReadHandler::BaseHandler * Fb2ReadHandler::RootHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
+Fb2XmlHandler::NodeHandler * Fb2ReadHandler::RootHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
     switch (toKeyword(name)) {
         case Body   : return new BodyHandler(m_writer, name, attributes, "div", name);
@@ -190,7 +154,7 @@ Fb2ReadHandler::HeadHandler::HeadHandler(Fb2ReadWriter &writer, const QString &n
     if (hide) m_writer.writeAttribute("style", "display:none");
 }
 
-Fb2ReadHandler::BaseHandler * Fb2ReadHandler::HeadHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
+Fb2XmlHandler::NodeHandler * Fb2ReadHandler::HeadHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
     Q_UNUSED(attributes);
     return new HeadHandler(m_writer, name);
@@ -225,7 +189,7 @@ Fb2ReadHandler::DescrHandler::DescrHandler(Fb2ReadWriter &writer, const QString 
     m_writer.writeAttribute("id", m_writer.newId());
 }
 
-Fb2ReadHandler::BaseHandler * Fb2ReadHandler::DescrHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
+Fb2XmlHandler::NodeHandler * Fb2ReadHandler::DescrHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
     Q_UNUSED(attributes);
     switch (toKeyword(name)) {
@@ -250,7 +214,7 @@ Fb2ReadHandler::TitleHandler::TitleHandler(Fb2ReadWriter &writer, const QString 
     m_writer.writeAttribute("id", m_writer.newId());
 }
 
-Fb2ReadHandler::BaseHandler * Fb2ReadHandler::TitleHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
+Fb2XmlHandler::NodeHandler * Fb2ReadHandler::TitleHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
     if (name == "annotation") return new BodyHandler(m_writer, name, attributes, "div", name);
     return new HeadHandler(m_writer, name, true);
@@ -324,7 +288,7 @@ void Fb2ReadHandler::BodyHandler::Init(const QXmlAttributes &attributes)
     }
 }
 
-Fb2ReadHandler::BaseHandler * Fb2ReadHandler::BodyHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
+Fb2XmlHandler::NodeHandler * Fb2ReadHandler::BodyHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
     QString tag, style;
     switch (toKeyword(name)) {
@@ -414,69 +378,13 @@ void Fb2ReadHandler::BinaryHandler::EndTag(const QString &name)
 //---------------------------------------------------------------------------
 
 Fb2ReadHandler::Fb2ReadHandler(Fb2ReadThread &thread)
-    : QXmlDefaultHandler()
+    : Fb2XmlHandler()
     , m_writer(thread)
-    , m_handler(NULL)
 {
     m_writer.setAutoFormatting(true);
 }
 
-Fb2ReadHandler::~Fb2ReadHandler()
+Fb2XmlHandler::NodeHandler * Fb2ReadHandler::CreateRoot(const QString &name)
 {
-    if (m_handler) delete m_handler;
-}
-
-bool Fb2ReadHandler::startElement(const QString & namespaceURI, const QString & localName, const QString &qName, const QXmlAttributes &attributes)
-{
-    Q_UNUSED(namespaceURI);
-    Q_UNUSED(localName);
-
-    const QString name = qName.toLower();
-    if (m_handler) return m_handler->doStart(name, attributes);
-
-    qCritical() << name;
-
-    if (name == "fictionbook") {
-        m_handler = new RootHandler(m_writer, name);
-        return true;
-    } else {
-        m_error = QObject::tr("The file is not an FB2 file.");
-        return false;
-    }
-}
-
-static bool isWhiteSpace(const QString &str)
-{
-    return str.simplified().isEmpty();
-}
-
-bool Fb2ReadHandler::characters(const QString &str)
-{
-    QString s = str.simplified();
-    if (s.isEmpty()) return true;
-    if (isWhiteSpace(str.left(1))) s.prepend(" ");
-    if (isWhiteSpace(str.right(1))) s.append(" ");
-    return m_handler && m_handler->doText(s);
-}
-
-bool Fb2ReadHandler::endElement(const QString & namespaceURI, const QString & localName, const QString &qName)
-{
-    Q_UNUSED(namespaceURI);
-    Q_UNUSED(localName);
-    bool found = false;
-    return m_handler && m_handler->doEnd(qName.toLower(), found);
-}
-
-bool Fb2ReadHandler::fatalError(const QXmlParseException &exception)
-{
-    qCritical() << QObject::tr("Parse error at line %1, column %2: %3")
-       .arg(exception.lineNumber())
-       .arg(exception.columnNumber())
-       .arg(exception.message());
-    return false;
-}
-
-QString Fb2ReadHandler::errorString() const
-{
-    return m_error;
+    return new RootHandler(m_writer, name);
 }

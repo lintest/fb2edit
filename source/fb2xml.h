@@ -2,6 +2,7 @@
 #define FB2XML_H
 
 #include <QHash>
+#include <QXmlDefaultHandler>
 
 #define FB2_BEGIN_KEYLIST private: enum Keyword {
 
@@ -21,5 +22,50 @@ x::KeywordHash::KeywordHash() {
 #define FB2_END_KEYHASH }
 
 #define FB2_KEY(key,str) insert(str,key);
+
+class Fb2XmlHandler : public QXmlDefaultHandler
+{
+public:
+    explicit Fb2XmlHandler();
+    virtual ~Fb2XmlHandler();
+    bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &attributes);
+    bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName);
+    bool characters(const QString &str);
+    bool fatalError(const QXmlParseException &exception);
+    QString errorString() const;
+
+protected:
+    class NodeHandler
+    {
+    public:
+        explicit NodeHandler(const QString &name)
+            : m_name(name), m_handler(0), m_closed(false) {}
+        virtual ~NodeHandler()
+            { if (m_handler) delete m_handler; }
+        bool doStart(const QString &name, const QXmlAttributes &attributes);
+        bool doText(const QString &text);
+        bool doEnd(const QString &name, bool & found);
+    protected:
+        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &attributes)
+            { Q_UNUSED(name); Q_UNUSED(attributes); return NULL; }
+        virtual void TxtTag(const QString &text)
+            { Q_UNUSED(text); }
+        virtual void EndTag(const QString &name)
+            { Q_UNUSED(name); }
+        const QString & Name() const
+            { return m_name; }
+    private:
+        const QString m_name;
+        NodeHandler * m_handler;
+        bool m_closed;
+    };
+
+protected:
+    virtual NodeHandler * CreateRoot(const QString &name) = 0;
+
+private:
+    NodeHandler * m_handler;
+    QString m_error;
+};
 
 #endif // FB2XML_H

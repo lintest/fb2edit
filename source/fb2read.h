@@ -53,42 +53,19 @@ private:
     int m_id;
 };
 
-class Fb2ReadHandler : public QXmlDefaultHandler
+class Fb2ReadHandler : public Fb2XmlHandler
 {
 public:
     explicit Fb2ReadHandler(Fb2ReadThread &thread);
-    virtual ~Fb2ReadHandler();
-    bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &attributes);
-    bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName);
-    bool characters(const QString &str);
-    bool fatalError(const QXmlParseException &exception);
-    QString errorString() const;
 
 private:
-    class BaseHandler
+    class BaseHandler : public NodeHandler
     {
     public:
         explicit BaseHandler(Fb2ReadWriter &writer, const QString &name)
-            : m_writer(writer), m_name(name), m_handler(0), m_closed(false) {}
-        virtual ~BaseHandler();
-        bool doStart(const QString &name, const QXmlAttributes &attributes);
-        bool doText(const QString &text);
-        bool doEnd(const QString &name, bool & found);
-    protected:
-        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes)
-            { Q_UNUSED(name); Q_UNUSED(attributes); return NULL; }
-        virtual void TxtTag(const QString &text)
-            { Q_UNUSED(text); }
-        virtual void EndTag(const QString &name)
-            { Q_UNUSED(name); }
-        const QString & Name() const
-            { return m_name; }
+            : NodeHandler(name), m_writer(writer) {}
     protected:
         Fb2ReadWriter &m_writer;
-    private:
-        const QString m_name;
-        BaseHandler * m_handler;
-        bool m_closed;
     };
 
     class RootHandler : public BaseHandler
@@ -102,7 +79,7 @@ private:
     public:
         explicit RootHandler(Fb2ReadWriter &writer, const QString &name);
     protected:
-        virtual BaseHandler * NewTag(const QString & name, const QXmlAttributes &attributes);
+        virtual NodeHandler * NewTag(const QString & name, const QXmlAttributes &attributes);
         virtual void EndTag(const QString &name);
     };
 
@@ -111,7 +88,7 @@ private:
     public:
         explicit HeadHandler(Fb2ReadWriter &writer, const QString &name, bool hide = false);
     protected:
-        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
+        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
         virtual void TxtTag(const QString &text);
         virtual void EndTag(const QString &name);
     };
@@ -127,7 +104,7 @@ private:
     public:
         explicit DescrHandler(Fb2ReadWriter &writer, const QString &name);
     protected:
-        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
+        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
     };
 
     class TitleHandler : public HeadHandler
@@ -135,7 +112,7 @@ private:
     public:
         explicit TitleHandler(Fb2ReadWriter &writer, const QString &name);
     protected:
-        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
+        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
     };
 
     class BodyHandler : public BaseHandler
@@ -158,7 +135,7 @@ private:
         explicit BodyHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style = QString());
         explicit BodyHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style = QString());
     protected:
-        virtual BaseHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
+        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
         virtual void TxtTag(const QString &text);
         virtual void EndTag(const QString &name);
     protected:
@@ -194,10 +171,11 @@ private:
         QString m_text;
     };
 
+protected:
+    virtual NodeHandler * CreateRoot(const QString &name);
+
 private:
     Fb2ReadWriter m_writer;
-    RootHandler * m_handler;
-    QString m_error;
 };
 
 #endif // FB2READ_H
