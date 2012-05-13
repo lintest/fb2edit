@@ -5,6 +5,17 @@
 //  Fb2XmlHandler::NodeHandler
 //---------------------------------------------------------------------------
 
+QString Fb2XmlHandler::NodeHandler::Value(const QXmlAttributes &attributes, const QString &name)
+{
+    int count = attributes.count();
+    for (int i = 0; i < count; i++ ) {
+        if (attributes.localName(i).compare(name, Qt::CaseInsensitive) == 0) {
+            return attributes.value(i);
+        }
+    }
+    return QString();
+}
+
 bool Fb2XmlHandler::NodeHandler::doStart(const QString &name, const QXmlAttributes &attributes)
 {
     if (m_handler) return m_handler->doStart(name, attributes);

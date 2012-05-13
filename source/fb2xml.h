@@ -38,6 +38,7 @@ protected:
     class NodeHandler
     {
     public:
+        static QString Value(const QXmlAttributes &attributes, const QString &name);
         explicit NodeHandler(const QString &name)
             : m_name(name), m_handler(0), m_closed(false) {}
         virtual ~NodeHandler()

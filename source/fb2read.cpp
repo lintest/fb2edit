@@ -93,29 +93,14 @@ QString Fb2ReadWriter::newId()
 }
 
 //---------------------------------------------------------------------------
-//  Fb2ReadHandler::BaseHandler
-//---------------------------------------------------------------------------
-
-static QString Value(const QXmlAttributes &attributes, const QString &name)
-{
-    int count = attributes.count();
-    for (int i = 0; i < count; i++ ) {
-        if (attributes.localName(i).compare(name, Qt::CaseInsensitive) == 0) {
-            return attributes.value(i);
-        }
-    }
-    return QString();
-}
-
-//---------------------------------------------------------------------------
 //  Fb2ReadHandler::RootHandler
 //---------------------------------------------------------------------------
 
 FB2_BEGIN_KEYHASH(Fb2ReadHandler::RootHandler)
-    insert("stylesheet", Style);
-    insert("description", Descr);
-    insert("body", Body);
-    insert("binary", Binary);
+    FB2_KEY( Style  , "stylesheet"  );
+    FB2_KEY( Descr  , "description" );
+    FB2_KEY( Body   , "body"        );
+    FB2_KEY( Binary , "binary"      );
 FB2_END_KEYHASH
 
 Fb2ReadHandler::RootHandler::RootHandler(Fb2ReadWriter &writer, const QString &name)
@@ -177,10 +162,10 @@ void Fb2ReadHandler::HeadHandler::EndTag(const QString &name)
 //---------------------------------------------------------------------------
 
 FB2_BEGIN_KEYHASH(Fb2ReadHandler::DescrHandler)
-    insert( "title-info"    , Title    );
-    insert( "document-info" , Document );
-    insert( "publish-info"  , Publish  );
-    insert( "custom-info"   , Custom   );
+    FB2_KEY( Title    , "title-info"    );
+    FB2_KEY( Document , "document-info" );
+    FB2_KEY( Publish  , "publish-info"  );
+    FB2_KEY( Custom   , "custom-info"   );
 FB2_END_KEYHASH
 
 Fb2ReadHandler::DescrHandler::DescrHandler(Fb2ReadWriter &writer, const QString &name)
@@ -382,6 +367,7 @@ Fb2ReadHandler::Fb2ReadHandler(Fb2ReadThread &thread)
     , m_writer(thread)
 {
     m_writer.setAutoFormatting(true);
+    m_writer.setAutoFormattingIndent(2);
 }
 
 Fb2XmlHandler::NodeHandler * Fb2ReadHandler::CreateRoot(const QString &name)
