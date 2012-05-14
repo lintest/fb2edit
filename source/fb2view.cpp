@@ -33,6 +33,7 @@ bool Fb2WebPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest
     Q_UNUSED(frame);
     if (type == NavigationTypeLinkClicked) {
         qCritical() << request.url().fragment();
+        return false;
 //        QToolTip::showText(request.url().fragment());
     }
     return QWebPage::acceptNavigationRequest(frame, request, type);

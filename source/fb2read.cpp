@@ -133,8 +133,13 @@ void Fb2ReadHandler::RootHandler::EndTag(const QString &name)
 //  Fb2ReadHandler::HeadHandler
 //---------------------------------------------------------------------------
 
+FB2_BEGIN_KEYHASH(Fb2ReadHandler::HeadHandler)
+    FB2_KEY( Image , "image" );
+FB2_END_KEYHASH
+
 Fb2ReadHandler::HeadHandler::HeadHandler(Fb2ReadWriter &writer, const QString &name, bool hide)
     : BaseHandler(writer, name)
+    , m_empty(true)
 {
     m_writer.writeStartElement("div");
     m_writer.writeAttribute("class", name);
@@ -144,18 +149,23 @@ Fb2ReadHandler::HeadHandler::HeadHandler(Fb2ReadWriter &writer, const QString &n
 Fb2XmlHandler::NodeHandler * Fb2ReadHandler::HeadHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
     Q_UNUSED(attributes);
-    return new HeadHandler(m_writer, name);
+    m_empty = false;
+    switch (toKeyword(name)) {
+        case Image: return new ImageHandler(m_writer, name, attributes);
+        default: return new HeadHandler(m_writer, name);
+    }
 }
 
 void Fb2ReadHandler::HeadHandler::TxtTag(const QString &text)
 {
+    m_empty = false;
     m_writer.writeCharacters(text);
 }
 
 void Fb2ReadHandler::HeadHandler::EndTag(const QString &name)
 {
     Q_UNUSED(name);
-    m_writer.writeCharacters(" ");
+    if (m_empty) m_writer.writeCharacters(" ");
     m_writer.writeEndElement();
 }
 
@@ -280,7 +290,7 @@ Fb2XmlHandler::NodeHandler * Fb2ReadHandler::TextHandler::NewTag(const QString &
     QString tag, style;
     switch (toKeyword(name)) {
         case Anchor    : return new AnchorHandler(this, name, attributes);
-        case Image     : return new ImageHandler(this, name, attributes);
+        case Image     : return new ImageHandler(m_writer, name, attributes);
         case Section   : tag = "div"; style = name; break;
         case Parag     : tag = "p";   break;
         case Strong    : tag = "b";   break;
@@ -327,8 +337,8 @@ Fb2ReadHandler::AnchorHandler::AnchorHandler(TextHandler *parent, const QString 
 //  Fb2ReadHandler::ImageHandler
 //---------------------------------------------------------------------------
 
-Fb2ReadHandler::ImageHandler::ImageHandler(TextHandler *parent, const QString &name, const QXmlAttributes &attributes)
-    : TextHandler(parent, name, attributes, "img")
+Fb2ReadHandler::ImageHandler::ImageHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &attributes)
+    : TextHandler(writer, name, attributes, "img")
 {
     QString href = Value(attributes, "href");
     while (href.left(1) == "#") href.remove(0, 1);

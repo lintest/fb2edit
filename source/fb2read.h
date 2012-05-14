@@ -85,12 +85,17 @@ private:
 
     class HeadHandler : public BaseHandler
     {
+        FB2_BEGIN_KEYLIST
+            Image,
+        FB2_END_KEYLIST
     public:
         explicit HeadHandler(Fb2ReadWriter &writer, const QString &name, bool hide = false);
     protected:
         virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
         virtual void TxtTag(const QString &text);
         virtual void EndTag(const QString &name);
+    private:
+        bool m_empty;
     };
 
     class DescrHandler : public HeadHandler
@@ -156,7 +161,7 @@ private:
     class ImageHandler : public TextHandler
     {
     public:
-        explicit ImageHandler(TextHandler *parent, const QString &name, const QXmlAttributes &attributes);
+        explicit ImageHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &attributes);
     };
 
     class BinaryHandler : public BaseHandler
