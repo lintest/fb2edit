@@ -63,6 +63,7 @@ protected:
 
 protected:
     virtual NodeHandler * CreateRoot(const QString &name, const QXmlAttributes &attributes) = 0;
+    static bool isWhiteSpace(const QString &str);
 
 protected:
     NodeHandler * m_handler;

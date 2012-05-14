@@ -71,7 +71,7 @@ bool Fb2XmlHandler::startElement(const QString & namespaceURI, const QString & l
     return m_handler = CreateRoot(name, attributes);
 }
 
-static bool isWhiteSpace(const QString &str)
+bool Fb2XmlHandler::isWhiteSpace(const QString &str)
 {
     return str.simplified().isEmpty();
 }
