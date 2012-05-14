@@ -5,6 +5,7 @@
 #include <QResizeEvent>
 #include <QTimer>
 #include <QThread>
+#include <QWebElement>
 #include <QWebView>
 
 class Fb2BaseWebView : public QWebView
@@ -45,6 +46,7 @@ public:
     explicit Fb2WebView(QWidget *parent = 0);
     virtual ~Fb2WebView();
     void load(const QString &filename);
+    QString toBodyXml();
     QString toXml();
 
     bool UndoEnabled();
@@ -62,22 +64,15 @@ signals:
 public slots:
     void file(QString name, QString path);
     void html(QString name, QString html);
-/*
-    void Undo();
-    void Redo();
-    void Cut();
-    void Copy();
-    void Paste();
-    void Bold();
-    void Italic();
-    void Strike();
-*/
     void zoomIn();
     void zoomOut();
     void zoomOrig();
 
 private slots:
     void fixContents();
+
+private:
+    QWebElement doc();
 
 private:
     typedef QHash<QString, QString> StringHash;

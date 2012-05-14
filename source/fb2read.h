@@ -115,7 +115,7 @@ private:
         virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
     };
 
-    class BodyHandler : public BaseHandler
+    class TextHandler : public BaseHandler
     {
         FB2_BEGIN_KEYLIST
             Section,
@@ -132,8 +132,8 @@ private:
             Code,
        FB2_END_KEYLIST
     public:
-        explicit BodyHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style = QString());
-        explicit BodyHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style = QString());
+        explicit TextHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style = QString());
+        explicit TextHandler(TextHandler *parent, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style = QString());
     protected:
         virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
         virtual void TxtTag(const QString &text);
@@ -142,21 +142,21 @@ private:
         void Init(const QXmlAttributes &attributes);
         bool isNotes() const;
     protected:
-        BodyHandler *m_parent;
+        TextHandler *m_parent;
         QString m_tag;
         QString m_style;
     };
 
-    class AnchorHandler : public BodyHandler
+    class AnchorHandler : public TextHandler
     {
     public:
-        explicit AnchorHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &attributes);
+        explicit AnchorHandler(TextHandler *parent, const QString &name, const QXmlAttributes &attributes);
     };
 
-    class ImageHandler : public BodyHandler
+    class ImageHandler : public TextHandler
     {
     public:
-        explicit ImageHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &attributes);
+        explicit ImageHandler(TextHandler *parent, const QString &name, const QXmlAttributes &attributes);
     };
 
     class BinaryHandler : public BaseHandler
@@ -172,7 +172,7 @@ private:
     };
 
 protected:
-    virtual NodeHandler * CreateRoot(const QString &name);
+    virtual NodeHandler * CreateRoot(const QString &name, const QXmlAttributes &attributes);
 
 private:
     Fb2ReadWriter m_writer;

@@ -62,9 +62,9 @@ protected:
     };
 
 protected:
-    virtual NodeHandler * CreateRoot(const QString &name) = 0;
+    virtual NodeHandler * CreateRoot(const QString &name, const QXmlAttributes &attributes) = 0;
 
-private:
+protected:
     NodeHandler * m_handler;
     QString m_error;
 };

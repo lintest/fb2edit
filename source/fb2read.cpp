@@ -61,6 +61,8 @@ Fb2ReadWriter::Fb2ReadWriter(Fb2ReadThread &thread)
     , m_thread(thread)
     , m_id(0)
 {
+    setAutoFormatting(true);
+    setAutoFormattingIndent(2);
 }
 
 QString Fb2ReadWriter::addFile(const QString &name, const QByteArray &data)
@@ -113,7 +115,7 @@ Fb2ReadHandler::RootHandler::RootHandler(Fb2ReadWriter &writer, const QString &n
 Fb2XmlHandler::NodeHandler * Fb2ReadHandler::RootHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
     switch (toKeyword(name)) {
-        case Body   : return new BodyHandler(m_writer, name, attributes, "div", name);
+        case Body   : return new TextHandler(m_writer, name, attributes, "div", name);
         case Descr  : return new DescrHandler(m_writer, name);
         case Binary : return new BinaryHandler(m_writer, name, attributes);
         default: return NULL;
@@ -201,44 +203,44 @@ Fb2ReadHandler::TitleHandler::TitleHandler(Fb2ReadWriter &writer, const QString 
 
 Fb2XmlHandler::NodeHandler * Fb2ReadHandler::TitleHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
-    if (name == "annotation") return new BodyHandler(m_writer, name, attributes, "div", name);
+    if (name == "annotation") return new TextHandler(m_writer, name, attributes, "div", name);
     return new HeadHandler(m_writer, name, true);
 }
 
 //---------------------------------------------------------------------------
-//  Fb2ReadHandler::BodyHandler
+//  Fb2ReadHandler::TextHandler
 //---------------------------------------------------------------------------
 
-FB2_BEGIN_KEYHASH(Fb2ReadHandler::BodyHandler)
-    FB2_KEY( Section, "annotation" );
-    FB2_KEY( Section, "author"     );
-    FB2_KEY( Section, "cite"       );
-    FB2_KEY( Section, "date"       );
-    FB2_KEY( Section, "epigraph"   );
-    FB2_KEY( Section, "poem"       );
-    FB2_KEY( Section, "section"    );
-    FB2_KEY( Section, "stanza"     );
-    FB2_KEY( Section, "subtitle"   );
-    FB2_KEY( Section, "title"      );
+FB2_BEGIN_KEYHASH(Fb2ReadHandler::TextHandler)
+    FB2_KEY( Section , "annotation"    );
+    FB2_KEY( Section , "author"        );
+    FB2_KEY( Section , "cite"          );
+    FB2_KEY( Section , "date"          );
+    FB2_KEY( Section , "epigraph"      );
+    FB2_KEY( Section , "poem"          );
+    FB2_KEY( Section , "section"       );
+    FB2_KEY( Section , "stanza"        );
+    FB2_KEY( Section , "subtitle"      );
+    FB2_KEY( Section , "title"         );
 
-    FB2_KEY( Anchor, "a"    );
-    FB2_KEY( Table, "table" );
-    FB2_KEY( Image, "image" );
+    FB2_KEY( Anchor  , "a"             );
+    FB2_KEY( Table   , "table"         );
+    FB2_KEY( Image   , "image"         );
 
-    FB2_KEY( Parag, "empty-line" );
-    FB2_KEY( Parag, "p"          );
-    FB2_KEY( Parag, "v"          );
+    FB2_KEY( Parag   , "empty-line"    );
+    FB2_KEY( Parag   , "p"             );
+    FB2_KEY( Parag   , "v"             );
 
-    FB2_KEY( Style,    "style"         );
-    FB2_KEY( Strong,   "strong"        );
-    FB2_KEY( Emphas,   "emphasis"      );
-    FB2_KEY( Strike,   "strikethrough" );
-    FB2_KEY( Sub,      "sub"           );
-    FB2_KEY( Sup,      "sup"           );
-    FB2_KEY( Code,     "code"          );
+    FB2_KEY( Style   , "style"         );
+    FB2_KEY( Strong  , "strong"        );
+    FB2_KEY( Emphas  , "emphasis"      );
+    FB2_KEY( Strike  , "strikethrough" );
+    FB2_KEY( Sub     , "sub"           );
+    FB2_KEY( Sup     , "sup"           );
+    FB2_KEY( Code    , "code"          );
 FB2_END_KEYHASH
 
-Fb2ReadHandler::BodyHandler::BodyHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style)
+Fb2ReadHandler::TextHandler::TextHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style)
     : BaseHandler(writer, name)
     , m_parent(NULL)
     , m_tag(tag)
@@ -247,7 +249,7 @@ Fb2ReadHandler::BodyHandler::BodyHandler(Fb2ReadWriter &writer, const QString &n
     Init(attributes);
 }
 
-Fb2ReadHandler::BodyHandler::BodyHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style)
+Fb2ReadHandler::TextHandler::TextHandler(TextHandler *parent, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style)
     : BaseHandler(parent->m_writer, name)
     , m_parent(parent)
     , m_tag(tag)
@@ -256,7 +258,7 @@ Fb2ReadHandler::BodyHandler::BodyHandler(BodyHandler *parent, const QString &nam
     Init(attributes);
 }
 
-void Fb2ReadHandler::BodyHandler::Init(const QXmlAttributes &attributes)
+void Fb2ReadHandler::TextHandler::Init(const QXmlAttributes &attributes)
 {
     if (m_tag.isEmpty()) return;
     m_writer.writeStartElement(m_tag);
@@ -273,7 +275,7 @@ void Fb2ReadHandler::BodyHandler::Init(const QXmlAttributes &attributes)
     }
 }
 
-Fb2XmlHandler::NodeHandler * Fb2ReadHandler::BodyHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
+Fb2XmlHandler::NodeHandler * Fb2ReadHandler::TextHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
 {
     QString tag, style;
     switch (toKeyword(name)) {
@@ -288,15 +290,15 @@ Fb2XmlHandler::NodeHandler * Fb2ReadHandler::BodyHandler::NewTag(const QString &
         case Sub       : tag = "sub"; break;
         case Sup       : tag = "sup"; break;
     }
-    return new BodyHandler(this, name, attributes, tag, style);
+    return new TextHandler(this, name, attributes, tag, style);
 }
 
-void Fb2ReadHandler::BodyHandler::TxtTag(const QString &text)
+void Fb2ReadHandler::TextHandler::TxtTag(const QString &text)
 {
     m_writer.writeCharacters(text);
 }
 
-void Fb2ReadHandler::BodyHandler::EndTag(const QString &name)
+void Fb2ReadHandler::TextHandler::EndTag(const QString &name)
 {
     Q_UNUSED(name);
     if (m_tag.isEmpty()) return;
@@ -304,7 +306,7 @@ void Fb2ReadHandler::BodyHandler::EndTag(const QString &name)
     m_writer.writeEndElement();
 }
 
-bool Fb2ReadHandler::BodyHandler::isNotes() const
+bool Fb2ReadHandler::TextHandler::isNotes() const
 {
     if (m_style == "notes") return true;
     return m_parent ? m_parent->isNotes() : false;
@@ -314,8 +316,8 @@ bool Fb2ReadHandler::BodyHandler::isNotes() const
 //  Fb2ReadHandler::AnchorHandler
 //---------------------------------------------------------------------------
 
-Fb2ReadHandler::AnchorHandler::AnchorHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &attributes)
-    : BodyHandler(parent, name, attributes, "a")
+Fb2ReadHandler::AnchorHandler::AnchorHandler(TextHandler *parent, const QString &name, const QXmlAttributes &attributes)
+    : TextHandler(parent, name, attributes, "a")
 {
     QString href = Value(attributes, "href");
     m_writer.writeAttribute("href", href);
@@ -325,8 +327,8 @@ Fb2ReadHandler::AnchorHandler::AnchorHandler(BodyHandler *parent, const QString 
 //  Fb2ReadHandler::ImageHandler
 //---------------------------------------------------------------------------
 
-Fb2ReadHandler::ImageHandler::ImageHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &attributes)
-    : BodyHandler(parent, name, attributes, "img")
+Fb2ReadHandler::ImageHandler::ImageHandler(TextHandler *parent, const QString &name, const QXmlAttributes &attributes)
+    : TextHandler(parent, name, attributes, "img")
 {
     QString href = Value(attributes, "href");
     while (href.left(1) == "#") href.remove(0, 1);
@@ -366,11 +368,12 @@ Fb2ReadHandler::Fb2ReadHandler(Fb2ReadThread &thread)
     : Fb2XmlHandler()
     , m_writer(thread)
 {
-    m_writer.setAutoFormatting(true);
-    m_writer.setAutoFormattingIndent(2);
 }
 
-Fb2XmlHandler::NodeHandler * Fb2ReadHandler::CreateRoot(const QString &name)
+Fb2XmlHandler::NodeHandler * Fb2ReadHandler::CreateRoot(const QString &name, const QXmlAttributes &attributes)
 {
-    return new RootHandler(m_writer, name);
+    Q_UNUSED(attributes);
+    if (name == "fictionbook") return new RootHandler(m_writer, name);
+    m_error = QObject::tr("The file is not an FB2 file.");
+    return 0;
 }

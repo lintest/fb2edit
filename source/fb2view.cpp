@@ -32,15 +32,30 @@ Fb2WebView::~Fb2WebView()
     foreach (QString value, m_files) QFile::remove(value);
 }
 
+QWebElement Fb2WebView::doc()
+{
+    return page()->mainFrame()->documentElement();
+}
+
 QString Fb2WebView::toXml()
 {
-    return page()->mainFrame()->documentElement().toOuterXml();
+    return doc().toOuterXml();
+}
+
+QString Fb2WebView::toBodyXml()
+{
+    QWebElement child = doc().firstChild();
+    while (!child.isNull()) {
+        if (child.tagName().toLower() == "body") {
+            return child.toOuterXml();
+        }
+    }
+    return QString();
 }
 
 void Fb2WebView::fixContents()
 {
-    QWebElement doc = page()->mainFrame()->documentElement();
-    foreach (QWebElement span, doc.findAll("span.apple-style-span[style]")) {
+    foreach (QWebElement span, doc().findAll("span.apple-style-span[style]")) {
         span.removeAttribute("style");
     }
 }

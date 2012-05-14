@@ -4,7 +4,8 @@ HEADERS = \
     fb2read.h \
     fb2tree.h \
     fb2view.h \
-    fb2xml.h
+    fb2xml.h \
+    fb2save.h
 
 SOURCES = \
     fb2app.cpp \
@@ -12,7 +13,8 @@ SOURCES = \
     fb2read.cpp \
     fb2tree.cpp \
     fb2view.cpp \
-    fb2xml.cpp
+    fb2xml.cpp \
+    fb2save.cpp
 
 RESOURCES = \
     res/fb2edit.qrc
