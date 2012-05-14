@@ -12,6 +12,7 @@ Fb2ReadThread::Fb2ReadThread(QObject *parent, const QString &filename)
     , m_filename(filename)
     , m_abort(false)
 {
+    connect(this, SIGNAL(html(QString, QString)), parent, SLOT(html(QString, QString)));
 }
 
 Fb2ReadThread::~Fb2ReadThread()
@@ -30,11 +31,6 @@ void Fb2ReadThread::stop()
 void Fb2ReadThread::run()
 {
     if (parse()) emit html(m_filename, m_html);
-}
-
-void Fb2ReadThread::onFile(const QString &name, const QString &path)
-{
-    emit file(name, path);
 }
 
 bool Fb2ReadThread::parse()
@@ -65,28 +61,16 @@ Fb2ReadWriter::Fb2ReadWriter(Fb2ReadThread &thread)
     setAutoFormattingIndent(2);
 }
 
-QString Fb2ReadWriter::addFile(const QString &name, const QByteArray &data)
+QString Fb2ReadWriter::getFile(const QString &name)
 {
-    QString path = getFile(name);
-    QFile file(path);
-    if (file.open(QIODevice::WriteOnly)) {
-        file.write(data);
-        m_thread.onFile(name, path);
-    }
+    QString path;
+    QMetaObject::invokeMethod(m_thread.parent(), "temp", Qt::DirectConnection, Q_RETURN_ARG(QString, path), Q_ARG(QString, name));
     return path;
 }
 
-QString Fb2ReadWriter::getFile(const QString &name)
+void Fb2ReadWriter::addFile(const QString &name, const QByteArray &data)
 {
-    StringHash::const_iterator i = m_hash.find(name);
-    if (i == m_hash.end()) {
-        QTemporaryFile file;
-        file.setAutoRemove(false);
-        file.open();
-        return m_hash.insert(name, file.fileName()).value();
-    } else {
-        return i.value();
-    }
+    QMetaObject::invokeMethod(m_thread.parent(), "data", Qt::QueuedConnection, Q_ARG(QString, name), Q_ARG(QByteArray, data));
 }
 
 QString Fb2ReadWriter::newId()

@@ -16,11 +16,9 @@ class Fb2ReadThread : public QThread
 public:
     Fb2ReadThread(QObject *parent, const QString &filename);
     ~Fb2ReadThread();
-    void onFile(const QString &name, const QString &path);
     QString * data() { return &m_html; }
 
 signals:
-    void file(QString name, QString path);
     void html(QString name, QString html);
 
 public slots:
@@ -43,7 +41,7 @@ class Fb2ReadWriter : public QXmlStreamWriter
 {
 public:
     explicit Fb2ReadWriter(Fb2ReadThread &thread);
-    QString addFile(const QString &name, const QByteArray &data);
+    void addFile(const QString &name, const QByteArray &data);
     QString getFile(const QString &name);
     QString newId();
 private:

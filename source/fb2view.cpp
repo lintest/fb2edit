@@ -54,7 +54,7 @@ Fb2WebView::Fb2WebView(QWidget *parent)
 
 Fb2WebView::~Fb2WebView()
 {
-    foreach (QString value, m_files) QFile::remove(value);
+    foreach (QTemporaryFile *file, m_files) delete file;
 }
 
 QWebElement Fb2WebView::doc()
@@ -94,14 +94,30 @@ void Fb2WebView::load(const QString &filename)
 {
     if (m_thread) return;
     m_thread = new Fb2ReadThread(this, filename);
-    connect(m_thread, SIGNAL(file(QString, QString)), SLOT(file(QString, QString)));
-    connect(m_thread, SIGNAL(html(QString, QString)), SLOT(html(QString, QString)));
     m_thread->start();
 }
 
-void Fb2WebView::file(QString name, QString path)
+QTemporaryFile * Fb2WebView::file(const QString &name)
 {
-    m_files.insert(name, path);
+    TemporaryHash::const_iterator it = m_files.find(name);
+    if (it == m_files.end()) {
+        it = m_files.insert(name, new QTemporaryFile());
+        it.value()->open();
+    }
+    return it.value();
+}
+
+QString Fb2WebView::temp(QString name)
+{
+    return file(name)->fileName();
+}
+
+void Fb2WebView::data(QString name, QByteArray data)
+{
+    QTemporaryFile * temp = file(name);
+    temp->write(data);
+    temp->close();
+    temp->open();
 }
 
 void Fb2WebView::html(QString name, QString html)
@@ -172,3 +188,4 @@ bool Fb2WebView::SupChecked()
 {
     return pageAction(QWebPage::ToggleSuperscript)->isChecked();
 }
+

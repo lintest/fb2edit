@@ -1,8 +1,10 @@
 #ifndef FB2VIEW_H
 #define FB2VIEW_H
 
+#include <QByteArray>
 #include <QHash>
 #include <QResizeEvent>
+#include <QTemporaryFile>
 #include <QTimer>
 #include <QThread>
 #include <QWebElement>
@@ -73,9 +75,10 @@ public:
 signals:
     
 public slots:
-    void linkHovered(const QString &link, const QString &title, const QString &textContent);
-    void file(QString name, QString path);
+    QString temp(QString name);
+    void data(QString name, QByteArray data);
     void html(QString name, QString html);
+    void linkHovered(const QString &link, const QString &title, const QString &textContent);
     void zoomIn();
     void zoomOut();
     void zoomOrig();
@@ -84,11 +87,12 @@ private slots:
     void fixContents();
 
 private:
+    QTemporaryFile * file(const QString &name);
     QWebElement doc();
 
 private:
-    typedef QHash<QString, QString> StringHash;
-    StringHash m_files;
+    typedef QHash<QString, QTemporaryFile*> TemporaryHash;
+    TemporaryHash m_files;
     QThread *m_thread;
 };
 
