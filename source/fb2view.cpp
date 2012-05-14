@@ -3,8 +3,40 @@
 
 #include <QAction>
 #include <QtDebug>
+#include <QNetworkRequest>
+#include <QToolTip>
 #include <QWebElement>
 #include <QWebFrame>
+#include <QWebPage>
+
+//---------------------------------------------------------------------------
+//  Fb2WebPage
+//---------------------------------------------------------------------------
+
+Fb2WebPage::Fb2WebPage(QObject *parent)
+    : QWebPage(parent)
+{
+    setContentEditable(true);
+    QWebSettings *s = settings();
+    s->setAttribute(QWebSettings::AutoLoadImages, true);
+    s->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
+    s->setAttribute(QWebSettings::JavaEnabled, false);
+    s->setAttribute(QWebSettings::JavascriptEnabled, true);
+    s->setAttribute(QWebSettings::PrivateBrowsingEnabled, true);
+    s->setAttribute(QWebSettings::PluginsEnabled, false);
+    s->setAttribute(QWebSettings::ZoomTextOnly, true);
+    s->setUserStyleSheetUrl(QUrl::fromLocalFile(":style.css"));
+}
+
+bool Fb2WebPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type)
+{
+    Q_UNUSED(frame);
+    if (type == NavigationTypeLinkClicked) {
+        qCritical() << request.url().fragment();
+//        QToolTip::showText(request.url().fragment());
+    }
+    return QWebPage::acceptNavigationRequest(frame, request, type);
+}
 
 //---------------------------------------------------------------------------
 //  Fb2WebView
@@ -14,17 +46,9 @@ Fb2WebView::Fb2WebView(QWidget *parent)
     : Fb2BaseWebView(parent)
     , m_thread(0)
 {
-    page()->setContentEditable(true);
-    QWebSettings *settings = page()->settings();
-    settings->setAttribute(QWebSettings::AutoLoadImages, true);
-    settings->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
-    settings->setAttribute(QWebSettings::JavaEnabled, false);
-    settings->setAttribute(QWebSettings::JavascriptEnabled, true);
-    settings->setAttribute(QWebSettings::PrivateBrowsingEnabled, true);
-    settings->setAttribute(QWebSettings::PluginsEnabled, false);
-    settings->setAttribute(QWebSettings::ZoomTextOnly, true);
-    settings->setUserStyleSheetUrl(QUrl::fromLocalFile(":style.css"));
+    setPage(new Fb2WebPage(this));
     connect(page(), SIGNAL(contentsChanged()), this, SLOT(fixContents()));
+    connect(page(), SIGNAL(linkHovered(QString,QString,QString)), this, SLOT(linkHovered(QString,QString,QString)));
 }
 
 Fb2WebView::~Fb2WebView()
@@ -58,6 +82,11 @@ void Fb2WebView::fixContents()
     foreach (QWebElement span, doc().findAll("span.apple-style-span[style]")) {
         span.removeAttribute("style");
     }
+}
+
+void Fb2WebView::linkHovered(const QString &link, const QString &title, const QString &textContent)
+{
+    QToolTip::showText(QPoint(100, 100), link);
 }
 
 void Fb2WebView::load(const QString &filename)

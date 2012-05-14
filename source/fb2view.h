@@ -39,6 +39,17 @@ private:
     QSize m_size;
 };
 
+class Fb2WebPage : public QWebPage
+{
+    Q_OBJECT
+
+public:
+    explicit Fb2WebPage(QObject *parent = 0);
+
+protected:
+    virtual bool acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type);
+};
+
 class Fb2WebView : public Fb2BaseWebView
 {
     Q_OBJECT
@@ -62,6 +73,7 @@ public:
 signals:
     
 public slots:
+    void linkHovered(const QString &link, const QString &title, const QString &textContent);
     void file(QString name, QString path);
     void html(QString name, QString html);
     void zoomIn();
