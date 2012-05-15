@@ -1,5 +1,6 @@
 #include "fb2view.h"
 #include "fb2read.h"
+#include "fb2save.h"
 
 #include <QAction>
 #include <QtDebug>
@@ -91,6 +92,22 @@ void Fb2WebView::load(const QString &filename)
     if (m_thread) return;
     m_thread = new Fb2ReadThread(this, filename);
     m_thread->start();
+}
+
+bool Fb2WebView::save(const QString &filename)
+{
+    QFile file(filename);
+    if (!file.open(QFile::WriteOnly | QFile::Text)) {
+        qCritical() << QObject::tr("Cannot write file %1: %2.").arg(filename).arg(file.errorString());
+        return false;
+    }
+    Fb2SaveHandler handler(*this, file);
+    QXmlSimpleReader reader;
+    reader.setContentHandler(&handler);
+    reader.setErrorHandler(&handler);
+    QXmlInputSource source;
+    source.setData(toBodyXml());
+    return reader.parse(source);
 }
 
 QTemporaryFile * Fb2WebView::file(const QString &name)

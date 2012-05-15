@@ -9,54 +9,18 @@
 #include <QXmlDefaultHandler>
 #include <QXmlStreamWriter>
 
-class Fb2SaveThread : public QThread
-{
-    Q_OBJECT
-
-public:
-    Fb2SaveThread(QObject *parent, const QString &filename);
-    ~Fb2SaveThread();
-    void onFile(const QString &name, const QString &path);
-    QString * data() { return &m_html; }
-
-signals:
-    void file(QString name, QString path);
-    void html(QString name, QString html);
-
-public slots:
-    void stop();
-
-protected:
-    void run();
-
-private:
-    bool parse();
-
-private:
-    const QString m_filename;
-    QString m_html;
-    bool m_abort;
-    QMutex mutex;
-};
+class Fb2WebView;
 
 class Fb2SaveWriter : public QXmlStreamWriter
 {
 public:
-    explicit Fb2SaveWriter(Fb2SaveThread &thread);
-    QString addFile(const QString &name, const QByteArray &data);
-    QString getFile(const QString &name);
-    QString newId();
-private:
-    typedef QHash<QString, QString> StringHash;
-    Fb2SaveThread &m_thread;
-    StringHash m_hash;
-    int m_id;
+    explicit Fb2SaveWriter(QIODevice &device);
 };
 
 class Fb2SaveHandler : public Fb2XmlHandler
 {
 public:
-    explicit Fb2SaveHandler(Fb2SaveThread &thread);
+    explicit Fb2SaveHandler(Fb2WebView &view, QIODevice &device);
 
 private:
     class BodyHandler : public NodeHandler
@@ -106,6 +70,7 @@ protected:
 
 private:
     Fb2SaveWriter m_writer;
+    Fb2WebView &m_view;
 };
 
 #endif // Fb2Save_H

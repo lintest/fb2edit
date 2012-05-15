@@ -2,96 +2,17 @@
 #include <QtDebug>
 
 #include "fb2save.h"
-
-//---------------------------------------------------------------------------
-//  Fb2SaveThread
-//---------------------------------------------------------------------------
-
-Fb2SaveThread::Fb2SaveThread(QObject *parent, const QString &filename)
-    : QThread(parent)
-    , m_filename(filename)
-    , m_abort(false)
-{
-}
-
-Fb2SaveThread::~Fb2SaveThread()
-{
-    stop();
-    wait();
-}
-
-void Fb2SaveThread::stop()
-{
-    QMutexLocker locker(&mutex);
-    Q_UNUSED(locker);
-    m_abort = true;
-}
-
-void Fb2SaveThread::run()
-{
-    if (parse()) emit html(m_filename, m_html);
-}
-
-void Fb2SaveThread::onFile(const QString &name, const QString &path)
-{
-    emit file(name, path);
-}
-
-bool Fb2SaveThread::parse()
-{
-    QFile file(m_filename);
-    if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        qCritical() << QObject::tr("Cannot read file %1: %2.").arg(m_filename).arg(file.errorString());
-        return false;
-    }
-    Fb2SaveHandler handler(*this);
-    QXmlSimpleReader reader;
-    reader.setContentHandler(&handler);
-    reader.setErrorHandler(&handler);
-    QXmlInputSource source(&file);
-    return reader.parse(source);
-}
+#include "fb2view.h"
 
 //---------------------------------------------------------------------------
 //  Fb2SaveWriter
 //---------------------------------------------------------------------------
 
-Fb2SaveWriter::Fb2SaveWriter(Fb2SaveThread &thread)
-    : QXmlStreamWriter(thread.data())
-    , m_thread(thread)
-    , m_id(0)
+Fb2SaveWriter::Fb2SaveWriter(QIODevice &device)
+    : QXmlStreamWriter(&device)
 {
     setAutoFormatting(true);
     setAutoFormattingIndent(2);
-}
-
-QString Fb2SaveWriter::addFile(const QString &name, const QByteArray &data)
-{
-    QString path = getFile(name);
-    QFile file(path);
-    if (file.open(QIODevice::WriteOnly)) {
-        file.write(data);
-        m_thread.onFile(name, path);
-    }
-    return path;
-}
-
-QString Fb2SaveWriter::getFile(const QString &name)
-{
-    StringHash::const_iterator i = m_hash.find(name);
-    if (i == m_hash.end()) {
-        QTemporaryFile file;
-        file.setAutoRemove(false);
-        file.open();
-        return m_hash.insert(name, file.fileName()).value();
-    } else {
-        return i.value();
-    }
-}
-
-QString Fb2SaveWriter::newId()
-{
-    return QString("FB2E%1").arg(++m_id);
 }
 
 //---------------------------------------------------------------------------
@@ -214,20 +135,23 @@ Fb2SaveHandler::AnchorHandler::AnchorHandler(BodyHandler *parent, const QString 
 Fb2SaveHandler::ImageHandler::ImageHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts)
     : BodyHandler(parent, name, atts, "img")
 {
+/*
     QString href = Value(atts, "href");
     while (href.left(1) == "#") href.remove(0, 1);
     QString path = m_writer.getFile(href);
     m_writer.writeAttribute("src", path);
     m_writer.writeAttribute("alt", href);
+*/
 }
 
 //---------------------------------------------------------------------------
 //  Fb2SaveHandler
 //---------------------------------------------------------------------------
 
-Fb2SaveHandler::Fb2SaveHandler(Fb2SaveThread &thread)
+Fb2SaveHandler::Fb2SaveHandler(Fb2WebView &view, QIODevice &device)
     : Fb2XmlHandler()
-    , m_writer(thread)
+    , m_writer(device)
+    , m_view(view)
 {
 }
 

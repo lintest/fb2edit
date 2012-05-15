@@ -59,6 +59,7 @@ public:
     explicit Fb2WebView(QWidget *parent = 0);
     virtual ~Fb2WebView();
     void load(const QString &filename);
+    bool save(const QString &filename);
     QString toBodyXml();
     QString toXml();
 
