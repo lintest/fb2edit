@@ -75,14 +75,14 @@ private:
             Code,
        FB2_END_KEYLIST
     public:
-        explicit BodyHandler(Fb2SaveWriter &writer, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style = QString());
-        explicit BodyHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style = QString());
+        explicit BodyHandler(Fb2SaveWriter &writer, const QString &name, const QXmlAttributes &atts, const QString &tag, const QString &style = QString());
+        explicit BodyHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts, const QString &tag, const QString &style = QString());
     protected:
-        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
+        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
         virtual void TxtTag(const QString &text);
         virtual void EndTag(const QString &name);
     protected:
-        void Init(const QXmlAttributes &attributes);
+        void Init(const QXmlAttributes &atts);
     protected:
         Fb2SaveWriter &m_writer;
         QString m_tag;
@@ -92,17 +92,17 @@ private:
     class AnchorHandler : public BodyHandler
     {
     public:
-        explicit AnchorHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &attributes);
+        explicit AnchorHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts);
     };
 
     class ImageHandler : public BodyHandler
     {
     public:
-        explicit ImageHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &attributes);
+        explicit ImageHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts);
     };
 
 protected:
-    virtual NodeHandler * CreateRoot(const QString &name, const QXmlAttributes &attributes);
+    virtual NodeHandler * CreateRoot(const QString &name, const QXmlAttributes &atts);
 
 private:
     Fb2SaveWriter m_writer;

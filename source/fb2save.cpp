@@ -127,30 +127,30 @@ FB2_BEGIN_KEYHASH(Fb2SaveHandler::BodyHandler)
     FB2_KEY( Code    , "tt"            );
 FB2_END_KEYHASH
 
-Fb2SaveHandler::BodyHandler::BodyHandler(Fb2SaveWriter &writer, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style)
+Fb2SaveHandler::BodyHandler::BodyHandler(Fb2SaveWriter &writer, const QString &name, const QXmlAttributes &atts, const QString &tag, const QString &style)
     : NodeHandler(name)
     , m_writer(writer)
     , m_tag(tag)
     , m_style(style)
 {
-    Init(attributes);
+    Init(atts);
 }
 
-Fb2SaveHandler::BodyHandler::BodyHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style)
+Fb2SaveHandler::BodyHandler::BodyHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts, const QString &tag, const QString &style)
     : NodeHandler(name)
     , m_writer(parent->m_writer)
     , m_tag(tag)
     , m_style(style)
 {
-    Init(attributes);
+    Init(atts);
 }
 
-void Fb2SaveHandler::BodyHandler::Init(const QXmlAttributes &attributes)
+void Fb2SaveHandler::BodyHandler::Init(const QXmlAttributes &atts)
 {
     if (m_tag.isEmpty()) return;
     m_writer.writeStartElement(m_tag);
 /*
-    QString id = Value(attributes, "id");
+    QString id = Value(atts, "id");
     if (!id.isEmpty()) {
         if (m_style == "section" && isNotes()) m_style = "note";
         m_writer.writeAttribute("id", id);
@@ -158,18 +158,18 @@ void Fb2SaveHandler::BodyHandler::Init(const QXmlAttributes &attributes)
         m_writer.writeAttribute("id", m_writer.newId());
     }
     if (!m_style.isEmpty()) {
-        if (m_style == "body" && Value(attributes, "name").toLower() == "notes") m_style = "notes";
+        if (m_style == "body" && Value(atts, "name").toLower() == "notes") m_style = "notes";
         m_writer.writeAttribute("class", m_style);
     }
 */
 }
 
-Fb2XmlHandler::NodeHandler * Fb2SaveHandler::BodyHandler::NewTag(const QString &name, const QXmlAttributes &attributes)
+Fb2XmlHandler::NodeHandler * Fb2SaveHandler::BodyHandler::NewTag(const QString &name, const QXmlAttributes &atts)
 {
     QString tag, style;
     switch (toKeyword(name)) {
-        case Anchor    : return new AnchorHandler(this, name, attributes);
-        case Image     : return new ImageHandler(this, name, attributes);
+        case Anchor    : return new AnchorHandler(this, name, atts);
+        case Image     : return new ImageHandler(this, name, atts);
         case Section   : tag = "div"; style = name; break;
         case Parag     : tag = "p";   break;
 
@@ -180,7 +180,7 @@ Fb2XmlHandler::NodeHandler * Fb2SaveHandler::BodyHandler::NewTag(const QString &
         case Sub       : tag = "sub"           ; break;
         case Sup       : tag = "sup"           ; break;
     }
-    return new BodyHandler(this, name, attributes, tag, style);
+    return new BodyHandler(this, name, atts, tag, style);
 }
 
 void Fb2SaveHandler::BodyHandler::TxtTag(const QString &text)
@@ -200,10 +200,10 @@ void Fb2SaveHandler::BodyHandler::EndTag(const QString &name)
 //  Fb2SaveHandler::AnchorHandler
 //---------------------------------------------------------------------------
 
-Fb2SaveHandler::AnchorHandler::AnchorHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &attributes)
-    : BodyHandler(parent, name, attributes, "a")
+Fb2SaveHandler::AnchorHandler::AnchorHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts)
+    : BodyHandler(parent, name, atts, "a")
 {
-    QString href = Value(attributes, "href");
+    QString href = Value(atts, "href");
     m_writer.writeAttribute("href", href);
 }
 
@@ -211,10 +211,10 @@ Fb2SaveHandler::AnchorHandler::AnchorHandler(BodyHandler *parent, const QString 
 //  Fb2SaveHandler::ImageHandler
 //---------------------------------------------------------------------------
 
-Fb2SaveHandler::ImageHandler::ImageHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &attributes)
-    : BodyHandler(parent, name, attributes, "img")
+Fb2SaveHandler::ImageHandler::ImageHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts)
+    : BodyHandler(parent, name, atts, "img")
 {
-    QString href = Value(attributes, "href");
+    QString href = Value(atts, "href");
     while (href.left(1) == "#") href.remove(0, 1);
     QString path = m_writer.getFile(href);
     m_writer.writeAttribute("src", path);
@@ -231,9 +231,9 @@ Fb2SaveHandler::Fb2SaveHandler(Fb2SaveThread &thread)
 {
 }
 
-Fb2XmlHandler::NodeHandler * Fb2SaveHandler::CreateRoot(const QString &name, const QXmlAttributes &attributes)
+Fb2XmlHandler::NodeHandler * Fb2SaveHandler::CreateRoot(const QString &name, const QXmlAttributes &atts)
 {
-    if (name == "body") return new BodyHandler(m_writer, name, attributes, "fictionbook");
+    if (name == "body") return new BodyHandler(m_writer, name, atts, "fictionbook");
     m_error = QObject::tr("The tag <body> was not found.");
     return 0;
 }

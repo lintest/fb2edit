@@ -77,7 +77,7 @@ private:
     public:
         explicit RootHandler(Fb2ReadWriter &writer, const QString &name);
     protected:
-        virtual NodeHandler * NewTag(const QString & name, const QXmlAttributes &attributes);
+        virtual NodeHandler * NewTag(const QString & name, const QXmlAttributes &atts);
         virtual void EndTag(const QString &name);
     };
 
@@ -87,9 +87,9 @@ private:
             Image,
         FB2_END_KEYLIST
     public:
-        explicit HeadHandler(Fb2ReadWriter &writer, const QString &name, bool hide = false);
+        explicit HeadHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &atts, bool hide = false);
     protected:
-        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
+        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
         virtual void TxtTag(const QString &text);
         virtual void EndTag(const QString &name);
     private:
@@ -105,17 +105,17 @@ private:
             Custom,
         FB2_END_KEYLIST
     public:
-        explicit DescrHandler(Fb2ReadWriter &writer, const QString &name);
+        explicit DescrHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &atts);
     protected:
-        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
+        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
     };
 
     class TitleHandler : public HeadHandler
     {
     public:
-        explicit TitleHandler(Fb2ReadWriter &writer, const QString &name);
+        explicit TitleHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &atts);
     protected:
-        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
+        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
     };
 
     class TextHandler : public BaseHandler
@@ -135,14 +135,14 @@ private:
             Code,
        FB2_END_KEYLIST
     public:
-        explicit TextHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style = QString());
-        explicit TextHandler(TextHandler *parent, const QString &name, const QXmlAttributes &attributes, const QString &tag, const QString &style = QString());
+        explicit TextHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &atts, const QString &tag, const QString &style = QString());
+        explicit TextHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts, const QString &tag, const QString &style = QString());
     protected:
-        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &attributes);
+        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
         virtual void TxtTag(const QString &text);
         virtual void EndTag(const QString &name);
     protected:
-        void Init(const QXmlAttributes &attributes);
+        void Init(const QXmlAttributes &atts);
         bool isNotes() const;
     protected:
         TextHandler *m_parent;
@@ -153,19 +153,19 @@ private:
     class AnchorHandler : public TextHandler
     {
     public:
-        explicit AnchorHandler(TextHandler *parent, const QString &name, const QXmlAttributes &attributes);
+        explicit AnchorHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts);
     };
 
     class ImageHandler : public TextHandler
     {
     public:
-        explicit ImageHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &attributes);
+        explicit ImageHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &atts);
     };
 
     class BinaryHandler : public BaseHandler
     {
     public:
-        explicit BinaryHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &attributes);
+        explicit BinaryHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &atts);
     protected:
         virtual void TxtTag(const QString &text);
         virtual void EndTag(const QString &name);
@@ -175,7 +175,7 @@ private:
     };
 
 protected:
-    virtual NodeHandler * CreateRoot(const QString &name, const QXmlAttributes &attributes);
+    virtual NodeHandler * CreateRoot(const QString &name, const QXmlAttributes &atts);
 
 private:
     Fb2ReadWriter m_writer;
