@@ -79,15 +79,9 @@ Fb2TreeModel::Fb2TreeModel(QWebView &view, QObject *parent)
     , m_root(NULL)
 {
     QWebElement doc = view.page()->mainFrame()->documentElement();
-    QWebElement child = doc.firstChild();
-    while (!child.isNull()) {
-        if (child.tagName().toLower() == "body") {
-            m_root = new Fb2TreeItem(child);
-            break;
-        } else {
-            child = child.nextSibling();
-        }
-    }
+    QWebElement body = doc.findFirst("body");
+    if (body.isNull()) return;
+    m_root = new Fb2TreeItem(body);
 }
 
 Fb2TreeModel::~Fb2TreeModel()

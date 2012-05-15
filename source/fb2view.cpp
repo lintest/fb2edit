@@ -69,13 +69,9 @@ QString Fb2WebView::toXml()
 
 QString Fb2WebView::toBodyXml()
 {
-    QWebElement child = doc().firstChild();
-    while (!child.isNull()) {
-        if (child.tagName().toLower() == "body") {
-            return child.toOuterXml();
-        }
-    }
-    return QString();
+    QWebElement body = doc().findFirst("body");
+    if (body.isNull()) return QString();
+    return body.toOuterXml();
 }
 
 void Fb2WebView::fixContents()
