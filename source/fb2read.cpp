@@ -2,6 +2,7 @@
 #include <QtDebug>
 
 #include "fb2read.h"
+#include "fb2xml2.h"
 
 //---------------------------------------------------------------------------
 //  Fb2ReadThread
@@ -289,6 +290,7 @@ Fb2XmlHandler::NodeHandler * Fb2ReadHandler::TextHandler::NewTag(const QString &
         case Code      : tag = "tt";  break;
         case Sub       : tag = "sub"; break;
         case Sup       : tag = "sup"; break;
+        default: ;
     }
     return new TextHandler(this, name, atts, tag, style);
 }

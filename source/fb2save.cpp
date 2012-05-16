@@ -84,6 +84,7 @@ Fb2XmlHandler::NodeHandler * Fb2SaveHandler::BodyHandler::NewTag(const QString &
         case Code      : tag = "code"          ; break;
         case Sub       : tag = "sub"           ; break;
         case Sup       : tag = "sup"           ; break;
+        default: ;
     }
     return new BodyHandler(this, name, atts, tag, style);
 }

@@ -57,7 +57,7 @@ LibXml2ReaderPrivate::LibXml2ReaderPrivate(LibXml2Reader* reader)
 void LibXml2ReaderPrivate::parse(const QXmlInputSource* input)
 {
 	htmlSAXHandler handler;
-	QByteArray arr = input->data().toLocal8Bit();
+        QByteArray arr = input->data().toUtf8();
 	const char* data = arr.data();
 
 	std::memset(&handler, 0, sizeof(handler));
@@ -72,7 +72,7 @@ void LibXml2ReaderPrivate::parse(const QXmlInputSource* input)
 	handler.ignorableWhitespace   = &LibXml2ReaderPrivate::ignorableWhitespace;
 	handler.internalSubset        = &LibXml2ReaderPrivate::internalSubset;
 
-	this->context = htmlCreatePushParserCtxt(&handler, this, data, xmlStrlen(reinterpret_cast<const xmlChar*>(data)), "", XML_CHAR_ENCODING_NONE);
+        this->context = htmlCreatePushParserCtxt(&handler, this, data, xmlStrlen(reinterpret_cast<const xmlChar*>(data)), "", XML_CHAR_ENCODING_UTF8);
 	htmlParseChunk(this->context, NULL, 0, 1);
 	htmlFreeParserCtxt(this->context);
 	xmlCleanupParser();
