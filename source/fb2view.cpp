@@ -142,7 +142,7 @@ void Fb2WebView::data(QString name, QByteArray data)
 
 void Fb2WebView::html(QString name, QString html)
 {
-    setHtml(html);
+    setHtml(html, QUrl::fromLocalFile(name));
     if (m_thread) m_thread->deleteLater();
     m_thread = 0;
 }
