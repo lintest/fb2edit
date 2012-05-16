@@ -8,8 +8,9 @@
 //  Fb2SaveWriter
 //---------------------------------------------------------------------------
 
-Fb2SaveWriter::Fb2SaveWriter(QIODevice &device)
+Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QIODevice &device)
     : QXmlStreamWriter(&device)
+    , m_view(view)
 {
     setAutoFormatting(true);
     setAutoFormattingIndent(2);
@@ -20,32 +21,17 @@ Fb2SaveWriter::Fb2SaveWriter(QIODevice &device)
 //---------------------------------------------------------------------------
 
 FB2_BEGIN_KEYHASH(Fb2SaveHandler::BodyHandler)
-    FB2_KEY( Section , "div"           );
-    FB2_KEY( Section , "annotation"    );
-    FB2_KEY( Section , "author"        );
-    FB2_KEY( Section , "cite"          );
-    FB2_KEY( Section , "date"          );
-    FB2_KEY( Section , "epigraph"      );
-    FB2_KEY( Section , "poem"          );
-    FB2_KEY( Section , "section"       );
-    FB2_KEY( Section , "stanza"        );
-    FB2_KEY( Section , "subtitle"      );
-    FB2_KEY( Section , "title"         );
-
-    FB2_KEY( Anchor  , "a"             );
-    FB2_KEY( Table   , "table"         );
-    FB2_KEY( Image   , "image"         );
-
-    FB2_KEY( Parag   , "empty-line"    );
-    FB2_KEY( Parag   , "p"             );
-    FB2_KEY( Parag   , "v"             );
-
-    FB2_KEY( Strong  , "b"             );
-    FB2_KEY( Emphas  , "i"             );
-    FB2_KEY( Strike  , "strike"        );
-    FB2_KEY( Sub     , "sub"           );
-    FB2_KEY( Sup     , "sup"           );
-    FB2_KEY( Code    , "tt"            );
+    FB2_KEY( Section , "div"    );
+    FB2_KEY( Anchor  , "a"      );
+    FB2_KEY( Image   , "image"  );
+    FB2_KEY( Table   , "table"  );
+    FB2_KEY( Parag   , "p"      );
+    FB2_KEY( Strong  , "b"      );
+    FB2_KEY( Emphas  , "i"      );
+    FB2_KEY( Strike  , "strike" );
+    FB2_KEY( Sub     , "sub"    );
+    FB2_KEY( Sup     , "sup"    );
+    FB2_KEY( Code    , "tt"     );
 FB2_END_KEYHASH
 
 Fb2SaveHandler::BodyHandler::BodyHandler(Fb2SaveWriter &writer, const QString &name, const QXmlAttributes &atts, const QString &tag, const QString &style)
@@ -70,34 +56,26 @@ void Fb2SaveHandler::BodyHandler::Init(const QXmlAttributes &atts)
 {
     if (m_tag.isEmpty()) return;
     m_writer.writeStartElement(m_tag);
-/*
-    QString id = Value(atts, "id");
-    if (!id.isEmpty()) {
-        if (m_style == "section" && isNotes()) m_style = "note";
-        m_writer.writeAttribute("id", id);
-    } else if (m_tag == "div" || m_tag == "img") {
-        m_writer.writeAttribute("id", m_writer.newId());
+    int count = atts.count();
+    for (int i = 0; i < count; i++) {
+        QString name = atts.qName(i);
+        if (name.left(4) != "fb2:") continue;
+        m_writer.writeAttribute(name.mid(4), atts.value(i));
     }
-    if (!m_style.isEmpty()) {
-        if (m_style == "body" && Value(atts, "name").toLower() == "notes") m_style = "notes";
-        m_writer.writeAttribute("class", m_style);
-    }
-*/
 }
 
 Fb2XmlHandler::NodeHandler * Fb2SaveHandler::BodyHandler::NewTag(const QString &name, const QXmlAttributes &atts)
 {
     QString tag, style;
     switch (toKeyword(name)) {
+        case Section   : tag = atts.value("style") ; break;
         case Anchor    : return new AnchorHandler(this, name, atts);
         case Image     : return new ImageHandler(this, name, atts);
-        case Section   : tag = "div"; style = name; break;
-        case Parag     : tag = "p";   break;
-
+        case Parag     : return new ParagHandler(this, name, atts);
         case Strong    : tag = "strong"        ; break;
         case Emphas    : tag = "emphasis"      ; break;
         case Strike    : tag = "strikethrough" ; break;
-        case Code      : tag = "cide"          ; break;
+        case Code      : tag = "code"          ; break;
         case Sub       : tag = "sub"           ; break;
         case Sup       : tag = "sup"           ; break;
     }
@@ -113,7 +91,6 @@ void Fb2SaveHandler::BodyHandler::EndTag(const QString &name)
 {
     Q_UNUSED(name);
     if (m_tag.isEmpty()) return;
-    if (m_tag == "div") m_writer.writeCharacters(" ");
     m_writer.writeEndElement();
 }
 
@@ -133,7 +110,7 @@ Fb2SaveHandler::AnchorHandler::AnchorHandler(BodyHandler *parent, const QString 
 //---------------------------------------------------------------------------
 
 Fb2SaveHandler::ImageHandler::ImageHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts)
-    : BodyHandler(parent, name, atts, "img")
+    : BodyHandler(parent, name, atts, "image")
 {
 /*
     QString href = Value(atts, "href");
@@ -145,13 +122,53 @@ Fb2SaveHandler::ImageHandler::ImageHandler(BodyHandler *parent, const QString &n
 }
 
 //---------------------------------------------------------------------------
+//  Fb2SaveHandler::ParagHandler
+//---------------------------------------------------------------------------
+
+Fb2SaveHandler::ParagHandler::ParagHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts)
+    : BodyHandler(parent, name, atts, "")
+    , m_parent(parent->tag())
+    , m_empty(true)
+{
+}
+
+Fb2XmlHandler::NodeHandler * Fb2SaveHandler::ParagHandler::NewTag(const QString &name, const QXmlAttributes &atts)
+{
+    if (m_empty) start();
+    return BodyHandler::NewTag(name, atts);
+}
+
+void Fb2SaveHandler::ParagHandler::TxtTag(const QString &text)
+{
+    if (m_empty) {
+        if (isWhiteSpace(text)) return;
+        start();
+    }
+    BodyHandler::TxtTag(text);
+}
+
+void Fb2SaveHandler::ParagHandler::EndTag(const QString &name)
+{
+    Q_UNUSED(name);
+    if (m_empty) m_writer.writeStartElement("empty-line");
+    m_writer.writeEndElement();
+}
+
+void Fb2SaveHandler::ParagHandler::start()
+{
+    if (!m_empty) return;
+    QString tag = m_parent == "stanza" ? "v" : "p";
+    m_writer.writeStartElement(tag);
+    m_empty = false;
+}
+
+//---------------------------------------------------------------------------
 //  Fb2SaveHandler
 //---------------------------------------------------------------------------
 
 Fb2SaveHandler::Fb2SaveHandler(Fb2WebView &view, QIODevice &device)
     : Fb2XmlHandler()
-    , m_writer(device)
-    , m_view(view)
+    , m_writer(view, device)
 {
 }
 

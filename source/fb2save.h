@@ -14,7 +14,9 @@ class Fb2WebView;
 class Fb2SaveWriter : public QXmlStreamWriter
 {
 public:
-    explicit Fb2SaveWriter(QIODevice &device);
+    explicit Fb2SaveWriter(Fb2WebView &view, QIODevice &device);
+private:
+    Fb2WebView &m_view;
 };
 
 class Fb2SaveHandler : public Fb2XmlHandler
@@ -41,6 +43,7 @@ private:
     public:
         explicit BodyHandler(Fb2SaveWriter &writer, const QString &name, const QXmlAttributes &atts, const QString &tag, const QString &style = QString());
         explicit BodyHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts, const QString &tag, const QString &style = QString());
+        const QString & tag() { return m_tag; }
     protected:
         virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
         virtual void TxtTag(const QString &text);
@@ -65,12 +68,26 @@ private:
         explicit ImageHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts);
     };
 
+    class ParagHandler : public BodyHandler
+    {
+    public:
+        explicit ParagHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts);
+    protected:
+        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
+        virtual void TxtTag(const QString &text);
+        virtual void EndTag(const QString &name);
+    private:
+        void start();
+    private:
+        const QString m_parent;
+        bool m_empty;
+    };
+
 protected:
     virtual NodeHandler * CreateRoot(const QString &name, const QXmlAttributes &atts);
 
 private:
     Fb2SaveWriter m_writer;
-    Fb2WebView &m_view;
 };
 
 #endif // Fb2Save_H
