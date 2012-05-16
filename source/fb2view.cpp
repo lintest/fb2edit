@@ -1,6 +1,7 @@
 #include "fb2view.h"
 #include "fb2read.h"
 #include "fb2save.h"
+#include "fb2xml2.h"
 
 #include <QAction>
 #include <QtDebug>
@@ -110,7 +111,7 @@ bool Fb2WebView::save(QIODevice &device)
     Fb2SaveHandler handler(*this, device);
     QXmlInputSource source;
     source.setData(toBodyXml());
-    QXmlSimpleReader reader;
+    LibXml2Reader reader;
     reader.setContentHandler(&handler);
     reader.setErrorHandler(&handler);
     return reader.parse(source);
