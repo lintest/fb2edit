@@ -132,7 +132,7 @@ Fb2ReadHandler::HeadHandler::HeadHandler(Fb2ReadWriter &writer, const QString &n
     if (hide) m_writer.writeAttribute("style", "display:none");
     int count = atts.count();
     for (int i = 0; i < count; i++) {
-        m_writer.writeAttribute("fb2_" + atts.qName(i), atts.value(i));
+        m_writer.writeAttribute("fb2:" + atts.qName(i), atts.value(i));
     }
 }
 

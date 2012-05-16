@@ -16,7 +16,7 @@ class Fb2BaseWebView : public QWebView
 
 public:
     Fb2BaseWebView(QWidget* parent = 0)
-        : QWebView(parent)
+        : QWebView(parent), m_empty(true)
     {
           m_timer.setInterval(100);
           m_timer.setSingleShot(true);
@@ -32,9 +32,13 @@ protected slots:
 
 protected:
      void resizeEvent(QResizeEvent* event) {
+          if (m_empty) return QWebView::resizeEvent(event);
           if (!m_timer.isActive()) m_size = event->oldSize();
           m_timer.start();
      }
+
+protected:
+    bool m_empty;
 
 private:
     QTimer m_timer;

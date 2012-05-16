@@ -78,6 +78,7 @@ QString Fb2WebView::toBodyXml()
 
 void Fb2WebView::fixContents()
 {
+    m_empty = false;
     foreach (QWebElement span, doc().findAll("span.apple-style-span[style]")) {
         span.removeAttribute("style");
     }
@@ -90,6 +91,7 @@ void Fb2WebView::linkHovered(const QString &link, const QString &title, const QS
 
 void Fb2WebView::load(const QString &filename)
 {
+    m_empty = false;
     if (m_thread) return;
     m_thread = new Fb2ReadThread(this, filename);
     m_thread->start();

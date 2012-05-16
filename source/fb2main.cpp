@@ -19,6 +19,7 @@ Fb2MainWindow::Fb2MainWindow()
     setCurrentFile();
     createText();
     createTree();
+    textEdit->setHtml("<body/>");
 }
 
 Fb2MainWindow::Fb2MainWindow(const QString &filename, ViewMode mode)
