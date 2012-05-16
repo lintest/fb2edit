@@ -538,7 +538,7 @@ bool Fb2MainWindow::maybeSave()
 {
     if (textEdit && textEdit->isModified()) {
         QMessageBox::StandardButton ret;
-        ret = QMessageBox::warning(this, tr("SDI"),
+        ret = QMessageBox::warning(this, qApp->applicationName(),
                      tr("The document has been modified. Do you want to save your changes?"),
                      QMessageBox::Save | QMessageBox::Discard
 		     | QMessageBox::Cancel);
@@ -552,22 +552,24 @@ bool Fb2MainWindow::maybeSave()
 
 bool Fb2MainWindow::saveFile(const QString &fileName)
 {
-    return false;
-
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        QMessageBox::warning(this, tr("SDI"), tr("Cannot write file %1: %2.").arg(fileName).arg(file.errorString()));
+        QMessageBox::warning(this, qApp->applicationName(), tr("Cannot write file %1: %2.").arg(fileName).arg(file.errorString()));
         return false;
     }
 
+    if (textEdit) return textEdit->save(file);
+    return true;
+
+/*
     QTextStream out(&file);
     QApplication::setOverrideCursor(Qt::WaitCursor);
-//    out << textEdit->toPlainText();
+    out << textEdit->toPlainText();
     QApplication::restoreOverrideCursor();
 
     setCurrentFile(fileName);
     statusBar()->showMessage(tr("File saved"), 2000);
-    return true;
+*/
 }
 
 void Fb2MainWindow::setCurrentFile(const QString &filename)

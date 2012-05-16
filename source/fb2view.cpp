@@ -65,6 +65,7 @@ QWebElement Fb2WebView::doc()
 
 QString Fb2WebView::toXml()
 {
+    return toBodyXml();
     return doc().toOuterXml();
 }
 
@@ -97,22 +98,25 @@ void Fb2WebView::load(const QString &filename)
 bool Fb2WebView::save(const QString &filename)
 {
     QFile file(filename);
-    if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        qCritical() << QObject::tr("Cannot write file %1: %2.").arg(filename).arg(file.errorString());
-        return false;
-    }
-    Fb2SaveHandler handler(*this, file);
+    if (file.open(QFile::WriteOnly | QFile::Text)) return save(file);
+    qCritical() << QObject::tr("Cannot write file %1: %2.").arg(filename).arg(file.errorString());
+    return false;
+}
+
+bool Fb2WebView::save(QIODevice &device)
+{
+    Fb2SaveHandler handler(*this, device);
+    QXmlInputSource source;
+    source.setData(toBodyXml());
     QXmlSimpleReader reader;
     reader.setContentHandler(&handler);
     reader.setErrorHandler(&handler);
-    QXmlInputSource source;
-    source.setData(toBodyXml());
     return reader.parse(source);
 }
 
 QTemporaryFile * Fb2WebView::file(const QString &name)
 {
-    TemporaryHash::const_iterator it = m_files.find(name);
+    TemporaryMap::const_iterator it = m_files.find(name);
     if (it == m_files.end()) {
         it = m_files.insert(name, new QTemporaryFile());
         it.value()->open();
@@ -135,7 +139,7 @@ void Fb2WebView::data(QString name, QByteArray data)
 
 void Fb2WebView::html(QString name, QString html)
 {
-    setHtml(html, QUrl::fromLocalFile(name));
+    setHtml(html);
     if (m_thread) m_thread->deleteLater();
     m_thread = 0;
 }

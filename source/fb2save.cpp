@@ -14,6 +14,12 @@ Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QIODevice &device)
 {
     setAutoFormatting(true);
     setAutoFormattingIndent(2);
+    writeStartDocument();
+}
+
+Fb2SaveWriter::~Fb2SaveWriter()
+{
+    writeEndDocument();
 }
 
 //---------------------------------------------------------------------------
@@ -23,7 +29,7 @@ Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QIODevice &device)
 FB2_BEGIN_KEYHASH(Fb2SaveHandler::BodyHandler)
     FB2_KEY( Section , "div"    );
     FB2_KEY( Anchor  , "a"      );
-    FB2_KEY( Image   , "image"  );
+    FB2_KEY( Image   , "img"  );
     FB2_KEY( Table   , "table"  );
     FB2_KEY( Parag   , "p"      );
     FB2_KEY( Strong  , "b"      );
@@ -68,7 +74,7 @@ Fb2XmlHandler::NodeHandler * Fb2SaveHandler::BodyHandler::NewTag(const QString &
 {
     QString tag, style;
     switch (toKeyword(name)) {
-        case Section   : tag = atts.value("style") ; break;
+        case Section   : tag = atts.value("class") ; break;
         case Anchor    : return new AnchorHandler(this, name, atts);
         case Image     : return new ImageHandler(this, name, atts);
         case Parag     : return new ParagHandler(this, name, atts);

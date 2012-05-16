@@ -92,6 +92,7 @@ FB2_END_KEYHASH
 Fb2ReadHandler::RootHandler::RootHandler(Fb2ReadWriter &writer, const QString &name)
     : BaseHandler(writer, name)
 {
+    m_writer.writeStartDocument();
     m_writer.writeStartElement("html");
     m_writer.writeStartElement("body");
 }
@@ -111,6 +112,7 @@ void Fb2ReadHandler::RootHandler::EndTag(const QString &name)
     Q_UNUSED(name);
     m_writer.writeEndElement();
     m_writer.writeEndElement();
+    m_writer.writeEndDocument();
 }
 
 //---------------------------------------------------------------------------
@@ -130,7 +132,7 @@ Fb2ReadHandler::HeadHandler::HeadHandler(Fb2ReadWriter &writer, const QString &n
     if (hide) m_writer.writeAttribute("style", "display:none");
     int count = atts.count();
     for (int i = 0; i < count; i++) {
-        m_writer.writeAttribute("fb2:" + atts.qName(i), atts.value(i));
+        m_writer.writeAttribute("fb2_" + atts.qName(i), atts.value(i));
     }
 }
 

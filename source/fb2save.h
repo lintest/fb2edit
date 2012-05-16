@@ -15,6 +15,7 @@ class Fb2SaveWriter : public QXmlStreamWriter
 {
 public:
     explicit Fb2SaveWriter(Fb2WebView &view, QIODevice &device);
+    virtual ~Fb2SaveWriter();
 private:
     Fb2WebView &m_view;
 };
