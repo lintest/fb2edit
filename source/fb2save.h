@@ -16,6 +16,7 @@ class Fb2SaveWriter : public QXmlStreamWriter
 public:
     explicit Fb2SaveWriter(Fb2WebView &view, QIODevice &device);
     virtual ~Fb2SaveWriter();
+    QString getFile(const QString &path);
 private:
     Fb2WebView &m_view;
 };
@@ -57,6 +58,12 @@ private:
         QString m_style;
     };
 
+    class RootHandler : public BodyHandler
+    {
+    public:
+        explicit RootHandler(Fb2SaveWriter &writer, const QString &name, const QXmlAttributes &atts);
+    };
+
     class AnchorHandler : public BodyHandler
     {
     public:
@@ -67,6 +74,8 @@ private:
     {
     public:
         explicit ImageHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts);
+    protected:
+        virtual void EndTag(const QString &name) { Q_UNUSED(name); }
     };
 
     class ParagHandler : public BodyHandler

@@ -22,6 +22,11 @@ Fb2SaveWriter::~Fb2SaveWriter()
     writeEndDocument();
 }
 
+QString Fb2SaveWriter::getFile(const QString &path)
+{
+    return QString();
+}
+
 //---------------------------------------------------------------------------
 //  Fb2SaveHandler::BodyHandler
 //---------------------------------------------------------------------------
@@ -102,6 +107,17 @@ void Fb2SaveHandler::BodyHandler::EndTag(const QString &name)
 }
 
 //---------------------------------------------------------------------------
+//  Fb2SaveHandler::RootHandler
+//---------------------------------------------------------------------------
+
+Fb2SaveHandler::RootHandler::RootHandler(Fb2SaveWriter &writer, const QString &name, const QXmlAttributes &atts)
+    : BodyHandler(writer, name, atts, "FictionBook")
+{
+    m_writer.writeAttribute("xmlns", "http://www.gribuser.ru/xml/fictionbook/2.0");
+    m_writer.writeAttribute("xmlns:l", "http://www.w3.org/1999/xlink");
+}
+
+//---------------------------------------------------------------------------
 //  Fb2SaveHandler::AnchorHandler
 //---------------------------------------------------------------------------
 
@@ -109,7 +125,7 @@ Fb2SaveHandler::AnchorHandler::AnchorHandler(BodyHandler *parent, const QString 
     : BodyHandler(parent, name, atts, "a")
 {
     QString href = Value(atts, "href");
-    m_writer.writeAttribute("href", href);
+    m_writer.writeAttribute("l:href", href);
 }
 
 //---------------------------------------------------------------------------
@@ -119,13 +135,10 @@ Fb2SaveHandler::AnchorHandler::AnchorHandler(BodyHandler *parent, const QString 
 Fb2SaveHandler::ImageHandler::ImageHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts)
     : BodyHandler(parent, name, atts, "image")
 {
-/*
     QString href = Value(atts, "href");
-    while (href.left(1) == "#") href.remove(0, 1);
     QString path = m_writer.getFile(href);
-    m_writer.writeAttribute("src", path);
-    m_writer.writeAttribute("alt", href);
-*/
+    m_writer.writeAttribute("l:href", path);
+    m_writer.writeEndElement();
 }
 
 //---------------------------------------------------------------------------
@@ -181,7 +194,7 @@ Fb2SaveHandler::Fb2SaveHandler(Fb2WebView &view, QIODevice &device)
 
 Fb2XmlHandler::NodeHandler * Fb2SaveHandler::CreateRoot(const QString &name, const QXmlAttributes &atts)
 {
-    if (name == "body") return new BodyHandler(m_writer, name, atts, "fictionbook");
+    if (name == "body") return new RootHandler(m_writer, name, atts);
     m_error = QObject::tr("The tag <body> was not found.");
     return 0;
 }
