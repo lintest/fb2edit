@@ -23,7 +23,7 @@ RESOURCES = \
 
 TARGET = fb2edit
 
-TRANSLATIONS = res/ts/ru.ts
+TRANSLATIONS = ts/ru.ts
 
 VERSION = 0.01.1
 

@@ -20,7 +20,6 @@ bool Fb2XmlHandler::NodeHandler::doStart(const QString &name, const QXmlAttribut
 {
     if (m_handler) return m_handler->doStart(name, attributes);
     m_handler = NewTag(name, attributes); if (m_handler) return true;
-//    qCritical() << QObject::tr("Unknown XML child tag: <%1> <%2>").arg(m_name).arg(name);
     m_handler = new NodeHandler(name);
     return true;
 }
@@ -40,7 +39,6 @@ bool Fb2XmlHandler::NodeHandler::doEnd(const QString &name, bool & exists)
         if (found) { exists = true; return true; }
     }
     bool found = name == m_name;
-    if (!found) qCritical() << QObject::tr("Conglict XML tags: <%1>  </%2>").arg(m_name).arg(name);
     m_closed = found || exists;
     if (m_closed) EndTag(m_name);
     exists = found;
@@ -93,12 +91,30 @@ bool Fb2XmlHandler::endElement(const QString & namespaceURI, const QString & loc
     return m_handler && m_handler->doEnd(qName.toLower(), found);
 }
 
+bool Fb2XmlHandler::error(const QXmlParseException& exception)
+{
+    qCritical() << QObject::tr("Parse error at line %1, column %2: %3")
+       .arg(exception.lineNumber())
+       .arg(exception.columnNumber())
+       .arg(exception.message().simplified());
+    return false;
+}
+
+bool Fb2XmlHandler::warning(const QXmlParseException& exception)
+{
+    qWarning() << QObject::tr("Parse error at line %1, column %2: %3")
+       .arg(exception.lineNumber())
+       .arg(exception.columnNumber())
+       .arg(exception.message().simplified());
+    return false;
+}
+
 bool Fb2XmlHandler::fatalError(const QXmlParseException &exception)
 {
     qCritical() << QObject::tr("Parse error at line %1, column %2: %3")
        .arg(exception.lineNumber())
        .arg(exception.columnNumber())
-       .arg(exception.message());
+       .arg(exception.message().simplified());
     return false;
 }
 

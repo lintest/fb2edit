@@ -31,6 +31,8 @@ public:
     bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &attributes);
     bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName);
     bool characters(const QString &str);
+    bool error(const QXmlParseException& exception);
+    bool warning(const QXmlParseException& exception);
     bool fatalError(const QXmlParseException &exception);
     QString errorString() const;
 
