@@ -2,7 +2,7 @@
 #define FB2VIEW_H
 
 #include <QByteArray>
-#include <QMap>
+#include <QHash>
 #include <QResizeEvent>
 #include <QTemporaryFile>
 #include <QTimer>
@@ -65,6 +65,8 @@ public:
     void load(const QString &filename);
     bool save(const QString &filename);
     bool save(QIODevice &device);
+    QString fileName(const QString &path);
+    QString fileData(const QString &name);
     QString toBodyXml();
     QString toXml();
 
@@ -97,8 +99,8 @@ private:
     QWebElement doc();
 
 private:
-    typedef QMap<QString, QTemporaryFile*> TemporaryMap;
-    TemporaryMap m_files;
+    typedef QHash<QString, QTemporaryFile*> TemporaryHash;
+    TemporaryHash m_files;
     QThread *m_thread;
 };
 

@@ -24,8 +24,37 @@ Fb2SaveWriter::~Fb2SaveWriter()
 
 QString Fb2SaveWriter::getFile(const QString &path)
 {
-    return QString();
+    StringHash::const_iterator it = m_files.find(path);
+    if (it == m_files.end()) {
+        QString name = m_view.fileName(path);
+        if (name.isEmpty()) return QString();
+        m_files[name] = path;
+        m_names << name;
+        return name;
+    }
+    return it.value();
 }
+
+QString Fb2SaveWriter::getData(const QString &name)
+{
+    return m_view.fileData(name);
+}
+
+void Fb2SaveWriter::writeFiles()
+{
+    StringList::const_iterator it;
+    for (it = m_names.constBegin(); it != m_names.constEnd(); it++) {
+        QString name = *it;
+        if (name.isEmpty()) continue;
+        QString data = getData(name);
+        if (data.isEmpty()) continue;
+        writeStartElement("binary");
+        writeAttribute("id", name);
+        writeCharacters(data);
+        writeEndElement();
+    }
+}
+
 
 //---------------------------------------------------------------------------
 //  Fb2SaveHandler::BodyHandler
@@ -117,6 +146,12 @@ Fb2SaveHandler::RootHandler::RootHandler(Fb2SaveWriter &writer, const QString &n
     m_writer.writeAttribute("xmlns:l", "http://www.w3.org/1999/xlink");
 }
 
+void Fb2SaveHandler::RootHandler::EndTag(const QString &name)
+{
+    m_writer.writeFiles();
+    BodyHandler::EndTag(name);
+}
+
 //---------------------------------------------------------------------------
 //  Fb2SaveHandler::AnchorHandler
 //---------------------------------------------------------------------------
@@ -135,9 +170,11 @@ Fb2SaveHandler::AnchorHandler::AnchorHandler(BodyHandler *parent, const QString 
 Fb2SaveHandler::ImageHandler::ImageHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts)
     : BodyHandler(parent, name, atts, "image")
 {
-    QString href = Value(atts, "href");
-    QString path = m_writer.getFile(href);
-    m_writer.writeAttribute("l:href", path);
+    QString href = Value(atts, "src");
+    QString file = m_writer.getFile(href);
+    if (file.isEmpty()) return;
+    file.prepend('#');
+    m_writer.writeAttribute("l:href", file);
     m_writer.writeEndElement();
 }
 

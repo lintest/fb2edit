@@ -37,7 +37,8 @@ private:
     static void ignorableWhitespace(void* c, const xmlChar* ch, int len);
     static void internalSubset(void* c, const xmlChar* name, const xmlChar* publicId, const xmlChar* systemId);
 
-    static QString str(const xmlChar* text, int size = -1);
+    static QString C2S(const xmlChar* text, int size = -1);
+    static QString local(const QString &name);
 
     void parse(const QXmlInputSource* input);
 
@@ -63,7 +64,7 @@ HtmlReaderPrivate::HtmlReaderPrivate(HtmlReader* reader)
     this->locator.reset(new HtmlReaderLocator(reader));
 }
 
-QString HtmlReaderPrivate::str(const xmlChar* text, int size)
+QString HtmlReaderPrivate::C2S(const xmlChar* text, int size)
 {
     return QString::fromLocal8Bit(reinterpret_cast<const char*>(text), size);
 }
@@ -108,6 +109,11 @@ void HtmlReaderPrivate::endDocument(void* c)
     }
 }
 
+QString HtmlReaderPrivate::local(const QString &name)
+{
+    return name.mid(name.lastIndexOf(":"));
+}
+
 void HtmlReaderPrivate::startElement(void* c, const xmlChar* name, const xmlChar** attrs)
 {
     HtmlReaderPrivate* r = reinterpret_cast<HtmlReaderPrivate*>(c);
@@ -116,11 +122,13 @@ void HtmlReaderPrivate::startElement(void* c, const xmlChar* name, const xmlChar
         if (attrs) {
             int i = 0;
             while (attrs[i]) {
-                a.append(str(attrs[i]), "", "", str(attrs[i+1]));
+                QString qName = C2S(attrs[i]);
+                a.append(qName, "", local(qName), C2S(attrs[i+1]));
                 i += 2;
             }
         }
-        r->contenthandler->startElement("", "", str(name), a);
+        QString qName = C2S(name);
+        r->contenthandler->startElement("", local(qName), qName, a);
     }
 }
 
@@ -128,7 +136,8 @@ void HtmlReaderPrivate::endElement(void* c, const xmlChar* name)
 {
     HtmlReaderPrivate* r = reinterpret_cast<HtmlReaderPrivate*>(c);
     if (r->contenthandler) {
-        r->contenthandler->endElement("", "", str(name));
+        QString qName = C2S(name);
+        r->contenthandler->endElement("", local(qName), qName);
     }
 }
 
@@ -136,7 +145,7 @@ void HtmlReaderPrivate::comment(void* c, const xmlChar* value)
 {
     HtmlReaderPrivate* r = reinterpret_cast<HtmlReaderPrivate*>(c);
     if (r->lexicalhandler) {
-        r->lexicalhandler->comment(str(value));
+        r->lexicalhandler->comment(C2S(value));
     }
 }
 
@@ -146,7 +155,7 @@ void HtmlReaderPrivate::cdataBlock(void* c, const xmlChar* value, int len)
     if (r->lexicalhandler) {
         r->lexicalhandler->startCDATA();
         if (r->contenthandler) {
-            r->contenthandler->characters(str(value, len));
+            r->contenthandler->characters(C2S(value, len));
         }
         r->lexicalhandler->endCDATA();
     }
@@ -156,7 +165,7 @@ void HtmlReaderPrivate::processingInstruction(void* c, const xmlChar* target, co
 {
     HtmlReaderPrivate* r = reinterpret_cast<HtmlReaderPrivate*>(c);
     if (r->contenthandler) {
-        r->contenthandler->processingInstruction(str(target), str(data));
+        r->contenthandler->processingInstruction(C2S(target), C2S(data));
     }
 }
 
@@ -164,7 +173,7 @@ void HtmlReaderPrivate::characters(void* c, const xmlChar* ch, int len)
 {
     HtmlReaderPrivate* r = reinterpret_cast<HtmlReaderPrivate*>(c);
     if (r->contenthandler) {
-        r->contenthandler->characters(str(ch, len));
+        r->contenthandler->characters(C2S(ch, len));
     }
 }
 
@@ -172,7 +181,7 @@ void HtmlReaderPrivate::ignorableWhitespace(void* c, const xmlChar* ch, int len)
 {
     HtmlReaderPrivate* r = reinterpret_cast<HtmlReaderPrivate*>(c);
     if (r->contenthandler) {
-        r->contenthandler->ignorableWhitespace(str(ch, len));
+        r->contenthandler->ignorableWhitespace(C2S(ch, len));
     }
 }
 
@@ -180,7 +189,7 @@ void HtmlReaderPrivate::internalSubset(void* c, const xmlChar* name, const xmlCh
 {
     HtmlReaderPrivate* r = reinterpret_cast<HtmlReaderPrivate*>(c);
     if (r->lexicalhandler) {
-        r->lexicalhandler->startDTD(str(name), str(publicId), str(systemId));
+        r->lexicalhandler->startDTD(C2S(name), C2S(publicId), C2S(systemId));
         r->lexicalhandler->endDTD();
     }
 

@@ -119,7 +119,7 @@ bool Fb2WebView::save(QIODevice &device)
 
 QTemporaryFile * Fb2WebView::file(const QString &name)
 {
-    TemporaryMap::const_iterator it = m_files.find(name);
+    TemporaryHash::const_iterator it = m_files.find(name);
     if (it == m_files.end()) {
         it = m_files.insert(name, new QTemporaryFile());
         it.value()->open();
@@ -138,6 +138,22 @@ void Fb2WebView::data(QString name, QByteArray data)
     temp->write(data);
     temp->close();
     temp->open();
+}
+
+QString Fb2WebView::fileName(const QString &path)
+{
+    QHashIterator<QString, QTemporaryFile*> it(m_files);
+    while (it.hasNext()) {
+        it.next();
+        if (it.value()->fileName() == path) return it.key();
+    }
+    return QString();
+}
+
+QString Fb2WebView::fileData(const QString &name)
+{
+    QTemporaryFile * temp = file(name);
+    return temp->readAll().toBase64();
 }
 
 void Fb2WebView::html(QString name, QString html)

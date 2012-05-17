@@ -4,6 +4,8 @@
 #include "fb2xml.h"
 
 #include <QByteArray>
+#include <QHash>
+#include <QList>
 #include <QMutex>
 #include <QThread>
 #include <QXmlDefaultHandler>
@@ -17,8 +19,14 @@ public:
     explicit Fb2SaveWriter(Fb2WebView &view, QIODevice &device);
     virtual ~Fb2SaveWriter();
     QString getFile(const QString &path);
+    QString getData(const QString &name);
+    void writeFiles();
 private:
     Fb2WebView &m_view;
+    typedef QHash<QString, QString> StringHash;
+    typedef QList<QString> StringList;
+    StringHash m_files;
+    StringList m_names;
 };
 
 class Fb2SaveHandler : public Fb2XmlHandler
@@ -62,6 +70,8 @@ private:
     {
     public:
         explicit RootHandler(Fb2SaveWriter &writer, const QString &name, const QXmlAttributes &atts);
+    protected:
+        virtual void EndTag(const QString &name);
     };
 
     class AnchorHandler : public BodyHandler

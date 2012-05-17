@@ -54,7 +54,6 @@ public:
     virtual bool parse(const QXmlInputSource& input);
     virtual bool parse(const QXmlInputSource* input);
 
-
 private:
     Q_DISABLE_COPY(HtmlReader)
     Q_DECLARE_PRIVATE(HtmlReader)
