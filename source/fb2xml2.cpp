@@ -3,21 +3,28 @@
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include <libxml/HTMLparser.h>
+#include <libxml/xmlreader.h>
 
-class LibXml2ReaderLocator : public QXmlLocator {
+namespace XML2 {
+
+//---------------------------------------------------------------------------
+//  XML2::HtmlReader
+//---------------------------------------------------------------------------
+
+class HtmlReaderLocator : public QXmlLocator {
 public:
-    LibXml2ReaderLocator(LibXml2Reader* r) : reader(r) {}
+    HtmlReaderLocator(HtmlReader* r) : reader(r) {}
     virtual int columnNumber(void) const;
     virtual int lineNumber(void) const;
 private:
-    LibXml2Reader* reader;
+    HtmlReader* reader;
 };
 
-class LibXml2ReaderPrivate {
+class HtmlReaderPrivate {
 public:
-    ~LibXml2ReaderPrivate(void) {}
+    ~HtmlReaderPrivate(void) {}
 private:
-    LibXml2ReaderPrivate(LibXml2Reader* reader);
+    HtmlReaderPrivate(HtmlReader* reader);
 
     static void startDocument(void* c);
     static void endDocument(void* c);
@@ -34,9 +41,9 @@ private:
 
     void parse(const QXmlInputSource* input);
 
-    QScopedPointer<LibXml2ReaderLocator> locator;
-    Q_DECLARE_PUBLIC(LibXml2Reader)
-    LibXml2Reader* q_ptr;
+    QScopedPointer<HtmlReaderLocator> locator;
+    Q_DECLARE_PUBLIC(HtmlReader)
+    HtmlReader* q_ptr;
 
     QXmlEntityResolver* entityresolver;
     QXmlDTDHandler*     dtdhandler;
@@ -47,37 +54,37 @@ private:
 
     xmlParserCtxt* context;
 
-    friend class LibXml2ReaderLocator;
+    friend class HtmlReaderLocator;
 };
 
-LibXml2ReaderPrivate::LibXml2ReaderPrivate(LibXml2Reader* reader)
+HtmlReaderPrivate::HtmlReaderPrivate(HtmlReader* reader)
     : q_ptr(reader), entityresolver(0), dtdhandler(0), contenthandler(0), errorhandler(0), lexicalhandler(0), declhandler(0), context(0)
 {
-    this->locator.reset(new LibXml2ReaderLocator(reader));
+    this->locator.reset(new HtmlReaderLocator(reader));
 }
 
-QString LibXml2ReaderPrivate::str(const xmlChar* text, int size)
+QString HtmlReaderPrivate::str(const xmlChar* text, int size)
 {
     return QString::fromLocal8Bit(reinterpret_cast<const char*>(text), size);
 }
 
-void LibXml2ReaderPrivate::parse(const QXmlInputSource* input)
+void HtmlReaderPrivate::parse(const QXmlInputSource* input)
 {
     htmlSAXHandler handler;
     QByteArray arr = input->data().toUtf8();
     const char* data = arr.data();
 
     std::memset(&handler, 0, sizeof(handler));
-    handler.startDocument         = &LibXml2ReaderPrivate::startDocument;
-    handler.endDocument           = &LibXml2ReaderPrivate::endDocument;
-    handler.startElement          = &LibXml2ReaderPrivate::startElement;
-    handler.endElement            = &LibXml2ReaderPrivate::endElement;
-    handler.comment               = &LibXml2ReaderPrivate::comment;
-    handler.cdataBlock            = &LibXml2ReaderPrivate::cdataBlock;
-    handler.processingInstruction = &LibXml2ReaderPrivate::processingInstruction;
-    handler.characters            = &LibXml2ReaderPrivate::characters;
-    handler.ignorableWhitespace   = &LibXml2ReaderPrivate::ignorableWhitespace;
-    handler.internalSubset        = &LibXml2ReaderPrivate::internalSubset;
+    handler.startDocument         = &HtmlReaderPrivate::startDocument;
+    handler.endDocument           = &HtmlReaderPrivate::endDocument;
+    handler.startElement          = &HtmlReaderPrivate::startElement;
+    handler.endElement            = &HtmlReaderPrivate::endElement;
+    handler.comment               = &HtmlReaderPrivate::comment;
+    handler.cdataBlock            = &HtmlReaderPrivate::cdataBlock;
+    handler.processingInstruction = &HtmlReaderPrivate::processingInstruction;
+    handler.characters            = &HtmlReaderPrivate::characters;
+    handler.ignorableWhitespace   = &HtmlReaderPrivate::ignorableWhitespace;
+    handler.internalSubset        = &HtmlReaderPrivate::internalSubset;
 
     this->context = htmlCreatePushParserCtxt(&handler, this, data, xmlStrlen(reinterpret_cast<const xmlChar*>(data)), "", XML_CHAR_ENCODING_UTF8);
     htmlParseChunk(this->context, NULL, 0, 1);
@@ -85,25 +92,25 @@ void LibXml2ReaderPrivate::parse(const QXmlInputSource* input)
     xmlCleanupParser();
 }
 
-void LibXml2ReaderPrivate::startDocument(void* c)
+void HtmlReaderPrivate::startDocument(void* c)
 {
-    LibXml2ReaderPrivate* r = reinterpret_cast<LibXml2ReaderPrivate*>(c);
+    HtmlReaderPrivate* r = reinterpret_cast<HtmlReaderPrivate*>(c);
     if (r->contenthandler) {
         r->contenthandler->startDocument();
     }
 }
 
-void LibXml2ReaderPrivate::endDocument(void* c)
+void HtmlReaderPrivate::endDocument(void* c)
 {
-    LibXml2ReaderPrivate* r = reinterpret_cast<LibXml2ReaderPrivate*>(c);
+    HtmlReaderPrivate* r = reinterpret_cast<HtmlReaderPrivate*>(c);
     if (r->contenthandler) {
         r->contenthandler->endDocument();
     }
 }
 
-void LibXml2ReaderPrivate::startElement(void* c, const xmlChar* name, const xmlChar** attrs)
+void HtmlReaderPrivate::startElement(void* c, const xmlChar* name, const xmlChar** attrs)
 {
-    LibXml2ReaderPrivate* r = reinterpret_cast<LibXml2ReaderPrivate*>(c);
+    HtmlReaderPrivate* r = reinterpret_cast<HtmlReaderPrivate*>(c);
     if (r->contenthandler) {
         QXmlAttributes a;
         if (attrs) {
@@ -117,25 +124,25 @@ void LibXml2ReaderPrivate::startElement(void* c, const xmlChar* name, const xmlC
     }
 }
 
-void LibXml2ReaderPrivate::endElement(void* c, const xmlChar* name)
+void HtmlReaderPrivate::endElement(void* c, const xmlChar* name)
 {
-    LibXml2ReaderPrivate* r = reinterpret_cast<LibXml2ReaderPrivate*>(c);
+    HtmlReaderPrivate* r = reinterpret_cast<HtmlReaderPrivate*>(c);
     if (r->contenthandler) {
         r->contenthandler->endElement("", "", str(name));
     }
 }
 
-void LibXml2ReaderPrivate::comment(void* c, const xmlChar* value)
+void HtmlReaderPrivate::comment(void* c, const xmlChar* value)
 {
-    LibXml2ReaderPrivate* r = reinterpret_cast<LibXml2ReaderPrivate*>(c);
+    HtmlReaderPrivate* r = reinterpret_cast<HtmlReaderPrivate*>(c);
     if (r->lexicalhandler) {
         r->lexicalhandler->comment(str(value));
     }
 }
 
-void LibXml2ReaderPrivate::cdataBlock(void* c, const xmlChar* value, int len)
+void HtmlReaderPrivate::cdataBlock(void* c, const xmlChar* value, int len)
 {
-    LibXml2ReaderPrivate* r = reinterpret_cast<LibXml2ReaderPrivate*>(c);
+    HtmlReaderPrivate* r = reinterpret_cast<HtmlReaderPrivate*>(c);
     if (r->lexicalhandler) {
         r->lexicalhandler->startCDATA();
         if (r->contenthandler) {
@@ -145,33 +152,33 @@ void LibXml2ReaderPrivate::cdataBlock(void* c, const xmlChar* value, int len)
     }
 }
 
-void LibXml2ReaderPrivate::processingInstruction(void* c, const xmlChar* target, const xmlChar* data)
+void HtmlReaderPrivate::processingInstruction(void* c, const xmlChar* target, const xmlChar* data)
 {
-    LibXml2ReaderPrivate* r = reinterpret_cast<LibXml2ReaderPrivate*>(c);
+    HtmlReaderPrivate* r = reinterpret_cast<HtmlReaderPrivate*>(c);
     if (r->contenthandler) {
         r->contenthandler->processingInstruction(str(target), str(data));
     }
 }
 
-void LibXml2ReaderPrivate::characters(void* c, const xmlChar* ch, int len)
+void HtmlReaderPrivate::characters(void* c, const xmlChar* ch, int len)
 {
-    LibXml2ReaderPrivate* r = reinterpret_cast<LibXml2ReaderPrivate*>(c);
+    HtmlReaderPrivate* r = reinterpret_cast<HtmlReaderPrivate*>(c);
     if (r->contenthandler) {
         r->contenthandler->characters(str(ch, len));
     }
 }
 
-void LibXml2ReaderPrivate::ignorableWhitespace(void* c, const xmlChar* ch, int len)
+void HtmlReaderPrivate::ignorableWhitespace(void* c, const xmlChar* ch, int len)
 {
-    LibXml2ReaderPrivate* r = reinterpret_cast<LibXml2ReaderPrivate*>(c);
+    HtmlReaderPrivate* r = reinterpret_cast<HtmlReaderPrivate*>(c);
     if (r->contenthandler) {
         r->contenthandler->ignorableWhitespace(str(ch, len));
     }
 }
 
-void LibXml2ReaderPrivate::internalSubset(void* c, const xmlChar* name, const xmlChar* publicId, const xmlChar* systemId)
+void HtmlReaderPrivate::internalSubset(void* c, const xmlChar* name, const xmlChar* publicId, const xmlChar* systemId)
 {
-    LibXml2ReaderPrivate* r = reinterpret_cast<LibXml2ReaderPrivate*>(c);
+    HtmlReaderPrivate* r = reinterpret_cast<HtmlReaderPrivate*>(c);
     if (r->lexicalhandler) {
         r->lexicalhandler->startDTD(str(name), str(publicId), str(systemId));
         r->lexicalhandler->endDTD();
@@ -179,16 +186,16 @@ void LibXml2ReaderPrivate::internalSubset(void* c, const xmlChar* name, const xm
 
 }
 
-LibXml2Reader::LibXml2Reader(void)
-    : d_ptr(new LibXml2ReaderPrivate(this))
+HtmlReader::HtmlReader(void)
+    : d_ptr(new HtmlReaderPrivate(this))
 {
 }
 
-LibXml2Reader::~LibXml2Reader(void)
+HtmlReader::~HtmlReader(void)
 {
 }
 
-bool LibXml2Reader::feature(const QString&, bool* ok) const
+bool HtmlReader::feature(const QString&, bool* ok) const
 {
     if (ok) {
         *ok = false;
@@ -197,16 +204,16 @@ bool LibXml2Reader::feature(const QString&, bool* ok) const
     return false;
 }
 
-void LibXml2Reader::setFeature(const QString&, bool)
+void HtmlReader::setFeature(const QString&, bool)
 {
 }
 
-bool LibXml2Reader::hasFeature(const QString&) const
+bool HtmlReader::hasFeature(const QString&) const
 {
     return false;
 }
 
-void* LibXml2Reader::property(const QString&, bool* ok) const
+void* HtmlReader::property(const QString&, bool* ok) const
 {
     if (ok) {
         *ok = false;
@@ -215,95 +222,95 @@ void* LibXml2Reader::property(const QString&, bool* ok) const
     return 0;
 }
 
-void LibXml2Reader::setProperty(const QString&, void*)
+void HtmlReader::setProperty(const QString&, void*)
 {
 }
 
-bool LibXml2Reader::hasProperty(const QString&) const
+bool HtmlReader::hasProperty(const QString&) const
 {
     return false;
 }
 
-void LibXml2Reader::setEntityResolver(QXmlEntityResolver* handler)
+void HtmlReader::setEntityResolver(QXmlEntityResolver* handler)
 {
-    Q_D(LibXml2Reader);
+    Q_D(HtmlReader);
     d->entityresolver = handler;
 }
 
-QXmlEntityResolver* LibXml2Reader::entityResolver(void) const
+QXmlEntityResolver* HtmlReader::entityResolver(void) const
 {
-    const LibXml2ReaderPrivate* d = this->d_func();
+    const HtmlReaderPrivate* d = this->d_func();
     return d->entityresolver;
 }
 
-void LibXml2Reader::setDTDHandler(QXmlDTDHandler* handler)
+void HtmlReader::setDTDHandler(QXmlDTDHandler* handler)
 {
-    Q_D(LibXml2Reader);
+    Q_D(HtmlReader);
     d->dtdhandler = handler;
 }
 
-QXmlDTDHandler* LibXml2Reader::DTDHandler(void) const
+QXmlDTDHandler* HtmlReader::DTDHandler(void) const
 {
-    const LibXml2ReaderPrivate* d = this->d_func();
+    const HtmlReaderPrivate* d = this->d_func();
     return d->dtdhandler;
 }
 
-void LibXml2Reader::setContentHandler(QXmlContentHandler* handler)
+void HtmlReader::setContentHandler(QXmlContentHandler* handler)
 {
-    Q_D(LibXml2Reader);
+    Q_D(HtmlReader);
     d->contenthandler = handler;
 }
 
-QXmlContentHandler* LibXml2Reader::contentHandler(void) const
+QXmlContentHandler* HtmlReader::contentHandler(void) const
 {
-    const LibXml2ReaderPrivate* d = this->d_func();
+    const HtmlReaderPrivate* d = this->d_func();
     return d->contenthandler;
 }
 
-void LibXml2Reader::setErrorHandler(QXmlErrorHandler* handler)
+void HtmlReader::setErrorHandler(QXmlErrorHandler* handler)
 {
-    Q_D(LibXml2Reader);
+    Q_D(HtmlReader);
     d->errorhandler = handler;
 }
 
-QXmlErrorHandler* LibXml2Reader::errorHandler(void) const
+QXmlErrorHandler* HtmlReader::errorHandler(void) const
 {
-    const LibXml2ReaderPrivate* d = this->d_func();
+    const HtmlReaderPrivate* d = this->d_func();
     return d->errorhandler;
 }
 
-void LibXml2Reader::setLexicalHandler(QXmlLexicalHandler* handler)
+void HtmlReader::setLexicalHandler(QXmlLexicalHandler* handler)
 {
-    Q_D(LibXml2Reader);
+    Q_D(HtmlReader);
     d->lexicalhandler = handler;
 }
 
-QXmlLexicalHandler* LibXml2Reader::lexicalHandler(void) const
+QXmlLexicalHandler* HtmlReader::lexicalHandler(void) const
 {
-    const LibXml2ReaderPrivate* d = this->d_func();
+    const HtmlReaderPrivate* d = this->d_func();
     return d->lexicalhandler;
 }
 
-void LibXml2Reader::setDeclHandler(QXmlDeclHandler* handler)
+void HtmlReader::setDeclHandler(QXmlDeclHandler* handler)
 {
-    Q_D(LibXml2Reader);
+    Q_D(HtmlReader);
     d->declhandler = handler;
 }
 
-QXmlDeclHandler* LibXml2Reader::declHandler(void) const
+QXmlDeclHandler* HtmlReader::declHandler(void) const
 {
-    const LibXml2ReaderPrivate* d = this->d_func();
+    const HtmlReaderPrivate* d = this->d_func();
     return d->declhandler;
 }
 
-bool LibXml2Reader::parse(const QXmlInputSource& input)
+bool HtmlReader::parse(const QXmlInputSource& input)
 {
     return this->parse(&input);
 }
 
-bool LibXml2Reader::parse(const QXmlInputSource* input)
+bool HtmlReader::parse(const QXmlInputSource* input)
 {
-    Q_D(LibXml2Reader);
+    Q_D(HtmlReader);
 
     if (d->contenthandler) {
         d->contenthandler->setDocumentLocator(d->locator.data());
@@ -314,12 +321,264 @@ bool LibXml2Reader::parse(const QXmlInputSource* input)
     return true;
 }
 
-int LibXml2ReaderLocator::columnNumber(void) const
+int HtmlReaderLocator::columnNumber(void) const
 {
     return this->reader->d_func()->context->input->col;
 }
 
-int LibXml2ReaderLocator::lineNumber(void) const
+int HtmlReaderLocator::lineNumber(void) const
 {
     return this->reader->d_func()->context->input->line;
 }
+
+//---------------------------------------------------------------------------
+//  XML2::HtmlReader
+//---------------------------------------------------------------------------
+
+class XmlReaderLocator : public QXmlLocator {
+public:
+    XmlReaderLocator(XmlReader* r) : reader(r) {}
+    virtual int columnNumber(void) const;
+    virtual int lineNumber(void) const;
+private:
+    XmlReader* reader;
+};
+
+class XmlReaderPrivate {
+public:
+    ~XmlReaderPrivate(void) {}
+private:
+    XmlReaderPrivate(XmlReader* reader);
+
+    static void onError(void *arg, const char *msg, xmlParserSeverities severity, xmlTextReaderLocatorPtr locator);
+    static int onRead(void * context, char * buffer, int len);
+
+    static QString C2S(const xmlChar* text, int size = -1);
+
+    bool parse(QIODevice& input);
+    void process(xmlTextReaderPtr reader);
+
+    QScopedPointer<XmlReaderLocator> locator;
+    Q_DECLARE_PUBLIC(XmlReader)
+    XmlReader* q_ptr;
+
+    QXmlEntityResolver* entityresolver;
+    QXmlDTDHandler*     dtdhandler;
+    QXmlContentHandler* contenthandler;
+    QXmlErrorHandler*   errorhandler;
+    QXmlLexicalHandler* lexicalhandler;
+    QXmlDeclHandler*    declhandler;
+
+    xmlTextReaderPtr m_reader;
+
+    friend class XmlReaderLocator;
+};
+
+XmlReaderPrivate::XmlReaderPrivate(XmlReader* reader)
+    : q_ptr(reader), entityresolver(0), dtdhandler(0), contenthandler(0), errorhandler(0), lexicalhandler(0), declhandler(0), m_reader(0)
+{
+    this->locator.reset(new XmlReaderLocator(reader));
+}
+
+QString XmlReaderPrivate::C2S(const xmlChar* text, int size)
+{
+    return QString::fromLocal8Bit(reinterpret_cast<const char*>(text), size);
+}
+
+void XmlReaderPrivate::onError(void * arg, const char * msg, xmlParserSeverities severity, xmlTextReaderLocatorPtr locator)
+{
+    XmlReaderPrivate* r = reinterpret_cast<XmlReaderPrivate*>(arg);
+    if (r->errorhandler) {
+        QXmlParseException e(QString::fromLocal8Bit(msg), xmlTextReaderGetParserColumnNumber(r->m_reader), xmlTextReaderGetParserLineNumber(r->m_reader));
+        switch (severity) {
+            case XML_PARSER_SEVERITY_VALIDITY_WARNING: r->errorhandler->warning(e); break;
+            case XML_PARSER_SEVERITY_VALIDITY_ERROR: r->errorhandler->error(e); break;
+            case XML_PARSER_SEVERITY_WARNING: r->errorhandler->warning(e); break;
+            case XML_PARSER_SEVERITY_ERROR: r->errorhandler->error(e); break;
+        }
+    }
+}
+
+void XmlReaderPrivate::process(xmlTextReaderPtr reader)
+{
+    if (!contenthandler) return;
+    switch (xmlTextReaderNodeType(reader)) {
+        case XML_READER_TYPE_ELEMENT: {
+            QString localName = C2S(xmlTextReaderConstLocalName(reader));
+            QString qName = C2S(xmlTextReaderConstName(reader));
+            bool empty = xmlTextReaderIsEmptyElement(reader);
+            QXmlAttributes atts;
+            while (xmlTextReaderMoveToNextAttribute(reader)) {
+                QString localName = C2S(xmlTextReaderConstLocalName(reader));
+                QString qName = C2S(xmlTextReaderConstName(reader));
+                QString value = C2S(xmlTextReaderConstValue(reader));
+                atts.append(qName, "", localName, value);
+            }
+            contenthandler->startElement("", localName, qName, atts);
+            if (empty) contenthandler->endElement("", localName, qName);
+        } break;
+        case XML_READER_TYPE_TEXT: {
+            QString value = C2S(xmlTextReaderConstValue(reader));
+            contenthandler->characters(value);
+        } break;
+        case XML_READER_TYPE_END_ELEMENT: {
+            QString localName = C2S(xmlTextReaderConstLocalName(reader));
+            QString qName = C2S(xmlTextReaderConstName(reader));
+            contenthandler->endElement("", localName, qName);
+        } break;
+    }
+}
+
+int XmlReaderPrivate::onRead(void * context, char * buffer, int len)
+{
+    QIODevice *device = reinterpret_cast<QIODevice*>(context);
+    return device->read(buffer, len);
+}
+
+bool XmlReaderPrivate::parse(QIODevice& input)
+{
+    int options = XML_PARSE_RECOVER | XML_PARSE_NOERROR | XML_PARSE_NOWARNING | XML_PARSE_NONET;
+    m_reader = xmlReaderForIO(&XmlReaderPrivate::onRead, NULL, &input, NULL, NULL, options);
+    if (!m_reader) return false;
+    xmlTextReaderSetErrorHandler(m_reader, &XmlReaderPrivate::onError, this);
+    while (xmlTextReaderRead(m_reader) == 1) process(m_reader);
+    xmlFreeTextReader(m_reader);
+    return true;
+}
+
+XmlReader::XmlReader(void)
+    : d_ptr(new XmlReaderPrivate(this))
+{
+}
+
+XmlReader::~XmlReader(void)
+{
+}
+
+bool XmlReader::feature(const QString&, bool* ok) const
+{
+    if (ok) *ok = false;
+    return false;
+}
+
+void XmlReader::setFeature(const QString&, bool)
+{
+}
+
+bool XmlReader::hasFeature(const QString&) const
+{
+    return false;
+}
+
+void* XmlReader::property(const QString&, bool* ok) const
+{
+    if (ok) *ok = false;
+    return 0;
+}
+
+void XmlReader::setProperty(const QString&, void*)
+{
+}
+
+bool XmlReader::hasProperty(const QString&) const
+{
+    return false;
+}
+
+void XmlReader::setEntityResolver(QXmlEntityResolver* handler)
+{
+    Q_D(XmlReader);
+    d->entityresolver = handler;
+}
+
+QXmlEntityResolver* XmlReader::entityResolver(void) const
+{
+    const XmlReaderPrivate* d = this->d_func();
+    return d->entityresolver;
+}
+
+void XmlReader::setDTDHandler(QXmlDTDHandler* handler)
+{
+    Q_D(XmlReader);
+    d->dtdhandler = handler;
+}
+
+QXmlDTDHandler* XmlReader::DTDHandler(void) const
+{
+    const XmlReaderPrivate* d = this->d_func();
+    return d->dtdhandler;
+}
+
+void XmlReader::setContentHandler(QXmlContentHandler* handler)
+{
+    Q_D(XmlReader);
+    d->contenthandler = handler;
+}
+
+QXmlContentHandler* XmlReader::contentHandler(void) const
+{
+    const XmlReaderPrivate* d = this->d_func();
+    return d->contenthandler;
+}
+
+void XmlReader::setErrorHandler(QXmlErrorHandler* handler)
+{
+    Q_D(XmlReader);
+    d->errorhandler = handler;
+}
+
+QXmlErrorHandler* XmlReader::errorHandler(void) const
+{
+    const XmlReaderPrivate* d = this->d_func();
+    return d->errorhandler;
+}
+
+void XmlReader::setLexicalHandler(QXmlLexicalHandler* handler)
+{
+    Q_D(XmlReader);
+    d->lexicalhandler = handler;
+}
+
+QXmlLexicalHandler* XmlReader::lexicalHandler(void) const
+{
+    const XmlReaderPrivate* d = this->d_func();
+    return d->lexicalhandler;
+}
+
+void XmlReader::setDeclHandler(QXmlDeclHandler* handler)
+{
+    Q_D(XmlReader);
+    d->declhandler = handler;
+}
+
+QXmlDeclHandler* XmlReader::declHandler(void) const
+{
+    const XmlReaderPrivate* d = this->d_func();
+    return d->declhandler;
+}
+
+bool XmlReader::parse(QIODevice& input)
+{
+    Q_D(XmlReader);
+
+    if (d->contenthandler) {
+        d->contenthandler->setDocumentLocator(d->locator.data());
+    }
+
+    d->parse(input);
+
+    return true;
+}
+
+int XmlReaderLocator::columnNumber(void) const
+{
+    return xmlTextReaderGetParserColumnNumber(this->reader->d_func()->m_reader);
+}
+
+int XmlReaderLocator::lineNumber(void) const
+{
+    return xmlTextReaderGetParserLineNumber(this->reader->d_func()->m_reader);
+}
+
+} // namespace XML2
+

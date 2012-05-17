@@ -111,7 +111,7 @@ bool Fb2WebView::save(QIODevice &device)
     Fb2SaveHandler handler(*this, device);
     QXmlInputSource source;
     source.setData(toBodyXml());
-    LibXml2Reader reader;
+    XML2::HtmlReader reader;
     reader.setContentHandler(&handler);
     reader.setErrorHandler(&handler);
     return reader.parse(source);

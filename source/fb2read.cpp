@@ -42,11 +42,10 @@ bool Fb2ReadThread::parse()
         return false;
     }
     Fb2ReadHandler handler(*this);
-    QXmlSimpleReader reader;
+    XML2::XmlReader reader;
     reader.setContentHandler(&handler);
     reader.setErrorHandler(&handler);
-    QXmlInputSource source(&file);
-    return reader.parse(source);
+    return reader.parse(file);
 }
 
 //---------------------------------------------------------------------------
