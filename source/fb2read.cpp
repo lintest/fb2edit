@@ -123,13 +123,12 @@ FB2_BEGIN_KEYHASH(Fb2ReadHandler::HeadHandler)
     FB2_KEY( Image , "image" );
 FB2_END_KEYHASH
 
-Fb2ReadHandler::HeadHandler::HeadHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &atts, bool hide)
+Fb2ReadHandler::HeadHandler::HeadHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &atts)
     : BaseHandler(writer, name)
     , m_empty(true)
 {
     m_writer.writeStartElement("div");
     m_writer.writeAttribute("class", name);
-    if (hide) m_writer.writeAttribute("style", "display:none");
     int count = atts.count();
     for (int i = 0; i < count; i++) {
         m_writer.writeAttribute("fb2:" + atts.qName(i), atts.value(i));
@@ -185,7 +184,7 @@ Fb2XmlHandler::NodeHandler * Fb2ReadHandler::DescrHandler::NewTag(const QString 
         case Document :
         case Publish :
         case Custom :
-            return new HeadHandler(m_writer, name, atts, true);
+            return new HeadHandler(m_writer, name, atts);
         default:
             return NULL;
     }
@@ -204,7 +203,7 @@ Fb2ReadHandler::TitleHandler::TitleHandler(Fb2ReadWriter &writer, const QString 
 Fb2XmlHandler::NodeHandler * Fb2ReadHandler::TitleHandler::NewTag(const QString &name, const QXmlAttributes &atts)
 {
     if (name == "annotation") return new TextHandler(m_writer, name, atts, "div", name);
-    return new HeadHandler(m_writer, name, atts, true);
+    return new HeadHandler(m_writer, name, atts);
 }
 
 //---------------------------------------------------------------------------

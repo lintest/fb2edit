@@ -2,7 +2,20 @@ body {
   font-family: serif;
 }
 
-div.description div.annotation {
+div.description div {
+  display: none;
+}
+
+div.description div.title-info {
+  display: block;
+}
+
+div.description div.title-info div {
+  display: none;
+}
+
+div.description div.title-info div.annotation {
+  display: block;
   padding-left: 10;
   padding-right: 10;
   border-width: thin;
@@ -14,6 +27,10 @@ div.description div.annotation {
   border-bottom-right-radius: 10;
   margin-top: 1em;
   margin-bottom: 1em;
+}
+
+div.description div.title-info div.annotation div {
+  display: block;
 }
 
 div.section {

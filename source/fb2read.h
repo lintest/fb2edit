@@ -87,7 +87,7 @@ private:
             Image,
         FB2_END_KEYLIST
     public:
-        explicit HeadHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &atts, bool hide = false);
+        explicit HeadHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &atts);
     protected:
         virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
         virtual void TxtTag(const QString &text);
