@@ -8,7 +8,7 @@
 #include "fb2read.h"
 #include "fb2tree.h"
 #include "fb2view.h"
-#include "fb2main.h"
+#include "fb2head.h"
 
 #include <Qsci/qsciscintilla.h>
 #include <Qsci/qscilexerxml.h>
@@ -419,6 +419,10 @@ void Fb2MainWindow::createHead()
         textEdit->setParent(NULL);
         setCentralWidget(headTree);
         textEdit->setParent(this);
+
+        Fb2HeadModel *model = new Fb2HeadModel(*textEdit, treeView);
+        headTree->setModel(model);
+        model->expand(headTree);
     } else {
         setCentralWidget(headTree);
     }
