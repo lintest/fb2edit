@@ -415,9 +415,13 @@ void Fb2MainWindow::createHead()
 {
     if (headTree) return;
     headTree = new QTreeView(this);
-    textEdit->setParent(NULL);
-    setCentralWidget(headTree);
-    textEdit->setParent(this);
+    if (textEdit) {
+        textEdit->setParent(NULL);
+        setCentralWidget(headTree);
+        textEdit->setParent(this);
+    } else {
+        setCentralWidget(headTree);
+    }
     headTree->setFocus();
 }
 
