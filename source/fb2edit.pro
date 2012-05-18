@@ -35,7 +35,8 @@ QT += network
 
 LIBS += -lqscintilla2
 
-OTHER_FILES += res/style.css
+OTHER_FILES += res/style.css \
+    res/blank.fb2
 
 if (win32) {
 

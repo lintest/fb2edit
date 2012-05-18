@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fictionbook>
+  <description>
+    <title-info>
+      <author>
+        <first-name></first-name>
+        <middle-name></middle-name>
+        <last-name></last-name>
+      </author>
+      <book-title>Заголовок книги</book-title>
+      <annotation>Текст аннотации</annotation>
+    </title-info>
+  </description>
+  <body>
+    <title><p>Заголовок</p></title>
+    <section><p>Основной текст</p></section>
+  </body>
+</fictionbook>

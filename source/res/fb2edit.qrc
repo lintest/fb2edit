@@ -42,7 +42,8 @@
         <file>24/zoom-in.png</file>
         <file>24/zoom-original.png</file>
         <file>24/zoom-out.png</file>
+        <file>blank.fb2</file>
         <file>style.css</file>
-		<file alias ="ts/ru.qm">../ts/ru.qm</file>
+        <file alias="ts/ru.qm">../ts/ru.qm</file>
     </qresource>
 </RCC>
