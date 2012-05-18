@@ -9,9 +9,16 @@ QT_BEGIN_NAMESPACE
 class QTreeView;
 QT_END_NAMESPACE
 
+#include "fb2xml.h"
+
 class Fb2HeadItem: public QObject
 {
     Q_OBJECT
+
+    FB2_BEGIN_KEYLIST
+        Image,
+        Seqn,
+    FB2_END_KEYLIST
 
 public:
     explicit Fb2HeadItem(QWebElement &element, Fb2HeadItem *parent = 0);
@@ -46,6 +53,7 @@ public:
 
 private:
     void addChildren(QWebElement &parent);
+    QString value() const;
 
 private:
     QList<Fb2HeadItem*> m_list;

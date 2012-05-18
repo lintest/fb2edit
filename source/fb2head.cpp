@@ -6,6 +6,11 @@
 #include <QWebView>
 #include <QTreeView>
 
+FB2_BEGIN_KEYHASH(Fb2HeadItem)
+    FB2_KEY( Image  , "img"       );
+    FB2_KEY( Seqn   , "sequence"  );
+FB2_END_KEYHASH
+
 Fb2HeadItem::Fb2HeadItem(QWebElement &element, Fb2HeadItem *parent)
     : QObject(parent)
     , m_element(element)
@@ -62,9 +67,25 @@ QString Fb2HeadItem::text(int col) const
 {
     switch (col) {
         case 0: return QString("<%1>").arg(m_name);
-        case 2: if (m_list.count() == 0) return m_element.toPlainText().simplified();
+        case 2: if (m_list.count() == 0) return value();
     }
     return QString();
+}
+
+QString Fb2HeadItem::value() const
+{
+    switch (toKeyword(m_name)) {
+        case Image : {
+            return m_element.attribute("alt");
+        } break;
+        case Seqn : {
+            QString text = m_element.attribute("fb2:name");
+            QString numb = m_element.attribute("fb2:number");
+            if (numb.isEmpty() || numb == "0") return text;
+            return text + ", " + tr("#") + numb;
+        } break;
+    }
+    return m_element.toPlainText().simplified();
 }
 
 //---------------------------------------------------------------------------
