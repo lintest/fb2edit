@@ -40,8 +40,7 @@ void Fb2TreeItem::addChildren(QWebElement &parent)
     while (!child.isNull()) {
         QString tag = child.tagName().toLower();
         if (tag == "div") {
-            QString style = child.attribute("style");
-            if (style != "display:none") m_list << new Fb2TreeItem(child, this);
+            m_list << new Fb2TreeItem(child, this);
         } else if (tag == "img") {
             m_list << new Fb2TreeItem(child, this);
         } else {

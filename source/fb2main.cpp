@@ -130,7 +130,7 @@ void Fb2MainWindow::fileNew()
 
 void Fb2MainWindow::fileOpen()
 {
-    QString filename = QFileDialog::getOpenFileName(this);
+    QString filename = QFileDialog::getOpenFileName(this, tr("Open file"), QString(), "Fiction book files (*.fb2)");
     if (filename.isEmpty()) return;
 
     Fb2MainWindow * existing = findFb2MainWindow(filename);
@@ -212,6 +212,7 @@ void Fb2MainWindow::createActions()
 
     menu = menuBar()->addMenu(tr("&File"));
     tool = addToolBar(tr("File"));
+    tool->setMovable(false);
 
     act = new QAction(icon("document-new"), tr("&New"), this);
     act->setPriority(QAction::LowPriority);
@@ -257,6 +258,8 @@ void Fb2MainWindow::createActions()
 
     menu = menuBar()->addMenu(tr("&Edit"));
     tool = addToolBar(tr("Edit"));
+    tool->setMovable(false);
+    tool->addSeparator();
 
     connect(QApplication::clipboard(), SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
 
@@ -302,7 +305,7 @@ void Fb2MainWindow::createActions()
     clipboardDataChanged();
 
     menu = menuBar()->addMenu(tr("Fo&rmat"));
-    tool = addToolBar(tr("Format"));
+    tool->addSeparator();
 
     actionTextBold = act = new QAction(icon("format-text-bold"), tr("Bold"), this);
     act->setShortcuts(QKeySequence::Bold);
@@ -332,6 +335,7 @@ void Fb2MainWindow::createActions()
     tool->addAction(act);
 
     menu = menuBar()->addMenu(tr("&View"));
+    tool->addSeparator();
 
     QActionGroup * viewGroup = new QActionGroup(this);
 
@@ -355,8 +359,6 @@ void Fb2MainWindow::createActions()
     menu->addAction(act);
 
     menu->addSeparator();
-
-    tool = addToolBar(tr("Zoom"));
 
     actionZoomIn = act = new QAction(icon("zoom-in"), tr("Zoom in"), this);
     act->setShortcuts(QKeySequence::ZoomIn);
@@ -409,6 +411,7 @@ void Fb2MainWindow::createTree()
     dockTree->setFeatures(QDockWidget::AllDockWidgetFeatures);
     dockTree->setWidget(treeView);
     addDockWidget(Qt::LeftDockWidgetArea, dockTree);
+    treeView->setFocus();
 }
 
 void Fb2MainWindow::createHead()
@@ -416,10 +419,10 @@ void Fb2MainWindow::createHead()
     if (headTree) return;
     headTree = new QTreeView(this);
     if (textEdit) {
+        this->setFocus();
         textEdit->setParent(NULL);
         setCentralWidget(headTree);
         textEdit->setParent(this);
-
         Fb2HeadModel *model = new Fb2HeadModel(*textEdit, treeView);
         headTree->setModel(model);
         model->expand(headTree);

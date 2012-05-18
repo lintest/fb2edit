@@ -14,12 +14,6 @@ Fb2HeadItem::Fb2HeadItem(QWebElement &element, Fb2HeadItem *parent)
     m_name = element.tagName().toLower();
     QString style = element.attribute("class").toLower();
     if (m_name == "div") {
-        if (style == "title") {
-            m_text = element.toPlainText().simplified().left(255);
-            if (m_parent) m_parent->m_text += m_text += " ";
-        } else if (style == "subtitle") {
-            m_text = element.toPlainText().simplified().left(255);
-        }
         if (!style.isEmpty()) m_name = style;
     } else if (m_name == "img") {
         m_text = element.attribute("alt");
@@ -41,8 +35,7 @@ void Fb2HeadItem::addChildren(QWebElement &parent)
     while (!child.isNull()) {
         QString tag = child.tagName().toLower();
         if (tag == "div") {
-            QString style = child.attribute("style");
-            if (style != "display:none") m_list << new Fb2HeadItem(child, this);
+            m_list << new Fb2HeadItem(child, this);
         } else if (tag == "img") {
             m_list << new Fb2HeadItem(child, this);
         } else {
@@ -84,9 +77,9 @@ Fb2HeadModel::Fb2HeadModel(QWebView &view, QObject *parent)
     , m_root(NULL)
 {
     QWebElement doc = view.page()->mainFrame()->documentElement();
-    QWebElement body = doc.findFirst("div.description");
-    if (body.isNull()) return;
-    m_root = new Fb2HeadItem(body);
+    QWebElement head = doc.findFirst("div.description");
+    if (head.isNull()) return;
+    m_root = new Fb2HeadItem(head);
 }
 
 Fb2HeadModel::~Fb2HeadModel()
@@ -101,7 +94,7 @@ void Fb2HeadModel::expand(QTreeView *view)
     for (int i = 0; i < count; i++) {
         QModelIndex child = index(i, 0, parent);
         Fb2HeadItem *node = item(child);
-        if (node && node->name() == "body") view->expand(child);
+        if (node) view->expand(child);
     }
 }
 
