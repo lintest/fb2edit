@@ -47,6 +47,7 @@ private slots:
     void viewQsci();
     void viewText();
     void viewHead();
+    void viewTree();
 
     void clipboardDataChanged();
     void loadFinished(bool ok);
@@ -61,6 +62,7 @@ private:
 
 private:
     void init();
+    void createHead();
     void createTree();
     void createText();
     void createQsci();

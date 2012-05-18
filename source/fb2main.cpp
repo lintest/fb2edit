@@ -13,6 +13,8 @@
 #include <Qsci/qsciscintilla.h>
 #include <Qsci/qscilexerxml.h>
 
+#define FB2DELETE(p) { if ( (p) != NULL ) { delete p; p = NULL; } }
+
 Fb2MainWindow::Fb2MainWindow()
 {
     init();
@@ -372,7 +374,11 @@ void Fb2MainWindow::createActions()
 
     menu->addSeparator();
 
-    act = new QAction(tr("Web inspector"), this);
+    act = new QAction(tr("&Contents"), this);
+    connect(act, SIGNAL(triggered()), this, SLOT(viewTree()));
+    menu->addAction(act);
+
+    act = new QAction(tr("&Web inspector"), this);
     connect(act, SIGNAL(triggered()), this, SLOT(showInspector()));
     menu->addAction(act);
 
@@ -405,6 +411,16 @@ void Fb2MainWindow::createTree()
     addDockWidget(Qt::LeftDockWidgetArea, dockTree);
 }
 
+void Fb2MainWindow::createHead()
+{
+    if (headTree) return;
+    headTree = new QTreeView(this);
+    textEdit->setParent(NULL);
+    setCentralWidget(headTree);
+    textEdit->setParent(this);
+    headTree->setFocus();
+}
+
 void Fb2MainWindow::createText()
 {
     if (textEdit) return;
@@ -434,7 +450,6 @@ void Fb2MainWindow::createText()
     connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
     connect(actionZoomOrig, SIGNAL(triggered()), textEdit, SLOT(zoomOrig()));
-
 }
 
 void Fb2MainWindow::loadFinished(bool ok)
@@ -616,15 +631,10 @@ void Fb2MainWindow::viewQsci()
 {
     if (centralWidget() == qsciEdit) return;
     QString xml;
-    if (textEdit) {
-        if (!textEdit->save(&xml)) return;
-        delete textEdit;
-        textEdit = NULL;
-    }
-    if (dockTree) {
-        delete dockTree;
-        dockTree = NULL;
-    }
+    if (textEdit) textEdit->save(&xml);
+    FB2DELETE(textEdit);
+    FB2DELETE(dockTree);
+    FB2DELETE(headTree);
     createQsci();
     qsciEdit->setText(xml);
 }
@@ -632,12 +642,29 @@ void Fb2MainWindow::viewQsci()
 void Fb2MainWindow::viewText()
 {
     if (centralWidget() == textEdit) return;
-    if (qsciEdit) { delete qsciEdit; qsciEdit = NULL; }
-    createText();
+    FB2DELETE(qsciEdit);
+    FB2DELETE(headTree);
+    if (textEdit) {
+        setCentralWidget(textEdit);
+    } else {
+        createText();
+    }
+    viewTree();
 }
 
 void Fb2MainWindow::viewHead()
 {
+    if (centralWidget() == headTree) return;
+    FB2DELETE(dockTree);
+    FB2DELETE(qsciEdit);
+    createHead();
+}
+
+void Fb2MainWindow::viewTree()
+{
+    if (centralWidget() != textEdit) return;
+    if (treeView == NULL) createTree();
+    loadFinished(true);
 }
 
 void Fb2MainWindow::clipboardDataChanged()
