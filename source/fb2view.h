@@ -63,12 +63,11 @@ public:
     explicit Fb2WebView(QWidget *parent = 0);
     virtual ~Fb2WebView();
     void load(const QString &filename);
-    bool save(const QString &filename);
-    bool save(QIODevice &device);
+    bool save(QIODevice *device);
+    bool save(QString *string);
     QString fileName(const QString &path);
     QString fileData(const QString &name);
     QString toBodyXml();
-    QString toXml();
 
     bool UndoEnabled();
     bool RedoEnabled();

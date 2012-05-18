@@ -51,6 +51,7 @@ void Fb2MainWindow::init()
     noteEdit = NULL;
     qsciEdit = NULL;
     treeView = NULL;
+    headTree = NULL;
     messageEdit = NULL;
 
     readSettings();
@@ -330,21 +331,27 @@ void Fb2MainWindow::createActions()
 
     menu = menuBar()->addMenu(tr("&View"));
 
-    QAction * actText = act = new QAction(tr("&Text"), this);
-    act->setCheckable(true);
-    connect(act, SIGNAL(triggered()), this, SLOT(viewText()));
+    QActionGroup * viewGroup = new QActionGroup(this);
 
-    QAction * actQsci = act = new QAction(tr("&XML"), this);
+    act = new QAction(tr("&Text"), this);
+    act->setCheckable(true);
+    act->setChecked(true);
+    connect(act, SIGNAL(triggered()), this, SLOT(viewText()));
+    viewGroup->addAction(act);
+    menu->addAction(act);
+
+    act = new QAction(tr("&Head"), this);
+    act->setCheckable(true);
+    connect(act, SIGNAL(triggered()), this, SLOT(viewHead()));
+    viewGroup->addAction(act);
+    menu->addAction(act);
+
+    act = new QAction(tr("&XML"), this);
     act->setCheckable(true);
     connect(act, SIGNAL(triggered()), this, SLOT(viewQsci()));
+    viewGroup->addAction(act);
+    menu->addAction(act);
 
-    QActionGroup * viewGroup = new QActionGroup(this);
-    viewGroup->addAction(actText);
-    viewGroup->addAction(actQsci);
-    actText->setChecked(true);
-
-    menu->addAction(actText);
-    menu->addAction(actQsci);
     menu->addSeparator();
 
     tool = addToolBar(tr("Zoom"));
@@ -558,8 +565,7 @@ bool Fb2MainWindow::saveFile(const QString &fileName)
         QMessageBox::warning(this, qApp->applicationName(), tr("Cannot write file %1: %2.").arg(fileName).arg(file.errorString()));
         return false;
     }
-
-    if (textEdit) return textEdit->save(file);
+    if (textEdit) return textEdit->save(&file);
     return true;
 
 /*
@@ -609,9 +615,9 @@ Fb2MainWindow *Fb2MainWindow::findFb2MainWindow(const QString &fileName)
 void Fb2MainWindow::viewQsci()
 {
     if (centralWidget() == qsciEdit) return;
-    QString html;
+    QString xml;
     if (textEdit) {
-        html = textEdit->toXml();
+        if (!textEdit->save(&xml)) return;
         delete textEdit;
         textEdit = NULL;
     }
@@ -620,7 +626,7 @@ void Fb2MainWindow::viewQsci()
         dockTree = NULL;
     }
     createQsci();
-    qsciEdit->setText(html);
+    qsciEdit->setText(xml);
 }
 
 void Fb2MainWindow::viewText()
@@ -628,6 +634,10 @@ void Fb2MainWindow::viewText()
     if (centralWidget() == textEdit) return;
     if (qsciEdit) { delete qsciEdit; qsciEdit = NULL; }
     createText();
+}
+
+void Fb2MainWindow::viewHead()
+{
 }
 
 void Fb2MainWindow::clipboardDataChanged()

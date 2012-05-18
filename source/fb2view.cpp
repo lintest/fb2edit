@@ -64,12 +64,6 @@ QWebElement Fb2WebView::doc()
     return page()->mainFrame()->documentElement();
 }
 
-QString Fb2WebView::toXml()
-{
-    return toBodyXml();
-    return doc().toOuterXml();
-}
-
 QString Fb2WebView::toBodyXml()
 {
     QWebElement body = doc().findFirst("body");
@@ -98,17 +92,20 @@ void Fb2WebView::load(const QString &filename)
     m_thread->start();
 }
 
-bool Fb2WebView::save(const QString &filename)
-{
-    QFile file(filename);
-    if (file.open(QFile::WriteOnly | QFile::Text)) return save(file);
-    qCritical() << QObject::tr("Cannot write file %1: %2.").arg(filename).arg(file.errorString());
-    return false;
-}
-
-bool Fb2WebView::save(QIODevice &device)
+bool Fb2WebView::save(QIODevice *device)
 {
     Fb2SaveHandler handler(*this, device);
+    QXmlInputSource source;
+    source.setData(toBodyXml());
+    XML2::HtmlReader reader;
+    reader.setContentHandler(&handler);
+    reader.setErrorHandler(&handler);
+    return reader.parse(source);
+}
+
+bool Fb2WebView::save(QString *string)
+{
+    Fb2SaveHandler handler(*this, string);
     QXmlInputSource source;
     source.setData(toBodyXml());
     XML2::HtmlReader reader;

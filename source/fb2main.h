@@ -46,6 +46,7 @@ private slots:
     void logShowed();
     void viewQsci();
     void viewText();
+    void viewHead();
 
     void clipboardDataChanged();
     void loadFinished(bool ok);
@@ -73,11 +74,12 @@ private:
     Fb2MainWindow *findFb2MainWindow(const QString &fileName);
 
     Fb2WebView *textEdit;
+    QTreeView *headTree;
     QTextEdit *noteEdit;
     QTextEdit *messageEdit;
     QDockWidget *dockTree;
     QsciScintilla *qsciEdit;
-    QTreeView * treeView;
+    QTreeView *treeView;
     QString curFile;
     bool isUntitled;
 

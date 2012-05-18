@@ -16,11 +16,15 @@ class Fb2WebView;
 class Fb2SaveWriter : public QXmlStreamWriter
 {
 public:
-    explicit Fb2SaveWriter(Fb2WebView &view, QIODevice &device);
+    explicit Fb2SaveWriter(Fb2WebView &view, QIODevice *device);
+    explicit Fb2SaveWriter(Fb2WebView &view, QByteArray *array);
+    explicit Fb2SaveWriter(Fb2WebView &view, QString *string);
     virtual ~Fb2SaveWriter();
     QString getFile(const QString &path);
     QString getData(const QString &name);
     void writeFiles();
+private:
+    void Init();
 private:
     Fb2WebView &m_view;
     typedef QHash<QString, QString> StringHash;
@@ -32,7 +36,9 @@ private:
 class Fb2SaveHandler : public Fb2XmlHandler
 {
 public:
-    explicit Fb2SaveHandler(Fb2WebView &view, QIODevice &device);
+    explicit Fb2SaveHandler(Fb2WebView &view, QIODevice *device);
+    explicit Fb2SaveHandler(Fb2WebView &view, QByteArray *array);
+    explicit Fb2SaveHandler(Fb2WebView &view, QString *string);
 
 private:
     class BodyHandler : public NodeHandler

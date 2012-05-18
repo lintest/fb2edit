@@ -8,9 +8,28 @@
 //  Fb2SaveWriter
 //---------------------------------------------------------------------------
 
-Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QIODevice &device)
-    : QXmlStreamWriter(&device)
+Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QIODevice *device)
+    : QXmlStreamWriter(device)
     , m_view(view)
+{
+    Init();
+}
+
+Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QByteArray *array)
+    : QXmlStreamWriter(array)
+    , m_view(view)
+{
+    Init();
+}
+
+Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QString *string)
+    : QXmlStreamWriter(string)
+    , m_view(view)
+{
+    Init();
+}
+
+void Fb2SaveWriter::Init()
 {
     setAutoFormatting(true);
     setAutoFormattingIndent(2);
@@ -232,9 +251,21 @@ void Fb2SaveHandler::ParagHandler::start()
 //  Fb2SaveHandler
 //---------------------------------------------------------------------------
 
-Fb2SaveHandler::Fb2SaveHandler(Fb2WebView &view, QIODevice &device)
+Fb2SaveHandler::Fb2SaveHandler(Fb2WebView &view, QIODevice *device)
     : Fb2XmlHandler()
     , m_writer(view, device)
+{
+}
+
+Fb2SaveHandler::Fb2SaveHandler(Fb2WebView &view, QByteArray *array)
+    : Fb2XmlHandler()
+    , m_writer(view, array)
+{
+}
+
+Fb2SaveHandler::Fb2SaveHandler(Fb2WebView &view, QString *string)
+    : Fb2XmlHandler()
+    , m_writer(view, string)
 {
 }
 
