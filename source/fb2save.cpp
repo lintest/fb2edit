@@ -50,11 +50,20 @@ void Fb2SaveWriter::writeFiles()
         if (data.isEmpty()) continue;
         writeStartElement("binary");
         writeAttribute("id", name);
-        writeCharacters(data);
+        writeCharacters("\n");
+        int pos = 0;
+        while (true) {
+            QString text = data.mid(pos, 76);
+            if (text.isEmpty()) break;
+            writeCharacters(text);
+            writeCharacters("\n");
+            pos += 76;
+        }
+        writeCharacters(" ");
+        writeCharacters(" ");
         writeEndElement();
     }
 }
-
 
 //---------------------------------------------------------------------------
 //  Fb2SaveHandler::BodyHandler
