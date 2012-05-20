@@ -17,6 +17,8 @@
         <file>16/format-text-strikethrough.png</file>
         <file>16/format-text-subscript.png</file>
         <file>16/format-text-superscript.png</file>
+        <file>16/list-add.png</file>
+        <file>16/list-remove.png</file>
         <file>16/window-close.png</file>
         <file>16/zoom-in.png</file>
         <file>16/zoom-original.png</file>
@@ -38,6 +40,8 @@
         <file>24/format-text-strikethrough.png</file>
         <file>24/format-text-subscript.png</file>
         <file>24/format-text-superscript.png</file>
+        <file>24/list-add.png</file>
+        <file>24/list-remove.png</file>
         <file>24/window-close.png</file>
         <file>24/zoom-in.png</file>
         <file>24/zoom-original.png</file>

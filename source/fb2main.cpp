@@ -527,6 +527,9 @@ void Fb2MainWindow::viewQsci()
     FB2DELETE(textEdit);
     FB2DELETE(dockTree);
     FB2DELETE(headTree);
+    FB2DELETE(toolEdit);
+    menuEdit->clear();
+    menuText->clear();
     createQsci();
     qsciEdit->setText(xml);
 }
@@ -653,6 +656,9 @@ void Fb2MainWindow::viewText()
     tool->addAction(actionZoomIn);
     tool->addAction(actionZoomOut);
     tool->addAction(actionZoomOrig);
+
+    act = textEdit->pageAction(QWebPage::InspectElement);
+    menuView->addAction(act);
 }
 
 void Fb2MainWindow::viewHead()
@@ -664,6 +670,26 @@ void Fb2MainWindow::viewHead()
     menuEdit->clear();
     menuText->clear();
     createHead();
+
+    FB2DELETE(toolEdit);
+    QToolBar *tool = toolEdit = addToolBar(tr("Edit"));
+    tool->setMovable(false);
+    tool->addSeparator();
+
+    QAction *act;
+    QMenu *menu = menuEdit;
+
+    act = new QAction(icon("list-add"), tr("Insert"), this);
+    act->setPriority(QAction::LowPriority);
+    act->setShortcuts(QKeySequence::New);
+    menu->addAction(act);
+    tool->addAction(act);
+
+    act = new QAction(icon("list-remove"), tr("Delete"), this);
+    act->setPriority(QAction::LowPriority);
+    act->setShortcuts(QKeySequence::Delete);
+    menu->addAction(act);
+    tool->addAction(act);
 }
 
 void Fb2MainWindow::viewTree()
@@ -685,7 +711,8 @@ void Fb2MainWindow::clipboardDataChanged()
 void Fb2MainWindow::showInspector()
 {
     if (!textEdit) return;
-    QWebInspector *inspector = new QWebInspector();
+    QWebInspector * inspector = new QWebInspector();
     inspector->setPage(textEdit->page());
     inspector->show();
 }
+

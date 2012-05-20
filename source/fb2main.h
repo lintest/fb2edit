@@ -11,6 +11,7 @@ class QMenu;
 class QModelIndex;
 class QTextEdit;
 class QTreeView;
+class QWebInspector;
 QT_END_NAMESPACE
 
 class QsciScintilla;
@@ -75,6 +76,7 @@ private:
     Fb2MainWindow *findFb2MainWindow(const QString &fileName);
 
     Fb2WebView *textEdit;
+    QWebInspector *inspector;
     QTreeView *headTree;
     QTextEdit *noteEdit;
     QTextEdit *messageEdit;
