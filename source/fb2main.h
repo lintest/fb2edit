@@ -64,7 +64,6 @@ private:
     void init();
     void createHead();
     void createTree();
-    void createText();
     void createQsci();
     void createActions();
     void createStatusBar();
@@ -84,6 +83,13 @@ private:
     QTreeView *treeView;
     QString curFile;
     bool isUntitled;
+
+    QToolBar *toolEdit;
+
+    QMenu
+        *menuEdit,
+        *menuText,
+        *menuView;
 
     QAction
         *actionBack,

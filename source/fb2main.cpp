@@ -19,8 +19,8 @@ Fb2MainWindow::Fb2MainWindow()
 {
     init();
     setCurrentFile();
-    createText();
-    createTree();
+    textEdit = new Fb2WebView(this);
+    viewText();
     textEdit->setHtml("<body/>");
 }
 
@@ -29,8 +29,7 @@ Fb2MainWindow::Fb2MainWindow(const QString &filename, ViewMode mode)
     init();
     setCurrentFile(filename);
     if (mode == FB2) {
-        createText();
-        createTree();
+        viewText();
         textEdit->load(filename);
     } else {
         createQsci();
@@ -54,6 +53,7 @@ void Fb2MainWindow::init()
     qsciEdit = NULL;
     treeView = NULL;
     headTree = NULL;
+    toolEdit = NULL;
     messageEdit = NULL;
 
     readSettings();
@@ -256,85 +256,10 @@ void Fb2MainWindow::createActions()
     connect(act, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
     menu->addAction(act);
 
-    menu = menuBar()->addMenu(tr("&Edit"));
-    tool = addToolBar(tr("Edit"));
-    tool->setMovable(false);
-    tool->addSeparator();
+    menuEdit = menu = menuBar()->addMenu(tr("&Edit"));
+    menuText = menu = menuBar()->addMenu(tr("Fo&rmat"));
+    menuView = menu = menuBar()->addMenu(tr("&View"));
 
-    connect(QApplication::clipboard(), SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
-
-    actionUndo = act = new QAction(icon("edit-undo"), tr("&Undo"), this);
-    act->setPriority(QAction::LowPriority);
-    act->setShortcut(QKeySequence::Undo);
-    act->setEnabled(false);
-    menu->addAction(act);
-    tool->addAction(act);
-
-    actionRedo = act = new QAction(icon("edit-redo"), tr("&Redo"), this);
-    act->setPriority(QAction::LowPriority);
-    act->setShortcut(QKeySequence::Redo);
-    act->setEnabled(false);
-    menu->addAction(act);
-    tool->addAction(act);
-
-    menu->addSeparator();
-    tool->addSeparator();
-
-    actionCut = act = new QAction(icon("edit-cut"), tr("Cu&t"), this);
-    act->setPriority(QAction::LowPriority);
-    act->setShortcuts(QKeySequence::Cut);
-    act->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
-    act->setEnabled(false);
-    menu->addAction(act);
-    tool->addAction(act);
-
-    actionCopy = act = new QAction(icon("edit-copy"), tr("&Copy"), this);
-    act->setPriority(QAction::LowPriority);
-    act->setShortcuts(QKeySequence::Copy);
-    act->setStatusTip(tr("Copy the current selection's contents to the clipboard"));
-    act->setEnabled(false);
-    menu->addAction(act);
-    tool->addAction(act);
-
-    actionPaste = act = new QAction(icon("edit-paste"), tr("&Paste"), this);
-    act->setPriority(QAction::LowPriority);
-    act->setShortcuts(QKeySequence::Paste);
-    act->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
-    menu->addAction(act);
-    tool->addAction(act);
-    clipboardDataChanged();
-
-    menu = menuBar()->addMenu(tr("Fo&rmat"));
-    tool->addSeparator();
-
-    actionTextBold = act = new QAction(icon("format-text-bold"), tr("Bold"), this);
-    act->setShortcuts(QKeySequence::Bold);
-    act->setCheckable(true);
-    menu->addAction(act);
-    tool->addAction(act);
-
-    actionTextItalic = act = new QAction(icon("format-text-italic"), tr("Italic"), this);
-    act->setShortcuts(QKeySequence::Italic);
-    act->setCheckable(true);
-    menu->addAction(act);
-    tool->addAction(act);
-
-    actionTextStrike = act = new QAction(icon("format-text-strikethrough"), tr("Strikethrough"), this);
-    act->setCheckable(true);
-    menu->addAction(act);
-    tool->addAction(act);
-
-    actionTextSup = act = new QAction(icon("format-text-superscript"), tr("Superscript"), this);
-    act->setCheckable(true);
-    menu->addAction(act);
-    tool->addAction(act);
-
-    actionTextSub = act = new QAction(icon("format-text-subscript"), tr("Subscript"), this);
-    act->setCheckable(true);
-    menu->addAction(act);
-    tool->addAction(act);
-
-    menu = menuBar()->addMenu(tr("&View"));
     tool->addSeparator();
 
     QActionGroup * viewGroup = new QActionGroup(this);
@@ -345,34 +270,34 @@ void Fb2MainWindow::createActions()
     connect(act, SIGNAL(triggered()), this, SLOT(viewText()));
     viewGroup->addAction(act);
     menu->addAction(act);
+    tool->addAction(act);
 
     act = new QAction(tr("&Head"), this);
     act->setCheckable(true);
     connect(act, SIGNAL(triggered()), this, SLOT(viewHead()));
     viewGroup->addAction(act);
     menu->addAction(act);
+    tool->addAction(act);
 
     act = new QAction(tr("&XML"), this);
     act->setCheckable(true);
     connect(act, SIGNAL(triggered()), this, SLOT(viewQsci()));
     viewGroup->addAction(act);
     menu->addAction(act);
+    tool->addAction(act);
 
     menu->addSeparator();
 
     actionZoomIn = act = new QAction(icon("zoom-in"), tr("Zoom in"), this);
     act->setShortcuts(QKeySequence::ZoomIn);
     menu->addAction(act);
-    tool->addAction(act);
 
     actionZoomOut = act = new QAction(icon("zoom-out"), tr("Zoom out"), this);
     act->setShortcuts(QKeySequence::ZoomOut);
     menu->addAction(act);
-    tool->addAction(act);
 
     actionZoomOrig = act = new QAction(icon("zoom-original"), tr("Zoom original"), this);
     menu->addAction(act);
-    tool->addAction(act);
 
     menu->addSeparator();
 
@@ -385,7 +310,6 @@ void Fb2MainWindow::createActions()
     menu->addAction(act);
 
     menuBar()->addSeparator();
-
     menu = menuBar()->addMenu(tr("&Help"));
 
     act = new QAction(icon("help-about"), tr("&About"), this);
@@ -432,37 +356,6 @@ void Fb2MainWindow::createHead()
     headTree->setFocus();
 }
 
-void Fb2MainWindow::createText()
-{
-    if (textEdit) return;
-    textEdit = new Fb2WebView(this);
-    setCentralWidget(textEdit);
-    textEdit->setFocus();
-
-    connect(textEdit->page(), SIGNAL(contentsChanged()), SLOT(documentWasModified()));
-    connect(textEdit, SIGNAL(selectionChanged()), SLOT(selectionChanged()));
-    connect(textEdit, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
-
-    connect(textEdit->pageAction(QWebPage::Undo), SIGNAL(changed()), SLOT(undoChanged()));
-    connect(textEdit->pageAction(QWebPage::Redo), SIGNAL(changed()), SLOT(redoChanged()));
-    connect(actionUndo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Undo), SIGNAL(triggered()));
-    connect(actionRedo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Redo), SIGNAL(triggered()));
-
-    connect(actionCut, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Cut), SIGNAL(triggered()));
-    connect(actionCopy, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Copy), SIGNAL(triggered()));
-    connect(actionPaste, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Paste), SIGNAL(triggered()));
-
-    connect(actionTextBold, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleBold), SIGNAL(triggered()));
-    connect(actionTextItalic, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleItalic), SIGNAL(triggered()));
-    connect(actionTextStrike, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleStrikethrough), SIGNAL(triggered()));
-    connect(actionTextSub, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSubscript), SIGNAL(triggered()));
-    connect(actionTextSup, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSuperscript), SIGNAL(triggered()));
-
-    connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
-    connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
-    connect(actionZoomOrig, SIGNAL(triggered()), textEdit, SLOT(zoomOrig()));
-}
-
 void Fb2MainWindow::loadFinished(bool ok)
 {
     if (!treeView) return ;
@@ -473,15 +366,6 @@ void Fb2MainWindow::loadFinished(bool ok)
 
 void Fb2MainWindow::selectionChanged()
 {
-    actionCut->setEnabled(textEdit->CutEnabled());
-    actionCopy->setEnabled(textEdit->CopyEnabled());
-
-    actionTextBold->setChecked(textEdit->BoldChecked());
-    actionTextItalic->setChecked(textEdit->ItalicChecked());
-    actionTextStrike->setChecked(textEdit->StrikeChecked());
-    actionTextSub->setChecked(textEdit->SubChecked());
-    actionTextSup->setChecked(textEdit->SupChecked());
-
 //    QString script = "document.getSelection().baseNode.parentNode.tagName";
 //    qCritical() << textEdit->page()->mainFrame()->evaluateJavaScript(script).toString();
 }
@@ -542,9 +426,6 @@ void Fb2MainWindow::createQsci()
     qsciEdit->setFocus();
 
     //    connect(qsciEdit, SIGNAL(textChanged()), this, SLOT(documentWasModified()));
-
-    actionUndo->setEnabled(false);
-    actionRedo->setEnabled(false);
 }
 
 void Fb2MainWindow::createStatusBar()
@@ -655,12 +536,123 @@ void Fb2MainWindow::viewText()
     if (centralWidget() == textEdit) return;
     FB2DELETE(qsciEdit);
     FB2DELETE(headTree);
-    if (textEdit) {
-        setCentralWidget(textEdit);
-    } else {
-        createText();
+    if (!textEdit) {
+        textEdit = new Fb2WebView(this);
     }
+    setCentralWidget(textEdit);
+    textEdit->setFocus();
     viewTree();
+
+    //    connect(QApplication::clipboard(), SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
+
+    connect(textEdit->page(), SIGNAL(contentsChanged()), SLOT(documentWasModified()));
+    connect(textEdit, SIGNAL(selectionChanged()), SLOT(selectionChanged()));
+    connect(textEdit, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
+
+    connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
+    connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
+    connect(actionZoomOrig, SIGNAL(triggered()), textEdit, SLOT(zoomOrig()));
+
+    menuEdit->clear();
+    menuText->clear();
+
+    FB2DELETE(toolEdit);
+    QToolBar *tool = toolEdit = addToolBar(tr("Edit"));
+    tool->setMovable(false);
+    tool->addSeparator();
+
+    QAction *act;
+    QMenu *menu;
+
+    menu = menuEdit;
+
+    act = textEdit->pageAction(QWebPage::Undo);
+    act->setIcon(icon("edit-undo"));
+    act->setText(tr("&Undo"));
+    act->setPriority(QAction::LowPriority);
+    act->setShortcut(QKeySequence::Undo);
+    menu->addAction(act);
+    tool->addAction(act);
+
+    act = textEdit->pageAction(QWebPage::Redo);
+    act->setIcon(icon("edit-redo"));
+    act->setText(tr("&Redo"));
+    act->setPriority(QAction::LowPriority);
+    act->setShortcut(QKeySequence::Redo);
+    menu->addAction(act);
+    tool->addAction(act);
+
+    menu->addSeparator();
+    tool->addSeparator();
+
+    act = textEdit->pageAction(QWebPage::Cut);
+    act->setIcon(icon("edit-cut"));
+    act->setText(tr("Cu&t"));
+    act->setPriority(QAction::LowPriority);
+    act->setShortcuts(QKeySequence::Cut);
+    act->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
+    menu->addAction(act);
+    tool->addAction(act);
+
+    act = textEdit->pageAction(QWebPage::Copy);
+    act->setIcon(icon("edit-copy"));
+    act->setText(tr("&Copy"));
+    act->setPriority(QAction::LowPriority);
+    act->setShortcuts(QKeySequence::Copy);
+    act->setStatusTip(tr("Copy the current selection's contents to the clipboard"));
+    menu->addAction(act);
+    tool->addAction(act);
+
+    act = textEdit->pageAction(QWebPage::Paste);
+    act->setIcon(icon("edit-paste"));
+    act->setText(tr("&Paste"));
+    act->setPriority(QAction::LowPriority);
+    act->setShortcuts(QKeySequence::Paste);
+    act->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
+    menu->addAction(act);
+    tool->addAction(act);
+
+    tool->addSeparator();
+
+    menu = menuText;
+
+    act = textEdit->pageAction(QWebPage::ToggleBold);
+    act->setIcon(icon("format-text-bold"));
+    act->setText(tr("&Bold"));
+    act->setShortcuts(QKeySequence::Bold);
+    menu->addAction(act);
+    tool->addAction(act);
+
+    act = textEdit->pageAction(QWebPage::ToggleItalic);
+    act->setIcon(icon("format-text-italic"));
+    act->setText(tr("&Italic"));
+    act->setShortcuts(QKeySequence::Italic);
+    menu->addAction(act);
+    tool->addAction(act);
+
+    act = textEdit->pageAction(QWebPage::ToggleStrikethrough);
+    act->setIcon(icon("format-text-strikethrough"));
+    act->setText(tr("&Strikethrough"));
+    menu->addAction(act);
+    tool->addAction(act);
+
+    act = textEdit->pageAction(QWebPage::ToggleSuperscript);
+    act->setIcon(icon("format-text-superscript"));
+    act->setText(tr("Superscript"));
+    menu->addAction(act);
+    tool->addAction(act);
+
+    act = textEdit->pageAction(QWebPage::ToggleSubscript);
+    act->setIcon(icon("format-text-subscript"));
+    act->setText(tr("Subscript"));
+    menu->addAction(act);
+    tool->addAction(act);
+
+    tool->addSeparator();
+
+    tool->addAction(actionZoomIn);
+    tool->addAction(actionZoomOut);
+    tool->addAction(actionZoomOrig);
 }
 
 void Fb2MainWindow::viewHead()
@@ -668,6 +660,9 @@ void Fb2MainWindow::viewHead()
     if (centralWidget() == headTree) return;
     FB2DELETE(dockTree);
     FB2DELETE(qsciEdit);
+    FB2DELETE(toolEdit);
+    menuEdit->clear();
+    menuText->clear();
     createHead();
 }
 
@@ -680,9 +675,11 @@ void Fb2MainWindow::viewTree()
 
 void Fb2MainWindow::clipboardDataChanged()
 {
+/*
     if (const QMimeData *md = QApplication::clipboard()->mimeData()) {
         actionPaste->setEnabled(md->hasText());
     }
+*/
 }
 
 void Fb2MainWindow::showInspector()
