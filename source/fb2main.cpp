@@ -21,7 +21,7 @@ Fb2MainWindow::Fb2MainWindow()
     setCurrentFile();
     textEdit = new Fb2WebView(this);
     viewText();
-    textEdit->setHtml("<body/>");
+    textEdit->load(":blank.fb2");
 }
 
 Fb2MainWindow::Fb2MainWindow(const QString &filename, ViewMode mode)
@@ -608,6 +608,13 @@ void Fb2MainWindow::zoomOrig()
     if (qsciEdit) qsciEdit->zoomTo(1);
 }
 
+void Fb2MainWindow::checkScintillaUndo()
+{
+    if (!qsciEdit) return;
+    actionUndo->setEnabled(qsciEdit->isUndoAvailable());
+    actionRedo->setEnabled(qsciEdit->isRedoAvailable());
+}
+
 void Fb2MainWindow::viewQsci()
 {
     if (centralWidget() == qsciEdit) return;
@@ -622,12 +629,31 @@ void Fb2MainWindow::viewQsci()
     FB2DELETE(toolEdit);
     QToolBar *tool = toolEdit = addToolBar(tr("Edit"));
     tool->addSeparator();
+    tool->addAction(actionUndo);
+    tool->addAction(actionRedo);
+    tool->addSeparator();
+    tool->addAction(actionCut);
+    tool->addAction(actionCopy);
+    tool->addAction(actionPaste);
+    tool->addSeparator();
     tool->addAction(actionZoomIn);
     tool->addAction(actionZoomOut);
     tool->addAction(actionZoomOrig);
     tool->setMovable(false);
 
     connect(qsciEdit, SIGNAL(textChanged()), this, SLOT(documentWasModified()));
+    connect(qsciEdit, SIGNAL(textChanged()), this, SLOT(checkScintillaUndo()));
+
+    connect(qsciEdit, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)));
+    connect(qsciEdit, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)));
+
+    connect(actionUndo, SIGNAL(triggered()), qsciEdit, SLOT(undo()));
+    connect(actionRedo, SIGNAL(triggered()), qsciEdit, SLOT(redo()));
+
+    connect(actionCut, SIGNAL(triggered()), qsciEdit, SLOT(cut()));
+    connect(actionCopy, SIGNAL(triggered()), qsciEdit, SLOT(copy()));
+    connect(actionPaste, SIGNAL(triggered()), qsciEdit, SLOT(paste()));
+
     connect(actionZoomIn, SIGNAL(triggered()), qsciEdit, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), qsciEdit, SLOT(zoomOut()));
     connect(actionZoomOrig, SIGNAL(triggered()), this, SLOT(zoomOrig()));

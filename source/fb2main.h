@@ -41,6 +41,7 @@ private slots:
 
     void about();
     void documentWasModified();
+    void checkScintillaUndo();
     void treeActivated(const QModelIndex &index);
     void treeDestroyed();
     void logDestroyed();
