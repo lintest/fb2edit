@@ -102,6 +102,8 @@ private:
         *actionCopy,
         *actionPaste,
         *actionSelect,
+        *actionInsert,
+        *actionDelete,
         *actionTextBold,
         *actionTextItalic,
         *actionTextStrike,

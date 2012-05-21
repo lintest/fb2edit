@@ -41,41 +41,12 @@ bool Fb2ReadThread::parse()
         qCritical() << QObject::tr("Cannot read file %1: %2.").arg(m_filename).arg(file.errorString());
         return false;
     }
-    Fb2ReadHandler handler(*this);
+    QXmlStreamWriter writer(&m_html);
+    Fb2ReadHandler handler(*this, writer);
     XML2::XmlReader reader;
     reader.setContentHandler(&handler);
     reader.setErrorHandler(&handler);
     return reader.parse(file);
-}
-
-//---------------------------------------------------------------------------
-//  Fb2ReadWriter
-//---------------------------------------------------------------------------
-
-Fb2ReadWriter::Fb2ReadWriter(Fb2ReadThread &thread)
-    : QXmlStreamWriter(thread.data())
-    , m_thread(thread)
-    , m_id(0)
-{
-    setAutoFormatting(true);
-    setAutoFormattingIndent(2);
-}
-
-QString Fb2ReadWriter::getFile(const QString &name)
-{
-    QString path;
-    QMetaObject::invokeMethod(m_thread.parent(), "temp", Qt::DirectConnection, Q_RETURN_ARG(QString, path), Q_ARG(QString, name));
-    return path;
-}
-
-void Fb2ReadWriter::addFile(const QString &name, const QByteArray &data)
-{
-    QMetaObject::invokeMethod(m_thread.parent(), "data", Qt::QueuedConnection, Q_ARG(QString, name), Q_ARG(QByteArray, data));
-}
-
-QString Fb2ReadWriter::newId()
-{
-    return QString("FB2E%1").arg(++m_id);
 }
 
 //---------------------------------------------------------------------------
@@ -89,20 +60,20 @@ FB2_BEGIN_KEYHASH(Fb2ReadHandler::RootHandler)
     FB2_KEY( Binary , "binary"      );
 FB2_END_KEYHASH
 
-Fb2ReadHandler::RootHandler::RootHandler(Fb2ReadWriter &writer, const QString &name)
-    : BaseHandler(writer, name)
+Fb2ReadHandler::RootHandler::RootHandler(Fb2ReadHandler &owner, const QString &name)
+    : BaseHandler(owner, name)
 {
-    m_writer.writeStartDocument();
-    m_writer.writeStartElement("html");
-    m_writer.writeStartElement("body");
+    writer().writeStartDocument();
+    writer().writeStartElement("html");
+    writer().writeStartElement("body");
 }
 
 Fb2XmlHandler::NodeHandler * Fb2ReadHandler::RootHandler::NewTag(const QString &name, const QXmlAttributes &atts)
 {
     switch (toKeyword(name)) {
-        case Body   : return new TextHandler(m_writer, name, atts, "div", name);
-        case Descr  : return new DescrHandler(m_writer, name, atts);
-        case Binary : return new BinaryHandler(m_writer, name, atts);
+        case Body   : return new TextHandler(m_owner, name, atts, "div", name);
+        case Descr  : return new DescrHandler(m_owner, name, atts);
+        case Binary : return new BinaryHandler(m_owner, name, atts);
         default: return NULL;
     }
 }
@@ -110,9 +81,9 @@ Fb2XmlHandler::NodeHandler * Fb2ReadHandler::RootHandler::NewTag(const QString &
 void Fb2ReadHandler::RootHandler::EndTag(const QString &name)
 {
     Q_UNUSED(name);
-    m_writer.writeEndElement();
-    m_writer.writeEndElement();
-    m_writer.writeEndDocument();
+    writer().writeEndElement();
+    writer().writeEndElement();
+    writer().writeEndDocument();
 }
 
 //---------------------------------------------------------------------------
@@ -123,15 +94,15 @@ FB2_BEGIN_KEYHASH(Fb2ReadHandler::HeadHandler)
     FB2_KEY( Image , "image" );
 FB2_END_KEYHASH
 
-Fb2ReadHandler::HeadHandler::HeadHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &atts)
-    : BaseHandler(writer, name)
+Fb2ReadHandler::HeadHandler::HeadHandler(Fb2ReadHandler &owner, const QString &name, const QXmlAttributes &atts)
+    : BaseHandler(owner, name)
     , m_empty(true)
 {
-    m_writer.writeStartElement("div");
-    m_writer.writeAttribute("class", name);
+    writer().writeStartElement("div");
+    writer().writeAttribute("class", name);
     int count = atts.count();
     for (int i = 0; i < count; i++) {
-        m_writer.writeAttribute("fb2:" + atts.qName(i), atts.value(i));
+        writer().writeAttribute("fb2:" + atts.qName(i), atts.value(i));
     }
 }
 
@@ -140,22 +111,22 @@ Fb2XmlHandler::NodeHandler * Fb2ReadHandler::HeadHandler::NewTag(const QString &
     Q_UNUSED(atts);
     m_empty = false;
     switch (toKeyword(name)) {
-        case Image: return new ImageHandler(m_writer, name, atts);
-        default: return new HeadHandler(m_writer, name, atts);
+        case Image: return new ImageHandler(m_owner, name, atts);
+        default: return new HeadHandler(m_owner, name, atts);
     }
 }
 
 void Fb2ReadHandler::HeadHandler::TxtTag(const QString &text)
 {
     m_empty = false;
-    m_writer.writeCharacters(text);
+    writer().writeCharacters(text);
 }
 
 void Fb2ReadHandler::HeadHandler::EndTag(const QString &name)
 {
     Q_UNUSED(name);
-    if (m_empty) m_writer.writeCharacters(" ");
-    m_writer.writeEndElement();
+    if (m_empty) writer().writeCharacters(" ");
+    writer().writeEndElement();
 }
 
 //---------------------------------------------------------------------------
@@ -169,10 +140,10 @@ FB2_BEGIN_KEYHASH(Fb2ReadHandler::DescrHandler)
     FB2_KEY( Custom   , "custom-info"   );
 FB2_END_KEYHASH
 
-Fb2ReadHandler::DescrHandler::DescrHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &atts)
-    : HeadHandler(writer, name, atts)
+Fb2ReadHandler::DescrHandler::DescrHandler(Fb2ReadHandler &owner, const QString &name, const QXmlAttributes &atts)
+    : HeadHandler(owner, name, atts)
 {
-    m_writer.writeAttribute("id", m_writer.newId());
+    writer().writeAttribute("id", m_owner.newId());
 }
 
 Fb2XmlHandler::NodeHandler * Fb2ReadHandler::DescrHandler::NewTag(const QString &name, const QXmlAttributes &atts)
@@ -180,11 +151,11 @@ Fb2XmlHandler::NodeHandler * Fb2ReadHandler::DescrHandler::NewTag(const QString 
     Q_UNUSED(atts);
     switch (toKeyword(name)) {
         case Title :
-            return new TitleHandler(m_writer, name, atts);
+            return new TitleHandler(m_owner, name, atts);
         case Document :
         case Publish :
         case Custom :
-            return new HeadHandler(m_writer, name, atts);
+            return new HeadHandler(m_owner, name, atts);
         default:
             return NULL;
     }
@@ -194,16 +165,16 @@ Fb2XmlHandler::NodeHandler * Fb2ReadHandler::DescrHandler::NewTag(const QString 
 //  Fb2ReadHandler::TitleHandler
 //---------------------------------------------------------------------------
 
-Fb2ReadHandler::TitleHandler::TitleHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &atts)
-    : HeadHandler(writer, name, atts)
+Fb2ReadHandler::TitleHandler::TitleHandler(Fb2ReadHandler &owner, const QString &name, const QXmlAttributes &atts)
+    : HeadHandler(owner, name, atts)
 {
-    m_writer.writeAttribute("id", m_writer.newId());
+    writer().writeAttribute("id", m_owner.newId());
 }
 
 Fb2XmlHandler::NodeHandler * Fb2ReadHandler::TitleHandler::NewTag(const QString &name, const QXmlAttributes &atts)
 {
-    if (name == "annotation") return new TextHandler(m_writer, name, atts, "div", name);
-    return new HeadHandler(m_writer, name, atts);
+    if (name == "annotation") return new TextHandler(m_owner, name, atts, "div", name);
+    return new HeadHandler(m_owner, name, atts);
 }
 
 //---------------------------------------------------------------------------
@@ -239,8 +210,8 @@ FB2_BEGIN_KEYHASH(Fb2ReadHandler::TextHandler)
     FB2_KEY( Code    , "code"          );
 FB2_END_KEYHASH
 
-Fb2ReadHandler::TextHandler::TextHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &atts, const QString &tag, const QString &style)
-    : BaseHandler(writer, name)
+Fb2ReadHandler::TextHandler::TextHandler(Fb2ReadHandler &owner, const QString &name, const QXmlAttributes &atts, const QString &tag, const QString &style)
+    : BaseHandler(owner, name)
     , m_parent(NULL)
     , m_tag(tag)
     , m_style(style)
@@ -249,7 +220,7 @@ Fb2ReadHandler::TextHandler::TextHandler(Fb2ReadWriter &writer, const QString &n
 }
 
 Fb2ReadHandler::TextHandler::TextHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts, const QString &tag, const QString &style)
-    : BaseHandler(parent->m_writer, name)
+    : BaseHandler(parent->m_owner, name)
     , m_parent(parent)
     , m_tag(tag)
     , m_style(style)
@@ -260,17 +231,17 @@ Fb2ReadHandler::TextHandler::TextHandler(TextHandler *parent, const QString &nam
 void Fb2ReadHandler::TextHandler::Init(const QXmlAttributes &atts)
 {
     if (m_tag.isEmpty()) return;
-    m_writer.writeStartElement(m_tag);
+    writer().writeStartElement(m_tag);
     QString id = Value(atts, "id");
     if (!id.isEmpty()) {
         if (m_style == "section" && isNotes()) m_style = "note";
-        m_writer.writeAttribute("id", id);
+        writer().writeAttribute("id", id);
     } else if (m_tag == "div" || m_tag == "img") {
-        m_writer.writeAttribute("id", m_writer.newId());
+        writer().writeAttribute("id", m_owner.newId());
     }
     if (!m_style.isEmpty()) {
         if (m_style == "body" && Value(atts, "name").toLower() == "notes") m_style = "notes";
-        m_writer.writeAttribute("class", m_style);
+        writer().writeAttribute("class", m_style);
     }
 }
 
@@ -279,7 +250,7 @@ Fb2XmlHandler::NodeHandler * Fb2ReadHandler::TextHandler::NewTag(const QString &
     QString tag, style;
     switch (toKeyword(name)) {
         case Anchor    : return new AnchorHandler(this, name, atts);
-        case Image     : return new ImageHandler(m_writer, name, atts);
+        case Image     : return new ImageHandler(m_owner, name, atts);
         case Section   : tag = "div"; style = name; break;
         case Parag     : tag = "p";   break;
         case Strong    : tag = "b";   break;
@@ -295,15 +266,15 @@ Fb2XmlHandler::NodeHandler * Fb2ReadHandler::TextHandler::NewTag(const QString &
 
 void Fb2ReadHandler::TextHandler::TxtTag(const QString &text)
 {
-    m_writer.writeCharacters(text);
+    writer().writeCharacters(text);
 }
 
 void Fb2ReadHandler::TextHandler::EndTag(const QString &name)
 {
     Q_UNUSED(name);
     if (m_tag.isEmpty()) return;
-    if (m_tag == "div") m_writer.writeCharacters(" ");
-    m_writer.writeEndElement();
+    if (m_tag == "div") writer().writeCharacters(" ");
+    writer().writeEndElement();
 }
 
 bool Fb2ReadHandler::TextHandler::isNotes() const
@@ -320,29 +291,29 @@ Fb2ReadHandler::AnchorHandler::AnchorHandler(TextHandler *parent, const QString 
     : TextHandler(parent, name, atts, "a")
 {
     QString href = Value(atts, "href");
-    m_writer.writeAttribute("href", href);
+    writer().writeAttribute("href", href);
 }
 
 //---------------------------------------------------------------------------
 //  Fb2ReadHandler::ImageHandler
 //---------------------------------------------------------------------------
 
-Fb2ReadHandler::ImageHandler::ImageHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &atts)
-    : TextHandler(writer, name, atts, "img")
+Fb2ReadHandler::ImageHandler::ImageHandler(Fb2ReadHandler &owner, const QString &name, const QXmlAttributes &atts)
+    : TextHandler(owner, name, atts, "img")
 {
     QString href = Value(atts, "href");
     while (href.left(1) == "#") href.remove(0, 1);
-    QString path = m_writer.getFile(href);
-    m_writer.writeAttribute("src", path);
-    m_writer.writeAttribute("alt", href);
+    QString path = m_owner.getFile(href);
+    writer().writeAttribute("src", path);
+    writer().writeAttribute("alt", href);
 }
 
 //---------------------------------------------------------------------------
 //  Fb2ReadHandler::BinaryHandler
 //---------------------------------------------------------------------------
 
-Fb2ReadHandler::BinaryHandler::BinaryHandler(Fb2ReadWriter &writer, const QString &name, const QXmlAttributes &atts)
-    : BaseHandler(writer, name)
+Fb2ReadHandler::BinaryHandler::BinaryHandler(Fb2ReadHandler &owner, const QString &name, const QXmlAttributes &atts)
+    : BaseHandler(owner, name)
     , m_file(Value(atts, "id"))
 {
 }
@@ -356,7 +327,7 @@ void Fb2ReadHandler::BinaryHandler::EndTag(const QString &name)
 {
     Q_UNUSED(name);
     QByteArray in; in.append(m_text);
-    if (!m_file.isEmpty()) m_writer.addFile(m_file, QByteArray::fromBase64(in));
+    if (!m_file.isEmpty()) m_owner.addFile(m_file, QByteArray::fromBase64(in));
 }
 
 
@@ -364,16 +335,38 @@ void Fb2ReadHandler::BinaryHandler::EndTag(const QString &name)
 //  Fb2ReadHandler
 //---------------------------------------------------------------------------
 
-Fb2ReadHandler::Fb2ReadHandler(Fb2ReadThread &thread)
+Fb2ReadHandler::Fb2ReadHandler(Fb2ReadThread &thread, QXmlStreamWriter &writer)
     : Fb2XmlHandler()
-    , m_writer(thread)
+    , m_thread(thread)
+    , m_writer(writer)
+    , m_id(0)
 {
+    m_writer.setAutoFormatting(true);
+    m_writer.setAutoFormattingIndent(2);
 }
 
 Fb2XmlHandler::NodeHandler * Fb2ReadHandler::CreateRoot(const QString &name, const QXmlAttributes &atts)
 {
     Q_UNUSED(atts);
-    if (name == "fictionbook") return new RootHandler(m_writer, name);
+    if (name == "fictionbook") return new RootHandler(*this, name);
     m_error = QObject::tr("The file is not an FB2 file.");
     return 0;
 }
+
+QString Fb2ReadHandler::getFile(const QString &name)
+{
+    QString path;
+    QMetaObject::invokeMethod(m_thread.parent(), "temp", Qt::DirectConnection, Q_RETURN_ARG(QString, path), Q_ARG(QString, name));
+    return path;
+}
+
+void Fb2ReadHandler::addFile(const QString &name, const QByteArray &data)
+{
+    QMetaObject::invokeMethod(m_thread.parent(), "data", Qt::QueuedConnection, Q_ARG(QString, name), Q_ARG(QByteArray, data));
+}
+
+QString Fb2ReadHandler::newId()
+{
+    return QString("FB2E%1").arg(++m_id);
+}
+

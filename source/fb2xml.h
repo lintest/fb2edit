@@ -3,6 +3,8 @@
 
 #include <QHash>
 #include <QXmlDefaultHandler>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 #define FB2_BEGIN_KEYLIST private: enum Keyword {
 

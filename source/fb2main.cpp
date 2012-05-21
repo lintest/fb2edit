@@ -257,7 +257,80 @@ void Fb2MainWindow::createActions()
     menu->addAction(act);
 
     menuEdit = menu = menuBar()->addMenu(tr("&Edit"));
+
+    connect(QApplication::clipboard(), SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
+
+    actionUndo = act = new QAction(icon("edit-undo"), tr("&Undo"), this);
+    act->setPriority(QAction::LowPriority);
+    act->setShortcut(QKeySequence::Undo);
+    act->setEnabled(false);
+    menu->addAction(act);
+
+    actionRedo = act = new QAction(icon("edit-redo"), tr("&Redo"), this);
+    act->setPriority(QAction::LowPriority);
+    act->setShortcut(QKeySequence::Redo);
+    act->setEnabled(false);
+    menu->addAction(act);
+
+    menu->addSeparator();
+
+    actionCut = act = new QAction(icon("edit-cut"), tr("Cu&t"), this);
+    act->setPriority(QAction::LowPriority);
+    act->setShortcuts(QKeySequence::Cut);
+    act->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
+    act->setEnabled(false);
+    menu->addAction(act);
+
+    actionCopy = act = new QAction(icon("edit-copy"), tr("&Copy"), this);
+    act->setPriority(QAction::LowPriority);
+    act->setShortcuts(QKeySequence::Copy);
+    act->setStatusTip(tr("Copy the current selection's contents to the clipboard"));
+    act->setEnabled(false);
+    menu->addAction(act);
+
+    actionPaste = act = new QAction(icon("edit-paste"), tr("&Paste"), this);
+    act->setPriority(QAction::LowPriority);
+    act->setShortcuts(QKeySequence::Paste);
+    act->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
+    menu->addAction(act);
+    clipboardDataChanged();
+
+    menu->addSeparator();
+
+    actionInsert = act = new QAction(icon("list-add"), tr("Insert"), this);
+    act->setPriority(QAction::LowPriority);
+    act->setShortcuts(QKeySequence::New);
+    menu->addAction(act);
+
+    actionDelete = act = new QAction(icon("list-remove"), tr("Delete"), this);
+    act->setPriority(QAction::LowPriority);
+    act->setShortcuts(QKeySequence::Delete);
+    menu->addAction(act);
+
     menuText = menu = menuBar()->addMenu(tr("Fo&rmat"));
+
+    actionTextBold = act = new QAction(icon("format-text-bold"), tr("Bold"), this);
+    act->setShortcuts(QKeySequence::Bold);
+    act->setCheckable(true);
+    menu->addAction(act);
+
+    actionTextItalic = act = new QAction(icon("format-text-italic"), tr("Italic"), this);
+    act->setShortcuts(QKeySequence::Italic);
+    act->setCheckable(true);
+    menu->addAction(act);
+
+    actionTextStrike = act = new QAction(icon("format-text-strikethrough"), tr("Strikethrough"), this);
+    act->setCheckable(true);
+    menu->addAction(act);
+
+    actionTextSup = act = new QAction(icon("format-text-superscript"), tr("Superscript"), this);
+    act->setCheckable(true);
+    menu->addAction(act);
+
+    actionTextSub = act = new QAction(icon("format-text-subscript"), tr("Subscript"), this);
+    act->setCheckable(true);
+    menu->addAction(act);
+
     menuView = menu = menuBar()->addMenu(tr("&View"));
 
     tool->addSeparator();
@@ -342,6 +415,7 @@ void Fb2MainWindow::createHead()
 {
     if (headTree) return;
     headTree = new QTreeView(this);
+    headTree->header()->setDefaultSectionSize(200);
     if (textEdit) {
         this->setFocus();
         textEdit->setParent(NULL);
@@ -528,8 +602,6 @@ void Fb2MainWindow::viewQsci()
     FB2DELETE(dockTree);
     FB2DELETE(headTree);
     FB2DELETE(toolEdit);
-    menuEdit->clear();
-    menuText->clear();
     createQsci();
     qsciEdit->setText(xml);
 }
@@ -546,18 +618,28 @@ void Fb2MainWindow::viewText()
     textEdit->setFocus();
     viewTree();
 
-    //    connect(QApplication::clipboard(), SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
-
     connect(textEdit->page(), SIGNAL(contentsChanged()), SLOT(documentWasModified()));
     connect(textEdit, SIGNAL(selectionChanged()), SLOT(selectionChanged()));
     connect(textEdit, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
 
+    connect(textEdit->pageAction(QWebPage::Undo), SIGNAL(changed()), SLOT(undoChanged()));
+    connect(textEdit->pageAction(QWebPage::Redo), SIGNAL(changed()), SLOT(redoChanged()));
+    connect(actionUndo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Undo), SIGNAL(triggered()));
+    connect(actionRedo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Redo), SIGNAL(triggered()));
+
+    connect(actionCut, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Cut), SIGNAL(triggered()));
+    connect(actionCopy, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Copy), SIGNAL(triggered()));
+    connect(actionPaste, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Paste), SIGNAL(triggered()));
+
+    connect(actionTextBold, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleBold), SIGNAL(triggered()));
+    connect(actionTextItalic, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleItalic), SIGNAL(triggered()));
+    connect(actionTextStrike, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleStrikethrough), SIGNAL(triggered()));
+    connect(actionTextSub, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSubscript), SIGNAL(triggered()));
+    connect(actionTextSup, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSuperscript), SIGNAL(triggered()));
+
     connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
     connect(actionZoomOrig, SIGNAL(triggered()), textEdit, SLOT(zoomOrig()));
-
-    menuEdit->clear();
-    menuText->clear();
 
     FB2DELETE(toolEdit);
     QToolBar *tool = toolEdit = addToolBar(tr("Edit"));
@@ -565,16 +647,12 @@ void Fb2MainWindow::viewText()
     tool->addSeparator();
 
     QAction *act;
-    QMenu *menu;
-
-    menu = menuEdit;
 
     act = textEdit->pageAction(QWebPage::Undo);
     act->setIcon(icon("edit-undo"));
     act->setText(tr("&Undo"));
     act->setPriority(QAction::LowPriority);
     act->setShortcut(QKeySequence::Undo);
-    menu->addAction(act);
     tool->addAction(act);
 
     act = textEdit->pageAction(QWebPage::Redo);
@@ -582,10 +660,8 @@ void Fb2MainWindow::viewText()
     act->setText(tr("&Redo"));
     act->setPriority(QAction::LowPriority);
     act->setShortcut(QKeySequence::Redo);
-    menu->addAction(act);
     tool->addAction(act);
 
-    menu->addSeparator();
     tool->addSeparator();
 
     act = textEdit->pageAction(QWebPage::Cut);
@@ -594,7 +670,6 @@ void Fb2MainWindow::viewText()
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Cut);
     act->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
-    menu->addAction(act);
     tool->addAction(act);
 
     act = textEdit->pageAction(QWebPage::Copy);
@@ -603,7 +678,6 @@ void Fb2MainWindow::viewText()
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Copy);
     act->setStatusTip(tr("Copy the current selection's contents to the clipboard"));
-    menu->addAction(act);
     tool->addAction(act);
 
     act = textEdit->pageAction(QWebPage::Paste);
@@ -612,43 +686,35 @@ void Fb2MainWindow::viewText()
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Paste);
     act->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
-    menu->addAction(act);
     tool->addAction(act);
 
     tool->addSeparator();
-
-    menu = menuText;
 
     act = textEdit->pageAction(QWebPage::ToggleBold);
     act->setIcon(icon("format-text-bold"));
     act->setText(tr("&Bold"));
     act->setShortcuts(QKeySequence::Bold);
-    menu->addAction(act);
     tool->addAction(act);
 
     act = textEdit->pageAction(QWebPage::ToggleItalic);
     act->setIcon(icon("format-text-italic"));
     act->setText(tr("&Italic"));
     act->setShortcuts(QKeySequence::Italic);
-    menu->addAction(act);
     tool->addAction(act);
 
     act = textEdit->pageAction(QWebPage::ToggleStrikethrough);
     act->setIcon(icon("format-text-strikethrough"));
     act->setText(tr("&Strikethrough"));
-    menu->addAction(act);
     tool->addAction(act);
 
     act = textEdit->pageAction(QWebPage::ToggleSuperscript);
     act->setIcon(icon("format-text-superscript"));
     act->setText(tr("Superscript"));
-    menu->addAction(act);
     tool->addAction(act);
 
     act = textEdit->pageAction(QWebPage::ToggleSubscript);
     act->setIcon(icon("format-text-subscript"));
     act->setText(tr("Subscript"));
-    menu->addAction(act);
     tool->addAction(act);
 
     tool->addSeparator();
@@ -656,9 +722,6 @@ void Fb2MainWindow::viewText()
     tool->addAction(actionZoomIn);
     tool->addAction(actionZoomOut);
     tool->addAction(actionZoomOrig);
-
-    act = textEdit->pageAction(QWebPage::InspectElement);
-    menuView->addAction(act);
 }
 
 void Fb2MainWindow::viewHead()
@@ -667,29 +730,29 @@ void Fb2MainWindow::viewHead()
     FB2DELETE(dockTree);
     FB2DELETE(qsciEdit);
     FB2DELETE(toolEdit);
-    menuEdit->clear();
-    menuText->clear();
     createHead();
+
+    if (textEdit) {
+        actionUndo->disconnect();
+        actionRedo->disconnect();
+
+        actionCut->disconnect();
+        actionCopy->disconnect();
+        actionPaste->disconnect();
+
+        actionTextBold->disconnect();
+        actionTextItalic->disconnect();
+        actionTextStrike->disconnect();
+        actionTextSub->disconnect();
+        actionTextSup->disconnect();
+    }
 
     FB2DELETE(toolEdit);
     QToolBar *tool = toolEdit = addToolBar(tr("Edit"));
+    tool->addAction(actionInsert);
+    tool->addAction(actionDelete);
     tool->setMovable(false);
     tool->addSeparator();
-
-    QAction *act;
-    QMenu *menu = menuEdit;
-
-    act = new QAction(icon("list-add"), tr("Insert"), this);
-    act->setPriority(QAction::LowPriority);
-    act->setShortcuts(QKeySequence::New);
-    menu->addAction(act);
-    tool->addAction(act);
-
-    act = new QAction(icon("list-remove"), tr("Delete"), this);
-    act->setPriority(QAction::LowPriority);
-    act->setShortcuts(QKeySequence::Delete);
-    menu->addAction(act);
-    tool->addAction(act);
 }
 
 void Fb2MainWindow::viewTree()
@@ -701,11 +764,9 @@ void Fb2MainWindow::viewTree()
 
 void Fb2MainWindow::clipboardDataChanged()
 {
-/*
     if (const QMimeData *md = QApplication::clipboard()->mimeData()) {
         actionPaste->setEnabled(md->hasText());
     }
-*/
 }
 
 void Fb2MainWindow::showInspector()
