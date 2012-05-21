@@ -440,6 +440,15 @@ void Fb2MainWindow::loadFinished(bool ok)
 
 void Fb2MainWindow::selectionChanged()
 {
+    actionCut->setEnabled(textEdit->CutEnabled());
+    actionCopy->setEnabled(textEdit->CopyEnabled());
+
+    actionTextBold->setChecked(textEdit->BoldChecked());
+    actionTextItalic->setChecked(textEdit->ItalicChecked());
+    actionTextStrike->setChecked(textEdit->StrikeChecked());
+    actionTextSub->setChecked(textEdit->SubChecked());
+    actionTextSup->setChecked(textEdit->SupChecked());
+
 //    QString script = "document.getSelection().baseNode.parentNode.tagName";
 //    qCritical() << textEdit->page()->mainFrame()->evaluateJavaScript(script).toString();
 }
@@ -619,7 +628,7 @@ void Fb2MainWindow::viewText()
     viewTree();
 
     connect(textEdit->page(), SIGNAL(contentsChanged()), SLOT(documentWasModified()));
-    connect(textEdit, SIGNAL(selectionChanged()), SLOT(selectionChanged()));
+    connect(textEdit->page(), SIGNAL(selectionChanged()), SLOT(selectionChanged()));
     connect(textEdit, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
 
     connect(textEdit->pageAction(QWebPage::Undo), SIGNAL(changed()), SLOT(undoChanged()));

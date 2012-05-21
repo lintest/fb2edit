@@ -41,10 +41,11 @@ OTHER_FILES += res/style.css \
 if (win32) {
 
     INCLUDEPATH += ../libxml2/include
-    LIBS += -L../libxml2/lib -llibxml2
-
     INCLUDEPATH += ../iconv/include
+
+    LIBS += -L../libxml2/lib -llibxml2
     LIBS += -L../iconv/lib -liconv
+    LIBS += -L../zlib/lib -lzlib
 
 } else {
 

@@ -43,10 +43,18 @@ bool Fb2ReadThread::parse()
     }
     QXmlStreamWriter writer(&m_html);
     Fb2ReadHandler handler(*this, writer);
+#ifdef _WIN32
+    QXmlSimpleReader reader;
+    reader.setContentHandler(&handler);
+    reader.setErrorHandler(&handler);
+    QXmlInputSource source(&file);
+    return reader.parse(source);
+#else
     XML2::XmlReader reader;
     reader.setContentHandler(&handler);
     reader.setErrorHandler(&handler);
     return reader.parse(file);
+#endif
 }
 
 //---------------------------------------------------------------------------
