@@ -56,6 +56,7 @@ private slots:
     void undoChanged();
     void redoChanged();
     void showInspector();
+    void zoomOrig();
 
 private:
     bool loadXML(const QString &filename);

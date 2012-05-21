@@ -189,10 +189,12 @@ void Fb2MainWindow::documentWasModified()
     if (isWindowModified()) return;
     QFileInfo info = windowFilePath();
     QString title = info.fileName();
-    if (textEdit && textEdit->isModified()) title += QString("[*]");
+    title += QString("[*]");
     title += QString(" - ") += qApp->applicationName();
     setWindowTitle(title);
     setWindowModified(true);
+    if (qsciEdit) disconnect(qsciEdit, SIGNAL(textChanged()), this, SLOT(documentWasModified()));
+    if (textEdit) disconnect(textEdit->page(), SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
 }
 
 QIcon Fb2MainWindow::icon(const QString &name)
@@ -470,6 +472,7 @@ void Fb2MainWindow::createQsci()
 
     if (qsciEdit) return;
     qsciEdit = new QsciScintilla;
+    qsciEdit->zoomTo(1);
     qsciEdit->setUtf8(true);
     qsciEdit->setCaretLineVisible(true);
     qsciEdit->setCaretLineBackgroundColor(QColor("gainsboro"));
@@ -507,8 +510,6 @@ void Fb2MainWindow::createQsci()
 
     setCentralWidget(qsciEdit);
     qsciEdit->setFocus();
-
-    //    connect(qsciEdit, SIGNAL(textChanged()), this, SLOT(documentWasModified()));
 }
 
 void Fb2MainWindow::createStatusBar()
@@ -602,6 +603,11 @@ Fb2MainWindow *Fb2MainWindow::findFb2MainWindow(const QString &fileName)
     return 0;
 }
 
+void Fb2MainWindow::zoomOrig()
+{
+    if (qsciEdit) qsciEdit->zoomTo(1);
+}
+
 void Fb2MainWindow::viewQsci()
 {
     if (centralWidget() == qsciEdit) return;
@@ -610,9 +616,21 @@ void Fb2MainWindow::viewQsci()
     FB2DELETE(textEdit);
     FB2DELETE(dockTree);
     FB2DELETE(headTree);
-    FB2DELETE(toolEdit);
     createQsci();
     qsciEdit->setText(xml);
+
+    FB2DELETE(toolEdit);
+    QToolBar *tool = toolEdit = addToolBar(tr("Edit"));
+    tool->addSeparator();
+    tool->addAction(actionZoomIn);
+    tool->addAction(actionZoomOut);
+    tool->addAction(actionZoomOrig);
+    tool->setMovable(false);
+
+    connect(qsciEdit, SIGNAL(textChanged()), this, SLOT(documentWasModified()));
+    connect(actionZoomIn, SIGNAL(triggered()), qsciEdit, SLOT(zoomIn()));
+    connect(actionZoomOut, SIGNAL(triggered()), qsciEdit, SLOT(zoomOut()));
+    connect(actionZoomOrig, SIGNAL(triggered()), this, SLOT(zoomOrig()));
 }
 
 void Fb2MainWindow::viewText()
@@ -758,10 +776,10 @@ void Fb2MainWindow::viewHead()
 
     FB2DELETE(toolEdit);
     QToolBar *tool = toolEdit = addToolBar(tr("Edit"));
+    tool->addSeparator();
     tool->addAction(actionInsert);
     tool->addAction(actionDelete);
     tool->setMovable(false);
-    tool->addSeparator();
 }
 
 void Fb2MainWindow::viewTree()
