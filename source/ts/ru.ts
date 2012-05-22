@@ -4,7 +4,87 @@
 <context>
     <name>Fb2HeadItem</name>
     <message>
-        <location filename="../fb2head.cpp" line="85"/>
+        <location filename="../fb2head.cpp" line="11"/>
+        <source>Book</source>
+        <translation type="unfinished">Книга</translation>
+    </message>
+    <message>
+        <location filename="../fb2head.cpp" line="12"/>
+        <source>File</source>
+        <translation type="unfinished">Файл</translation>
+    </message>
+    <message>
+        <location filename="../fb2head.cpp" line="13"/>
+        <source>Publish</source>
+        <translation type="unfinished">Публикация</translation>
+    </message>
+    <message>
+        <location filename="../fb2head.cpp" line="14"/>
+        <source>Add-ons</source>
+        <translation type="unfinished">Дополнения</translation>
+    </message>
+    <message>
+        <location filename="../fb2head.cpp" line="15"/>
+        <source>Genre</source>
+        <translation type="unfinished">Жанр</translation>
+    </message>
+    <message>
+        <location filename="../fb2head.cpp" line="16"/>
+        <source>Author</source>
+        <translation type="unfinished">Автор</translation>
+    </message>
+    <message>
+        <location filename="../fb2head.cpp" line="17"/>
+        <source>Title</source>
+        <translation type="unfinished">Заголовок</translation>
+    </message>
+    <message>
+        <location filename="../fb2head.cpp" line="18"/>
+        <source>Annotation</source>
+        <translation type="unfinished">Аннотация</translation>
+    </message>
+    <message>
+        <location filename="../fb2head.cpp" line="19"/>
+        <source>Cover</source>
+        <translation type="unfinished">Обложка</translation>
+    </message>
+    <message>
+        <location filename="../fb2head.cpp" line="20"/>
+        <source>Date</source>
+        <translation type="unfinished">Дата</translation>
+    </message>
+    <message>
+        <location filename="../fb2head.cpp" line="21"/>
+        <source>Language</source>
+        <translation type="unfinished">Язык</translation>
+    </message>
+    <message>
+        <location filename="../fb2head.cpp" line="22"/>
+        <source>Translator</source>
+        <translation type="unfinished">Переводчик</translation>
+    </message>
+    <message>
+        <location filename="../fb2head.cpp" line="23"/>
+        <source>Sequence</source>
+        <translation type="unfinished">Серия</translation>
+    </message>
+    <message>
+        <location filename="../fb2head.cpp" line="24"/>
+        <source>First name</source>
+        <translation type="unfinished">Имя</translation>
+    </message>
+    <message>
+        <location filename="../fb2head.cpp" line="25"/>
+        <source>Middle name</source>
+        <translation type="unfinished">Отчество</translation>
+    </message>
+    <message>
+        <location filename="../fb2head.cpp" line="26"/>
+        <source>Last name</source>
+        <translation type="unfinished">Фамилия</translation>
+    </message>
+    <message>
+        <location filename="../fb2head.cpp" line="113"/>
         <source>#</source>
         <translation>№</translation>
     </message>
@@ -12,17 +92,12 @@
 <context>
     <name>Fb2HeadModel</name>
     <message>
-        <location filename="../fb2head.cpp" line="178"/>
-        <source>Tag</source>
-        <translation>Ключ</translation>
+        <location filename="../fb2head.cpp" line="206"/>
+        <source>Key</source>
+        <translation type="unfinished">Ключ</translation>
     </message>
     <message>
-        <location filename="../fb2head.cpp" line="179"/>
-        <source>Description</source>
-        <translation>Описание</translation>
-    </message>
-    <message>
-        <location filename="../fb2head.cpp" line="180"/>
+        <location filename="../fb2head.cpp" line="207"/>
         <source>Value</source>
         <translation>Значение</translation>
     </message>
@@ -55,145 +130,180 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="214"/>
+        <location filename="../fb2main.cpp" line="216"/>
         <source>&amp;File</source>
         <translation>&amp;Файл</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="215"/>
+        <location filename="../fb2main.cpp" line="217"/>
         <source>File</source>
         <translation>Файл</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="218"/>
+        <location filename="../fb2main.cpp" line="220"/>
         <source>&amp;New</source>
         <translation>&amp;Новый</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="221"/>
+        <location filename="../fb2main.cpp" line="223"/>
         <source>Create a new file</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="226"/>
+        <location filename="../fb2main.cpp" line="228"/>
         <source>&amp;Open...</source>
         <translation>&amp;Открыть...</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="228"/>
+        <location filename="../fb2main.cpp" line="230"/>
         <source>Open an existing file</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="233"/>
+        <location filename="../fb2main.cpp" line="235"/>
         <source>&amp;Save</source>
         <translation>&amp;Сохранить</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="235"/>
+        <location filename="../fb2main.cpp" line="237"/>
         <source>Save the document to disk</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="240"/>
+        <location filename="../fb2main.cpp" line="242"/>
         <source>Save &amp;As...</source>
         <translation>Сохрать &amp;как...</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="242"/>
+        <location filename="../fb2main.cpp" line="244"/>
         <source>Save the document under a new name</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="248"/>
+        <location filename="../fb2main.cpp" line="250"/>
         <source>&amp;Close</source>
         <translation>&amp;Закрыть</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="250"/>
+        <location filename="../fb2main.cpp" line="252"/>
         <source>Close this window</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="254"/>
+        <location filename="../fb2main.cpp" line="256"/>
         <source>E&amp;xit</source>
         <translation>&amp;Выход</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="256"/>
+        <location filename="../fb2main.cpp" line="258"/>
         <source>Exit the application</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="260"/>
+        <location filename="../fb2main.cpp" line="262"/>
         <source>&amp;Edit</source>
         <translation>&amp;Правка</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="582"/>
+        <location filename="../fb2main.cpp" line="303"/>
+        <source>Insert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../fb2main.cpp" line="308"/>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../fb2main.cpp" line="618"/>
+        <location filename="../fb2main.cpp" line="690"/>
+        <location filename="../fb2main.cpp" line="820"/>
         <source>Edit</source>
         <translation>Правка</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="595"/>
+        <location filename="../fb2main.cpp" line="740"/>
+        <source>&amp;Bold</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../fb2main.cpp" line="746"/>
+        <source>&amp;Italic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../fb2main.cpp" line="752"/>
+        <source>&amp;Strikethrough</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../fb2main.cpp" line="266"/>
+        <location filename="../fb2main.cpp" line="698"/>
         <source>&amp;Undo</source>
         <translation>&amp;Отменить</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="603"/>
+        <location filename="../fb2main.cpp" line="272"/>
+        <location filename="../fb2main.cpp" line="705"/>
         <source>&amp;Redo</source>
         <translation>&amp;Повторить</translation>
     </message>
     <message>
         <source>Undo</source>
-        <translation>Отменить</translation>
+        <translation type="obsolete">Отменить</translation>
     </message>
     <message>
         <source>Redo</source>
-        <translation>Повторить</translation>
+        <translation type="obsolete">Повторить</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="614"/>
+        <location filename="../fb2main.cpp" line="280"/>
+        <location filename="../fb2main.cpp" line="714"/>
         <source>Cu&amp;t</source>
         <translation>Вы&amp;резать</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="617"/>
+        <location filename="../fb2main.cpp" line="283"/>
+        <location filename="../fb2main.cpp" line="717"/>
         <source>Cut the current selection&apos;s contents to the clipboard</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="623"/>
+        <location filename="../fb2main.cpp" line="287"/>
+        <location filename="../fb2main.cpp" line="722"/>
         <source>&amp;Copy</source>
         <translation>&amp;Копировать</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="626"/>
+        <location filename="../fb2main.cpp" line="290"/>
+        <location filename="../fb2main.cpp" line="725"/>
         <source>Copy the current selection&apos;s contents to the clipboard</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="630"/>
+        <location filename="../fb2main.cpp" line="294"/>
+        <location filename="../fb2main.cpp" line="730"/>
         <source>&amp;Paste</source>
         <translation>&amp;Вставить</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="633"/>
+        <location filename="../fb2main.cpp" line="297"/>
+        <location filename="../fb2main.cpp" line="733"/>
         <source>Paste the clipboard&apos;s contents into the current selection</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="261"/>
+        <location filename="../fb2main.cpp" line="313"/>
         <source>Fo&amp;rmat</source>
         <translation>Фо&amp;рмат</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="300"/>
+        <location filename="../fb2main.cpp" line="380"/>
         <source>&amp;Contents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="304"/>
+        <location filename="../fb2main.cpp" line="384"/>
         <source>&amp;Web inspector</source>
         <translation type="unfinished"></translation>
     </message>
@@ -202,107 +312,109 @@
         <translation type="obsolete">Формат</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="642"/>
+        <location filename="../fb2main.cpp" line="315"/>
         <source>Bold</source>
-        <translation></translation>
+        <translation>Жирный</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="648"/>
+        <location filename="../fb2main.cpp" line="320"/>
         <source>Italic</source>
-        <translation></translation>
+        <translation>Курсиы</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="654"/>
+        <location filename="../fb2main.cpp" line="325"/>
         <source>Strikethrough</source>
-        <translation></translation>
+        <translation>Зачеркнутый</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="659"/>
+        <location filename="../fb2main.cpp" line="329"/>
+        <location filename="../fb2main.cpp" line="757"/>
         <source>Superscript</source>
-        <translation></translation>
+        <translation>Верхний индекс</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="664"/>
+        <location filename="../fb2main.cpp" line="333"/>
+        <location filename="../fb2main.cpp" line="762"/>
         <source>Subscript</source>
-        <translation></translation>
+        <translation>Нижний индекс</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="262"/>
+        <location filename="../fb2main.cpp" line="337"/>
         <source>&amp;View</source>
         <translation>&amp;Вид</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="266"/>
+        <location filename="../fb2main.cpp" line="343"/>
         <source>&amp;Text</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="273"/>
+        <location filename="../fb2main.cpp" line="351"/>
         <source>&amp;Head</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="279"/>
+        <location filename="../fb2main.cpp" line="358"/>
         <source>&amp;XML</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="287"/>
+        <location filename="../fb2main.cpp" line="367"/>
         <source>Zoom in</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="291"/>
+        <location filename="../fb2main.cpp" line="371"/>
         <source>Zoom out</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="295"/>
+        <location filename="../fb2main.cpp" line="375"/>
         <source>Zoom original</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="309"/>
+        <location filename="../fb2main.cpp" line="389"/>
         <source>&amp;Help</source>
         <translation>&amp;?</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="311"/>
+        <location filename="../fb2main.cpp" line="391"/>
         <source>&amp;About</source>
         <translation>&amp;О программа...</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="312"/>
+        <location filename="../fb2main.cpp" line="392"/>
         <source>Show the application&apos;s About box</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="316"/>
+        <location filename="../fb2main.cpp" line="396"/>
         <source>About &amp;Qt</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="317"/>
+        <location filename="../fb2main.cpp" line="397"/>
         <source>Show the Qt library&apos;s About box</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="329"/>
+        <location filename="../fb2main.cpp" line="409"/>
         <source>Contents</source>
         <translation>Содержание</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="465"/>
+        <location filename="../fb2main.cpp" line="505"/>
         <source>Ready</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="489"/>
+        <location filename="../fb2main.cpp" line="529"/>
         <source>The document has been modified. Do you want to save your changes?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="504"/>
+        <location filename="../fb2main.cpp" line="544"/>
         <source>Cannot write file %1: %2.</source>
         <translation></translation>
     </message>
@@ -310,12 +422,13 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../fb2read.cpp" line="41"/>
+        <location filename="../fb2read.cpp" line="51"/>
+        <location filename="../fb2read.cpp" line="73"/>
         <source>Cannot read file %1: %2.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2read.cpp" line="377"/>
+        <location filename="../fb2read.cpp" line="386"/>
         <source>The file is not an FB2 file.</source>
         <translation></translation>
     </message>
@@ -327,7 +440,7 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2save.cpp" line="275"/>
+        <location filename="../fb2save.cpp" line="269"/>
         <source>The tag &lt;body&gt; was not found.</source>
         <translation type="unfinished"></translation>
     </message>

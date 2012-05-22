@@ -52,8 +52,16 @@ public:
     }
 
 private:
+    class HintHash : public QHash<QString, QString>
+    {
+    public:
+        explicit HintHash();
+    };
+
+private:
     void addChildren(QWebElement &parent);
     QString value() const;
+    QString hint() const;
 
 private:
     QList<Fb2HeadItem*> m_list;

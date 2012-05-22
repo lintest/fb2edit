@@ -6,6 +6,27 @@
 #include <QWebView>
 #include <QTreeView>
 
+Fb2HeadItem::HintHash::HintHash()
+{
+    insert( "title-info"    , tr( "Book"        ));
+    insert( "document-info" , tr( "File"        ));
+    insert( "publish-info"  , tr( "Publish"     ));
+    insert( "custom-info"   , tr( "Add-ons"     ));
+    insert( "genre"         , tr( "Genre"       ));
+    insert( "author"        , tr( "Author"      ));
+    insert( "book-title"    , tr( "Title"       ));
+    insert( "annotation"    , tr( "Annotation"  ));
+    insert( "coverpage"     , tr( "Cover"       ));
+    insert( "date"          , tr( "Date"        ));
+    insert( "lang"          , tr( "Language"    ));
+    insert( "translator"    , tr( "Translator"  ));
+    insert( "sequence"      , tr( "Sequence"    ));
+    insert( "first-name"    , tr( "First name"  ));
+    insert( "middle-name"   , tr( "Middle name" ));
+    insert( "last-name"     , tr( "Last name"   ));
+    insert( "history"       , tr( "History"     ));
+}
+
 FB2_BEGIN_KEYHASH(Fb2HeadItem)
     FB2_KEY( Image  , "img"       );
     FB2_KEY( Seqn   , "sequence"  );
@@ -66,10 +87,18 @@ Fb2HeadItem * Fb2HeadItem::item(int row) const
 QString Fb2HeadItem::text(int col) const
 {
     switch (col) {
-        case 0: return QString("<%1>").arg(m_name);
-        case 2: if (m_list.count() == 0) return value();
+        case 0: return QString("<%1> %2").arg(m_name).arg(hint());
+        case 1: if (m_list.count() == 0) return value();
     }
     return QString();
+}
+
+QString Fb2HeadItem::hint() const
+{
+    static HintHash hints;
+    HintHash::const_iterator it = hints.find(m_name);
+    if (it == hints.end()) return QString();
+    return it.value();
 }
 
 QString Fb2HeadItem::value() const
@@ -131,7 +160,7 @@ Fb2HeadItem * Fb2HeadModel::item(const QModelIndex &index) const
 int Fb2HeadModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return 3;
+    return 2;
 }
 
 QModelIndex Fb2HeadModel::index(int row, int column, const QModelIndex &parent) const
@@ -175,9 +204,8 @@ QVariant Fb2HeadModel::headerData(int section, Qt::Orientation orientation, int 
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
-            case 0: return tr("Tag");
-            case 1: return tr("Description");
-            case 2: return tr("Value");
+            case 0: return tr("Key");
+            case 1: return tr("Value");
         }
     }
     return QVariant();
