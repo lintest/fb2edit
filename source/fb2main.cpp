@@ -476,7 +476,14 @@ void Fb2MainWindow::selectionChanged()
     actionTextSub->setChecked(textEdit->SubChecked());
     actionTextSup->setChecked(textEdit->SupChecked());
 
-    QString script = "document.getSelection().baseNode.parentNode.tagName";
+    QString script = "\
+    (f = function(node){\
+        var tag = node.tagName;\
+        if (tag == 'BODY') return '';\
+        if (tag == 'DIV') tag = node.getAttribute('CLASS');\
+        return f(node.parentNode) + '/' + tag;\
+    })(document.getSelection().baseNode.parentNode);";
+
     QString message = textEdit->page()->mainFrame()->evaluateJavaScript(script).toString();
     statusBar()->showMessage(message);
 }
