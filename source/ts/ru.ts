@@ -84,7 +84,12 @@
         <translation type="unfinished">Фамилия</translation>
     </message>
     <message>
-        <location filename="../fb2head.cpp" line="113"/>
+        <location filename="../fb2head.cpp" line="27"/>
+        <source>History</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../fb2head.cpp" line="129"/>
         <source>#</source>
         <translation>№</translation>
     </message>
@@ -92,12 +97,12 @@
 <context>
     <name>Fb2HeadModel</name>
     <message>
-        <location filename="../fb2head.cpp" line="206"/>
+        <location filename="../fb2head.cpp" line="231"/>
         <source>Key</source>
         <translation type="unfinished">Ключ</translation>
     </message>
     <message>
-        <location filename="../fb2head.cpp" line="207"/>
+        <location filename="../fb2head.cpp" line="232"/>
         <source>Value</source>
         <translation>Значение</translation>
     </message>
@@ -215,36 +220,36 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="618"/>
-        <location filename="../fb2main.cpp" line="690"/>
-        <location filename="../fb2main.cpp" line="820"/>
+        <location filename="../fb2main.cpp" line="616"/>
+        <location filename="../fb2main.cpp" line="697"/>
+        <location filename="../fb2main.cpp" line="827"/>
         <source>Edit</source>
         <translation>Правка</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="740"/>
+        <location filename="../fb2main.cpp" line="747"/>
         <source>&amp;Bold</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="746"/>
+        <location filename="../fb2main.cpp" line="753"/>
         <source>&amp;Italic</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="752"/>
+        <location filename="../fb2main.cpp" line="759"/>
         <source>&amp;Strikethrough</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../fb2main.cpp" line="266"/>
-        <location filename="../fb2main.cpp" line="698"/>
+        <location filename="../fb2main.cpp" line="705"/>
         <source>&amp;Undo</source>
         <translation>&amp;Отменить</translation>
     </message>
     <message>
         <location filename="../fb2main.cpp" line="272"/>
-        <location filename="../fb2main.cpp" line="705"/>
+        <location filename="../fb2main.cpp" line="712"/>
         <source>&amp;Redo</source>
         <translation>&amp;Повторить</translation>
     </message>
@@ -258,37 +263,37 @@
     </message>
     <message>
         <location filename="../fb2main.cpp" line="280"/>
-        <location filename="../fb2main.cpp" line="714"/>
+        <location filename="../fb2main.cpp" line="721"/>
         <source>Cu&amp;t</source>
         <translation>Вы&amp;резать</translation>
     </message>
     <message>
         <location filename="../fb2main.cpp" line="283"/>
-        <location filename="../fb2main.cpp" line="717"/>
+        <location filename="../fb2main.cpp" line="724"/>
         <source>Cut the current selection&apos;s contents to the clipboard</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../fb2main.cpp" line="287"/>
-        <location filename="../fb2main.cpp" line="722"/>
+        <location filename="../fb2main.cpp" line="729"/>
         <source>&amp;Copy</source>
         <translation>&amp;Копировать</translation>
     </message>
     <message>
         <location filename="../fb2main.cpp" line="290"/>
-        <location filename="../fb2main.cpp" line="725"/>
+        <location filename="../fb2main.cpp" line="732"/>
         <source>Copy the current selection&apos;s contents to the clipboard</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../fb2main.cpp" line="294"/>
-        <location filename="../fb2main.cpp" line="730"/>
+        <location filename="../fb2main.cpp" line="737"/>
         <source>&amp;Paste</source>
         <translation>&amp;Вставить</translation>
     </message>
     <message>
         <location filename="../fb2main.cpp" line="297"/>
-        <location filename="../fb2main.cpp" line="733"/>
+        <location filename="../fb2main.cpp" line="740"/>
         <source>Paste the clipboard&apos;s contents into the current selection</source>
         <translation></translation>
     </message>
@@ -319,7 +324,7 @@
     <message>
         <location filename="../fb2main.cpp" line="320"/>
         <source>Italic</source>
-        <translation>Курсиы</translation>
+        <translation>Курсив</translation>
     </message>
     <message>
         <location filename="../fb2main.cpp" line="325"/>
@@ -328,13 +333,13 @@
     </message>
     <message>
         <location filename="../fb2main.cpp" line="329"/>
-        <location filename="../fb2main.cpp" line="757"/>
+        <location filename="../fb2main.cpp" line="764"/>
         <source>Superscript</source>
         <translation>Верхний индекс</translation>
     </message>
     <message>
         <location filename="../fb2main.cpp" line="333"/>
-        <location filename="../fb2main.cpp" line="762"/>
+        <location filename="../fb2main.cpp" line="769"/>
         <source>Subscript</source>
         <translation>Нижний индекс</translation>
     </message>
@@ -404,17 +409,17 @@
         <translation>Содержание</translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="505"/>
+        <location filename="../fb2main.cpp" line="504"/>
         <source>Ready</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="529"/>
+        <location filename="../fb2main.cpp" line="528"/>
         <source>The document has been modified. Do you want to save your changes?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../fb2main.cpp" line="544"/>
+        <location filename="../fb2main.cpp" line="543"/>
         <source>Cannot write file %1: %2.</source>
         <translation></translation>
     </message>
