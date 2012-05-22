@@ -16,7 +16,7 @@ class Fb2BaseWebView : public QWebView
 
 public:
     Fb2BaseWebView(QWidget* parent = 0)
-        : QWebView(parent), m_empty(true)
+        : QWebView(parent)
     {
           m_timer.setInterval(100);
           m_timer.setSingleShot(true);
@@ -32,13 +32,9 @@ protected slots:
 
 protected:
      void resizeEvent(QResizeEvent* event) {
-          if (m_empty) return QWebView::resizeEvent(event);
           if (!m_timer.isActive()) m_size = event->oldSize();
           m_timer.start();
      }
-
-protected:
-    bool m_empty;
 
 private:
     QTimer m_timer;
@@ -62,7 +58,7 @@ class Fb2WebView : public Fb2BaseWebView
 public:
     explicit Fb2WebView(QWidget *parent = 0);
     virtual ~Fb2WebView();
-    void load(const QString &filename);
+    void load(const QString &filename, const QString &xml = QString());
     bool save(QIODevice *device);
     bool save(QString *string);
     QString fileName(const QString &path);

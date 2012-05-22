@@ -8,10 +8,11 @@
 //  Fb2ReadThread
 //---------------------------------------------------------------------------
 
-Fb2ReadThread::Fb2ReadThread(QObject *parent, const QString &filename)
+Fb2ReadThread::Fb2ReadThread(QObject *parent, const QString &filename, const QString &xml)
     : QThread(parent)
     , m_filename(filename)
     , m_abort(false)
+    , m_xml(xml)
 {
     connect(this, SIGNAL(html(QString, QString)), parent, SLOT(html(QString, QString)));
 }
@@ -36,25 +37,34 @@ void Fb2ReadThread::run()
 
 bool Fb2ReadThread::parse()
 {
-    QFile file(m_filename);
-    if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        qCritical() << QObject::tr("Cannot read file %1: %2.").arg(m_filename).arg(file.errorString());
-        return false;
-    }
     QXmlStreamWriter writer(&m_html);
     Fb2ReadHandler handler(*this, writer);
-#ifdef _WIN32
-    QXmlSimpleReader reader;
-    reader.setContentHandler(&handler);
-    reader.setErrorHandler(&handler);
-    QXmlInputSource source(&file);
-    return reader.parse(source);
-#else
-    XML2::XmlReader reader;
-    reader.setContentHandler(&handler);
-    reader.setErrorHandler(&handler);
-    return reader.parse(file);
-#endif
+    if (m_xml.isEmpty()) {
+        QFile file(m_filename);
+        if (!file.open(QFile::ReadOnly | QFile::Text)) {
+            qCritical() << QObject::tr("Cannot read file %1: %2.").arg(m_filename).arg(file.errorString());
+            return false;
+        }
+        #ifdef _WIN32
+            QXmlSimpleReader reader;
+            reader.setContentHandler(&handler);
+            reader.setErrorHandler(&handler);
+            QXmlInputSource source(&file);
+            return reader.parse(source);
+        #else
+            XML2::XmlReader reader;
+            reader.setContentHandler(&handler);
+            reader.setErrorHandler(&handler);
+            return reader.parse(file);
+        #endif
+    } else {
+        QXmlSimpleReader reader;
+        reader.setContentHandler(&handler);
+        reader.setErrorHandler(&handler);
+        QXmlInputSource source;
+        source.setData(m_xml);
+        return reader.parse(source);
+    }
 }
 
 //---------------------------------------------------------------------------

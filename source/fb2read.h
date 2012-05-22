@@ -13,7 +13,7 @@ class Fb2ReadThread : public QThread
     Q_OBJECT
 
 public:
-    Fb2ReadThread(QObject *parent, const QString &filename);
+    Fb2ReadThread(QObject *parent, const QString &filename, const QString &xml = QString());
     ~Fb2ReadThread();
     QString * data() { return &m_html; }
 
@@ -31,6 +31,7 @@ private:
 
 private:
     const QString m_filename;
+    const QString m_xml;
     QString m_html;
     bool m_abort;
     QMutex mutex;

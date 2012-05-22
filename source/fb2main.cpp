@@ -413,31 +413,18 @@ void Fb2MainWindow::createTree()
     treeView->setFocus();
 }
 
-void Fb2MainWindow::createHead()
+void Fb2MainWindow::loadFinished(bool ok)
 {
-    if (headTree) return;
-    headTree = new QTreeView(this);
-    headTree->header()->setDefaultSectionSize(200);
-    if (textEdit) {
-        this->setFocus();
-        textEdit->setParent(NULL);
-        setCentralWidget(headTree);
-        textEdit->setParent(this);
+    if (headTree) {
         Fb2HeadModel *model = new Fb2HeadModel(*textEdit, treeView);
         headTree->setModel(model);
         model->expand(headTree);
-    } else {
-        setCentralWidget(headTree);
     }
-    headTree->setFocus();
-}
-
-void Fb2MainWindow::loadFinished(bool ok)
-{
-    if (!treeView) return ;
-    Fb2TreeModel *model = new Fb2TreeModel(*textEdit, treeView);
-    treeView->setModel(model);
-    model->expand(treeView);
+    if (treeView) {
+        Fb2TreeModel *model = new Fb2TreeModel(*textEdit, treeView);
+        treeView->setModel(model);
+        model->expand(treeView);
+    }
 }
 
 void Fb2MainWindow::selectionChanged()
@@ -662,6 +649,8 @@ void Fb2MainWindow::viewQsci()
 void Fb2MainWindow::viewText()
 {
     if (centralWidget() == textEdit) return;
+    QString xml;
+    if (qsciEdit) xml = qsciEdit->text();
     FB2DELETE(qsciEdit);
     FB2DELETE(headTree);
     if (!textEdit) {
@@ -693,6 +682,8 @@ void Fb2MainWindow::viewText()
     connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
     connect(actionZoomOrig, SIGNAL(triggered()), textEdit, SLOT(zoomOrig()));
+
+    if (!xml.isEmpty()) textEdit->load(curFile, xml);
 
     FB2DELETE(toolEdit);
     QToolBar *tool = toolEdit = addToolBar(tr("Edit"));
@@ -780,10 +771,34 @@ void Fb2MainWindow::viewText()
 void Fb2MainWindow::viewHead()
 {
     if (centralWidget() == headTree) return;
+
+    QString xml;
+    if (qsciEdit) xml = qsciEdit->text();
+
     FB2DELETE(dockTree);
     FB2DELETE(qsciEdit);
     FB2DELETE(toolEdit);
-    createHead();
+
+    if (!headTree) {
+        headTree = new QTreeView(this);
+        headTree->header()->setDefaultSectionSize(200);
+    }
+    if (textEdit) {
+        this->setFocus();
+        textEdit->setParent(NULL);
+        setCentralWidget(headTree);
+        textEdit->setParent(this);
+        Fb2HeadModel *model = new Fb2HeadModel(*textEdit, treeView);
+        headTree->setModel(model);
+        model->expand(headTree);
+    } else {
+        textEdit = new Fb2WebView(this);
+        connect(textEdit, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
+        setCentralWidget(headTree);
+    }
+    headTree->setFocus();
+
+    if (!xml.isEmpty()) textEdit->load(curFile, xml);
 
     if (textEdit) {
         actionUndo->disconnect();

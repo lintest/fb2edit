@@ -73,7 +73,6 @@ QString Fb2WebView::toBodyXml()
 
 void Fb2WebView::fixContents()
 {
-    m_empty = false;
     foreach (QWebElement span, doc().findAll("span.apple-style-span[style]")) {
         span.removeAttribute("style");
     }
@@ -84,11 +83,10 @@ void Fb2WebView::linkHovered(const QString &link, const QString &title, const QS
     QToolTip::showText(QPoint(100, 100), link);
 }
 
-void Fb2WebView::load(const QString &filename)
+void Fb2WebView::load(const QString &filename, const QString &xml)
 {
-    m_empty = false;
     if (m_thread) return;
-    m_thread = new Fb2ReadThread(this, filename);
+    m_thread = new Fb2ReadThread(this, filename, xml);
     m_thread->start();
 }
 
@@ -105,13 +103,16 @@ bool Fb2WebView::save(QIODevice *device)
 
 bool Fb2WebView::save(QString *string)
 {
-    Fb2SaveHandler handler(*this, string);
+    QByteArray data;
+    Fb2SaveHandler handler(*this, &data);
     QXmlInputSource source;
     source.setData(toBodyXml());
     XML2::HtmlReader reader;
     reader.setContentHandler(&handler);
     reader.setErrorHandler(&handler);
-    return reader.parse(source);
+    bool ok = reader.parse(source);
+    if (ok) *string = QString::fromUtf8(data.data());
+    return ok;
 }
 
 QTemporaryFile * Fb2WebView::file(const QString &name)
