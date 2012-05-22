@@ -73,7 +73,6 @@ void HtmlReaderPrivate::parse(const QXmlInputSource* input)
 {
     htmlSAXHandler handler;
     QByteArray arr = input->data().toUtf8();
-    const char* data = arr.data();
 
     std::memset(&handler, 0, sizeof(handler));
     handler.startDocument         = &HtmlReaderPrivate::startDocument;
@@ -87,7 +86,7 @@ void HtmlReaderPrivate::parse(const QXmlInputSource* input)
     handler.ignorableWhitespace   = &HtmlReaderPrivate::ignorableWhitespace;
     handler.internalSubset        = &HtmlReaderPrivate::internalSubset;
 
-    this->context = htmlCreatePushParserCtxt(&handler, this, data, xmlStrlen(reinterpret_cast<const xmlChar*>(data)), "", XML_CHAR_ENCODING_UTF8);
+    this->context = htmlCreatePushParserCtxt(&handler, this, arr.data(), arr.size(), "", XML_CHAR_ENCODING_UTF8);
     htmlParseChunk(this->context, NULL, 0, 1);
     htmlFreeParserCtxt(this->context);
     xmlCleanupParser();
@@ -364,6 +363,7 @@ private:
 
     static QString C2S(const xmlChar* text, int size = -1);
 
+    bool parse(const QXmlInputSource* input);
     bool parse(QIODevice& input);
     void process(xmlTextReaderPtr reader);
 
@@ -442,6 +442,18 @@ int XmlReaderPrivate::onRead(void * context, char * buffer, int len)
 {
     QIODevice *device = reinterpret_cast<QIODevice*>(context);
     return device->read(buffer, len);
+}
+
+bool XmlReaderPrivate::parse(const QXmlInputSource* input)
+{
+    QByteArray arr = input->data().toUtf8();
+    int options = XML_PARSE_RECOVER | XML_PARSE_NOERROR | XML_PARSE_NOWARNING | XML_PARSE_NONET;
+    m_reader = xmlReaderForMemory(arr.data(), arr.size(), NULL, NULL, options);
+    if (!m_reader) return false;
+    xmlTextReaderSetErrorHandler(m_reader, &XmlReaderPrivate::onError, this);
+    while (xmlTextReaderRead(m_reader) == 1) process(m_reader);
+    xmlFreeTextReader(m_reader);
+    return true;
 }
 
 bool XmlReaderPrivate::parse(QIODevice& input)
@@ -564,6 +576,24 @@ QXmlDeclHandler* XmlReader::declHandler(void) const
 {
     const XmlReaderPrivate* d = this->d_func();
     return d->declhandler;
+}
+
+bool XmlReader::parse(const QXmlInputSource& input)
+{
+    return this->parse(&input);
+}
+
+bool XmlReader::parse(const QXmlInputSource* input)
+{
+    Q_D(XmlReader);
+
+    if (d->contenthandler) {
+        d->contenthandler->setDocumentLocator(d->locator.data());
+    }
+
+    d->parse(input);
+
+    return true;
 }
 
 bool XmlReader::parse(QIODevice& input)

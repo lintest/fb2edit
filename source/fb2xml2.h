@@ -90,8 +90,8 @@ public:
     virtual QXmlDeclHandler* declHandler(void) const;
 
     virtual bool parse(QIODevice& input);
-    virtual bool parse(const QXmlInputSource&) { return false; }
-    virtual bool parse(const QXmlInputSource*) { return false; }
+    virtual bool parse(const QXmlInputSource&);
+    virtual bool parse(const QXmlInputSource*);
 
 
 private:
