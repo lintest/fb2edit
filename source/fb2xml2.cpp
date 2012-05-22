@@ -21,7 +21,10 @@ private:
     HtmlReader* reader;
 };
 
-class HtmlReaderPrivate {
+class HtmlReaderPrivate
+{
+private:
+    class ClosedTag : public QList<QString> { public: ClosedTag(); };
 public:
     ~HtmlReaderPrivate(void) {}
 private:
@@ -55,6 +58,7 @@ private:
     QXmlDeclHandler*    declhandler;
 
     xmlParserCtxt* context;
+    QList<QString> closed;
 
     friend class HtmlReaderLocator;
 };
@@ -63,6 +67,26 @@ HtmlReaderPrivate::HtmlReaderPrivate(HtmlReader* reader)
     : q_ptr(reader), entityresolver(0), dtdhandler(0), contenthandler(0), errorhandler(0), lexicalhandler(0), declhandler(0), context(0)
 {
     this->locator.reset(new HtmlReaderLocator(reader));
+}
+
+HtmlReaderPrivate::ClosedTag::ClosedTag()
+{
+    *this << "area";
+    *this << "base";
+    *this << "br";
+    *this << "col";
+    *this << "command";
+    *this << "embed";
+    *this << "hr";
+    *this << "img";
+    *this << "input";
+    *this << "keygen";
+    *this << "link";
+    *this << "meta";
+    *this << "param";
+    *this << "source";
+    *this << "track";
+    *this << "wbr";
 }
 
 QString HtmlReaderPrivate::C2S(const xmlChar* text, int size)
@@ -127,8 +151,13 @@ void HtmlReaderPrivate::startElement(void* c, const xmlChar* name, const xmlChar
                 i += 2;
             }
         }
+        static ClosedTag closed;
         QString qName = C2S(name);
-        r->contenthandler->startElement("", local(qName), qName, a);
+        QString localName = local(qName);
+        r->contenthandler->startElement("", localName, qName, a);
+        if (closed.indexOf(qName.toLower()) != -1) {
+            r->contenthandler->endElement("", localName, qName);
+        }
     }
 }
 

@@ -5,6 +5,7 @@
 
 #include <QAction>
 #include <QtDebug>
+#include <QFileDialog>
 #include <QNetworkRequest>
 #include <QToolTip>
 #include <QWebElement>
@@ -223,5 +224,29 @@ bool Fb2WebView::SubChecked()
 bool Fb2WebView::SupChecked()
 {
     return pageAction(QWebPage::ToggleSuperscript)->isChecked();
+}
+
+void Fb2WebView::insertImage()
+{
+    QString filters;
+    filters += tr("Common Graphics (*.png *.jpg *.jpeg *.gif);;");
+    filters += tr("Portable Network Graphics (PNG) (*.png);;");
+    filters += tr("JPEG (*.jpg *.jpeg);;");
+    filters += tr("Graphics Interchange Format (*.gif);;");
+    filters += tr("All Files (*)");
+
+    QString fn = QFileDialog::getOpenFileName(this, tr("Open image..."), QString(), filters);
+    if (fn.isEmpty()) return;
+    if (!QFile::exists(fn)) return;
+
+    QUrl url = QUrl::fromLocalFile(fn);
+    execCommand("insertImage", url.toString());
+}
+
+void Fb2WebView::execCommand(const QString &cmd, const QString &arg)
+{
+    QWebFrame *frame = page()->mainFrame();
+    QString js = QString("document.execCommand(\"%1\", false, \"%2\")").arg(cmd).arg(arg);
+    frame->evaluateJavaScript(js);
 }
 

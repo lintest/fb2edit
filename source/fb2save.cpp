@@ -200,7 +200,6 @@ Fb2SaveHandler::ImageHandler::ImageHandler(BodyHandler *parent, const QString &n
 {
     QString href = Value(atts, "src");
     QString file = m_writer.getFile(href);
-    if (file.isEmpty()) return;
     file.prepend('#');
     m_writer.writeAttribute("l:href", file);
     m_writer.writeEndElement();

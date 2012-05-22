@@ -19,7 +19,14 @@ QString Fb2XmlHandler::NodeHandler::Value(const QXmlAttributes &attributes, cons
 bool Fb2XmlHandler::NodeHandler::doStart(const QString &name, const QXmlAttributes &attributes)
 {
     if (m_handler) return m_handler->doStart(name, attributes);
-    m_handler = NewTag(name, attributes); if (m_handler) return true;
+    m_handler = NewTag(name, attributes);
+    if (m_handler) {
+        if (m_handler->m_closed) {
+            delete m_handler;
+            m_handler = NULL;
+        }
+        return true;
+    }
     m_handler = new NodeHandler(name);
     return true;
 }

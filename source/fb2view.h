@@ -82,6 +82,7 @@ public slots:
     void data(QString name, QByteArray data);
     void html(QString name, QString html);
     void linkHovered(const QString &link, const QString &title, const QString &textContent);
+    void insertImage();
     void zoomIn();
     void zoomOut();
     void zoomOrig();
@@ -90,6 +91,7 @@ private slots:
     void fixContents();
 
 private:
+    void execCommand(const QString &cmd, const QString &arg);
     QTemporaryFile * file(const QString &name);
     QWebElement doc();
 

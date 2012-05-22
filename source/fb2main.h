@@ -46,7 +46,7 @@ private slots:
     void treeDestroyed();
     void logDestroyed();
     void logShowed();
-    void viewQsci();
+    void viewCode();
     void viewText();
     void viewHead();
     void viewTree();
@@ -110,6 +110,7 @@ private:
         *actionReplace,
         *actionInsert,
         *actionDelete,
+        *actionImage,
         *actionTextBold,
         *actionTextItalic,
         *actionTextStrike,

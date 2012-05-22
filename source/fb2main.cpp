@@ -329,7 +329,7 @@ void Fb2MainWindow::createActions()
 
     menu = menuBar()->addMenu(tr("&Insert", "Main menu"));
 
-    act = new QAction(icon("insert-image"), tr("&Image"), this);
+    actionImage = act = new QAction(icon("insert-image"), tr("&Image"), this);
     menu->addAction(act);
 
     act = new QAction(icon("insert-link"), tr("&Link"), this);
@@ -388,7 +388,7 @@ void Fb2MainWindow::createActions()
 
     act = new QAction(tr("&XML"), this);
     act->setCheckable(true);
-    connect(act, SIGNAL(triggered()), this, SLOT(viewQsci()));
+    connect(act, SIGNAL(triggered()), this, SLOT(viewCode()));
     viewGroup->addAction(act);
     menu->addAction(act);
     tool->addAction(act);
@@ -646,7 +646,7 @@ void Fb2MainWindow::checkScintillaUndo()
     actionRedo->setEnabled(codeEdit->isRedoAvailable());
 }
 
-void Fb2MainWindow::viewQsci()
+void Fb2MainWindow::viewCode()
 {
     if (centralWidget() == codeEdit) return;
     QString xml;
@@ -730,6 +730,8 @@ void Fb2MainWindow::viewText()
     connect(actionTextStrike, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleStrikethrough), SIGNAL(triggered()));
     connect(actionTextSub, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSubscript), SIGNAL(triggered()));
     connect(actionTextSup, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSuperscript), SIGNAL(triggered()));
+
+    connect(actionImage, SIGNAL(triggered()), textEdit, SLOT(insertImage()));
 
     connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
