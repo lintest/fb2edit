@@ -16,6 +16,8 @@ class Fb2HeadItem: public QObject
     Q_OBJECT
 
     FB2_BEGIN_KEYLIST
+        Auth,
+        Cover,
         Image,
         Seqn,
     FB2_END_KEYLIST
@@ -50,6 +52,8 @@ public:
     const QString & name() const {
         return m_name;
     }
+
+    QString sub(const QString &key) const;
 
 private:
     class HintHash : public QHash<QString, QString>

@@ -28,6 +28,8 @@ Fb2HeadItem::HintHash::HintHash()
 }
 
 FB2_BEGIN_KEYHASH(Fb2HeadItem)
+    FB2_KEY( Auth   , "author"    );
+    FB2_KEY( Cover  , "coverpage" );
     FB2_KEY( Image  , "img"       );
     FB2_KEY( Seqn   , "sequence"  );
 FB2_END_KEYHASH
@@ -88,7 +90,7 @@ QString Fb2HeadItem::text(int col) const
 {
     switch (col) {
         case 0: return QString("<%1> %2").arg(m_name).arg(hint());
-        case 1: if (m_list.count() == 0) return value();
+        case 1: return value();
     }
     return QString();
 }
@@ -104,6 +106,19 @@ QString Fb2HeadItem::hint() const
 QString Fb2HeadItem::value() const
 {
     switch (toKeyword(m_name)) {
+        case Auth : {
+            return sub("last-name") + " " + sub("first-name") + " " + sub("middle-name");
+        } break;
+        case Cover : {
+            QString text;
+            foreach (Fb2HeadItem * item, m_list) {
+                if (item->m_name == "img") {
+                    if (!text.isEmpty()) text += ", ";
+                    text += item->value();
+                }
+            }
+            return text;
+        } break;
         case Image : {
             return m_element.attribute("alt");
         } break;
@@ -114,7 +129,16 @@ QString Fb2HeadItem::value() const
             return text + ", " + tr("#") + numb;
         } break;
     }
+    if (m_list.count()) return QString();
     return m_element.toPlainText().simplified();
+}
+
+QString Fb2HeadItem::sub(const QString &key) const
+{
+    foreach (Fb2HeadItem * item, m_list) {
+        if (item->m_name == key) return item->value();
+    }
+    return QString();
 }
 
 //---------------------------------------------------------------------------
