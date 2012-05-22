@@ -263,12 +263,6 @@ Fb2SaveHandler::Fb2SaveHandler(Fb2WebView &view, QByteArray *array)
 {
 }
 
-Fb2SaveHandler::Fb2SaveHandler(Fb2WebView &view, QString *string)
-    : Fb2XmlHandler()
-    , m_writer(view, string)
-{
-}
-
 Fb2XmlHandler::NodeHandler * Fb2SaveHandler::CreateRoot(const QString &name, const QXmlAttributes &atts)
 {
     if (name == "body") return new RootHandler(m_writer, name, atts);

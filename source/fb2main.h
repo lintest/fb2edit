@@ -83,7 +83,7 @@ private:
     QTextEdit *noteEdit;
     QTextEdit *messageEdit;
     QDockWidget *dockTree;
-    QsciScintilla *qsciEdit;
+    QsciScintilla *codeEdit;
     QTreeView *treeView;
     QString curFile;
     bool isUntitled;

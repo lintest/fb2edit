@@ -35,15 +35,36 @@ void Fb2ReadThread::run()
     if (parse()) emit html(m_filename, m_html);
 }
 
+#ifdef _WIN32
+
 bool Fb2ReadThread::parse()
 {
     QXmlStreamWriter writer(&m_html);
     Fb2ReadHandler handler(*this, writer);
-    #ifdef _WIN32
-        QXmlSimpleReader reader;
-    #else
-        XML2::XmlReader reader;
-    #endif
+    QXmlSimpleReader reader;
+    reader.setContentHandler(&handler);
+    reader.setErrorHandler(&handler);
+    QXmlInputSource source;
+    if (m_xml.isEmpty()) {
+        QFile file(m_filename);
+        if (!file.open(QFile::ReadOnly | QFile::Text)) {
+            qCritical() << QObject::tr("Cannot read file %1: %2.").arg(m_filename).arg(file.errorString());
+            return false;
+        }
+        source.setData(file.readAll());
+    } else {
+        source.setData(m_xml);
+    }
+    return reader.parse(source);
+}
+
+#else
+
+bool Fb2ReadThread::parse()
+{
+    QXmlStreamWriter writer(&m_html);
+    Fb2ReadHandler handler(*this, writer);
+    XML2::XmlReader reader;
     reader.setContentHandler(&handler);
     reader.setErrorHandler(&handler);
     if (m_xml.isEmpty()) {
@@ -52,14 +73,15 @@ bool Fb2ReadThread::parse()
             qCritical() << QObject::tr("Cannot read file %1: %2.").arg(m_filename).arg(file.errorString());
             return false;
         }
-        QXmlInputSource source(&file);
-        return reader.parse(source);
+        return reader.parse(file);
     } else {
         QXmlInputSource source;
         source.setData(m_xml);
         return reader.parse(source);
     }
 }
+
+#endif
 
 //---------------------------------------------------------------------------
 //  Fb2ReadHandler::RootHandler

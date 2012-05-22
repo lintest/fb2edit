@@ -38,7 +38,6 @@ class Fb2SaveHandler : public Fb2XmlHandler
 public:
     explicit Fb2SaveHandler(Fb2WebView &view, QIODevice *device);
     explicit Fb2SaveHandler(Fb2WebView &view, QByteArray *array);
-    explicit Fb2SaveHandler(Fb2WebView &view, QString *string);
 
 private:
     class BodyHandler : public NodeHandler

@@ -29,6 +29,7 @@ Fb2MainWindow::Fb2MainWindow(const QString &filename, ViewMode mode)
     init();
     setCurrentFile(filename);
     if (mode == FB2) {
+        textEdit = new Fb2WebView(this);
         viewText();
         textEdit->load(filename);
     } else {
@@ -50,7 +51,7 @@ void Fb2MainWindow::init()
 
     textEdit = NULL;
     noteEdit = NULL;
-    qsciEdit = NULL;
+    codeEdit = NULL;
     treeView = NULL;
     headTree = NULL;
     toolEdit = NULL;
@@ -104,8 +105,8 @@ bool Fb2MainWindow::loadXML(const QString &filename)
     if (!filename.isEmpty()) {
         QFile file(filename);
         if (file.open(QFile::ReadOnly | QFile::Text)) {
-            qsciEdit->clear();
-            return qsciEdit->read(&file);
+            codeEdit->clear();
+            return codeEdit->read(&file);
         }
     }
     return false;
@@ -150,7 +151,7 @@ void Fb2MainWindow::fileOpen()
             other->move(x() + 40, y() + 40);
             other->show();
         }
-    } else if (qsciEdit) {
+    } else if (codeEdit) {
         if (isUntitled && !isWindowModified()) {
             setCurrentFile(filename);
             loadXML(filename);
@@ -193,7 +194,7 @@ void Fb2MainWindow::documentWasModified()
     title += QString(" - ") += qApp->applicationName();
     setWindowTitle(title);
     setWindowModified(true);
-    if (qsciEdit) disconnect(qsciEdit, SIGNAL(textChanged()), this, SLOT(documentWasModified()));
+    if (codeEdit) disconnect(codeEdit, SIGNAL(textChanged()), this, SLOT(documentWasModified()));
     if (textEdit) disconnect(textEdit->page(), SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
 }
 
@@ -457,34 +458,34 @@ void Fb2MainWindow::createQsci()
     //  http://qtcoder.blogspot.com/2010/10/qscintills.html
     //  http://www.riverbankcomputing.co.uk/static/Docs/QScintilla2/classQsciScintilla.html
 
-    if (qsciEdit) return;
-    qsciEdit = new QsciScintilla;
-    qsciEdit->zoomTo(1);
-    qsciEdit->setUtf8(true);
-    qsciEdit->setCaretLineVisible(true);
-    qsciEdit->setCaretLineBackgroundColor(QColor("gainsboro"));
-    qsciEdit->setWrapMode(QsciScintilla::WrapWord);
+    if (codeEdit) return;
+    codeEdit = new QsciScintilla;
+    codeEdit->zoomTo(1);
+    codeEdit->setUtf8(true);
+    codeEdit->setCaretLineVisible(true);
+    codeEdit->setCaretLineBackgroundColor(QColor("gainsboro"));
+    codeEdit->setWrapMode(QsciScintilla::WrapWord);
 
-    qsciEdit->setEolMode(QsciScintilla::EolWindows);
+    codeEdit->setEolMode(QsciScintilla::EolWindows);
 
-    qsciEdit->setAutoIndent(true);
-    qsciEdit->setIndentationGuides(true);
+    codeEdit->setAutoIndent(true);
+    codeEdit->setIndentationGuides(true);
 
-    qsciEdit->setAutoCompletionSource(QsciScintilla::AcsAll);
-    qsciEdit->setAutoCompletionCaseSensitivity(true);
-    qsciEdit->setAutoCompletionReplaceWord(true);
-    qsciEdit->setAutoCompletionShowSingle(true);
-    qsciEdit->setAutoCompletionThreshold(2);
+    codeEdit->setAutoCompletionSource(QsciScintilla::AcsAll);
+    codeEdit->setAutoCompletionCaseSensitivity(true);
+    codeEdit->setAutoCompletionReplaceWord(true);
+    codeEdit->setAutoCompletionShowSingle(true);
+    codeEdit->setAutoCompletionThreshold(2);
 
-    qsciEdit->setMarginsBackgroundColor(QColor("gainsboro"));
-    qsciEdit->setMarginWidth(0, 0);
-    qsciEdit->setMarginLineNumbers(1, true);
-    qsciEdit->setMarginWidth(1, QString("10000"));
-    qsciEdit->setFolding(QsciScintilla::BoxedFoldStyle, 2);
+    codeEdit->setMarginsBackgroundColor(QColor("gainsboro"));
+    codeEdit->setMarginWidth(0, 0);
+    codeEdit->setMarginLineNumbers(1, true);
+    codeEdit->setMarginWidth(1, QString("10000"));
+    codeEdit->setFolding(QsciScintilla::BoxedFoldStyle, 2);
 
-    qsciEdit->setBraceMatching(QsciScintilla::SloppyBraceMatch);
-    qsciEdit->setMatchedBraceBackgroundColor(Qt::yellow);
-    qsciEdit->setUnmatchedBraceForegroundColor(Qt::blue);
+    codeEdit->setBraceMatching(QsciScintilla::SloppyBraceMatch);
+    codeEdit->setMatchedBraceBackgroundColor(Qt::yellow);
+    codeEdit->setUnmatchedBraceForegroundColor(Qt::blue);
 
     QFont font("Courier", 10);
     font.setStyleHint(QFont::TypeWriter);
@@ -492,11 +493,11 @@ void Fb2MainWindow::createQsci()
     QsciLexerXML * lexer = new QsciLexerXML;
     lexer->setFont(font, -1);
 
-    qsciEdit->setBraceMatching(QsciScintilla::SloppyBraceMatch);
-    qsciEdit->setLexer(lexer);
+    codeEdit->setBraceMatching(QsciScintilla::SloppyBraceMatch);
+    codeEdit->setLexer(lexer);
 
-    setCentralWidget(qsciEdit);
-    qsciEdit->setFocus();
+    setCentralWidget(codeEdit);
+    codeEdit->setFocus();
 }
 
 void Fb2MainWindow::createStatusBar()
@@ -592,26 +593,26 @@ Fb2MainWindow *Fb2MainWindow::findFb2MainWindow(const QString &fileName)
 
 void Fb2MainWindow::zoomOrig()
 {
-    if (qsciEdit) qsciEdit->zoomTo(1);
+    if (codeEdit) codeEdit->zoomTo(1);
 }
 
 void Fb2MainWindow::checkScintillaUndo()
 {
-    if (!qsciEdit) return;
-    actionUndo->setEnabled(qsciEdit->isUndoAvailable());
-    actionRedo->setEnabled(qsciEdit->isRedoAvailable());
+    if (!codeEdit) return;
+    actionUndo->setEnabled(codeEdit->isUndoAvailable());
+    actionRedo->setEnabled(codeEdit->isRedoAvailable());
 }
 
 void Fb2MainWindow::viewQsci()
 {
-    if (centralWidget() == qsciEdit) return;
+    if (centralWidget() == codeEdit) return;
     QString xml;
     if (textEdit) textEdit->save(&xml);
     FB2DELETE(textEdit);
     FB2DELETE(dockTree);
     FB2DELETE(headTree);
     createQsci();
-    qsciEdit->setText(xml);
+    codeEdit->setText(xml);
 
     FB2DELETE(toolEdit);
     QToolBar *tool = toolEdit = addToolBar(tr("Edit"));
@@ -628,21 +629,21 @@ void Fb2MainWindow::viewQsci()
     tool->addAction(actionZoomOrig);
     tool->setMovable(false);
 
-    connect(qsciEdit, SIGNAL(textChanged()), this, SLOT(documentWasModified()));
-    connect(qsciEdit, SIGNAL(textChanged()), this, SLOT(checkScintillaUndo()));
+    connect(codeEdit, SIGNAL(textChanged()), this, SLOT(documentWasModified()));
+    connect(codeEdit, SIGNAL(textChanged()), this, SLOT(checkScintillaUndo()));
 
-    connect(qsciEdit, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)));
-    connect(qsciEdit, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)));
+    connect(codeEdit, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)));
+    connect(codeEdit, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)));
 
-    connect(actionUndo, SIGNAL(triggered()), qsciEdit, SLOT(undo()));
-    connect(actionRedo, SIGNAL(triggered()), qsciEdit, SLOT(redo()));
+    connect(actionUndo, SIGNAL(triggered()), codeEdit, SLOT(undo()));
+    connect(actionRedo, SIGNAL(triggered()), codeEdit, SLOT(redo()));
 
-    connect(actionCut, SIGNAL(triggered()), qsciEdit, SLOT(cut()));
-    connect(actionCopy, SIGNAL(triggered()), qsciEdit, SLOT(copy()));
-    connect(actionPaste, SIGNAL(triggered()), qsciEdit, SLOT(paste()));
+    connect(actionCut, SIGNAL(triggered()), codeEdit, SLOT(cut()));
+    connect(actionCopy, SIGNAL(triggered()), codeEdit, SLOT(copy()));
+    connect(actionPaste, SIGNAL(triggered()), codeEdit, SLOT(paste()));
 
-    connect(actionZoomIn, SIGNAL(triggered()), qsciEdit, SLOT(zoomIn()));
-    connect(actionZoomOut, SIGNAL(triggered()), qsciEdit, SLOT(zoomOut()));
+    connect(actionZoomIn, SIGNAL(triggered()), codeEdit, SLOT(zoomIn()));
+    connect(actionZoomOut, SIGNAL(triggered()), codeEdit, SLOT(zoomOut()));
     connect(actionZoomOrig, SIGNAL(triggered()), this, SLOT(zoomOrig()));
 }
 
@@ -650,8 +651,8 @@ void Fb2MainWindow::viewText()
 {
     if (centralWidget() == textEdit) return;
     QString xml;
-    if (qsciEdit) xml = qsciEdit->text();
-    FB2DELETE(qsciEdit);
+    if (codeEdit) xml = codeEdit->text();
+    FB2DELETE(codeEdit);
     FB2DELETE(headTree);
     if (!textEdit) {
         textEdit = new Fb2WebView(this);
@@ -773,10 +774,10 @@ void Fb2MainWindow::viewHead()
     if (centralWidget() == headTree) return;
 
     QString xml;
-    if (qsciEdit) xml = qsciEdit->text();
+    if (codeEdit) xml = codeEdit->text();
 
     FB2DELETE(dockTree);
-    FB2DELETE(qsciEdit);
+    FB2DELETE(codeEdit);
     FB2DELETE(toolEdit);
 
     if (!headTree) {

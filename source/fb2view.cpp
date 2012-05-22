@@ -103,13 +103,18 @@ bool Fb2WebView::save(QIODevice *device)
 
 bool Fb2WebView::save(QString *string)
 {
-    Fb2SaveHandler handler(*this, string);
+    // Use class QByteArray instead QString
+    // to store information about encoding.
+    QByteArray data;
+    Fb2SaveHandler handler(*this, &data);
     QXmlInputSource source;
     source.setData(toBodyXml());
     XML2::HtmlReader reader;
     reader.setContentHandler(&handler);
     reader.setErrorHandler(&handler);
-    return reader.parse(source);
+    bool ok = reader.parse(source);
+    if (ok) *string = QString::fromUtf8(data.data());
+    return ok;
 }
 
 QTemporaryFile * Fb2WebView::file(const QString &name)

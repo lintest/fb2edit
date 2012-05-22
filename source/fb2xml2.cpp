@@ -4,6 +4,7 @@
 #include <libxml/parser.h>
 #include <libxml/HTMLparser.h>
 #include <libxml/xmlreader.h>
+#include <QtDebug>
 
 namespace XML2 {
 
@@ -86,7 +87,7 @@ void HtmlReaderPrivate::parse(const QXmlInputSource* input)
     handler.ignorableWhitespace   = &HtmlReaderPrivate::ignorableWhitespace;
     handler.internalSubset        = &HtmlReaderPrivate::internalSubset;
 
-    this->context = htmlCreatePushParserCtxt(&handler, this, arr.data(), arr.size(), "", XML_CHAR_ENCODING_UTF8);
+    this->context = htmlCreatePushParserCtxt(&handler, this, arr.constData(), arr.size(), "", XML_CHAR_ENCODING_UTF8);
     htmlParseChunk(this->context, NULL, 0, 1);
     htmlFreeParserCtxt(this->context);
     xmlCleanupParser();
@@ -448,7 +449,7 @@ bool XmlReaderPrivate::parse(const QXmlInputSource* input)
 {
     QByteArray arr = input->data().toUtf8();
     int options = XML_PARSE_RECOVER | XML_PARSE_NOERROR | XML_PARSE_NOWARNING | XML_PARSE_NONET;
-    m_reader = xmlReaderForMemory(arr.data(), arr.size(), NULL, NULL, options);
+    m_reader = xmlReaderForMemory(arr.constData(), arr.size(), NULL, NULL, options);
     if (!m_reader) return false;
     xmlTextReaderSetErrorHandler(m_reader, &XmlReaderPrivate::onError, this);
     while (xmlTextReaderRead(m_reader) == 1) process(m_reader);
