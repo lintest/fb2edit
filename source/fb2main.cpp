@@ -439,8 +439,9 @@ void Fb2MainWindow::selectionChanged()
     actionTextSub->setChecked(textEdit->SubChecked());
     actionTextSup->setChecked(textEdit->SupChecked());
 
-//    QString script = "document.getSelection().baseNode.parentNode.tagName";
-//    qCritical() << textEdit->page()->mainFrame()->evaluateJavaScript(script).toString();
+    QString script = "document.getSelection().baseNode.parentNode.tagName";
+    QString message = textEdit->page()->mainFrame()->evaluateJavaScript(script).toString();
+    statusBar()->showMessage(message);
 }
 
 void Fb2MainWindow::undoChanged()
@@ -478,10 +479,8 @@ void Fb2MainWindow::createQsci()
     codeEdit->setAutoCompletionThreshold(2);
 
     codeEdit->setMarginsBackgroundColor(QColor("gainsboro"));
-    codeEdit->setMarginWidth(0, 0);
-    codeEdit->setMarginLineNumbers(1, true);
-    codeEdit->setMarginWidth(1, QString("10000"));
-    codeEdit->setFolding(QsciScintilla::BoxedFoldStyle, 2);
+    codeEdit->setMarginLineNumbers(0, true);
+    codeEdit->setFolding(QsciScintilla::BoxedFoldStyle, 1);
 
     codeEdit->setBraceMatching(QsciScintilla::SloppyBraceMatch);
     codeEdit->setMatchedBraceBackgroundColor(Qt::yellow);
@@ -612,7 +611,6 @@ void Fb2MainWindow::viewQsci()
     FB2DELETE(dockTree);
     FB2DELETE(headTree);
     createQsci();
-    codeEdit->setText(xml);
 
     FB2DELETE(toolEdit);
     QToolBar *tool = toolEdit = addToolBar(tr("Edit"));
@@ -628,6 +626,9 @@ void Fb2MainWindow::viewQsci()
     tool->addAction(actionZoomOut);
     tool->addAction(actionZoomOrig);
     tool->setMovable(false);
+
+    connect(codeEdit, SIGNAL(linesChanged()), this, SLOT(linesChanged()));
+    codeEdit->setText(xml);
 
     connect(codeEdit, SIGNAL(textChanged()), this, SLOT(documentWasModified()));
     connect(codeEdit, SIGNAL(textChanged()), this, SLOT(checkScintillaUndo()));
@@ -645,6 +646,12 @@ void Fb2MainWindow::viewQsci()
     connect(actionZoomIn, SIGNAL(triggered()), codeEdit, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), codeEdit, SLOT(zoomOut()));
     connect(actionZoomOrig, SIGNAL(triggered()), this, SLOT(zoomOrig()));
+}
+
+void Fb2MainWindow::linesChanged()
+{
+    QString width = QString().setNum(codeEdit->lines() * 10);
+    codeEdit->setMarginWidth(0, width);
 }
 
 void Fb2MainWindow::viewText()

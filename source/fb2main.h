@@ -54,6 +54,7 @@ private slots:
     void clipboardDataChanged();
     void loadFinished(bool ok);
     void selectionChanged();
+    void linesChanged();
     void undoChanged();
     void redoChanged();
     void showInspector();
