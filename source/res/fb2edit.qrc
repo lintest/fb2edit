@@ -17,8 +17,17 @@
         <file>16/format-text-strikethrough.png</file>
         <file>16/format-text-subscript.png</file>
         <file>16/format-text-superscript.png</file>
+        <file>16/go-down.png</file>
+        <file>16/go-next.png</file>
+        <file>16/go-previous.png</file>
+        <file>16/go-up.png</file>
+        <file>16/insert-image.png</file>
+        <file>16/insert-link.png</file>
+        <file>16/insert-object.png</file>
+        <file>16/insert-text.png</file>
         <file>16/list-add.png</file>
         <file>16/list-remove.png</file>
+        <file>16/preferences-desktop.png</file>
         <file>16/window-close.png</file>
         <file>16/zoom-in.png</file>
         <file>16/zoom-original.png</file>
@@ -40,8 +49,17 @@
         <file>24/format-text-strikethrough.png</file>
         <file>24/format-text-subscript.png</file>
         <file>24/format-text-superscript.png</file>
+        <file>24/go-down.png</file>
+        <file>24/go-next.png</file>
+        <file>24/go-previous.png</file>
+        <file>24/go-up.png</file>
+        <file>24/insert-image.png</file>
+        <file>24/insert-link.png</file>
+        <file>24/insert-object.png</file>
+        <file>24/insert-text.png</file>
         <file>24/list-add.png</file>
         <file>24/list-remove.png</file>
+        <file>24/preferences-desktop.png</file>
         <file>24/window-close.png</file>
         <file>24/zoom-in.png</file>
         <file>24/zoom-original.png</file>

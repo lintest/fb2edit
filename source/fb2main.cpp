@@ -300,14 +300,45 @@ void Fb2MainWindow::createActions()
 
     menu->addSeparator();
 
-    actionInsert = act = new QAction(icon("list-add"), tr("Insert"), this);
+    actionFind = act = new QAction(icon("edit-find"), tr("&Find..."), this);
+    act->setShortcuts(QKeySequence::Find);
+    menu->addAction(act);
+
+    actionReplace = act = new QAction(icon("edit-find-replace"), tr("&Replace..."), this);
+    menu->addAction(act);
+
+    menu->addSeparator();
+
+    actionInsert = act = new QAction(icon("list-add"), tr("&Append"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::New);
     menu->addAction(act);
 
-    actionDelete = act = new QAction(icon("list-remove"), tr("Delete"), this);
+    actionDelete = act = new QAction(icon("list-remove"), tr("&Delete"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Delete);
+    menu->addAction(act);
+
+    menu->addSeparator();
+
+    act = new QAction(icon("preferences-desktop"), tr("&Settings"), this);
+    act->setShortcuts(QKeySequence::Preferences);
+    act->setStatusTip(tr("Application settings"));
+    connect(act, SIGNAL(triggered()), SLOT(openSettings()));
+    menu->addAction(act);
+
+    menu = menuBar()->addMenu(tr("&Insert", "Main menu"));
+
+    act = new QAction(icon("insert-image"), tr("&Image"), this);
+    menu->addAction(act);
+
+    act = new QAction(icon("insert-link"), tr("&Link"), this);
+    menu->addAction(act);
+
+    act = new QAction(icon("insert-object"), tr("&Object"), this);
+    menu->addAction(act);
+
+    act = new QAction(icon("insert-text"), tr("&Text"), this);
     menu->addAction(act);
 
     menuText = menu = menuBar()->addMenu(tr("Fo&rmat"));
@@ -397,6 +428,12 @@ void Fb2MainWindow::createActions()
     act->setStatusTip(tr("Show the Qt library's About box"));
     connect(act, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     menu->addAction(act);
+}
+
+void Fb2MainWindow::openSettings()
+{
+    QMessageBox::about(this, tr("Settings"),
+        tr("The <b>fb2edit</b> is application for editing FB2-files."));
 }
 
 void Fb2MainWindow::createTree()

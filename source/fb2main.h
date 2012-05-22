@@ -59,6 +59,7 @@ private slots:
     void redoChanged();
     void showInspector();
     void zoomOrig();
+    void openSettings();
 
 private:
     bool loadXML(const QString &filename);
@@ -105,6 +106,8 @@ private:
         *actionCopy,
         *actionPaste,
         *actionSelect,
+        *actionFind,
+        *actionReplace,
         *actionInsert,
         *actionDelete,
         *actionTextBold,
