@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 2.6.0)
 
 project(fb2edit)
 
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/3rdparty/cmake)
 
 find_package( Qt4 4.7.0 COMPONENTS QtCore QtGui QtMain QtNetwork QtWebkit QtXml QtXmlPatterns REQUIRED )
 find_package( QScintilla REQUIRED )

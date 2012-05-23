@@ -128,6 +128,7 @@ QString Fb2HeadItem::value() const
             if (numb.isEmpty() || numb == "0") return text;
             return text + ", " + tr("#") + numb;
         } break;
+        default: ;
     }
     if (m_list.count()) return QString();
     return m_element.toPlainText().simplified();

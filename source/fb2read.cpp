@@ -11,8 +11,8 @@
 Fb2ReadThread::Fb2ReadThread(QObject *parent, const QString &filename, const QString &xml)
     : QThread(parent)
     , m_filename(filename)
-    , m_abort(false)
     , m_xml(xml)
+    , m_abort(false)
 {
     connect(this, SIGNAL(html(QString, QString)), parent, SLOT(html(QString, QString)));
 }
