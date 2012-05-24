@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
+        <file alias="icon.ico">../../desktop/fb2edit.ico</file>
         <file>16x16/format-text-subscript.png</file>
         <file>16x16/format-text-superscript.png</file>
         <file>24x24/format-text-subscript.png</file>

@@ -41,6 +41,7 @@ void Fb2MainWindow::init()
     connect(qApp, SIGNAL(logMessage(QString)), SLOT(logMessage(QString)));
 
     setAttribute(Qt::WA_DeleteOnClose);
+    setWindowIcon(QIcon(":icon.ico"));
 
     isUntitled = true;
 

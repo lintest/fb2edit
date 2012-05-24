@@ -1,6 +1,6 @@
 HEADERS = \
     source/fb2app.h \
-    source/fb2code.h
+    source/fb2code.h \
     source/fb2head.h \
     source/fb2main.h \
     source/fb2read.h \

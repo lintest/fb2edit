@@ -45,7 +45,7 @@ add_executable(fb2edit ${FB2_SRCS} ${FB2_HEAD} ${MOC_SRCS} ${RCC_SRCS} ${QMS_FIL
 target_link_libraries(fb2edit ${QT_LIBRARIES} ${QSCINTILLA_LIBRARIES} ${LIBXML2_LIBRARIES})
 
 set(LINUX_DESKTOP_FILE desktop/fb2edit.desktop)
-set(LINUX_DESKTOP_ICON desktop/fb2edit48.png)
+set(LINUX_DESKTOP_ICON desktop/fb2edit048.png)
     
 #############################################################################
 # You can change the install location by 
