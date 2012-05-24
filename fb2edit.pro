@@ -21,6 +21,7 @@ SOURCES = \
     source/fb2xml2.cpp
 
 RESOURCES = \
+    3rdparty/gnome/gnome.qrc \
     source/res/fb2edit.qrc
 
 TARGET = fb2edit
