@@ -8,22 +8,22 @@
 
 Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent)
     : QObject(parent)
+    , m_element(element)
     , m_parent(parent)
 {
     m_name = element.tagName().toLower();
     QString style = element.attribute("class").toLower();
     if (m_name == "div") {
         if (style == "title") {
-            m_text = element.toPlainText().simplified().left(255);
+            m_text = title(element);
             if (m_parent) m_parent->m_text += m_text += " ";
         } else if (style == "subtitle") {
-            m_text = element.toPlainText().simplified().left(255);
+            m_text = title(element);
         }
         if (!style.isEmpty()) m_name = style;
     } else if (m_name == "img") {
         m_text = element.attribute("alt");
     }
-    m_id = element.attribute("id");
     addChildren(element);
 }
 
@@ -32,6 +32,11 @@ Fb2TreeItem::~Fb2TreeItem()
     foreach (Fb2TreeItem * item, m_list) {
         delete item;
     }
+}
+
+QString Fb2TreeItem::title(const QWebElement &element)
+{
+    return element.toPlainText().left(255).simplified();
 }
 
 void Fb2TreeItem::addChildren(QWebElement &parent)
@@ -154,6 +159,6 @@ QVariant Fb2TreeModel::data(const QModelIndex &index, int role) const
 void Fb2TreeModel::select(const QModelIndex &index)
 {
     Fb2TreeItem *node = item(index);
-    if (!node || node->id().isEmpty()) return;
-    m_view.page()->mainFrame()->scrollToAnchor(node->id());
+    QWebFrame *frame = m_view.page()->mainFrame();
+    if (node) frame->scroll(0, node->pos().y() - frame->scrollPosition().y());
 }

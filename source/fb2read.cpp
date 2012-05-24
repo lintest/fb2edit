@@ -174,12 +174,6 @@ FB2_BEGIN_KEYHASH(Fb2ReadHandler::DescrHandler)
     FB2_KEY( Custom   , "custom-info"   );
 FB2_END_KEYHASH
 
-Fb2ReadHandler::DescrHandler::DescrHandler(Fb2ReadHandler &owner, const QString &name, const QXmlAttributes &atts)
-    : HeadHandler(owner, name, atts)
-{
-    writer().writeAttribute("id", m_owner.newId());
-}
-
 Fb2XmlHandler::NodeHandler * Fb2ReadHandler::DescrHandler::NewTag(const QString &name, const QXmlAttributes &atts)
 {
     Q_UNUSED(atts);
@@ -198,12 +192,6 @@ Fb2XmlHandler::NodeHandler * Fb2ReadHandler::DescrHandler::NewTag(const QString 
 //---------------------------------------------------------------------------
 //  Fb2ReadHandler::TitleHandler
 //---------------------------------------------------------------------------
-
-Fb2ReadHandler::TitleHandler::TitleHandler(Fb2ReadHandler &owner, const QString &name, const QXmlAttributes &atts)
-    : HeadHandler(owner, name, atts)
-{
-    writer().writeAttribute("id", m_owner.newId());
-}
 
 Fb2XmlHandler::NodeHandler * Fb2ReadHandler::TitleHandler::NewTag(const QString &name, const QXmlAttributes &atts)
 {
@@ -267,13 +255,8 @@ void Fb2ReadHandler::TextHandler::Init(const QXmlAttributes &atts)
     if (m_tag.isEmpty()) return;
     writer().writeStartElement(m_tag);
     QString id = Value(atts, "id");
-    if (!id.isEmpty()) {
-        if (m_style == "section" && isNotes()) m_style = "note";
-        writer().writeAttribute("id", id);
-    } else if (m_tag == "div" || m_tag == "img") {
-        writer().writeAttribute("id", m_owner.newId());
-    }
     if (!m_style.isEmpty()) {
+        if (m_style == "section" && !id.isEmpty() && isNotes()) m_style = "note";
         if (m_style == "body" && Value(atts, "name").toLower() == "notes") m_style = "notes";
         writer().writeAttribute("class", m_style);
     }
@@ -373,7 +356,6 @@ Fb2ReadHandler::Fb2ReadHandler(Fb2ReadThread &thread, QXmlStreamWriter &writer)
     : Fb2XmlHandler()
     , m_thread(thread)
     , m_writer(writer)
-    , m_id(0)
 {
     m_writer.setAutoFormatting(true);
     m_writer.setAutoFormattingIndent(2);
@@ -398,9 +380,3 @@ void Fb2ReadHandler::addFile(const QString &name, const QByteArray &data)
 {
     QMetaObject::invokeMethod(m_thread.parent(), "data", Qt::QueuedConnection, Q_ARG(QString, name), Q_ARG(QByteArray, data));
 }
-
-QString Fb2ReadHandler::newId()
-{
-    return QString("FB2E%1").arg(++m_id);
-}
-

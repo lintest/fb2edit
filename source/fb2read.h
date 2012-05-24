@@ -95,7 +95,8 @@ private:
             Custom,
         FB2_END_KEYLIST
     public:
-        explicit DescrHandler(Fb2ReadHandler &owner, const QString &name, const QXmlAttributes &atts);
+        explicit DescrHandler(Fb2ReadHandler &owner, const QString &name, const QXmlAttributes &atts)
+            : HeadHandler(owner, name, atts) {}
     protected:
         virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
     };
@@ -103,7 +104,8 @@ private:
     class TitleHandler : public HeadHandler
     {
     public:
-        explicit TitleHandler(Fb2ReadHandler &owner, const QString &name, const QXmlAttributes &atts);
+        explicit TitleHandler(Fb2ReadHandler &owner, const QString &name, const QXmlAttributes &atts)
+            : HeadHandler(owner, name, atts) {}
     protected:
         virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
     };
@@ -170,14 +172,12 @@ protected:
 private:
     void addFile(const QString &name, const QByteArray &data);
     QString getFile(const QString &name);
-    QString newId();
 
 private:
     typedef QHash<QString, QString> StringHash;
     Fb2ReadThread &m_thread;
     QXmlStreamWriter &m_writer;
     StringHash m_hash;
-    int m_id;
 };
 
 #endif // FB2READ_H

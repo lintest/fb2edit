@@ -36,23 +36,24 @@ public:
 
     QString text() const;
 
-    const QString & id() const {
-        return m_id;
-    }
-
     const QString & name() const {
         return m_name;
     }
 
+    QPoint pos() const {
+        return m_element.geometry().topLeft();
+    }
+
 private:
+    QString static title(const QWebElement &element);
     void addChildren(QWebElement &parent);
 
 private:
     QList<Fb2TreeItem*> m_list;
+    QWebElement m_element;
     QString m_name;
     QString m_text;
     Fb2TreeItem * m_parent;
-    QString m_id;
 };
 
 class Fb2TreeModel: public QAbstractItemModel
