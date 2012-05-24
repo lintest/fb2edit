@@ -5,13 +5,11 @@
 #include <QWebFrame>
 
 #include "fb2main.h"
+#include "fb2code.h"
 #include "fb2read.h"
 #include "fb2tree.h"
 #include "fb2view.h"
 #include "fb2head.h"
-
-#include <Qsci/qsciscintilla.h>
-#include <Qsci/qscilexerxml.h>
 
 #define FB2DELETE(p) { if ( (p) != NULL ) { delete p; p = NULL; } }
 
@@ -33,7 +31,7 @@ Fb2MainWindow::Fb2MainWindow(const QString &filename, ViewMode mode)
         viewText();
         textEdit->load(filename);
     } else {
-        createQsci();
+        viewCode();
         loadXML(filename);
     }
 }
@@ -498,51 +496,6 @@ void Fb2MainWindow::redoChanged()
     actionRedo->setEnabled(textEdit->RedoEnabled());
 }
 
-void Fb2MainWindow::createQsci()
-{
-    //  http://qtcoder.blogspot.com/2010/10/qscintills.html
-    //  http://www.riverbankcomputing.co.uk/static/Docs/QScintilla2/classQsciScintilla.html
-
-    if (codeEdit) return;
-    codeEdit = new QsciScintilla;
-    codeEdit->zoomTo(1);
-    codeEdit->setUtf8(true);
-    codeEdit->setCaretLineVisible(true);
-    codeEdit->setCaretLineBackgroundColor(QColor("gainsboro"));
-    codeEdit->setWrapMode(QsciScintilla::WrapWord);
-
-    codeEdit->setEolMode(QsciScintilla::EolWindows);
-
-    codeEdit->setAutoIndent(true);
-    codeEdit->setIndentationGuides(true);
-
-    codeEdit->setAutoCompletionSource(QsciScintilla::AcsAll);
-    codeEdit->setAutoCompletionCaseSensitivity(true);
-    codeEdit->setAutoCompletionReplaceWord(true);
-    codeEdit->setAutoCompletionShowSingle(true);
-    codeEdit->setAutoCompletionThreshold(2);
-
-    codeEdit->setMarginsBackgroundColor(QColor("gainsboro"));
-    codeEdit->setMarginLineNumbers(0, true);
-    codeEdit->setFolding(QsciScintilla::BoxedFoldStyle, 1);
-
-    codeEdit->setBraceMatching(QsciScintilla::SloppyBraceMatch);
-    codeEdit->setMatchedBraceBackgroundColor(Qt::yellow);
-    codeEdit->setUnmatchedBraceForegroundColor(Qt::blue);
-
-    QFont font("Courier", 10);
-    font.setStyleHint(QFont::TypeWriter);
-
-    QsciLexerXML * lexer = new QsciLexerXML;
-    lexer->setFont(font, -1);
-
-    codeEdit->setBraceMatching(QsciScintilla::SloppyBraceMatch);
-    codeEdit->setLexer(lexer);
-
-    setCentralWidget(codeEdit);
-    codeEdit->setFocus();
-}
-
 void Fb2MainWindow::createStatusBar()
 {
     statusBar()->showMessage(tr("Ready"));
@@ -654,7 +607,13 @@ void Fb2MainWindow::viewCode()
     FB2DELETE(textEdit);
     FB2DELETE(dockTree);
     FB2DELETE(headTree);
-    createQsci();
+
+    if (!codeEdit) {
+        codeEdit = new Fb2Scintilla;
+    }
+    codeEdit->setText(xml);
+    setCentralWidget(codeEdit);
+    codeEdit->setFocus();
 
     FB2DELETE(toolEdit);
     QToolBar *tool = toolEdit = addToolBar(tr("Edit"));
@@ -670,9 +629,6 @@ void Fb2MainWindow::viewCode()
     tool->addAction(actionZoomOut);
     tool->addAction(actionZoomOrig);
     tool->setMovable(false);
-
-    connect(codeEdit, SIGNAL(linesChanged()), this, SLOT(linesChanged()));
-    codeEdit->setText(xml);
 
     connect(codeEdit, SIGNAL(textChanged()), this, SLOT(documentWasModified()));
     connect(codeEdit, SIGNAL(textChanged()), this, SLOT(checkScintillaUndo()));
@@ -690,12 +646,6 @@ void Fb2MainWindow::viewCode()
     connect(actionZoomIn, SIGNAL(triggered()), codeEdit, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), codeEdit, SLOT(zoomOut()));
     connect(actionZoomOrig, SIGNAL(triggered()), this, SLOT(zoomOrig()));
-}
-
-void Fb2MainWindow::linesChanged()
-{
-    QString width = QString().setNum(codeEdit->lines() * 10);
-    codeEdit->setMarginWidth(0, width);
 }
 
 void Fb2MainWindow::viewText()

@@ -1,5 +1,6 @@
 HEADERS = \
     source/fb2app.h \
+    source/fb2code.h
     source/fb2head.h \
     source/fb2main.h \
     source/fb2read.h \
@@ -11,6 +12,7 @@ HEADERS = \
 
 SOURCES = \
     source/fb2app.cpp \
+    source/fb2code.cpp \
     source/fb2head.cpp \
     source/fb2main.cpp \
     source/fb2read.cpp \
