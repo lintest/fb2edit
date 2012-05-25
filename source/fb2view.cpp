@@ -81,6 +81,8 @@ void Fb2WebView::fixContents()
 
 void Fb2WebView::linkHovered(const QString &link, const QString &title, const QString &textContent)
 {
+    Q_UNUSED(title);
+    Q_UNUSED(textContent);
     QToolTip::showText(QPoint(100, 100), link);
 }
 

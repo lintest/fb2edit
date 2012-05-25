@@ -12,6 +12,7 @@ Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QByteArray *array, QList<int> *fo
     : QXmlStreamWriter(array)
     , m_folds(folds)
     , m_view(view)
+    , m_line(0)
 {
     Init();
 }
@@ -20,6 +21,7 @@ Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QIODevice *device)
     : QXmlStreamWriter(device)
     , m_folds(0)
     , m_view(view)
+    , m_line(0)
 {
     Init();
 }
@@ -28,20 +30,39 @@ Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QString *string)
     : QXmlStreamWriter(string)
     , m_folds(0)
     , m_view(view)
+    , m_line(0)
 {
     Init();
 }
 
 void Fb2SaveWriter::Init()
 {
-    setAutoFormatting(true);
-    setAutoFormattingIndent(2);
     writeStartDocument();
 }
 
 Fb2SaveWriter::~Fb2SaveWriter()
 {
     writeEndDocument();
+}
+
+void Fb2SaveWriter::writeStartElement(const QString &name, int level)
+{
+    if (level) writeLineEnd();
+    for (int i = 1; i < level; i++) writeCharacters("  ");
+    QXmlStreamWriter::writeStartElement(name);
+}
+
+void Fb2SaveWriter::writeEndElement(int level)
+{
+    if (level) writeLineEnd();
+    for (int i = 1; i < level; i++) writeCharacters("  ");
+    QXmlStreamWriter::writeEndElement();
+}
+
+void Fb2SaveWriter::writeLineEnd()
+{
+    writeCharacters("\n");
+    m_line++;
 }
 
 QString Fb2SaveWriter::getFile(const QString &path)
@@ -70,20 +91,20 @@ void Fb2SaveWriter::writeFiles()
         if (name.isEmpty()) continue;
         QString data = getData(name);
         if (data.isEmpty()) continue;
-        writeStartElement("binary");
+        writeStartElement("binary", 2);
+        if (m_folds) m_folds->append(m_line);
         writeAttribute("id", name);
-        writeCharacters("\n");
+        writeLineEnd();
         int pos = 0;
         while (true) {
             QString text = data.mid(pos, 76);
             if (text.isEmpty()) break;
             writeCharacters(text);
-            writeCharacters("\n");
+            writeLineEnd();
             pos += 76;
         }
-        writeCharacters(" ");
-        writeCharacters(" ");
-        writeEndElement();
+        writeCharacters("  ");
+        QXmlStreamWriter::writeEndElement();
     }
 }
 
@@ -105,20 +126,22 @@ FB2_BEGIN_KEYHASH(Fb2SaveHandler::BodyHandler)
     FB2_KEY( Code    , "tt"     );
 FB2_END_KEYHASH
 
-Fb2SaveHandler::BodyHandler::BodyHandler(Fb2SaveWriter &writer, const QString &name, const QXmlAttributes &atts, const QString &tag, const QString &style)
+Fb2SaveHandler::BodyHandler::BodyHandler(Fb2SaveWriter &writer, const QString &name, const QXmlAttributes &atts, const QString &tag)
     : NodeHandler(name)
     , m_writer(writer)
     , m_tag(tag)
-    , m_style(style)
+    , m_level(1)
+    , m_hasChild(false)
 {
     Init(atts);
 }
 
-Fb2SaveHandler::BodyHandler::BodyHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts, const QString &tag, const QString &style)
+Fb2SaveHandler::BodyHandler::BodyHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts, const QString &tag)
     : NodeHandler(name)
     , m_writer(parent->m_writer)
     , m_tag(tag)
-    , m_style(style)
+    , m_level(parent->nextLevel())
+    , m_hasChild(false)
 {
     Init(atts);
 }
@@ -126,18 +149,29 @@ Fb2SaveHandler::BodyHandler::BodyHandler(BodyHandler *parent, const QString &nam
 void Fb2SaveHandler::BodyHandler::Init(const QXmlAttributes &atts)
 {
     if (m_tag.isEmpty()) return;
-    m_writer.writeStartElement(m_tag);
+    if (m_tag == "notes") {
+        m_writer.writeStartElement("section", m_level);
+        m_writer.writeAttribute("name", "notes");
+    } else if (m_tag == "note") {
+        m_writer.writeStartElement("section", m_level);
+    } else {
+        m_writer.writeStartElement(m_tag, m_level);
+    }
     int count = atts.count();
     for (int i = 0; i < count; i++) {
         QString name = atts.qName(i);
-        if (name.left(4) != "fb2:") continue;
-        m_writer.writeAttribute(name.mid(4), atts.value(i));
+        if (name == "id") {
+            m_writer.writeAttribute(name, atts.value(i));
+        } else if (name.left(4) == "fb2:") {
+            m_writer.writeAttribute(name.mid(4), atts.value(i));
+        }
     }
 }
 
 Fb2XmlHandler::NodeHandler * Fb2SaveHandler::BodyHandler::NewTag(const QString &name, const QXmlAttributes &atts)
 {
-    QString tag, style;
+    m_hasChild = true;
+    QString tag = QString();
     switch (toKeyword(name)) {
         case Section   : tag = atts.value("class") ; break;
         case Anchor    : return new AnchorHandler(this, name, atts);
@@ -151,7 +185,7 @@ Fb2XmlHandler::NodeHandler * Fb2SaveHandler::BodyHandler::NewTag(const QString &
         case Sup       : tag = "sup"           ; break;
         default: ;
     }
-    return new BodyHandler(this, name, atts, tag, style);
+    return new BodyHandler(this, name, atts, tag);
 }
 
 void Fb2SaveHandler::BodyHandler::TxtTag(const QString &text)
@@ -163,7 +197,12 @@ void Fb2SaveHandler::BodyHandler::EndTag(const QString &name)
 {
     Q_UNUSED(name);
     if (m_tag.isEmpty()) return;
-    m_writer.writeEndElement();
+    m_writer.writeEndElement(m_hasChild ? m_level : 0);
+}
+
+int Fb2SaveHandler::BodyHandler::nextLevel() const
+{
+    return m_level ? m_level + 1 : 0;
 }
 
 //---------------------------------------------------------------------------
@@ -205,7 +244,7 @@ Fb2SaveHandler::ImageHandler::ImageHandler(BodyHandler *parent, const QString &n
     QString file = m_writer.getFile(href);
     file.prepend('#');
     m_writer.writeAttribute("l:href", file);
-    m_writer.writeEndElement();
+    m_writer.writeEndElement(0);
 }
 
 //---------------------------------------------------------------------------
@@ -237,15 +276,15 @@ void Fb2SaveHandler::ParagHandler::TxtTag(const QString &text)
 void Fb2SaveHandler::ParagHandler::EndTag(const QString &name)
 {
     Q_UNUSED(name);
-    if (m_empty) m_writer.writeStartElement("empty-line");
-    m_writer.writeEndElement();
+    if (m_empty) m_writer.writeStartElement("empty-line", m_level);
+    m_writer.writeEndElement(0);
 }
 
 void Fb2SaveHandler::ParagHandler::start()
 {
     if (!m_empty) return;
     QString tag = m_parent == "stanza" ? "v" : "p";
-    m_writer.writeStartElement(tag);
+    m_writer.writeStartElement(tag, m_level);
     m_empty = false;
 }
 

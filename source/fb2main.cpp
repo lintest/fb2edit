@@ -617,7 +617,7 @@ void Fb2MainWindow::viewCode()
     if (!codeEdit) {
         codeEdit = new Fb2Scintilla;
     }
-    if (load) codeEdit->load(xml);
+    if (load) codeEdit->load(xml, folds);
     setCentralWidget(codeEdit);
     codeEdit->setFocus();
 

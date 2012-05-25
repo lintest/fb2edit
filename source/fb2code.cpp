@@ -8,6 +8,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include <Qsci/qscilexerxml.h>
+#include <QtDebug>
 
 Fb2Scintilla::Fb2Scintilla(QWidget *parent) :
     QsciScintilla(parent)
@@ -77,8 +78,13 @@ void Fb2Scintilla::linesChanged()
     setMarginWidth(0, width);
 }
 
-void Fb2Scintilla::load(const QByteArray &array)
+void Fb2Scintilla::load(const QByteArray &array, const QList<int> &folds)
 {
     SendScintilla(SCI_SETTEXT, array.constData());
     SendScintilla(SCI_EMPTYUNDOBUFFER);
+    foldAll(false);
+    foldLine(1);
+    for (QList<int>::const_iterator it = folds.constBegin(); it != folds.constEnd(); it++) {
+        foldLine(*it);
+    }
 }

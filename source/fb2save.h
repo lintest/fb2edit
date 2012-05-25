@@ -20,6 +20,9 @@ public:
     explicit Fb2SaveWriter(Fb2WebView &view, QIODevice *device);
     explicit Fb2SaveWriter(Fb2WebView &view, QString *string);
     virtual ~Fb2SaveWriter();
+    void writeStartElement(const QString &name, int level);
+    void writeEndElement(int level);
+    void writeLineEnd();
     QString getFile(const QString &path);
     QString getData(const QString &name);
     void writeFiles();
@@ -32,6 +35,7 @@ private:
     typedef QList<QString> StringList;
     StringHash m_files;
     StringList m_names;
+    int m_line;
 };
 
 class Fb2SaveHandler : public Fb2XmlHandler
@@ -57,8 +61,8 @@ private:
             Code,
        FB2_END_KEYLIST
     public:
-        explicit BodyHandler(Fb2SaveWriter &writer, const QString &name, const QXmlAttributes &atts, const QString &tag, const QString &style = QString());
-        explicit BodyHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts, const QString &tag, const QString &style = QString());
+        explicit BodyHandler(Fb2SaveWriter &writer, const QString &name, const QXmlAttributes &atts, const QString &tag);
+        explicit BodyHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts, const QString &tag);
         const QString & tag() { return m_tag; }
     protected:
         virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
@@ -66,10 +70,13 @@ private:
         virtual void EndTag(const QString &name);
     protected:
         void Init(const QXmlAttributes &atts);
+        virtual int nextLevel() const;
     protected:
         Fb2SaveWriter &m_writer;
-        QString m_tag;
-        QString m_style;
+        const QString m_tag;
+        const int m_level;
+    private:
+        bool m_hasChild;
     };
 
     class RootHandler : public BodyHandler
@@ -103,6 +110,7 @@ private:
         virtual void TxtTag(const QString &text);
         virtual void EndTag(const QString &name);
     private:
+        virtual int nextLevel() const { return 0; }
         void start();
     private:
         const QString m_parent;

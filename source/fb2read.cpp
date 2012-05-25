@@ -260,6 +260,7 @@ void Fb2ReadHandler::TextHandler::Init(const QXmlAttributes &atts)
         if (m_style == "body" && Value(atts, "name").toLower() == "notes") m_style = "notes";
         writer().writeAttribute("class", m_style);
     }
+    if (!id.isEmpty()) writer().writeAttribute("id", id);
 }
 
 Fb2XmlHandler::NodeHandler * Fb2ReadHandler::TextHandler::NewTag(const QString &name, const QXmlAttributes &atts)
