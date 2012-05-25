@@ -16,34 +16,56 @@ Fb2Scintilla::Fb2Scintilla(QWidget *parent) :
     setUtf8(true);
     setCaretLineVisible(true);
     setCaretLineBackgroundColor(QColor("gainsboro"));
-    setWrapMode(QsciScintilla::WrapWord);
-
-    setEolMode(QsciScintilla::EolWindows);
+//    setWrapMode(QsciScintilla::WrapWord);
 
     setAutoIndent(true);
     setIndentationGuides(true);
 
+    //setup autocompletion
     setAutoCompletionSource(QsciScintilla::AcsAll);
     setAutoCompletionCaseSensitivity(true);
     setAutoCompletionReplaceWord(true);
     setAutoCompletionShowSingle(true);
     setAutoCompletionThreshold(2);
 
+    //setup margins
     setMarginsBackgroundColor(QColor("gainsboro"));
     setMarginLineNumbers(0, true);
     setFolding(QsciScintilla::BoxedFoldStyle, 1);
 
+    //setup brace matching
     setBraceMatching(QsciScintilla::SloppyBraceMatch);
     setMatchedBraceBackgroundColor(Qt::yellow);
     setUnmatchedBraceForegroundColor(Qt::blue);
 
-    QFont font("Courier", 10);
-    font.setStyleHint(QFont::TypeWriter);
+//    this->setFolding(QsciScintilla::CircledTreeFoldStyle, 1);
+    this->setIndentation(true,4);
+    this->setAutoIndent(true);
+
+    //setup end-of-line mode
+    #if defined Q_WS_X11
+    this->setEolMode(QsciScintilla::EolUnix);
+    #elif defined Q_WS_WIN
+    this->setEolMode(QsciScintilla::EolWindows);
+    #elif defined Q_WS_MAC
+    this->setEolMode(QsciScintilla::EolMac);
+    #endif
+
+    //setup auto-indentation
+    this->setAutoIndent(true);
+    this->setIndentationGuides(true);
+    this->setIndentationsUseTabs(false);
+    this->setIndentationWidth(2);
 
     QsciLexerXML * lexer = new QsciLexerXML;
-    lexer->setFont(font, -1);
+    lexer->setFoldPreprocessor(true);
 
-    setBraceMatching(QsciScintilla::SloppyBraceMatch);
+    #ifdef Q_WS_WIN
+    lexer->setFont(QFont("Courier New", 8));
+    #else
+    lexer->setFont(QFont("Monospace", 8));
+    #endif
+
     setLexer(lexer);
 
     connect(this, SIGNAL(linesChanged()), SLOT(linesChanged()));
@@ -55,3 +77,8 @@ void Fb2Scintilla::linesChanged()
     setMarginWidth(0, width);
 }
 
+void Fb2Scintilla::load(const QByteArray &array)
+{
+    SendScintilla(SCI_SETTEXT, array.constData());
+    SendScintilla(SCI_EMPTYUNDOBUFFER);
+}

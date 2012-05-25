@@ -17,7 +17,6 @@ Fb2MainWindow::Fb2MainWindow()
 {
     init();
     setCurrentFile();
-    textEdit = new Fb2WebView(this);
     viewText();
     textEdit->load(":blank.fb2");
 }
@@ -27,7 +26,6 @@ Fb2MainWindow::Fb2MainWindow(const QString &filename, ViewMode mode)
     init();
     setCurrentFile(filename);
     if (mode == FB2) {
-        textEdit = new Fb2WebView(this);
         viewText();
         textEdit->load(filename);
     } else {
@@ -602,9 +600,16 @@ void Fb2MainWindow::checkScintillaUndo()
 
 void Fb2MainWindow::viewCode()
 {
-    if (centralWidget() == codeEdit) return;
-    QString xml;
-    if (textEdit) textEdit->save(&xml);
+    if (codeEdit && centralWidget() == codeEdit) return;
+
+    bool load = false;
+    QByteArray xml;
+    QList<int> folds;
+    if (textEdit) {
+        textEdit->save(&xml, &folds);
+        load = true;
+    }
+
     FB2DELETE(textEdit);
     FB2DELETE(dockTree);
     FB2DELETE(headTree);
@@ -612,7 +617,7 @@ void Fb2MainWindow::viewCode()
     if (!codeEdit) {
         codeEdit = new Fb2Scintilla;
     }
-    codeEdit->setText(xml);
+    if (load) codeEdit->load(xml);
     setCentralWidget(codeEdit);
     codeEdit->setFocus();
 
@@ -651,7 +656,7 @@ void Fb2MainWindow::viewCode()
 
 void Fb2MainWindow::viewText()
 {
-    if (centralWidget() == textEdit) return;
+    if (textEdit && centralWidget() == textEdit) return;
     QString xml;
     if (codeEdit) xml = codeEdit->text();
     FB2DELETE(codeEdit);
@@ -775,7 +780,7 @@ void Fb2MainWindow::viewText()
 
 void Fb2MainWindow::viewHead()
 {
-    if (centralWidget() == headTree) return;
+    if (headTree && centralWidget() == headTree) return;
 
     QString xml;
     if (codeEdit) xml = codeEdit->text();

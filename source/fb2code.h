@@ -8,6 +8,7 @@ class Fb2Scintilla : public QsciScintilla
     Q_OBJECT
 public:
     explicit Fb2Scintilla(QWidget *parent = 0);
+    void load(const QByteArray &array);
     
 signals:
 

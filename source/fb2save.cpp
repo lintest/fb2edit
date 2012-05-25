@@ -8,15 +8,17 @@
 //  Fb2SaveWriter
 //---------------------------------------------------------------------------
 
-Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QIODevice *device)
-    : QXmlStreamWriter(device)
+Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QByteArray *array, QList<int> *folds)
+    : QXmlStreamWriter(array)
+    , m_folds(folds)
     , m_view(view)
 {
     Init();
 }
 
-Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QByteArray *array)
-    : QXmlStreamWriter(array)
+Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QIODevice *device)
+    : QXmlStreamWriter(device)
+    , m_folds(0)
     , m_view(view)
 {
     Init();
@@ -24,6 +26,7 @@ Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QByteArray *array)
 
 Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QString *string)
     : QXmlStreamWriter(string)
+    , m_folds(0)
     , m_view(view)
 {
     Init();
@@ -256,9 +259,9 @@ Fb2SaveHandler::Fb2SaveHandler(Fb2WebView &view, QIODevice *device)
 {
 }
 
-Fb2SaveHandler::Fb2SaveHandler(Fb2WebView &view, QByteArray *array)
+Fb2SaveHandler::Fb2SaveHandler(Fb2WebView &view, QByteArray *array, QList<int> *folds)
     : Fb2XmlHandler()
-    , m_writer(view, array)
+    , m_writer(view, array, folds)
 {
 }
 

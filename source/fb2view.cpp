@@ -102,18 +102,23 @@ bool Fb2WebView::save(QIODevice *device)
     return reader.parse(source);
 }
 
-bool Fb2WebView::save(QString *string)
+bool Fb2WebView::save(QByteArray *array, QList<int> *folds)
 {
-    // Use class QByteArray instead QString
-    // to store information about encoding.
-    QByteArray data;
-    Fb2SaveHandler handler(*this, &data);
+    Fb2SaveHandler handler(*this, array, folds);
     QXmlInputSource source;
     source.setData(toBodyXml());
     XML2::HtmlReader reader;
     reader.setContentHandler(&handler);
     reader.setErrorHandler(&handler);
-    bool ok = reader.parse(source);
+    return reader.parse(source);
+}
+
+bool Fb2WebView::save(QString *string)
+{
+    // Use class QByteArray instead QString
+    // to store information about encoding.
+    QByteArray data;
+    bool ok = save(&data);
     if (ok) *string = QString::fromUtf8(data.data());
     return ok;
 }

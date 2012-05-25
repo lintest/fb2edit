@@ -59,6 +59,7 @@ public:
     explicit Fb2WebView(QWidget *parent = 0);
     virtual ~Fb2WebView();
     void load(const QString &filename, const QString &xml = QString());
+    bool save(QByteArray *array, QList<int> *folds = 0);
     bool save(QIODevice *device);
     bool save(QString *string);
     QString fileName(const QString &path);
