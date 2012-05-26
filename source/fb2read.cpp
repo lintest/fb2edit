@@ -256,9 +256,10 @@ void Fb2ReadHandler::TextHandler::Init(const QXmlAttributes &atts)
     writer().writeStartElement(m_tag);
     QString id = Value(atts, "id");
     if (!m_style.isEmpty()) {
-        if (m_style == "section" && !id.isEmpty() && isNotes()) m_style = "note";
-        if (m_style == "body" && Value(atts, "name").toLower() == "notes") m_style = "notes";
         writer().writeAttribute("class", m_style);
+        if (m_style == "body" && Value(atts, "name").toLower() == "notes") {
+            writer().writeAttribute("name", "notes");
+        }
     }
     if (!id.isEmpty()) writer().writeAttribute("id", id);
 }

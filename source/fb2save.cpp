@@ -149,18 +149,13 @@ Fb2SaveHandler::BodyHandler::BodyHandler(BodyHandler *parent, const QString &nam
 void Fb2SaveHandler::BodyHandler::Init(const QXmlAttributes &atts)
 {
     if (m_tag.isEmpty()) return;
-    if (m_tag == "notes") {
-        m_writer.writeStartElement("section", m_level);
-        m_writer.writeAttribute("name", "notes");
-    } else if (m_tag == "note") {
-        m_writer.writeStartElement("section", m_level);
-    } else {
-        m_writer.writeStartElement(m_tag, m_level);
-    }
+    m_writer.writeStartElement(m_tag, m_level);
     int count = atts.count();
     for (int i = 0; i < count; i++) {
         QString name = atts.qName(i);
         if (name == "id") {
+            m_writer.writeAttribute(name, atts.value(i));
+        } else if (name == "name") {
             m_writer.writeAttribute(name, atts.value(i));
         } else if (name.left(4) == "fb2:") {
             m_writer.writeAttribute(name.mid(4), atts.value(i));

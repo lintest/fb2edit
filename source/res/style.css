@@ -88,7 +88,7 @@ div.poem p {
   margin-bottom: 0;
 }
 
-div.note {
+div.body[name=notes] {
   border-top: none;
   border-bottom: none;
   border-left: thin solid green;
@@ -99,7 +99,7 @@ div.note {
   padding-right: 0;
 }
 
-div.note div.title {
+div.body[name=notes] div[id] div.title {
   font: inherit;
   float: left;
   margin-left: 4;
@@ -108,7 +108,7 @@ div.note div.title {
   padding-right: 4;
 }
 
-div.note div.title p {
+div.body[name=notes] div[id] div.title p {
   margin-top: 0;
   margin-bottom: 0;
 }
