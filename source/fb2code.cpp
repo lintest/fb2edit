@@ -17,17 +17,16 @@ Fb2Scintilla::Fb2Scintilla(QWidget *parent) :
     setUtf8(true);
     setCaretLineVisible(true);
     setCaretLineBackgroundColor(QColor("gainsboro"));
-//    setWrapMode(QsciScintilla::WrapWord);
+    setWrapMode(QsciScintilla::WrapWord);
 
-    setAutoIndent(true);
-    setIndentationGuides(true);
-
+    /*
     //setup autocompletion
     setAutoCompletionSource(QsciScintilla::AcsAll);
     setAutoCompletionCaseSensitivity(true);
     setAutoCompletionReplaceWord(true);
     setAutoCompletionShowSingle(true);
     setAutoCompletionThreshold(2);
+    */
 
     //setup margins
     setMarginsBackgroundColor(QColor("gainsboro"));
@@ -39,24 +38,20 @@ Fb2Scintilla::Fb2Scintilla(QWidget *parent) :
     setMatchedBraceBackgroundColor(Qt::yellow);
     setUnmatchedBraceForegroundColor(Qt::blue);
 
-//    this->setFolding(QsciScintilla::CircledTreeFoldStyle, 1);
-    this->setIndentation(true,4);
-    this->setAutoIndent(true);
-
     //setup end-of-line mode
     #if defined Q_WS_X11
-    this->setEolMode(QsciScintilla::EolUnix);
+    setEolMode(QsciScintilla::EolUnix);
     #elif defined Q_WS_WIN
-    this->setEolMode(QsciScintilla::EolWindows);
+    setEolMode(QsciScintilla::EolWindows);
     #elif defined Q_WS_MAC
-    this->setEolMode(QsciScintilla::EolMac);
+    setEolMode(QsciScintilla::EolMac);
     #endif
 
     //setup auto-indentation
-    this->setAutoIndent(true);
-    this->setIndentationGuides(true);
-    this->setIndentationsUseTabs(false);
-    this->setIndentationWidth(2);
+    setAutoIndent(true);
+    setIndentationGuides(true);
+    setIndentationsUseTabs(false);
+    setIndentationWidth(2);
 
     QsciLexerXML * lexer = new QsciLexerXML;
     lexer->setFoldPreprocessor(true);
