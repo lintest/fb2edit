@@ -1,14 +1,14 @@
 HEADERS = \
-    source/fb2app.h \
-    source/fb2code.h \
-    source/fb2head.h \
-    source/fb2main.h \
-    source/fb2read.h \
-    source/fb2tree.h \
     source/fb2save.h \
-    source/fb2view.h \
     source/fb2xml.h \
-    source/fb2xml2.h
+    source/fb2xml2.h \
+    source/fb2app.hpp \
+    source/fb2code.hpp \
+    source/fb2head.hpp \
+    source/fb2main.hpp \
+    source/fb2read.hpp \
+    source/fb2tree.hpp \
+    source/fb2view.hpp
 
 SOURCES = \
     source/fb2app.cpp \

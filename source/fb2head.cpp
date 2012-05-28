@@ -1,4 +1,4 @@
-#include "fb2head.h"
+#include "fb2head.hpp"
 
 #include <QtDebug>
 #include <QWebFrame>

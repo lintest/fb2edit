@@ -11,7 +11,6 @@
 class Fb2ReadThread : public QThread
 {
     Q_OBJECT
-
 public:
     Fb2ReadThread(QObject *parent, const QString &filename, const QString &xml = QString());
     ~Fb2ReadThread();

@@ -1,4 +1,4 @@
-#include "fb2tree.h"
+#include "fb2tree.hpp"
 
 #include <QtDebug>
 #include <QWebFrame>

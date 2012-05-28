@@ -21,7 +21,7 @@ INCLUDE(${QT_USE_FILE})
 ADD_DEFINITIONS(${QT_DEFINITIONS})
 ADD_DEFINITIONS(${LIBXML2_DEFINITIONS})
 
-file( GLOB FB2_HEAD source/*.h       )
+file( GLOB FB2_HEAD source/*.hpp     )
 file( GLOB FB2_SRCS source/*.cpp     )
 file( GLOB FB2_UIS  source/*.ui      )
 file( GLOB FB2_TSS  source/ts/*.ts   )

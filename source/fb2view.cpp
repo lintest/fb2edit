@@ -1,5 +1,5 @@
-#include "fb2view.h"
-#include "fb2read.h"
+#include "fb2view.hpp"
+#include "fb2read.hpp"
 #include "fb2save.h"
 #include "fb2xml2.h"
 

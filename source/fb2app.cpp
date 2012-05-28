@@ -1,8 +1,8 @@
 #include <QApplication>
 #include <QErrorMessage>
 
-#include "fb2app.h"
-#include "fb2main.h"
+#include "fb2app.hpp"
+#include "fb2main.hpp"
 
 void Fb2Application::handleMessage(QtMsgType type, const char *msg)
 {

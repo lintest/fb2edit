@@ -4,12 +4,12 @@
 #include <QWebInspector>
 #include <QWebFrame>
 
-#include "fb2main.h"
-#include "fb2code.h"
-#include "fb2read.h"
-#include "fb2tree.h"
-#include "fb2view.h"
-#include "fb2head.h"
+#include "fb2main.hpp"
+#include "fb2code.hpp"
+#include "fb2read.hpp"
+#include "fb2tree.hpp"
+#include "fb2view.hpp"
+#include "fb2head.hpp"
 
 #define FB2DELETE(p) { if ( (p) != NULL ) { delete p; p = NULL; } }
 

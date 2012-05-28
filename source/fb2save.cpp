@@ -2,7 +2,7 @@
 #include <QtDebug>
 
 #include "fb2save.h"
-#include "fb2view.h"
+#include "fb2view.hpp"
 
 //---------------------------------------------------------------------------
 //  Fb2SaveWriter

@@ -1,7 +1,7 @@
 #include <QtGui>
 #include <QtDebug>
 
-#include "fb2read.h"
+#include "fb2read.hpp"
 #include "fb2xml2.h"
 
 //---------------------------------------------------------------------------
