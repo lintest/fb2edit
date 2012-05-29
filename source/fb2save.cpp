@@ -80,17 +80,13 @@ QByteArray Fb2SaveWriter::downloadFile(const QString &src)
 
 QString Fb2SaveWriter::getFileName(const QString &path)
 {
-    StringHash::const_iterator it = m_files.find(path);
-    if (it != m_files.end()) return it.value();
-
     QString hash = m_view.files().hash(path);
     if (hash.isEmpty()) return QString();
 
     QString name = m_view.files().name(hash);
     if (name.isEmpty()) return QString();
 
-    m_files[name] = path;
-    m_names << name;
+    m_names.append(name);
     return name;
 }
 
@@ -101,9 +97,9 @@ QString Fb2SaveWriter::getFileData(const QString &name)
 
 void Fb2SaveWriter::writeFiles()
 {
-    StringList::const_iterator it;
-    for (it = m_names.constBegin(); it != m_names.constEnd(); it++) {
-        QString name = *it;
+    QStringListIterator it(m_names);
+    while (it.hasNext()) {
+        QString name = it.next();
         if (name.isEmpty()) continue;
         QString data = getFileData(name);
         if (data.isEmpty()) continue;

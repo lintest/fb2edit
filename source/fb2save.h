@@ -5,12 +5,12 @@
 #include "fb2temp.hpp"
 
 #include <QByteArray>
-#include <QHash>
-#include <QList>
-#include <QMutex>
+#include <QStringList>
 #include <QThread>
 #include <QXmlDefaultHandler>
 #include <QXmlStreamWriter>
+
+#include "fb2temp.hpp"
 
 class Fb2WebView;
 
@@ -34,10 +34,8 @@ private:
 private:
     QList<int> *m_folds;
     Fb2WebView &m_view;
-    typedef QHash<QString, QString> StringHash;
-    typedef QList<QString> StringList;
-    StringHash m_files;
-    StringList m_names;
+    Fb2TemporaryList m_files;
+    QStringList m_names;
     int m_line;
 };
 
