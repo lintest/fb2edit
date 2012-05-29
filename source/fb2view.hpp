@@ -1,14 +1,13 @@
 #ifndef FB2VIEW_H
 #define FB2VIEW_H
 
-#include <QByteArray>
-#include <QHash>
 #include <QResizeEvent>
-#include <QTemporaryFile>
 #include <QTimer>
 #include <QThread>
 #include <QWebElement>
 #include <QWebView>
+
+#include "fb2temp.hpp"
 
 class Fb2BaseWebView : public QWebView
 {
@@ -58,12 +57,12 @@ class Fb2WebView : public Fb2BaseWebView
 public:
     explicit Fb2WebView(QWidget *parent = 0);
     virtual ~Fb2WebView();
+
+    const Fb2TemporaryList & files() const { return m_files; }
     void load(const QString &filename, const QString &xml = QString());
     bool save(QByteArray *array, QList<int> *folds = 0);
     bool save(QIODevice *device);
     bool save(QString *string);
-    QString fileName(const QString &path);
-    QString fileData(const QString &name);
     QString toBodyXml();
 
     bool UndoEnabled();
@@ -93,12 +92,11 @@ private slots:
 
 private:
     void execCommand(const QString &cmd, const QString &arg);
-    QTemporaryFile * file(const QString &name);
+    Fb2TemporaryFile * file(const QString &name);
     QWebElement doc();
 
 private:
-    typedef QHash<QString, QTemporaryFile*> TemporaryHash;
-    TemporaryHash m_files;
+    Fb2TemporaryList m_files;
     QThread *m_thread;
 };
 

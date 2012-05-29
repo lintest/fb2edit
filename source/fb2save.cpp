@@ -4,6 +4,10 @@
 #include "fb2save.h"
 #include "fb2view.hpp"
 
+#include <QAbstractNetworkCache>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+
 //---------------------------------------------------------------------------
 //  Fb2SaveWriter
 //---------------------------------------------------------------------------
@@ -65,22 +69,34 @@ void Fb2SaveWriter::writeLineEnd()
     m_line++;
 }
 
-QString Fb2SaveWriter::getFile(const QString &path)
+QByteArray Fb2SaveWriter::downloadFile(const QString &src)
 {
-    StringHash::const_iterator it = m_files.find(path);
-    if (it == m_files.end()) {
-        QString name = m_view.fileName(path);
-        if (name.isEmpty()) return QString();
-        m_files[name] = path;
-        m_names << name;
-        return name;
-    }
-    return it.value();
+    QUrl url(src);
+    QNetworkRequest request(url);
+    QNetworkAccessManager * network = m_view.page()->networkAccessManager();
+    QNetworkReply * reply = network->get(request);
+    return reply->readAll();
 }
 
-QString Fb2SaveWriter::getData(const QString &name)
+QString Fb2SaveWriter::getFileName(const QString &path)
 {
-    return m_view.fileData(name);
+    StringHash::const_iterator it = m_files.find(path);
+    if (it != m_files.end()) return it.value();
+
+    QString hash = m_view.files().hash(path);
+    if (hash.isEmpty()) return QString();
+
+    QString name = m_view.files().name(hash);
+    if (name.isEmpty()) return QString();
+
+    m_files[name] = path;
+    m_names << name;
+    return name;
+}
+
+QString Fb2SaveWriter::getFileData(const QString &name)
+{
+    return m_view.files().data(name);
 }
 
 void Fb2SaveWriter::writeFiles()
@@ -89,7 +105,7 @@ void Fb2SaveWriter::writeFiles()
     for (it = m_names.constBegin(); it != m_names.constEnd(); it++) {
         QString name = *it;
         if (name.isEmpty()) continue;
-        QString data = getData(name);
+        QString data = getFileData(name);
         if (data.isEmpty()) continue;
         writeStartElement("binary", 2);
         if (m_folds) m_folds->append(m_line);
@@ -235,8 +251,8 @@ Fb2SaveHandler::AnchorHandler::AnchorHandler(BodyHandler *parent, const QString 
 Fb2SaveHandler::ImageHandler::ImageHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts)
     : BodyHandler(parent, name, atts, "image")
 {
-    QString href = Value(atts, "src");
-    QString file = m_writer.getFile(href);
+    QString src = Value(atts, "src");
+    QString file = m_writer.getFileName(src);
     file.prepend('#');
     m_writer.writeAttribute("l:href", file);
     m_writer.writeEndElement(0);

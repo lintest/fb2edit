@@ -57,7 +57,6 @@ Fb2WebView::Fb2WebView(QWidget *parent)
 
 Fb2WebView::~Fb2WebView()
 {
-    foreach (QTemporaryFile *file, m_files) delete file;
 }
 
 QWebElement Fb2WebView::doc()
@@ -125,43 +124,14 @@ bool Fb2WebView::save(QString *string)
     return ok;
 }
 
-QTemporaryFile * Fb2WebView::file(const QString &name)
-{
-    TemporaryHash::const_iterator it = m_files.find(name);
-    if (it == m_files.end()) {
-        it = m_files.insert(name, new QTemporaryFile());
-        it.value()->open();
-    }
-    return it.value();
-}
-
 QString Fb2WebView::temp(QString name)
 {
-    return file(name)->fileName();
+    return m_files.get(name).fileName();
 }
 
 void Fb2WebView::data(QString name, QByteArray data)
 {
-    QTemporaryFile * temp = file(name);
-    temp->write(data);
-    temp->close();
-    temp->open();
-}
-
-QString Fb2WebView::fileName(const QString &path)
-{
-    QHashIterator<QString, QTemporaryFile*> it(m_files);
-    while (it.hasNext()) {
-        it.next();
-        if (it.value()->fileName() == path) return it.key();
-    }
-    return QString();
-}
-
-QString Fb2WebView::fileData(const QString &name)
-{
-    QTemporaryFile * temp = file(name);
-    return temp->readAll().toBase64();
+    m_files.set(name, data);
 }
 
 void Fb2WebView::html(QString name, QString html)
@@ -256,4 +226,3 @@ void Fb2WebView::execCommand(const QString &cmd, const QString &arg)
     QString js = QString("document.execCommand(\"%1\", false, \"%2\")").arg(cmd).arg(arg);
     frame->evaluateJavaScript(js);
 }
-

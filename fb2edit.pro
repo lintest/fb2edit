@@ -7,6 +7,7 @@ HEADERS = \
     source/fb2head.hpp \
     source/fb2main.hpp \
     source/fb2read.hpp \
+    source/fb2temp.hpp \
     source/fb2tree.hpp \
     source/fb2view.hpp
 
@@ -16,8 +17,9 @@ SOURCES = \
     source/fb2head.cpp \
     source/fb2main.cpp \
     source/fb2read.cpp \
-    source/fb2tree.cpp \
     source/fb2save.cpp \
+    source/fb2temp.cpp \
+    source/fb2tree.cpp \
     source/fb2view.cpp \
     source/fb2xml.cpp \
     source/fb2xml2.cpp

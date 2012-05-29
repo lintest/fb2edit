@@ -2,6 +2,7 @@
 #define Fb2Save_H
 
 #include "fb2xml.h"
+#include "fb2temp.hpp"
 
 #include <QByteArray>
 #include <QHash>
@@ -20,14 +21,16 @@ public:
     explicit Fb2SaveWriter(Fb2WebView &view, QIODevice *device);
     explicit Fb2SaveWriter(Fb2WebView &view, QString *string);
     virtual ~Fb2SaveWriter();
+    QString getFileName(const QString &src);
     void writeStartElement(const QString &name, int level);
     void writeEndElement(int level);
     void writeLineEnd();
-    QString getFile(const QString &path);
-    QString getData(const QString &name);
     void writeFiles();
 private:
     void Init();
+    QByteArray downloadFile(const QString &src);
+    QString getFileData(const QString &name);
+    QString newFileName();
 private:
     QList<int> *m_folds;
     Fb2WebView &m_view;
