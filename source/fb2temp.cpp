@@ -48,7 +48,7 @@ Fb2TemporaryFile & Fb2TemporaryList::get(const QString &name)
     return *file;
 }
 
-void Fb2TemporaryList::set(QString name, QByteArray data)
+void Fb2TemporaryList::set(const QString &name, const QByteArray &data)
 {
     get(name).write(data);
 }
@@ -83,3 +83,12 @@ QString Fb2TemporaryList::data(const QString &name) const
     return QString();
 }
 
+bool Fb2TemporaryList::exists(const QString &name)
+{
+    Fb2TemporaryIterator it(*this);
+    while (it.hasNext()) {
+        Fb2TemporaryFile *file = it.next();
+        if (file->name() == name) return true;
+    }
+    return false;
+}

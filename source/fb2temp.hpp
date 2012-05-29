@@ -25,8 +25,9 @@ public:
     explicit Fb2TemporaryList();
     virtual ~Fb2TemporaryList();
 
+    bool exists(const QString &name);
     Fb2TemporaryFile & get(const QString &name);
-    void set(QString name, QByteArray data);
+    void set(const QString &name, const QByteArray &data);
 
     QString hash(const QString &path) const;
     QString name(const QString &hash) const;
