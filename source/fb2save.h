@@ -30,7 +30,7 @@ private:
     void Init();
     QByteArray downloadFile(const QString &src);
     QString getFileData(const QString &name);
-    QString newFileName();
+    QString newFileName(const QString &path);
 private:
     QList<int> *m_folds;
     Fb2WebView &m_view;

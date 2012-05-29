@@ -10,10 +10,11 @@ class Fb2TemporaryFile : public QTemporaryFile
 {
     Q_OBJECT
 public:
-    explicit Fb2TemporaryFile(const QString &name);
+    explicit Fb2TemporaryFile(const QString &name, const QString &hash = QString());
     inline qint64 write(const QByteArray &data);
     const QString & hash() const { return m_hash; }
     const QString & name() const { return m_name; }
+    static QString md5(const QByteArray &data);
 private:
     const QString m_name;
     QString m_hash;
@@ -25,9 +26,9 @@ public:
     explicit Fb2TemporaryList();
     virtual ~Fb2TemporaryList();
 
-    bool exists(const QString &name);
-    Fb2TemporaryFile & get(const QString &name);
-    void set(const QString &name, const QByteArray &data);
+    bool exists(const QString &name) const;
+    Fb2TemporaryFile & get(const QString &name, const QString &hash = QString());
+    QString set(const QString &name, const QByteArray &data, const QString &hash = QString());
 
     QString hash(const QString &path) const;
     QString name(const QString &hash) const;

@@ -7,6 +7,7 @@
 #include <QAbstractNetworkCache>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QScopedPointer>
 
 //---------------------------------------------------------------------------
 //  Fb2SaveWriter
@@ -78,21 +79,55 @@ QByteArray Fb2SaveWriter::downloadFile(const QString &src)
     return reply->readAll();
 }
 
+QString Fb2SaveWriter::newFileName(const QString &path)
+{
+    QFileInfo info(path);
+    QString name = info.fileName();
+    if (!m_view.files().exists(name) && !m_files.exists(name)) return name;
+    QString base = info.baseName();
+    QString suff = info.suffix();
+    for (int i = 1; ; i++) {
+        QString name = QString("%1(%2).%3").arg(base).arg(i).arg(suff);
+        if (m_view.files().exists(name)) continue;
+        if (m_files.exists(name)) continue;
+        return name;
+    }
+}
+
 QString Fb2SaveWriter::getFileName(const QString &path)
 {
     QString hash = m_view.files().hash(path);
-    if (hash.isEmpty()) return QString();
+    if (hash.isEmpty()) {
+        QUrl url(path);
+        QNetworkRequest request(url);
+        QNetworkAccessManager * network = m_view.page()->networkAccessManager();
+        QScopedPointer<QNetworkReply> reply(network->get(request));
+        if (reply.isNull()) return QString();
 
-    QString name = m_view.files().name(hash);
-    if (name.isEmpty()) return QString();
+        QEventLoop loop;
+        QObject::connect(reply.data(), SIGNAL(readyRead()), &loop, SLOT(quit()));
+        loop.exec();
 
-    m_names.append(name);
-    return name;
+        QByteArray data = reply->readAll();
+
+        hash = Fb2TemporaryFile::md5(data);
+        QString name = newFileName(url.path());
+        m_files.set(name, data, hash);
+        m_names.append(name);
+        return name;
+    } else {
+        QString name = m_view.files().name(hash);
+        if (name.isEmpty()) return QString();
+        if (m_names.indexOf(name) == -1) m_names.append(name);
+        return name;
+    }
 }
 
 QString Fb2SaveWriter::getFileData(const QString &name)
 {
-    return m_view.files().data(name);
+    QString data = m_view.files().data(name);
+    if (data.isEmpty()) data = m_files.data(name);
+    return data;
 }
 
 void Fb2SaveWriter::writeFiles()
