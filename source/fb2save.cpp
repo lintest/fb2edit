@@ -105,7 +105,7 @@ QString Fb2SaveWriter::getFileName(const QString &path)
         if (reply.isNull()) return QString();
 
         QEventLoop loop;
-        QObject::connect(reply.data(), SIGNAL(readyRead()), &loop, SLOT(quit()));
+        QObject::connect(reply.data(), SIGNAL(finished()), &loop, SLOT(quit()));
         loop.exec();
 
         QByteArray data = reply->readAll();
