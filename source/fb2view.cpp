@@ -29,6 +29,10 @@ Fb2WebPage::Fb2WebPage(QObject *parent)
     s->setAttribute(QWebSettings::PluginsEnabled, false);
     s->setAttribute(QWebSettings::ZoomTextOnly, true);
     s->setUserStyleSheetUrl(QUrl::fromLocalFile(":style.css"));
+
+    Fb2NetworkDiskCache * cache = new Fb2NetworkDiskCache(this);
+    cache->setCacheDirectory("/home/user/tmp/");
+    networkAccessManager()->setCache(cache);
 }
 
 bool Fb2WebPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type)
