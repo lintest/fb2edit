@@ -15,21 +15,28 @@ Fb2TemporaryFile::Fb2TemporaryFile(const QString &name, const QString &hash)
     , m_name(name)
     , m_hash(hash)
 {
-    open();
 }
 
 qint64 Fb2TemporaryFile::write(const QByteArray &data)
 {
+    open();
     if (m_hash.isEmpty()) m_hash = md5(data);
     qint64 size = QTemporaryFile::write(data);
     close();
-    open();
     return size;
 }
 
 QString Fb2TemporaryFile::md5(const QByteArray &data)
 {
     return QCryptographicHash::hash(data, QCryptographicHash::Md5).toBase64();
+}
+
+QByteArray Fb2TemporaryFile::data()
+{
+    open();
+    QByteArray data = readAll();
+    close();
+    return data;
 }
 
 //---------------------------------------------------------------------------
@@ -58,17 +65,12 @@ Fb2TemporaryFile & Fb2TemporaryList::get(const QString &name, const QString &has
     return *file;
 }
 
-QByteArray Fb2TemporaryList::fileData(const QString &name) const
+QByteArray Fb2TemporaryList::data(const QString &name) const
 {
     Fb2TemporaryIterator it(*this);
     while (it.hasNext()) {
         Fb2TemporaryFile *file = it.next();
-        if (file->name() == name) {
-            QByteArray data = file->readAll();
-            file->close();
-            file->open();
-            return data;
-        }
+        if (file->name() == name) return file->data();
     }
     return QByteArray();
 }
@@ -80,32 +82,12 @@ QString Fb2TemporaryList::set(const QString &name, const QByteArray &data, const
     return file.hash();
 }
 
-QString Fb2TemporaryList::hash(const QString &path) const
-{
-    Fb2TemporaryIterator it(*this);
-    while (it.hasNext()) {
-        Fb2TemporaryFile *file = it.next();
-        if (file->fileName() == path) return file->hash();
-    }
-    return QString();
-}
-
 QString Fb2TemporaryList::name(const QString &hash) const
 {
     Fb2TemporaryIterator it(*this);
     while (it.hasNext()) {
         Fb2TemporaryFile *file = it.next();
         if (file->hash() == hash) return file->name();
-    }
-    return QString();
-}
-
-QString Fb2TemporaryList::data(const QString &name) const
-{
-    Fb2TemporaryIterator it(*this);
-    while (it.hasNext()) {
-        Fb2TemporaryFile *file = it.next();
-        if (file->name() == name) return file->readAll().toBase64();
     }
     return QString();
 }
@@ -189,6 +171,6 @@ QNetworkReply * Fb2NetworkAccessManager::createRequest(Operation op, const QNetw
 QNetworkReply * Fb2NetworkAccessManager::imageRequest(Operation op, const QNetworkRequest &request)
 {
     QString name = request.url().path();
-    QByteArray data = m_view.files().fileData(name);
+    QByteArray data = m_view.files().data(name);
     return new Fb2ImageReply(op, request, data);
 }

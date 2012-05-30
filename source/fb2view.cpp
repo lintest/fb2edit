@@ -106,7 +106,7 @@ void Fb2WebView::linkHovered(const QString &link, const QString &title, const QS
 
     QLabel * label = new QLabel();
     label->setPixmap(QPixmap::fromImage(image));
-    label->setText(element.toOuterXml());
+//    label->setText(element.toOuterXml());
     label->show();
 }
 

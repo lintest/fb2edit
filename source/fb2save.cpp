@@ -126,7 +126,7 @@ QString Fb2SaveWriter::getFileName(const QString &path)
 
 QString Fb2SaveWriter::getFileData(const QString &name)
 {
-    QString data = m_view.files().data(name);
+    QString data = m_view.files().data(name).toBase64();
     if (data.isEmpty()) data = m_files.data(name);
     return data;
 }
