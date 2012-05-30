@@ -124,10 +124,10 @@ QString Fb2SaveWriter::getFileName(const QString &path)
     }
 }
 
-QString Fb2SaveWriter::getFileData(const QString &name)
+QByteArray Fb2SaveWriter::getFileData(const QString &name)
 {
-    QString data = m_view.files().data(name).toBase64();
-    if (data.isEmpty()) data = m_files.data(name);
+    QByteArray data = m_view.files().data(name);
+    if (data.size() == 0) data = m_files.data(name);
     return data;
 }
 
@@ -137,7 +137,7 @@ void Fb2SaveWriter::writeFiles()
     while (it.hasNext()) {
         QString name = it.next();
         if (name.isEmpty()) continue;
-        QString data = getFileData(name);
+        QString data = getFileData(name).toBase64();
         if (data.isEmpty()) continue;
         writeStartElement("binary", 2);
         if (m_folds) m_folds->append(m_line);

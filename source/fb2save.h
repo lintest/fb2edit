@@ -29,7 +29,7 @@ public:
 private:
     void Init();
     QByteArray downloadFile(const QUrl &url);
-    QString getFileData(const QString &name);
+    QByteArray getFileData(const QString &name);
     QString newFileName(const QString &path);
 private:
     QList<int> *m_folds;

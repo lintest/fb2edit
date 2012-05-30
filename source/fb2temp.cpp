@@ -136,6 +136,7 @@ Fb2ImageReply::Fb2ImageReply(QNetworkAccessManager::Operation op, const QNetwork
     setUrl(request.url());
     open(ReadOnly | Unbuffered);
     setHeader(QNetworkRequest::ContentLengthHeader, QVariant(content.size()));
+    setAttribute(QNetworkRequest::CacheSaveControlAttribute, QVariant(false));
     QMetaObject::invokeMethod(this, "readyRead", Qt::QueuedConnection);
     QMetaObject::invokeMethod(this, "finished", Qt::QueuedConnection);
 }
