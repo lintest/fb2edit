@@ -329,13 +329,13 @@ void Fb2MainWindow::createActions()
     actionImage = act = new QAction(icon("insert-image"), tr("&Image"), this);
     menu->addAction(act);
 
-    act = new QAction(icon("insert-link"), tr("&Link"), this);
+    actionNote = act = new QAction(icon("insert-text"), tr("&Footnote"), this);
     menu->addAction(act);
 
-    act = new QAction(icon("insert-object"), tr("&Object"), this);
+    actionLink = act = new QAction(icon("insert-link"), tr("&Hiperlink"), this);
     menu->addAction(act);
 
-    act = new QAction(icon("insert-text"), tr("&Text"), this);
+    actionBody = act = new QAction(icon("insert-object"), tr("&Body"), this);
     menu->addAction(act);
 
     menuText = menu = menuBar()->addMenu(tr("Fo&rmat"));
@@ -763,13 +763,20 @@ void Fb2MainWindow::viewText()
 
     act = textEdit->pageAction(QWebPage::ToggleSuperscript);
     act->setIcon(icon("format-text-superscript"));
-    act->setText(tr("Superscript"));
+    act->setText(tr("Su&perscript"));
     tool->addAction(act);
 
     act = textEdit->pageAction(QWebPage::ToggleSubscript);
     act->setIcon(icon("format-text-subscript"));
-    act->setText(tr("Subscript"));
+    act->setText(tr("Su&bscript"));
     tool->addAction(act);
+
+    tool->addSeparator();
+
+    tool->addAction(actionImage);
+    tool->addAction(actionNote);
+    tool->addAction(actionLink);
+    tool->addAction(actionBody);
 
     tool->addSeparator();
 
