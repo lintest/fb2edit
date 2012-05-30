@@ -83,11 +83,31 @@ void Fb2WebView::fixContents()
     }
 }
 
+ #include <QLabel>
+
 void Fb2WebView::linkHovered(const QString &link, const QString &title, const QString &textContent)
 {
     Q_UNUSED(title);
     Q_UNUSED(textContent);
     QToolTip::showText(QPoint(100, 100), link);
+    QUrl url = link;
+    const QString href = url.fragment();
+    QString query = QString("DIV[id=%1]").arg(href);
+
+    QWebElement element = doc().findFirst(query);
+    if (element.isNull()) return;
+
+    QRect rect = element.geometry();
+    QImage image(rect.size(), QImage::Format_ARGB32);
+    QPainter painter(&image);
+    painter.fillRect(rect, QColor("white"));
+    element.render(&painter);
+    painter.end();
+
+    QLabel * label = new QLabel();
+    label->setPixmap(QPixmap::fromImage(image));
+    label->setText(element.toOuterXml());
+    label->show();
 }
 
 void Fb2WebView::load(const QString &filename, const QString &xml)
