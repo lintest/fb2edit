@@ -321,10 +321,9 @@ Fb2ReadHandler::ImageHandler::ImageHandler(Fb2ReadHandler &owner, const QString 
     : TextHandler(owner, name, atts, "img")
 {
     QString href = Value(atts, "href");
-    while (href.left(1) == "#") href.remove(0, 1);
-    QString path = m_owner.getFile(href);
-    writer().writeAttribute("src", path);
-    writer().writeAttribute("alt", href);
+    if (href.left(1) == "#") href.remove(0, 1);
+    href.prepend("fb2:");
+    writer().writeAttribute("src", href);
 }
 
 //---------------------------------------------------------------------------
@@ -348,7 +347,6 @@ void Fb2ReadHandler::BinaryHandler::EndTag(const QString &name)
     QByteArray in; in.append(m_text);
     if (!m_file.isEmpty()) m_owner.addFile(m_file, QByteArray::fromBase64(in));
 }
-
 
 //---------------------------------------------------------------------------
 //  Fb2ReadHandler

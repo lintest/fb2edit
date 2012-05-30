@@ -5,6 +5,7 @@
 #include <QWebPage>
 #include <QWebView>
 #include <QTreeView>
+#include <QUrl>
 
 Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent)
     : QObject(parent)
@@ -25,7 +26,8 @@ Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent)
         }
         if (!style.isEmpty()) m_name = style;
     } else if (m_name == "img") {
-        m_text = element.attribute("alt");
+        QUrl url = element.attribute("src");
+        m_text = url.path();
     }
     addChildren(element);
 }

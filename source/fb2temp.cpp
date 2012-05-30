@@ -4,6 +4,8 @@
 #include <QUrl>
 #include <QtDebug>
 
+#include "fb2view.hpp"
+
 //---------------------------------------------------------------------------
 //  Fb2TemporaryFile
 //---------------------------------------------------------------------------
@@ -56,6 +58,21 @@ Fb2TemporaryFile & Fb2TemporaryList::get(const QString &name, const QString &has
     return *file;
 }
 
+QByteArray Fb2TemporaryList::fileData(const QString &name) const
+{
+    Fb2TemporaryIterator it(*this);
+    while (it.hasNext()) {
+        Fb2TemporaryFile *file = it.next();
+        if (file->name() == name) {
+            QByteArray data = file->readAll();
+            file->close();
+            file->open();
+            return data;
+        }
+    }
+    return QByteArray();
+}
+
 QString Fb2TemporaryList::set(const QString &name, const QByteArray &data, const QString &hash)
 {
     Fb2TemporaryFile & file = get(name, hash);
@@ -103,6 +120,8 @@ bool Fb2TemporaryList::exists(const QString &name) const
     return false;
 }
 
+#if 0
+
 //---------------------------------------------------------------------------
 //  Fb2NetworkDiskCache
 //---------------------------------------------------------------------------
@@ -119,7 +138,7 @@ QIODevice * Fb2NetworkDiskCache::data(const QUrl &url)
     return QNetworkDiskCache::data(url);
 }
 
-#if 0
+#endif
 
 //---------------------------------------------------------------------------
 //  Fb2ImageReply
@@ -130,49 +149,23 @@ Fb2ImageReply::Fb2ImageReply(QNetworkAccessManager::Operation op, const QNetwork
     , content(data)
     , offset(0)
 {
-/*
-    QString path = "/home/user/tmp" + request.url().path();
-    qCritical() << path;
-    QFile file(path);
-    file.open(QFile::WriteOnly);
-    file.write(content);
-    file.close();
-*/
-    qCritical() << tr("Image: %1 - %2").arg(request.url().toString()).arg(content.size());
+    setOperation(op);
     setRequest(request);
     setUrl(request.url());
-    setOperation(op);
     open(ReadOnly | Unbuffered);
     setHeader(QNetworkRequest::ContentLengthHeader, QVariant(content.size()));
     QMetaObject::invokeMethod(this, "readyRead", Qt::QueuedConnection);
     QMetaObject::invokeMethod(this, "finished", Qt::QueuedConnection);
 }
 
-void Fb2ImageReply::abort()
-{
-    close();
-}
-
-qint64 Fb2ImageReply::bytesAvailable() const
-{
-    return content.size() - offset;
-}
-
-bool Fb2ImageReply::isSequential() const
-{
-    return true;
-}
-
 qint64 Fb2ImageReply::readData(char *data, qint64 maxSize)
 {
-    if (offset < content.size()) {
-        qint64 number = qMin(maxSize, content.size() - offset);
-        memcpy(data, content.constData() + offset, number);
-        offset += number;
-        return number;
-    } else {
-        return -1;
-    }
+    if (offset >= content.size()) return -1;
+    QMetaObject::invokeMethod(this, "readyRead", Qt::QueuedConnection);
+    qint64 number = qMin(maxSize, content.size() - offset);
+    memcpy(data, content.constData() + offset, number);
+    offset += number;
+    return number;
 }
 
 //---------------------------------------------------------------------------
@@ -181,8 +174,9 @@ qint64 Fb2ImageReply::readData(char *data, qint64 maxSize)
 //    http://doc.trolltech.com/qq/32/qq32-webkit-protocols.html
 //---------------------------------------------------------------------------
 
-Fb2NetworkAccessManager::Fb2NetworkAccessManager(QObject *parent)
-    : QNetworkAccessManager(parent)
+Fb2NetworkAccessManager::Fb2NetworkAccessManager(Fb2WebView &view)
+    : QNetworkAccessManager(&view)
+    , m_view(view)
 {
 }
 
@@ -194,21 +188,7 @@ QNetworkReply * Fb2NetworkAccessManager::createRequest(Operation op, const QNetw
 
 QNetworkReply * Fb2NetworkAccessManager::imageRequest(Operation op, const QNetworkRequest &request)
 {
-    QString file = request.url().path();
-    while (file.left(1) == "/") file.remove(0, 1);
-    ImageMap::const_iterator i = m_images.find(file);
-    if (i == m_images.end()) {
-        qCritical() << "Not found: " << file;
-        return 0;
-    } else {
-        return new Fb2ImageReply(op, request, i.value());
-    }
+    QString name = request.url().path();
+    QByteArray data = m_view.files().fileData(name);
+    return new Fb2ImageReply(op, request, data);
 }
-
-void Fb2NetworkAccessManager::insert(const QString &file, const QByteArray &data)
-{
-    m_images.insert(file, data);
-}
-
-#endif
-

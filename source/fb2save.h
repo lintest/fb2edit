@@ -28,7 +28,7 @@ public:
     void writeFiles();
 private:
     void Init();
-    QByteArray downloadFile(const QString &src);
+    QByteArray downloadFile(const QUrl &url);
     QString getFileData(const QString &name);
     QString newFileName(const QString &path);
 private:

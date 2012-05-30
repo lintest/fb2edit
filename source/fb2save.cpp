@@ -70,12 +70,17 @@ void Fb2SaveWriter::writeLineEnd()
     m_line++;
 }
 
-QByteArray Fb2SaveWriter::downloadFile(const QString &src)
+QByteArray Fb2SaveWriter::downloadFile(const QUrl &url)
 {
-    QUrl url(src);
     QNetworkRequest request(url);
     QNetworkAccessManager * network = m_view.page()->networkAccessManager();
-    QNetworkReply * reply = network->get(request);
+    QScopedPointer<QNetworkReply> reply(network->get(request));
+    if (reply.isNull()) return QByteArray();
+
+    QEventLoop loop;
+    QObject::connect(reply.data(), SIGNAL(finished()), &loop, SLOT(quit()));
+    loop.exec();
+
     return reply->readAll();
 }
 
@@ -96,29 +101,25 @@ QString Fb2SaveWriter::newFileName(const QString &path)
 
 QString Fb2SaveWriter::getFileName(const QString &path)
 {
-    QString hash = m_view.files().hash(path);
-    if (hash.isEmpty()) {
-        QUrl url(path);
-        QNetworkRequest request(url);
-        QNetworkAccessManager * network = m_view.page()->networkAccessManager();
-        QScopedPointer<QNetworkReply> reply(network->get(request));
-        if (reply.isNull()) return QString();
-
-        QEventLoop loop;
-        QObject::connect(reply.data(), SIGNAL(finished()), &loop, SLOT(quit()));
-        loop.exec();
-
-        QByteArray data = reply->readAll();
-
-        hash = Fb2TemporaryFile::md5(data);
-        QString name = newFileName(url.path());
-        m_files.set(name, data, hash);
-        m_names.append(name);
-        return name;
+    QUrl url = path;
+    if (url.scheme() == "fb2") {
+        QString name = url.path();
+        if (m_view.files().exists(name)) {
+            m_names.append(name);
+            return name;
+        }
+        return QString();
     } else {
+        QByteArray data = downloadFile(url);
+        if (data.size() == 0) return QString();
+        QString hash = Fb2TemporaryFile::md5(data);
         QString name = m_view.files().name(hash);
-        if (name.isEmpty()) return QString();
-        if (m_names.indexOf(name) == -1) m_names.append(name);
+        if (name.isEmpty()) m_files.name(hash);
+        if (name.isEmpty()) {
+            name = newFileName(url.path());
+            m_files.set(name, data, hash);
+            m_names.append(name);
+        }
         return name;
     }
 }

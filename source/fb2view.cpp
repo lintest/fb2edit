@@ -30,9 +30,9 @@ Fb2WebPage::Fb2WebPage(QObject *parent)
     s->setAttribute(QWebSettings::ZoomTextOnly, true);
     s->setUserStyleSheetUrl(QUrl::fromLocalFile(":style.css"));
 
-    Fb2NetworkDiskCache * cache = new Fb2NetworkDiskCache(this);
-    cache->setCacheDirectory("/home/user/tmp/");
-    networkAccessManager()->setCache(cache);
+//    Fb2NetworkDiskCache * cache = new Fb2NetworkDiskCache(this);
+//    cache->setCacheDirectory("/home/user/tmp/");
+//    networkAccessManager()->setCache(cache);
 }
 
 bool Fb2WebPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type)
@@ -55,6 +55,7 @@ Fb2WebView::Fb2WebView(QWidget *parent)
     , m_thread(0)
 {
     setPage(new Fb2WebPage(this));
+    page()->setNetworkAccessManager(new Fb2NetworkAccessManager(*this));
     connect(page(), SIGNAL(contentsChanged()), this, SLOT(fixContents()));
     connect(page(), SIGNAL(linkHovered(QString,QString,QString)), this, SLOT(linkHovered(QString,QString,QString)));
 }

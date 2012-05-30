@@ -3,9 +3,12 @@
 
 #include <QByteArray>
 #include <QList>
+#include <QNetworkReply>
 #include <QString>
 #include <QTemporaryFile>
-#include <QNetworkDiskCache>
+#include <QNetworkAccessManager>
+
+class Fb2WebView;
 
 class Fb2TemporaryFile : public QTemporaryFile
 {
@@ -34,9 +37,13 @@ public:
     QString hash(const QString &path) const;
     QString name(const QString &hash) const;
     QString data(const QString &name) const;
+
+    QByteArray fileData(const QString &name) const;
 };
 
 typedef QListIterator<Fb2TemporaryFile*> Fb2TemporaryIterator;
+
+#if 0
 
 class Fb2NetworkDiskCache : public QNetworkDiskCache
 {
@@ -46,16 +53,16 @@ public:
     QIODevice *data(const QUrl &url);
 };
 
-#if 0
+#endif
 
 class Fb2ImageReply : public QNetworkReply
 {
     Q_OBJECT
 public:
     explicit Fb2ImageReply(QNetworkAccessManager::Operation op, const QNetworkRequest &request, const QByteArray &data);
-    void abort();
-    qint64 bytesAvailable() const;
-    bool isSequential() const;
+    qint64 bytesAvailable() const { return content.size(); }
+    bool isSequential() const { return true; }
+    void abort() { close(); }
 
 protected:
     qint64 readData(char *data, qint64 maxSize);
@@ -69,8 +76,7 @@ class Fb2NetworkAccessManager : public QNetworkAccessManager
 {
     Q_OBJECT
 public:
-    explicit Fb2NetworkAccessManager(QObject *parent = 0);
-    void insert(const QString &file, const QByteArray &data);
+    explicit Fb2NetworkAccessManager(Fb2WebView &view);
 
 protected:
     virtual QNetworkReply *createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData = 0);
@@ -79,11 +85,7 @@ private:
     QNetworkReply *imageRequest(Operation op, const QNetworkRequest &request);
 
 private:
-    typedef QMap<QString, QByteArray> ImageMap;
-    ImageMap m_images;
-
+    Fb2WebView & m_view;
 };
-
-#endif
 
 #endif // FB2TEMP_H
