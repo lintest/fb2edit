@@ -88,7 +88,9 @@ void Fb2MainWindow::treeActivated(const QModelIndex &index)
 {
     if (!treeView) return;
     Fb2TreeModel *model = dynamic_cast<Fb2TreeModel*>(treeView->model());
-    if (model) model->select(index);
+    if (!model) return;
+    model->select(index);
+    selectionChanged();
 }
 
 void Fb2MainWindow::treeDestroyed()
@@ -473,16 +475,7 @@ void Fb2MainWindow::selectionChanged()
     actionTextSub->setChecked(textEdit->SubChecked());
     actionTextSup->setChecked(textEdit->SupChecked());
 
-    QString script = "\
-    (f = function(node){\
-        var tag = node.tagName;\
-        if (tag == 'BODY') return '';\
-        if (tag == 'DIV') tag = node.getAttribute('CLASS');\
-        return f(node.parentNode) + '/' + tag;\
-    })(document.getSelection().baseNode.parentNode);";
-
-    QString message = textEdit->page()->mainFrame()->evaluateJavaScript(script).toString();
-    statusBar()->showMessage(message);
+    statusBar()->showMessage(textEdit->status());
 }
 
 void Fb2MainWindow::undoChanged()

@@ -44,6 +44,8 @@ public:
         return m_element.geometry().topLeft();
     }
 
+    QString selector() const;
+
 private:
     QString static title(const QWebElement &element);
     void addChildren(QWebElement &parent);

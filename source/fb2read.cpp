@@ -99,6 +99,13 @@ Fb2ReadHandler::RootHandler::RootHandler(Fb2ReadHandler &owner, const QString &n
 {
     writer().writeStartDocument();
     writer().writeStartElement("html");
+    writer().writeStartElement("head");
+    writer().writeStartElement("script");
+    writer().writeAttribute("type", "text/javascript");
+    writer().writeAttribute("src", "qrc:/js/jquery.js");
+    writer().writeCharacters(" ");
+    writer().writeEndElement();
+    writer().writeEndElement();
     writer().writeStartElement("body");
 }
 

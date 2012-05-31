@@ -9,7 +9,8 @@ HEADERS = \
     source/fb2read.hpp \
     source/fb2temp.hpp \
     source/fb2tree.hpp \
-    source/fb2view.hpp
+    source/fb2view.hpp \
+    source/fb2tool.h
 
 SOURCES = \
     source/fb2app.cpp \
@@ -22,11 +23,13 @@ SOURCES = \
     source/fb2tree.cpp \
     source/fb2view.cpp \
     source/fb2xml.cpp \
-    source/fb2xml2.cpp
+    source/fb2xml2.cpp \
+    source/fb2tool.cpp
 
 RESOURCES = \
     3rdparty/gnome/gnome.qrc \
-    source/res/fb2edit.qrc
+    source/res/fb2edit.qrc \
+    source/js/javascript.qrc
 
 TARGET = fb2edit
 

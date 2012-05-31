@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/js">
+        <file alias="jquery.js">../../3rdparty/jQuery/jquery.js</file>
+        <file>set_cursor.js</file>
+        <file>get_status.js</file>
+    </qresource>
+</RCC>

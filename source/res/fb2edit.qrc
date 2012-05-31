@@ -8,5 +8,6 @@
         <file>blank.fb2</file>
         <file>style.css</file>
         <file alias="ts/ru.qm">../ts/ru.qm</file>
+        <file alias="js/jquery.js">../../3rdparty/jQuery/jquery.js</file>
     </qresource>
 </RCC>

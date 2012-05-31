@@ -1,6 +1,7 @@
 #include "fb2view.hpp"
 #include "fb2read.hpp"
 #include "fb2save.h"
+#include "fb2tool.h"
 #include "fb2xml2.h"
 
 #include <QAction>
@@ -247,7 +248,13 @@ void Fb2WebView::insertImage()
 
 void Fb2WebView::execCommand(const QString &cmd, const QString &arg)
 {
-    QWebFrame *frame = page()->mainFrame();
-    QString js = QString("document.execCommand(\"%1\", false, \"%2\")").arg(cmd).arg(arg);
-    frame->evaluateJavaScript(js);
+    QString javascript = QString("document.execCommand(\"%1\",false,\"%2\")").arg(cmd).arg(arg);
+    page()->mainFrame()->evaluateJavaScript(javascript);
+}
+
+QString Fb2WebView::status()
+{
+    static QString javascript = FB2::read(":/js/get_status.js");
+    return page()->mainFrame()->evaluateJavaScript(javascript).toString();
+    return QString();
 }

@@ -7,6 +7,8 @@
 #include <QTreeView>
 #include <QUrl>
 
+#include "fb2tool.h"
+
 Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent)
     : QObject(parent)
     , m_element(element)
@@ -76,6 +78,29 @@ Fb2TreeItem * Fb2TreeItem::item(int row) const
 QString Fb2TreeItem::text() const
 {
     return QString("<%1> %2").arg(m_name).arg(m_text);
+}
+
+QString Fb2TreeItem::selector() const
+{
+    QString text = "";
+    QString selector = ".get(0)";
+    QWebElement element = m_element;
+    QWebElement parent = element.parent();
+    while (!parent.isNull()) {
+        text.prepend(element.tagName()).prepend("/");
+        QWebElement child = parent.firstChild();
+        int index = -1;
+        while (!child.isNull()) {
+            index++;
+            if (child == element) break;
+            child = child.nextSibling();
+        }
+        if (index == -1) return QString();
+        selector.prepend(QString(".children().eq(%1)").arg(index));
+        element = parent;
+        parent = element.parent();
+    }
+    return selector.prepend("$('html')");
 }
 
 //---------------------------------------------------------------------------
@@ -166,4 +191,10 @@ void Fb2TreeModel::select(const QModelIndex &index)
     Fb2TreeItem *node = item(index);
     QWebFrame *frame = m_view.page()->mainFrame();
     if (node) frame->scroll(0, node->pos().y() - frame->scrollPosition().y());
+
+    static QString setCursor = FB2::read(":/js/set_cursor.js");
+    QString javascript = QString("var element=%1;").arg(node->selector()) + setCursor;
+    frame->evaluateJavaScript(javascript);
+
+    m_view.setFocus();
 }

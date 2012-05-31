@@ -64,6 +64,7 @@ public:
     bool save(QIODevice *device);
     bool save(QString *string);
     QString toBodyXml();
+    QString status();
 
     bool UndoEnabled();
     bool RedoEnabled();
