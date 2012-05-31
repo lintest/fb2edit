@@ -340,25 +340,25 @@ void Fb2MainWindow::createActions()
 
     menuText = menu = menuBar()->addMenu(tr("Fo&rmat"));
 
-    actionTextBold = act = new QAction(icon("format-text-bold"), tr("Bold"), this);
+    actionTextBold = act = new QAction(icon("format-text-bold"), tr("&Bold"), this);
     act->setShortcuts(QKeySequence::Bold);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextItalic = act = new QAction(icon("format-text-italic"), tr("Italic"), this);
+    actionTextItalic = act = new QAction(icon("format-text-italic"), tr("&Italic"), this);
     act->setShortcuts(QKeySequence::Italic);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextStrike = act = new QAction(icon("format-text-strikethrough"), tr("Strikethrough"), this);
+    actionTextStrike = act = new QAction(icon("format-text-strikethrough"), tr("&Strikethrough"), this);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextSup = act = new QAction(icon("format-text-superscript"), tr("Superscript"), this);
+    actionTextSup = act = new QAction(icon("format-text-superscript"), tr("Su&perscript"), this);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextSub = act = new QAction(icon("format-text-subscript"), tr("Subscript"), this);
+    actionTextSub = act = new QAction(icon("format-text-subscript"), tr("Su&bscript"), this);
     act->setCheckable(true);
     menu->addAction(act);
 

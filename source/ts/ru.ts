@@ -98,10 +98,6 @@
         <translation></translation>
     </message>
     <message>
-        <source>Bold</source>
-        <translation>Жирный</translation>
-    </message>
-    <message>
         <source>Cu&amp;t</source>
         <translation>Вы&amp;резать</translation>
     </message>
@@ -155,7 +151,7 @@
     </message>
     <message>
         <source>Strikethrough</source>
-        <translation>Зачеркнутый</translation>
+        <translation type="obsolete">Зачеркнутый</translation>
     </message>
     <message>
         <source>E&amp;xit</source>
@@ -210,10 +206,6 @@
         <translation></translation>
     </message>
     <message>
-        <source>Italic</source>
-        <translation>Курсив</translation>
-    </message>
-    <message>
         <source>Contents</source>
         <translation>Содержание</translation>
     </message>
@@ -254,16 +246,12 @@
         <translation></translation>
     </message>
     <message>
-        <source>Zoom original</source>
-        <translation></translation>
+        <source>Su&amp;bscript</source>
+        <translation>&amp;Нижний индекс</translation>
     </message>
     <message>
-        <source>Subscript</source>
-        <translation>Нижний индекс</translation>
-    </message>
-    <message>
-        <source>Superscript</source>
-        <translation>Верхний индекс</translation>
+        <source>Su&amp;perscript</source>
+        <translation>&amp;Верхний индекс</translation>
     </message>
     <message>
         <source>&amp;Append</source>
@@ -367,12 +355,8 @@
         <translation>&amp;Тело &lt;body&gt;</translation>
     </message>
     <message>
-        <source>Su&amp;perscript</source>
-        <translation>&amp;Верхний индекс</translation>
-    </message>
-    <message>
-        <source>Su&amp;bscript</source>
-        <translation>&amp;Нижний индекс</translation>
+        <source>Zoom original</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
