@@ -15,6 +15,27 @@
 #include <QWebPage>
 
 //---------------------------------------------------------------------------
+//  Fb2NoteView
+//---------------------------------------------------------------------------
+
+class Fb2NoteView : public QWebView
+{
+public:
+    explicit Fb2NoteView(QWidget* parent = 0) : QWebView(parent) {}
+protected:
+    void paintEvent(QPaintEvent *event);
+};
+
+void Fb2NoteView::paintEvent(QPaintEvent *event)
+{
+    QWebView::paintEvent(event);
+    QPainter painter(this);
+    painter.setPen(Qt::black);
+    QSize size = geometry().size() - QSize(1, 1);
+    painter.drawRect( QRect(QPoint(0, 0), size) );
+}
+
+//---------------------------------------------------------------------------
 //  Fb2WebPage
 //---------------------------------------------------------------------------
 
@@ -67,7 +88,7 @@ Fb2WebView::~Fb2WebView()
 QWebView * Fb2WebView::noteView()
 {
     if (m_noteView) return m_noteView;
-    m_noteView = new QWebView(qobject_cast<QWidget*>(parent()));
+    m_noteView = new Fb2NoteView(qobject_cast<QWidget*>(parent()));
     m_noteView->setPage(new Fb2WebPage(this));
     m_noteView->page()->setNetworkAccessManager(page()->networkAccessManager());
     m_noteView->page()->setContentEditable(false);
@@ -94,52 +115,49 @@ void Fb2WebView::fixContents()
     }
 }
 
- #include <QLabel>
+void Fb2WebView::mouseMoveEvent(QMouseEvent *event)
+{
+    m_point = event->pos();
+    QWebView::mouseMoveEvent(event);
+}
 
 void Fb2WebView::linkHovered(const QString &link, const QString &title, const QString &textContent)
 {
     Q_UNUSED(title);
     Q_UNUSED(textContent);
-    QUrl url = link;
 
     if (link.isEmpty()) {
         if (m_noteView) m_noteView->hide();
         return;
     }
 
-    const QString href = url.fragment();
+    const QString href = QUrl(link).fragment();
     QString query = QString("DIV[id=%1]").arg(href);
-
     QWebElement element = doc().findFirst(query);
-    if (element.isNull()) return;
-    QRect geometry = element.geometry();
-/*
-    QWebView * view = noteView();
-    QString html = element.toOuterXml();
-    element = element.parent();
-    while (!element.isNull()) {
-        QString tag = element.tagName();
-        QString id = element.attribute("id");
-        QString name = element.attribute("name");
-        QString style = element.attribute("class");
-        html.prepend(QString(">"));
-        if (!id.isEmpty()) html.prepend(QString(" id=%1").arg(id));
-        if (!name.isEmpty()) html.prepend(QString(" name=%1").arg(name));
-        if (!style.isEmpty()) html.prepend(QString(" class=%1").arg(style));
-        html.prepend(QString("<%1").arg(tag));
-        html.append(QString("</%1>").arg(tag));
-        element = element.parent();
+    if (element.isNull()) {
+        if (m_noteView) m_noteView->hide();
+        return;
     }
-*/
+
+    QSize size = element.geometry().size() + QSize(2, 4);
+    int center = geometry().size().height() / 2;
+    int h = size.height();
+    if (h > center) size.setHeight(center - 10);
+    int x = (geometry().size().width() - size.width()) / 2;
+    int y = m_point.y();
+    if ( y > h ) y = y - h - 10; else y = y + 10;
+    QPoint point = QPoint(x, y) + geometry().topLeft();
+    QRect rect(point, size);
+
     QWebView * view = noteView();
     QString html = element.toOuterXml();
-    html.prepend("<html><body><div class=body name=notes>");
+    html.prepend(
+        "<html><body bgcolor=lightyellow style=\"overflow:hidden;padding:0;margin:0;margin-top:2;\">"
+        "<div class=body name=notes style=\"padding:0;margin:0;\">"
+    );
     html.append("</div></body></html>");
-    QRect rect = view->geometry();
-    rect.setHeight(geometry.height() * 3 * 2 + 4);
-    rect.setWidth(geometry.width() / 2 + 4);
-    view->setHtml(html);
     view->setGeometry(rect);
+    view->setHtml(html);
     view->show();
 }
 

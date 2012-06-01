@@ -76,6 +76,9 @@ public:
     bool SubChecked();
     bool SupChecked();
 
+protected:
+    virtual void mouseMoveEvent(QMouseEvent *event);
+
 signals:
     
 public slots:
@@ -103,6 +106,7 @@ private:
     Fb2TemporaryList m_files;
     QWebView *m_noteView;
     QThread *m_thread;
+    QPoint m_point;
 };
 
 #endif // FB2VIEW_H
