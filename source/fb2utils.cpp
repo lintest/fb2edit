@@ -1,4 +1,4 @@
-#include "fb2tool.h"
+#include "fb2utils.h"
 
 #include <QFile>
 #include <QTextStream>

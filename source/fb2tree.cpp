@@ -7,7 +7,7 @@
 #include <QTreeView>
 #include <QUrl>
 
-#include "fb2tool.h"
+#include "fb2utils.h"
 
 Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent)
     : QObject(parent)
@@ -192,7 +192,7 @@ void Fb2TreeModel::select(const QModelIndex &index)
     QWebFrame *frame = m_view.page()->mainFrame();
     if (node) frame->scroll(0, node->pos().y() - frame->scrollPosition().y());
 
-    static QString setCursor = FB2::read(":/js/set_cursor.js");
+    static const QString setCursor = FB2::read(":/js/set_cursor.js");
     QString javascript = QString("var element=%1;").arg(node->selector()) + setCursor;
     frame->evaluateJavaScript(javascript);
 

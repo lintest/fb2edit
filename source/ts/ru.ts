@@ -382,7 +382,7 @@
     <name>Fb2NoteDlg</name>
     <message>
         <source>&lt;create new&gt;</source>
-        <translation>&lt;создать новую&gt;</translation>
+        <translation>&lt;создать новый&gt;</translation>
     </message>
 </context>
 <context>

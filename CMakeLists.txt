@@ -28,6 +28,7 @@ file( GLOB FB2_TSS  source/ts/*.ts   )
 
 set(FB2_RES
     3rdparty/gnome/gnome.qrc
+    source/js/javascript.qrc
     source/res/fb2edit.qrc
 )
 

@@ -2,7 +2,7 @@
 #include "fb2note.hpp"
 #include "fb2read.hpp"
 #include "fb2save.h"
-#include "fb2tool.h"
+#include "fb2utils.h"
 #include "fb2xml2.h"
 
 #include <QAction>
@@ -266,7 +266,7 @@ void Fb2WebView::execCommand(const QString &cmd, const QString &arg)
 
 QString Fb2WebView::status()
 {
-    static QString javascript = FB2::read(":/js/get_status.js");
+    static const QString javascript = FB2::read(":/js/get_status.js");
     return page()->mainFrame()->evaluateJavaScript(javascript).toString();
     return QString();
 }
