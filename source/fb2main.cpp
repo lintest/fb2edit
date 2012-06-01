@@ -740,13 +740,11 @@ void Fb2MainWindow::viewText()
     act = textEdit->pageAction(QWebPage::ToggleBold);
     act->setIcon(icon("format-text-bold"));
     act->setText(tr("&Bold"));
-    act->setShortcuts(QKeySequence::Bold);
     tool->addAction(act);
 
     act = textEdit->pageAction(QWebPage::ToggleItalic);
     act->setIcon(icon("format-text-italic"));
     act->setText(tr("&Italic"));
-    act->setShortcuts(QKeySequence::Italic);
     tool->addAction(act);
 
     act = textEdit->pageAction(QWebPage::ToggleStrikethrough);
