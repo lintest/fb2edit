@@ -10,8 +10,7 @@
 #include "fb2tree.hpp"
 #include "fb2view.hpp"
 #include "fb2head.hpp"
-
-#define FB2DELETE(p) { if ( (p) != NULL ) { delete p; p = NULL; } }
+#include "fb2utils.h"
 
 Fb2MainWindow::Fb2MainWindow()
 {

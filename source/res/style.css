@@ -91,7 +91,7 @@ div.poem p {
 div.body[name=notes] {
   border-top: none;
   border-bottom: none;
-  border-left: thin solid green;
+  border-left: none;
   border-right: none;
   padding-top: 0;
   padding-bottom: 0;

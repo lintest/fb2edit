@@ -21,7 +21,6 @@
 Fb2WebPage::Fb2WebPage(QObject *parent)
     : QWebPage(parent)
 {
-    setContentEditable(true);
     QWebSettings *s = settings();
     s->setAttribute(QWebSettings::AutoLoadImages, true);
     s->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
@@ -31,10 +30,6 @@ Fb2WebPage::Fb2WebPage(QObject *parent)
     s->setAttribute(QWebSettings::PluginsEnabled, false);
     s->setAttribute(QWebSettings::ZoomTextOnly, true);
     s->setUserStyleSheetUrl(QUrl::fromLocalFile(":style.css"));
-
-//    Fb2NetworkDiskCache * cache = new Fb2NetworkDiskCache(this);
-//    cache->setCacheDirectory("/home/user/tmp/");
-//    networkAccessManager()->setCache(cache);
 }
 
 bool Fb2WebPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type)
@@ -54,16 +49,30 @@ bool Fb2WebPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest
 
 Fb2WebView::Fb2WebView(QWidget *parent)
     : Fb2BaseWebView(parent)
+    , m_noteView(0)
     , m_thread(0)
 {
     setPage(new Fb2WebPage(this));
     page()->setNetworkAccessManager(new Fb2NetworkAccessManager(*this));
+    page()->setContentEditable(true);
     connect(page(), SIGNAL(contentsChanged()), this, SLOT(fixContents()));
     connect(page(), SIGNAL(linkHovered(QString,QString,QString)), this, SLOT(linkHovered(QString,QString,QString)));
 }
 
 Fb2WebView::~Fb2WebView()
 {
+    FB2DELETE(m_noteView);
+}
+
+QWebView * Fb2WebView::noteView()
+{
+    if (m_noteView) return m_noteView;
+    m_noteView = new QWebView(qobject_cast<QWidget*>(parent()));
+    m_noteView->setPage(new Fb2WebPage(this));
+    m_noteView->page()->setNetworkAccessManager(page()->networkAccessManager());
+    m_noteView->page()->setContentEditable(false);
+    m_noteView->setGeometry(QRect(100, 100, 400, 200));
+    return m_noteView;
 }
 
 QWebElement Fb2WebView::doc()
@@ -91,25 +100,47 @@ void Fb2WebView::linkHovered(const QString &link, const QString &title, const QS
 {
     Q_UNUSED(title);
     Q_UNUSED(textContent);
-    QToolTip::showText(QPoint(100, 100), link);
     QUrl url = link;
+
+    if (link.isEmpty()) {
+        if (m_noteView) m_noteView->hide();
+        return;
+    }
+
     const QString href = url.fragment();
     QString query = QString("DIV[id=%1]").arg(href);
 
     QWebElement element = doc().findFirst(query);
     if (element.isNull()) return;
-
-    QRect rect = element.geometry();
-    QImage image(rect.size(), QImage::Format_ARGB32);
-    QPainter painter(&image);
-    painter.fillRect(rect, QColor("white"));
-    element.render(&painter);
-    painter.end();
-
-    QLabel * label = new QLabel();
-    label->setPixmap(QPixmap::fromImage(image));
-//    label->setText(element.toOuterXml());
-    label->show();
+    QRect geometry = element.geometry();
+/*
+    QWebView * view = noteView();
+    QString html = element.toOuterXml();
+    element = element.parent();
+    while (!element.isNull()) {
+        QString tag = element.tagName();
+        QString id = element.attribute("id");
+        QString name = element.attribute("name");
+        QString style = element.attribute("class");
+        html.prepend(QString(">"));
+        if (!id.isEmpty()) html.prepend(QString(" id=%1").arg(id));
+        if (!name.isEmpty()) html.prepend(QString(" name=%1").arg(name));
+        if (!style.isEmpty()) html.prepend(QString(" class=%1").arg(style));
+        html.prepend(QString("<%1").arg(tag));
+        html.append(QString("</%1>").arg(tag));
+        element = element.parent();
+    }
+*/
+    QWebView * view = noteView();
+    QString html = element.toOuterXml();
+    html.prepend("<html><body><div class=body name=notes>");
+    html.append("</div></body></html>");
+    QRect rect = view->geometry();
+    rect.setHeight(geometry.height() * 3 * 2 + 4);
+    rect.setWidth(geometry.width() / 2 + 4);
+    view->setHtml(html);
+    view->setGeometry(rect);
+    view->show();
 }
 
 void Fb2WebView::load(const QString &filename, const QString &xml)

@@ -96,10 +96,12 @@ private slots:
 private:
     void execCommand(const QString &cmd, const QString &arg);
     Fb2TemporaryFile * file(const QString &name);
+    QWebView * noteView();
     QWebElement doc();
 
 private:
     Fb2TemporaryList m_files;
+    QWebView *m_noteView;
     QThread *m_thread;
 };
 
