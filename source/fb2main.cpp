@@ -681,6 +681,8 @@ void Fb2MainWindow::viewText()
     connect(actionTextSup, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSuperscript), SIGNAL(triggered()));
 
     connect(actionImage, SIGNAL(triggered()), textEdit, SLOT(insertImage()));
+    connect(actionNote, SIGNAL(triggered()), textEdit, SLOT(insertNote()));
+    connect(actionLink, SIGNAL(triggered()), textEdit, SLOT(insertLink()));
 
     connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));

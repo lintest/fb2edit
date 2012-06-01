@@ -360,6 +360,32 @@
     </message>
 </context>
 <context>
+    <name>Fb2Note</name>
+    <message>
+        <source>Insert footnote</source>
+        <translation>Вставить сноску</translation>
+    </message>
+    <message>
+        <source>about:blank</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Identifier:</source>
+        <translation>Идентификатор:</translation>
+    </message>
+    <message>
+        <source>Title:</source>
+        <translation>Заголовок:</translation>
+    </message>
+</context>
+<context>
+    <name>Fb2NoteDlg</name>
+    <message>
+        <source>&lt;create new&gt;</source>
+        <translation>&lt;создать новую&gt;</translation>
+    </message>
+</context>
+<context>
     <name>Fb2WebView</name>
     <message>
         <source>Common Graphics (*.png *.jpg *.jpeg *.gif);;</source>

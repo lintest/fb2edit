@@ -10,7 +10,8 @@ HEADERS = \
     source/fb2temp.hpp \
     source/fb2tree.hpp \
     source/fb2view.hpp \
-    source/fb2tool.h
+    source/fb2tool.h \
+    source/fb2note.hpp
 
 SOURCES = \
     source/fb2app.cpp \
@@ -24,7 +25,8 @@ SOURCES = \
     source/fb2view.cpp \
     source/fb2xml.cpp \
     source/fb2xml2.cpp \
-    source/fb2tool.cpp
+    source/fb2tool.cpp \
+    source/fb2note.cpp
 
 RESOURCES = \
     3rdparty/gnome/gnome.qrc \
@@ -62,3 +64,6 @@ if (win32) {
     LIBS += -lxml2
 
 }
+
+FORMS += \
+    source/fb2note.ui

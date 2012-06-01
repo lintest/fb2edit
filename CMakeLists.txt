@@ -41,7 +41,7 @@ qt4_wrap_cpp(MOC_SRCS ${FB2_HEAD})
 qt4_add_resources(RCC_SRCS ${FB2_RES})
 qt4_add_translation(QMS_FILES ${FB2_TSS})
 include_directories(${CMAKE_BINARY_DIR} ${QSCINTILLA_INCLUDE_DIR} ${LIBXML2_INCLUDE_DIRS})
-add_executable(fb2edit ${FB2_SRCS} ${FB2_HEAD} ${MOC_SRCS} ${RCC_SRCS} ${QMS_FILES})
+add_executable(fb2edit ${FB2_SRCS} ${FB2_HEAD} ${UI_HEADERS} ${MOC_SRCS} ${RCC_SRCS} ${QMS_FILES})
 target_link_libraries(fb2edit ${QT_LIBRARIES} ${QSCINTILLA_LIBRARIES} ${LIBXML2_LIBRARIES})
 
 set(LINUX_DESKTOP_FILE desktop/fb2edit.desktop)

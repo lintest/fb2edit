@@ -84,6 +84,8 @@ public slots:
     void html(QString name, QString html);
     void linkHovered(const QString &link, const QString &title, const QString &textContent);
     void insertImage();
+    void insertNote();
+    void insertLink();
     void zoomIn();
     void zoomOut();
     void zoomOrig();

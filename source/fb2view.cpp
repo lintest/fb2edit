@@ -1,4 +1,5 @@
 #include "fb2view.hpp"
+#include "fb2note.hpp"
 #include "fb2read.hpp"
 #include "fb2save.h"
 #include "fb2tool.h"
@@ -244,6 +245,17 @@ void Fb2WebView::insertImage()
 
     QUrl url = QUrl::fromLocalFile(fn);
     execCommand("insertImage", url.toString());
+}
+
+void Fb2WebView::insertNote()
+{
+    Fb2NoteDlg * dlg = new Fb2NoteDlg(*this);
+    dlg->setModal(true);
+    dlg->show();
+}
+
+void Fb2WebView::insertLink()
+{
 }
 
 void Fb2WebView::execCommand(const QString &cmd, const QString &arg)
