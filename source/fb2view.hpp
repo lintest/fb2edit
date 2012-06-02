@@ -9,6 +9,8 @@
 
 #include "fb2temp.hpp"
 
+class Fb2NoteView;
+
 class Fb2BaseWebView : public QWebView
 {
     Q_OBJECT
@@ -99,12 +101,12 @@ private slots:
 private:
     void execCommand(const QString &cmd, const QString &arg);
     Fb2TemporaryFile * file(const QString &name);
-    QWebView * noteView();
+    Fb2NoteView & noteView();
     QWebElement doc();
 
 private:
     Fb2TemporaryList m_files;
-    QWebView *m_noteView;
+    Fb2NoteView *m_noteView;
     QThread *m_thread;
     QPoint m_point;
 };

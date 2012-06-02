@@ -22,6 +22,7 @@ class Fb2NoteView : public QWebView
 {
 public:
     explicit Fb2NoteView(QWidget* parent = 0) : QWebView(parent) {}
+    void hint(const QWebElement element, const QRect &rect);
 protected:
     void paintEvent(QPaintEvent *event);
 };
@@ -33,6 +34,19 @@ void Fb2NoteView::paintEvent(QPaintEvent *event)
     painter.setPen(Qt::black);
     QSize size = geometry().size() - QSize(1, 1);
     painter.drawRect( QRect(QPoint(0, 0), size) );
+}
+
+void Fb2NoteView::hint(const QWebElement element, const QRect &rect)
+{
+    QString html = element.toOuterXml();
+    html.prepend(
+        "<body bgcolor=lightyellow style='overflow:hidden;padding:0;margin:0;margin-top:2;'>"
+        "<div class=body name=notes style='padding:0;margin:0;'>"
+    );
+    html.append("</div></body>");
+    setGeometry(rect);
+    setHtml(html);
+    show();
 }
 
 //---------------------------------------------------------------------------
@@ -85,15 +99,15 @@ Fb2WebView::~Fb2WebView()
     FB2DELETE(m_noteView);
 }
 
-QWebView * Fb2WebView::noteView()
+Fb2NoteView & Fb2WebView::noteView()
 {
-    if (m_noteView) return m_noteView;
+    if (m_noteView) return *m_noteView;
     m_noteView = new Fb2NoteView(qobject_cast<QWidget*>(parent()));
     m_noteView->setPage(new Fb2WebPage(this));
     m_noteView->page()->setNetworkAccessManager(page()->networkAccessManager());
     m_noteView->page()->setContentEditable(false);
     m_noteView->setGeometry(QRect(100, 100, 400, 200));
-    return m_noteView;
+    return *m_noteView;
 }
 
 QWebElement Fb2WebView::doc()
@@ -126,39 +140,29 @@ void Fb2WebView::linkHovered(const QString &link, const QString &title, const QS
     Q_UNUSED(title);
     Q_UNUSED(textContent);
 
-    if (link.isEmpty()) {
+    const QString href = QUrl(link).fragment();
+    if (href.isEmpty()) {
         if (m_noteView) m_noteView->hide();
         return;
     }
 
-    const QString href = QUrl(link).fragment();
-    QString query = QString("DIV[id=%1]").arg(href);
-    QWebElement element = doc().findFirst(query);
+    const QString query = QString("DIV#%1").arg(href);
+    const QWebElement element = doc().findFirst(query);
     if (element.isNull()) {
         if (m_noteView) m_noteView->hide();
         return;
     }
 
+    QRect rect = geometry();
     QSize size = element.geometry().size() + QSize(2, 4);
-    int center = geometry().size().height() / 2;
+    int center = rect.size().height() / 2;
     int h = size.height();
     if (h > center) size.setHeight(center - 10);
-    int x = (geometry().size().width() - size.width()) / 2;
+    int x = (rect.size().width() - size.width()) / 2;
     int y = m_point.y();
     if ( y > h ) y = y - h - 10; else y = y + 10;
-    QPoint point = QPoint(x, y) + geometry().topLeft();
-    QRect rect(point, size);
-
-    QWebView * view = noteView();
-    QString html = element.toOuterXml();
-    html.prepend(
-        "<html><body bgcolor=lightyellow style=\"overflow:hidden;padding:0;margin:0;margin-top:2;\">"
-        "<div class=body name=notes style=\"padding:0;margin:0;\">"
-    );
-    html.append("</div></body></html>");
-    view->setGeometry(rect);
-    view->setHtml(html);
-    view->show();
+    QPoint point = QPoint(x, y) + rect.topLeft();
+    noteView().hint(element, QRect(point, size));
 }
 
 void Fb2WebView::load(const QString &filename, const QString &xml)
