@@ -61,7 +61,6 @@ private slots:
 
 private:
     bool loadXML(const QString &filename);
-    QIcon icon(const QString &name);
 
 private:
     void init();

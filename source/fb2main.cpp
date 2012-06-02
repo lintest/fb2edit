@@ -196,14 +196,6 @@ void Fb2MainWindow::documentWasModified()
     if (textEdit) disconnect(textEdit->page(), SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
 }
 
-QIcon Fb2MainWindow::icon(const QString &name)
-{
-    QIcon icon;
-    icon.addFile(QString(":/24x24/%1.png").arg(name), QSize(24,24));
-    icon.addFile(QString(":/16x24/%1.png").arg(name), QSize(16,16));
-    return QIcon::fromTheme(name, icon);
-}
-
 void Fb2MainWindow::createActions()
 {
     QAction * act;
@@ -215,7 +207,7 @@ void Fb2MainWindow::createActions()
     tool = addToolBar(tr("File"));
     tool->setMovable(false);
 
-    act = new QAction(icon("document-new"), tr("&New"), this);
+    act = new QAction(FB2::icon("document-new"), tr("&New"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::New);
     act->setStatusTip(tr("Create a new file"));
@@ -223,21 +215,21 @@ void Fb2MainWindow::createActions()
     menu->addAction(act);
     tool->addAction(act);
 
-    act = new QAction(icon("document-open"), tr("&Open..."), this);
+    act = new QAction(FB2::icon("document-open"), tr("&Open..."), this);
     act->setShortcuts(QKeySequence::Open);
     act->setStatusTip(tr("Open an existing file"));
     connect(act, SIGNAL(triggered()), this, SLOT(fileOpen()));
     menu->addAction(act);
     tool->addAction(act);
 
-    act = new QAction(icon("document-save"), tr("&Save"), this);
+    act = new QAction(FB2::icon("document-save"), tr("&Save"), this);
     act->setShortcuts(QKeySequence::Save);
     act->setStatusTip(tr("Save the document to disk"));
     connect(act, SIGNAL(triggered()), this, SLOT(fileSave()));
     menu->addAction(act);
     tool->addAction(act);
 
-    act = new QAction(icon("document-save-as"), tr("Save &As..."), this);
+    act = new QAction(FB2::icon("document-save-as"), tr("Save &As..."), this);
     act->setShortcuts(QKeySequence::SaveAs);
     act->setStatusTip(tr("Save the document under a new name"));
     connect(act, SIGNAL(triggered()), this, SLOT(fileSaveAs()));
@@ -245,13 +237,13 @@ void Fb2MainWindow::createActions()
 
     menu->addSeparator();
 
-    act = new QAction(icon("window-close"), tr("&Close"), this);
+    act = new QAction(FB2::icon("window-close"), tr("&Close"), this);
     act->setShortcuts(QKeySequence::Close);
     act->setStatusTip(tr("Close this window"));
     connect(act, SIGNAL(triggered()), this, SLOT(close()));
     menu->addAction(act);
 
-    act = new QAction(icon("application-exit"), tr("E&xit"), this);
+    act = new QAction(FB2::icon("application-exit"), tr("E&xit"), this);
     act->setShortcuts(QKeySequence::Quit);
     act->setStatusTip(tr("Exit the application"));
     connect(act, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
@@ -261,13 +253,13 @@ void Fb2MainWindow::createActions()
 
     connect(QApplication::clipboard(), SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
 
-    actionUndo = act = new QAction(icon("edit-undo"), tr("&Undo"), this);
+    actionUndo = act = new QAction(FB2::icon("edit-undo"), tr("&Undo"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcut(QKeySequence::Undo);
     act->setEnabled(false);
     menu->addAction(act);
 
-    actionRedo = act = new QAction(icon("edit-redo"), tr("&Redo"), this);
+    actionRedo = act = new QAction(FB2::icon("edit-redo"), tr("&Redo"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcut(QKeySequence::Redo);
     act->setEnabled(false);
@@ -275,21 +267,21 @@ void Fb2MainWindow::createActions()
 
     menu->addSeparator();
 
-    actionCut = act = new QAction(icon("edit-cut"), tr("Cu&t"), this);
+    actionCut = act = new QAction(FB2::icon("edit-cut"), tr("Cu&t"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Cut);
     act->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
     act->setEnabled(false);
     menu->addAction(act);
 
-    actionCopy = act = new QAction(icon("edit-copy"), tr("&Copy"), this);
+    actionCopy = act = new QAction(FB2::icon("edit-copy"), tr("&Copy"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Copy);
     act->setStatusTip(tr("Copy the current selection's contents to the clipboard"));
     act->setEnabled(false);
     menu->addAction(act);
 
-    actionPaste = act = new QAction(icon("edit-paste"), tr("&Paste"), this);
+    actionPaste = act = new QAction(FB2::icon("edit-paste"), tr("&Paste"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Paste);
     act->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
@@ -298,28 +290,28 @@ void Fb2MainWindow::createActions()
 
     menu->addSeparator();
 
-    actionFind = act = new QAction(icon("edit-find"), tr("&Find..."), this);
+    actionFind = act = new QAction(FB2::icon("edit-find"), tr("&Find..."), this);
     act->setShortcuts(QKeySequence::Find);
     menu->addAction(act);
 
-    actionReplace = act = new QAction(icon("edit-find-replace"), tr("&Replace..."), this);
+    actionReplace = act = new QAction(FB2::icon("edit-find-replace"), tr("&Replace..."), this);
     menu->addAction(act);
 
     menu->addSeparator();
 
-    actionInsert = act = new QAction(icon("list-add"), tr("&Append"), this);
+    actionInsert = act = new QAction(FB2::icon("list-add"), tr("&Append"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::New);
     menu->addAction(act);
 
-    actionDelete = act = new QAction(icon("list-remove"), tr("&Delete"), this);
+    actionDelete = act = new QAction(FB2::icon("list-remove"), tr("&Delete"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Delete);
     menu->addAction(act);
 
     menu->addSeparator();
 
-    act = new QAction(icon("preferences-desktop"), tr("&Settings"), this);
+    act = new QAction(FB2::icon("preferences-desktop"), tr("&Settings"), this);
     act->setShortcuts(QKeySequence::Preferences);
     act->setStatusTip(tr("Application settings"));
     connect(act, SIGNAL(triggered()), SLOT(openSettings()));
@@ -327,39 +319,39 @@ void Fb2MainWindow::createActions()
 
     menu = menuBar()->addMenu(tr("&Insert", "Main menu"));
 
-    actionImage = act = new QAction(icon("insert-image"), tr("&Image"), this);
+    actionImage = act = new QAction(FB2::icon("insert-image"), tr("&Image"), this);
     menu->addAction(act);
 
-    actionNote = act = new QAction(icon("insert-text"), tr("&Footnote"), this);
+    actionNote = act = new QAction(FB2::icon("insert-text"), tr("&Footnote"), this);
     menu->addAction(act);
 
-    actionLink = act = new QAction(icon("insert-link"), tr("&Hiperlink"), this);
+    actionLink = act = new QAction(FB2::icon("insert-link"), tr("&Hiperlink"), this);
     menu->addAction(act);
 
-    actionBody = act = new QAction(icon("insert-object"), tr("&Body"), this);
+    actionBody = act = new QAction(FB2::icon("insert-object"), tr("&Body"), this);
     menu->addAction(act);
 
     menuText = menu = menuBar()->addMenu(tr("Fo&rmat"));
 
-    actionTextBold = act = new QAction(icon("format-text-bold"), tr("&Bold"), this);
+    actionTextBold = act = new QAction(FB2::icon("format-text-bold"), tr("&Bold"), this);
     act->setShortcuts(QKeySequence::Bold);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextItalic = act = new QAction(icon("format-text-italic"), tr("&Italic"), this);
+    actionTextItalic = act = new QAction(FB2::icon("format-text-italic"), tr("&Italic"), this);
     act->setShortcuts(QKeySequence::Italic);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextStrike = act = new QAction(icon("format-text-strikethrough"), tr("&Strikethrough"), this);
+    actionTextStrike = act = new QAction(FB2::icon("format-text-strikethrough"), tr("&Strikethrough"), this);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextSup = act = new QAction(icon("format-text-superscript"), tr("Su&perscript"), this);
+    actionTextSup = act = new QAction(FB2::icon("format-text-superscript"), tr("Su&perscript"), this);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextSub = act = new QAction(icon("format-text-subscript"), tr("Su&bscript"), this);
+    actionTextSub = act = new QAction(FB2::icon("format-text-subscript"), tr("Su&bscript"), this);
     act->setCheckable(true);
     menu->addAction(act);
 
@@ -393,15 +385,15 @@ void Fb2MainWindow::createActions()
 
     menu->addSeparator();
 
-    actionZoomIn = act = new QAction(icon("zoom-in"), tr("Zoom in"), this);
+    actionZoomIn = act = new QAction(FB2::icon("zoom-in"), tr("Zoom in"), this);
     act->setShortcuts(QKeySequence::ZoomIn);
     menu->addAction(act);
 
-    actionZoomOut = act = new QAction(icon("zoom-out"), tr("Zoom out"), this);
+    actionZoomOut = act = new QAction(FB2::icon("zoom-out"), tr("Zoom out"), this);
     act->setShortcuts(QKeySequence::ZoomOut);
     menu->addAction(act);
 
-    actionZoomOrig = act = new QAction(icon("zoom-original"), tr("Zoom original"), this);
+    actionZoomOrig = act = new QAction(FB2::icon("zoom-original"), tr("Zoom original"), this);
     menu->addAction(act);
 
     menu->addSeparator();
@@ -417,7 +409,7 @@ void Fb2MainWindow::createActions()
     menuBar()->addSeparator();
     menu = menuBar()->addMenu(tr("&Help"));
 
-    act = new QAction(icon("help-about"), tr("&About"), this);
+    act = new QAction(FB2::icon("help-about"), tr("&About"), this);
     act->setStatusTip(tr("Show the application's About box"));
     connect(act, SIGNAL(triggered()), this, SLOT(about()));
     menu->addAction(act);
@@ -694,74 +686,7 @@ void Fb2MainWindow::viewText()
     tool->setMovable(false);
     tool->addSeparator();
 
-    QAction *act;
-
-    act = textEdit->pageAction(QWebPage::Undo);
-    act->setIcon(icon("edit-undo"));
-    act->setText(tr("&Undo"));
-    act->setPriority(QAction::LowPriority);
-    act->setShortcut(QKeySequence::Undo);
-    tool->addAction(act);
-
-    act = textEdit->pageAction(QWebPage::Redo);
-    act->setIcon(icon("edit-redo"));
-    act->setText(tr("&Redo"));
-    act->setPriority(QAction::LowPriority);
-    act->setShortcut(QKeySequence::Redo);
-    tool->addAction(act);
-
-    tool->addSeparator();
-
-    act = textEdit->pageAction(QWebPage::Cut);
-    act->setIcon(icon("edit-cut"));
-    act->setText(tr("Cu&t"));
-    act->setPriority(QAction::LowPriority);
-    act->setShortcuts(QKeySequence::Cut);
-    act->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
-    tool->addAction(act);
-
-    act = textEdit->pageAction(QWebPage::Copy);
-    act->setIcon(icon("edit-copy"));
-    act->setText(tr("&Copy"));
-    act->setPriority(QAction::LowPriority);
-    act->setShortcuts(QKeySequence::Copy);
-    act->setStatusTip(tr("Copy the current selection's contents to the clipboard"));
-    tool->addAction(act);
-
-    act = textEdit->pageAction(QWebPage::Paste);
-    act->setIcon(icon("edit-paste"));
-    act->setText(tr("&Paste"));
-    act->setPriority(QAction::LowPriority);
-    act->setShortcuts(QKeySequence::Paste);
-    act->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
-    tool->addAction(act);
-
-    tool->addSeparator();
-
-    act = textEdit->pageAction(QWebPage::ToggleBold);
-    act->setIcon(icon("format-text-bold"));
-    act->setText(tr("&Bold"));
-    tool->addAction(act);
-
-    act = textEdit->pageAction(QWebPage::ToggleItalic);
-    act->setIcon(icon("format-text-italic"));
-    act->setText(tr("&Italic"));
-    tool->addAction(act);
-
-    act = textEdit->pageAction(QWebPage::ToggleStrikethrough);
-    act->setIcon(icon("format-text-strikethrough"));
-    act->setText(tr("&Strikethrough"));
-    tool->addAction(act);
-
-    act = textEdit->pageAction(QWebPage::ToggleSuperscript);
-    act->setIcon(icon("format-text-superscript"));
-    act->setText(tr("Su&perscript"));
-    tool->addAction(act);
-
-    act = textEdit->pageAction(QWebPage::ToggleSubscript);
-    act->setIcon(icon("format-text-subscript"));
-    act->setText(tr("Su&bscript"));
-    tool->addAction(act);
+    FB2::addTools(tool, textEdit);
 
     tool->addSeparator();
 

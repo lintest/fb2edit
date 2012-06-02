@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>460</width>
     <height>300</height>
    </rect>
   </property>
@@ -24,7 +24,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0" colspan="2">
+   <item row="4" column="0" colspan="2">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -34,7 +34,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="2">
+   <item row="3" column="0" colspan="2">
     <widget class="QWebView" name="m_text">
      <property name="url">
       <url>
@@ -44,7 +44,7 @@
     </widget>
    </item>
    <item row="0" column="0">
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="label1">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
        <horstretch>0</horstretch>
@@ -60,9 +60,25 @@
     <widget class="QLineEdit" name="m_title"/>
    </item>
    <item row="1" column="0">
-    <widget class="QLabel" name="label_2">
+    <widget class="QLabel" name="label2">
      <property name="text">
       <string>Title:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QToolBar" name="m_toolbar">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="floatable">
+      <bool>true</bool>
+     </property>
+     <property name="text" stdset="0">
+      <string>TextLabel</string>
      </property>
     </widget>
    </item>
