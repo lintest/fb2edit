@@ -298,9 +298,8 @@ void Fb2WebView::insertImage()
 
 void Fb2WebView::insertNote()
 {
-    Fb2NoteDlg * dlg = new Fb2NoteDlg(*this);
-    dlg->setModal(true);
-    dlg->show();
+    Fb2NoteDlg dlg(*this);
+    dlg.exec();
 }
 
 void Fb2WebView::insertLink()
