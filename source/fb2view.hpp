@@ -9,6 +9,10 @@
 
 #include "fb2temp.hpp"
 
+QT_BEGIN_NAMESPACE
+class QWebInspector;
+QT_END_NAMESPACE
+
 class Fb2NoteView;
 
 class Fb2BaseWebView : public QWebView
@@ -88,6 +92,7 @@ public slots:
     void data(QString name, QByteArray data);
     void html(QString name, QString html);
     void linkHovered(const QString &link, const QString &title, const QString &textContent);
+    void showInspector();
     void insertImage();
     void insertNote();
     void insertLink();
@@ -105,6 +110,7 @@ private:
     QWebElement doc();
 
 private:
+    QWebInspector * m_inspector;
     Fb2TemporaryList m_files;
     Fb2NoteView *m_noteView;
     QThread *m_thread;

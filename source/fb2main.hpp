@@ -55,7 +55,6 @@ private slots:
     void selectionChanged();
     void undoChanged();
     void redoChanged();
-    void showInspector();
     void zoomOrig();
     void openSettings();
 

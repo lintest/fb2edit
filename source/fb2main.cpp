@@ -1,7 +1,6 @@
 #include <QtGui>
 #include <QtDebug>
 #include <QTreeView>
-#include <QWebInspector>
 #include <QWebFrame>
 
 #include "fb2main.hpp"
@@ -402,8 +401,7 @@ void Fb2MainWindow::createActions()
     connect(act, SIGNAL(triggered()), this, SLOT(viewTree()));
     menu->addAction(act);
 
-    act = new QAction(tr("&Web inspector"), this);
-    connect(act, SIGNAL(triggered()), this, SLOT(showInspector()));
+    actionInspect = act = new QAction(tr("&Web inspector"), this);
     menu->addAction(act);
 
     menuBar()->addSeparator();
@@ -678,6 +676,7 @@ void Fb2MainWindow::viewText()
     connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
     connect(actionZoomOrig, SIGNAL(triggered()), textEdit, SLOT(zoomOrig()));
+    connect(actionInspect, SIGNAL(triggered()), textEdit, SLOT(showInspector()));
 
     if (!xml.isEmpty()) textEdit->load(curFile, xml);
 
@@ -771,11 +770,4 @@ void Fb2MainWindow::clipboardDataChanged()
     }
 }
 
-void Fb2MainWindow::showInspector()
-{
-    if (!textEdit) return;
-    QWebInspector * inspector = new QWebInspector();
-    inspector->setPage(textEdit->page());
-    inspector->show();
-}
 

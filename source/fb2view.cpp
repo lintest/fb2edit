@@ -11,6 +11,7 @@
 #include <QNetworkRequest>
 #include <QToolTip>
 #include <QWebElement>
+#include <QWebInspector>
 #include <QWebFrame>
 #include <QWebPage>
 
@@ -84,6 +85,7 @@ bool Fb2WebPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest
 
 Fb2WebView::Fb2WebView(QWidget *parent)
     : Fb2BaseWebView(parent)
+    , m_inspector(0)
     , m_noteView(0)
     , m_thread(0)
 {
@@ -96,6 +98,7 @@ Fb2WebView::Fb2WebView(QWidget *parent)
 
 Fb2WebView::~Fb2WebView()
 {
+    FB2DELETE(m_inspector);
     FB2DELETE(m_noteView);
 }
 
@@ -322,3 +325,14 @@ QString Fb2WebView::status()
     return page()->mainFrame()->evaluateJavaScript(javascript).toString();
     return QString();
 }
+
+void Fb2WebView::showInspector()
+{
+    if (!m_inspector) {
+        m_inspector = new QWebInspector();
+        m_inspector->setAttribute(Qt::WA_DeleteOnClose, false);
+        m_inspector->setPage(page());
+    }
+    m_inspector->show();
+}
+
