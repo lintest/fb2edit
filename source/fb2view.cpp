@@ -15,6 +15,26 @@
 #include <QWebFrame>
 #include <QWebPage>
 
+void Fb2HtmlHandler::onNew(const QString &name)
+{
+    qCritical() << "New: " << name;
+}
+
+void Fb2HtmlHandler::onTxt(const QString &text)
+{
+    qCritical() << "Txt: " << text;
+}
+
+void Fb2HtmlHandler::onEnd(const QString &name)
+{
+    qCritical() << "End: " << name;
+}
+
+void Fb2HtmlHandler::attr(const QString &name, const QString &value)
+{
+    qCritical() << "Attr: " << name << " = " << value;
+}
+
 //---------------------------------------------------------------------------
 //  Fb2NoteView
 //---------------------------------------------------------------------------
@@ -311,6 +331,9 @@ void Fb2WebView::insertNote()
 
 void Fb2WebView::insertLink()
 {
+    static const QString javascript = FB2::read(":/js/export.js");
+    page()->mainFrame()->addToJavaScriptWindowObject("handler", &handler);
+    page()->mainFrame()->evaluateJavaScript(javascript);
 }
 
 void Fb2WebView::execCommand(const QString &cmd, const QString &arg)

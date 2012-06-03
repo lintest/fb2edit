@@ -47,7 +47,10 @@ LIBS += -lqscintilla2
 
 OTHER_FILES += \
     source/res/style.css \
-    source/res/blank.fb2
+    source/res/blank.fb2 \
+    source/js/export.js \
+    source/js/set_cursor.js \
+    source/js/get_status.js
 
 if (win32) {
 

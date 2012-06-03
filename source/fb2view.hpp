@@ -15,6 +15,19 @@ QT_END_NAMESPACE
 
 class Fb2NoteView;
 
+class Fb2HtmlHandler : public QObject
+{
+    Q_OBJECT
+
+public:
+    Fb2HtmlHandler() {}
+public slots:
+    void onNew(const QString &name);
+    void onTxt(const QString &text);
+    void onEnd(const QString &name);
+    void attr(const QString &name, const QString &value);
+};
+
 class Fb2BaseWebView : public QWebView
 {
     Q_OBJECT
@@ -110,6 +123,7 @@ private:
     QWebElement doc();
 
 private:
+    Fb2HtmlHandler handler;
     QWebInspector * m_inspector;
     Fb2TemporaryList m_files;
     Fb2NoteView *m_noteView;
