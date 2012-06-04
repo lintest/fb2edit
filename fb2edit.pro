@@ -1,5 +1,4 @@
 HEADERS = \
-    source/fb2save.h \
     source/fb2xml.h \
     source/fb2xml2.h \
     source/fb2app.hpp \
@@ -11,7 +10,8 @@ HEADERS = \
     source/fb2tree.hpp \
     source/fb2view.hpp \
     source/fb2note.hpp \
-    source/fb2utils.h
+    source/fb2utils.h \
+    source/fb2save.hpp
 
 SOURCES = \
     source/fb2app.cpp \

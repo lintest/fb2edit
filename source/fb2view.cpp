@@ -1,7 +1,7 @@
 #include "fb2view.hpp"
 #include "fb2note.hpp"
 #include "fb2read.hpp"
-#include "fb2save.h"
+#include "fb2save.hpp"
 #include "fb2utils.h"
 #include "fb2xml2.h"
 
