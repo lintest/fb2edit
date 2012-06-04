@@ -3,11 +3,14 @@
 
 #include "fb2save.h"
 #include "fb2view.hpp"
+#include "fb2utils.h"
 
 #include <QAbstractNetworkCache>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QScopedPointer>
+#include <QWebFrame>
+#include <QWebPage>
 
 //---------------------------------------------------------------------------
 //  Fb2HtmlHandler
@@ -368,12 +371,14 @@ void Fb2SaveHandler::ParagHandler::start()
 Fb2SaveHandler::Fb2SaveHandler(Fb2WebView &view, QIODevice *device, QList<int> *folds)
     : Fb2HtmlHandler()
     , m_writer(view, device, folds)
+    , m_view(view)
 {
 }
 
 Fb2SaveHandler::Fb2SaveHandler(Fb2WebView &view, QByteArray *array, QList<int> *folds)
     : Fb2HtmlHandler()
     , m_writer(view, array, folds)
+    , m_view(view)
 {
 }
 
@@ -384,3 +389,10 @@ Fb2XmlHandler::NodeHandler * Fb2SaveHandler::CreateRoot(const QString &name, con
     return 0;
 }
 
+bool Fb2SaveHandler::save()
+{
+    static const QString javascript = FB2::read(":/js/export.js");
+    m_view.page()->mainFrame()->addToJavaScriptWindowObject("handler", this);
+    m_view.page()->mainFrame()->evaluateJavaScript(javascript);
+    return true;
+}

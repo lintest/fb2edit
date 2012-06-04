@@ -177,20 +177,12 @@ void Fb2WebView::load(const QString &filename, const QString &xml)
 
 bool Fb2WebView::save(QIODevice *device)
 {
-    Fb2SaveHandler handler(*this, device);
-    static const QString javascript = FB2::read(":/js/export.js");
-    page()->mainFrame()->addToJavaScriptWindowObject("handler", &handler);
-    page()->mainFrame()->evaluateJavaScript(javascript);
-    return true;
+    return Fb2SaveHandler(*this, device).save();
 }
 
 bool Fb2WebView::save(QByteArray *array, QList<int> *folds)
 {
-    Fb2SaveHandler handler(*this, array, folds);
-    static const QString javascript = FB2::read(":/js/export.js");
-    page()->mainFrame()->addToJavaScriptWindowObject("handler", &handler);
-    page()->mainFrame()->evaluateJavaScript(javascript);
-    return true;
+    return Fb2SaveHandler(*this, array, folds).save();
 }
 
 bool Fb2WebView::save(QString *string)

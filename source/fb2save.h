@@ -6,8 +6,6 @@
 
 #include <QByteArray>
 #include <QStringList>
-#include <QThread>
-#include <QXmlDefaultHandler>
 #include <QXmlStreamWriter>
 
 #include "fb2temp.hpp"
@@ -64,6 +62,7 @@ class Fb2SaveHandler : public Fb2HtmlHandler
 public:
     explicit Fb2SaveHandler(Fb2WebView &view, QByteArray *array, QList<int> *folds = 0);
     explicit Fb2SaveHandler(Fb2WebView &view, QIODevice *device, QList<int> *folds = 0);
+    bool save();
 
 private:
     class BodyHandler : public NodeHandler
@@ -143,6 +142,7 @@ protected:
 
 private:
     Fb2SaveWriter m_writer;
+    Fb2WebView & m_view;
 };
 
 #endif // Fb2Save_H
