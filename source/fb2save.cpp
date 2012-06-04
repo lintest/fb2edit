@@ -10,6 +10,36 @@
 #include <QScopedPointer>
 
 //---------------------------------------------------------------------------
+//  Fb2HtmlHandler
+//---------------------------------------------------------------------------
+
+QString Fb2HtmlHandler::local(const QString &name)
+{
+    return name.mid(name.lastIndexOf(":"));
+}
+
+void Fb2HtmlHandler::onAttr(const QString &name, const QString &value)
+{
+    m_atts.append(name, "", local(name), value);
+}
+
+void Fb2HtmlHandler::onNew(const QString &name)
+{
+    startElement("", local(name), name, m_atts);
+    m_atts.clear();
+}
+
+void Fb2HtmlHandler::onTxt(const QString &text)
+{
+    characters(text);
+}
+
+void Fb2HtmlHandler::onEnd(const QString &name)
+{
+    endElement("", local(name), name);
+}
+
+//---------------------------------------------------------------------------
 //  Fb2SaveWriter
 //---------------------------------------------------------------------------
 
@@ -22,18 +52,18 @@ Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QByteArray *array, QList<int> *fo
     Init();
 }
 
-Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QIODevice *device)
+Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QIODevice *device, QList<int> *folds)
     : QXmlStreamWriter(device)
-    , m_folds(0)
+    , m_folds(folds)
     , m_view(view)
     , m_line(0)
 {
     Init();
 }
 
-Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QString *string)
+Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QString *string, QList<int> *folds)
     : QXmlStreamWriter(string)
-    , m_folds(0)
+    , m_folds(folds)
     , m_view(view)
     , m_line(0)
 {
@@ -335,14 +365,14 @@ void Fb2SaveHandler::ParagHandler::start()
 //  Fb2SaveHandler
 //---------------------------------------------------------------------------
 
-Fb2SaveHandler::Fb2SaveHandler(Fb2WebView &view, QIODevice *device)
-    : Fb2XmlHandler()
-    , m_writer(view, device)
+Fb2SaveHandler::Fb2SaveHandler(Fb2WebView &view, QIODevice *device, QList<int> *folds)
+    : Fb2HtmlHandler()
+    , m_writer(view, device, folds)
 {
 }
 
 Fb2SaveHandler::Fb2SaveHandler(Fb2WebView &view, QByteArray *array, QList<int> *folds)
-    : Fb2XmlHandler()
+    : Fb2HtmlHandler()
     , m_writer(view, array, folds)
 {
 }

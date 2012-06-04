@@ -15,26 +15,6 @@
 #include <QWebFrame>
 #include <QWebPage>
 
-void Fb2HtmlHandler::onNew(const QString &name)
-{
-    qCritical() << "New: " << name;
-}
-
-void Fb2HtmlHandler::onTxt(const QString &text)
-{
-    qCritical() << "Txt: " << text;
-}
-
-void Fb2HtmlHandler::onEnd(const QString &name)
-{
-    qCritical() << "End: " << name;
-}
-
-void Fb2HtmlHandler::attr(const QString &name, const QString &value)
-{
-    qCritical() << "Attr: " << name << " = " << value;
-}
-
 //---------------------------------------------------------------------------
 //  Fb2NoteView
 //---------------------------------------------------------------------------
@@ -198,23 +178,19 @@ void Fb2WebView::load(const QString &filename, const QString &xml)
 bool Fb2WebView::save(QIODevice *device)
 {
     Fb2SaveHandler handler(*this, device);
-    QXmlInputSource source;
-    source.setData(toBodyXml());
-    XML2::HtmlReader reader;
-    reader.setContentHandler(&handler);
-    reader.setErrorHandler(&handler);
-    return reader.parse(source);
+    static const QString javascript = FB2::read(":/js/export.js");
+    page()->mainFrame()->addToJavaScriptWindowObject("handler", &handler);
+    page()->mainFrame()->evaluateJavaScript(javascript);
+    return true;
 }
 
 bool Fb2WebView::save(QByteArray *array, QList<int> *folds)
 {
     Fb2SaveHandler handler(*this, array, folds);
-    QXmlInputSource source;
-    source.setData(toBodyXml());
-    XML2::HtmlReader reader;
-    reader.setContentHandler(&handler);
-    reader.setErrorHandler(&handler);
-    return reader.parse(source);
+    static const QString javascript = FB2::read(":/js/export.js");
+    page()->mainFrame()->addToJavaScriptWindowObject("handler", &handler);
+    page()->mainFrame()->evaluateJavaScript(javascript);
+    return true;
 }
 
 bool Fb2WebView::save(QString *string)
@@ -331,9 +307,6 @@ void Fb2WebView::insertNote()
 
 void Fb2WebView::insertLink()
 {
-    static const QString javascript = FB2::read(":/js/export.js");
-    page()->mainFrame()->addToJavaScriptWindowObject("handler", &handler);
-    page()->mainFrame()->evaluateJavaScript(javascript);
 }
 
 void Fb2WebView::execCommand(const QString &cmd, const QString &arg)

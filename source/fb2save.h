@@ -14,12 +14,32 @@
 
 class Fb2WebView;
 
+class Fb2HtmlHandler : public QObject, public Fb2XmlHandler
+{
+    Q_OBJECT
+
+public:
+    explicit Fb2HtmlHandler() {}
+
+public slots:
+    void onAttr(const QString &name, const QString &value);
+    void onNew(const QString &name);
+    void onEnd(const QString &name);
+    void onTxt(const QString &text);
+
+private:
+    static QString local(const QString &name);
+
+private:
+    QXmlAttributes m_atts;
+};
+
 class Fb2SaveWriter : public QXmlStreamWriter
 {
 public:
     explicit Fb2SaveWriter(Fb2WebView &view, QByteArray *array, QList<int> *folds = 0);
-    explicit Fb2SaveWriter(Fb2WebView &view, QIODevice *device);
-    explicit Fb2SaveWriter(Fb2WebView &view, QString *string);
+    explicit Fb2SaveWriter(Fb2WebView &view, QIODevice *device, QList<int> *folds = 0);
+    explicit Fb2SaveWriter(Fb2WebView &view, QString *string, QList<int> *folds = 0);
     virtual ~Fb2SaveWriter();
     QString getFileName(const QString &src);
     void writeStartElement(const QString &name, int level);
@@ -39,11 +59,11 @@ private:
     int m_line;
 };
 
-class Fb2SaveHandler : public Fb2XmlHandler
+class Fb2SaveHandler : public Fb2HtmlHandler
 {
 public:
-    explicit Fb2SaveHandler(Fb2WebView &view, QByteArray *array, QList<int> *folds);
-    explicit Fb2SaveHandler(Fb2WebView &view, QIODevice *device);
+    explicit Fb2SaveHandler(Fb2WebView &view, QByteArray *array, QList<int> *folds = 0);
+    explicit Fb2SaveHandler(Fb2WebView &view, QIODevice *device, QList<int> *folds = 0);
 
 private:
     class BodyHandler : public NodeHandler
