@@ -597,7 +597,7 @@ void Fb2MainWindow::viewCode()
     FB2DELETE(headTree);
 
     if (!codeEdit) {
-        codeEdit = new Fb2Scintilla;
+        codeEdit = new Fb2CodeEdit;
     }
     if (load) codeEdit->load(xml, folds);
     setCentralWidget(codeEdit);

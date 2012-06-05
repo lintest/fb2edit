@@ -14,7 +14,7 @@ class QTreeView;
 class QWebInspector;
 QT_END_NAMESPACE
 
-class Fb2Scintilla;
+class Fb2CodeEdit;
 class Fb2WebView;
 
 class Fb2MainWindow : public QMainWindow
@@ -80,7 +80,7 @@ private:
     QTextEdit *noteEdit;
     QTextEdit *messageEdit;
     QDockWidget *dockTree;
-    Fb2Scintilla *codeEdit;
+    Fb2CodeEdit *codeEdit;
     QTreeView *treeView;
     QString curFile;
     bool isUntitled;
