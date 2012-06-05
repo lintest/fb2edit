@@ -70,7 +70,7 @@ private:
     void readSettings();
     void writeSettings();
     bool maybeSave();
-    bool saveFile(const QString &fileName);
+    bool saveFile(const QString &fileName, const QString &codec = QString());
     void setCurrentFile(const QString &fileName = QString());
     Fb2MainWindow *findFb2MainWindow(const QString &fileName);
 

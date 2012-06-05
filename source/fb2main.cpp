@@ -6,6 +6,7 @@
 #include "fb2main.hpp"
 #include "fb2code.hpp"
 #include "fb2read.hpp"
+#include "fb2save.hpp"
 #include "fb2tree.hpp"
 #include "fb2view.hpp"
 #include "fb2head.hpp"
@@ -171,9 +172,12 @@ bool Fb2MainWindow::fileSave()
 
 bool Fb2MainWindow::fileSaveAs()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save As..."), curFile);
+    Fb2SaveDialog dlg(this, tr("Save As..."));
+    dlg.selectFile(curFile);
+    if (!dlg.exec()) return false;
+    QString fileName = dlg.fileName();
     if (fileName.isEmpty()) return false;
-    return saveFile(fileName);
+    return saveFile(fileName, dlg.codec());
 }
 
 void Fb2MainWindow::about()
@@ -514,14 +518,18 @@ bool Fb2MainWindow::maybeSave()
     return true;
 }
 
-bool Fb2MainWindow::saveFile(const QString &fileName)
+bool Fb2MainWindow::saveFile(const QString &fileName, const QString &codec)
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
         QMessageBox::warning(this, qApp->applicationName(), tr("Cannot write file %1: %2.").arg(fileName).arg(file.errorString()));
         return false;
     }
-    if (textEdit) return textEdit->save(&file);
+
+    if (textEdit) {
+        textEdit->save(&file, codec);
+        setCurrentFile(fileName);
+    }
     return true;
 
 /*

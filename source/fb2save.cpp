@@ -82,6 +82,14 @@ void Fb2SaveDialog::init()
     layout->addWidget(combo, row, 1);
 }
 
+QString Fb2SaveDialog::fileName() const
+{
+    foreach (QString filename, selectedFiles()) {
+        return filename;
+    }
+    return QString();
+}
+
 QString Fb2SaveDialog::codec() const
 {
     return combo->currentText();
@@ -127,7 +135,6 @@ Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QByteArray *array, QList<int> *fo
     , m_view(view)
     , m_line(0)
 {
-    Init();
 }
 
 Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QIODevice *device, QList<int> *folds)
@@ -136,7 +143,6 @@ Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QIODevice *device, QList<int> *fo
     , m_view(view)
     , m_line(0)
 {
-    Init();
 }
 
 Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QString *string, QList<int> *folds)
@@ -145,17 +151,6 @@ Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QString *string, QList<int> *fold
     , m_view(view)
     , m_line(0)
 {
-    Init();
-}
-
-void Fb2SaveWriter::Init()
-{
-    writeStartDocument();
-}
-
-Fb2SaveWriter::~Fb2SaveWriter()
-{
-    writeEndDocument();
 }
 
 void Fb2SaveWriter::writeStartElement(const QString &name, int level)
@@ -443,17 +438,9 @@ void Fb2SaveHandler::ParagHandler::start()
 //  Fb2SaveHandler
 //---------------------------------------------------------------------------
 
-Fb2SaveHandler::Fb2SaveHandler(Fb2WebView &view, QIODevice *device, QList<int> *folds)
+Fb2SaveHandler::Fb2SaveHandler(Fb2SaveWriter &writer)
     : Fb2HtmlHandler()
-    , m_writer(view, device, folds)
-    , m_view(view)
-{
-}
-
-Fb2SaveHandler::Fb2SaveHandler(Fb2WebView &view, QByteArray *array, QList<int> *folds)
-    : Fb2HtmlHandler()
-    , m_writer(view, array, folds)
-    , m_view(view)
+    , m_writer(writer)
 {
 }
 
@@ -466,8 +453,11 @@ Fb2XmlHandler::NodeHandler * Fb2SaveHandler::CreateRoot(const QString &name, con
 
 bool Fb2SaveHandler::save()
 {
+    m_writer.writeStartDocument();
+    QWebFrame * frame = m_writer.view().page()->mainFrame();
     static const QString javascript = FB2::read(":/js/export.js");
-    m_view.page()->mainFrame()->addToJavaScriptWindowObject("handler", this);
-    m_view.page()->mainFrame()->evaluateJavaScript(javascript);
+    frame->addToJavaScriptWindowObject("handler", this);
+    frame->evaluateJavaScript(javascript);
+    m_writer.writeEndDocument();
     return true;
 }

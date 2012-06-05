@@ -30,6 +30,8 @@ public:
                          const QString &directory = QString(),
                          const QString &filter = QString());
 
+    QString fileName() const;
+
     QString codec() const;
 
 private:
@@ -66,14 +68,13 @@ public:
     explicit Fb2SaveWriter(Fb2WebView &view, QByteArray *array, QList<int> *folds = 0);
     explicit Fb2SaveWriter(Fb2WebView &view, QIODevice *device, QList<int> *folds = 0);
     explicit Fb2SaveWriter(Fb2WebView &view, QString *string, QList<int> *folds = 0);
-    virtual ~Fb2SaveWriter();
+    Fb2WebView & view() { return m_view; }
     QString getFileName(const QString &src);
     void writeStartElement(const QString &name, int level);
     void writeEndElement(int level);
     void writeLineEnd();
     void writeFiles();
 private:
-    void Init();
     QByteArray downloadFile(const QUrl &url);
     QByteArray getFileData(const QString &name);
     QString newFileName(const QString &path);
@@ -88,8 +89,7 @@ private:
 class Fb2SaveHandler : public Fb2HtmlHandler
 {
 public:
-    explicit Fb2SaveHandler(Fb2WebView &view, QByteArray *array, QList<int> *folds = 0);
-    explicit Fb2SaveHandler(Fb2WebView &view, QIODevice *device, QList<int> *folds = 0);
+    explicit Fb2SaveHandler(Fb2SaveWriter &writer);
     bool save();
 
 private:
@@ -169,8 +169,7 @@ protected:
     virtual NodeHandler * CreateRoot(const QString &name, const QXmlAttributes &atts);
 
 private:
-    Fb2SaveWriter m_writer;
-    Fb2WebView & m_view;
+    Fb2SaveWriter & m_writer;
 };
 
 #endif // Fb2Save_H

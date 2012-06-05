@@ -175,14 +175,17 @@ void Fb2WebView::load(const QString &filename, const QString &xml)
     m_thread->start();
 }
 
-bool Fb2WebView::save(QIODevice *device)
+bool Fb2WebView::save(QIODevice *device, const QString &codec)
 {
-    return Fb2SaveHandler(*this, device).save();
+    Fb2SaveWriter writer(*this, device);
+    if (!codec.isEmpty()) writer.setCodec(codec.toLatin1());
+    return Fb2SaveHandler(writer).save();
 }
 
 bool Fb2WebView::save(QByteArray *array, QList<int> *folds)
 {
-    return Fb2SaveHandler(*this, array, folds).save();
+    Fb2SaveWriter writer(*this, array, folds);
+    return Fb2SaveHandler(writer).save();
 }
 
 bool Fb2WebView::save(QString *string)
