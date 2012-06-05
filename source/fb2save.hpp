@@ -5,12 +5,40 @@
 #include "fb2temp.hpp"
 
 #include <QByteArray>
+#include <QFileDialog>
 #include <QStringList>
 #include <QXmlStreamWriter>
+
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QLabel;
+QT_END_NAMESPACE
 
 #include "fb2temp.hpp"
 
 class Fb2WebView;
+
+class Fb2SaveDialog : public QFileDialog
+{
+    Q_OBJECT
+
+public:
+    explicit Fb2SaveDialog(QWidget *parent, Qt::WindowFlags f);
+
+    explicit Fb2SaveDialog(QWidget *parent = 0,
+                         const QString &caption = QString(),
+                         const QString &directory = QString(),
+                         const QString &filter = QString());
+
+    QString codec() const;
+
+private:
+    void init();
+
+private:
+    QComboBox * combo;
+    QLabel * label;
+};
 
 class Fb2HtmlHandler : public QObject, public Fb2XmlHandler
 {

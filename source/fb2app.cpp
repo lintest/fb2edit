@@ -22,7 +22,7 @@ void Fb2Application::handleMessage(QtMsgType type, const char *msg)
         abort();
     }
     */
-    emit logMessage(msg);
+    emit logMessage( QString::fromUtf8(msg));
 }
 
 static void fb2MessageHandler(QtMsgType type, const char *msg)

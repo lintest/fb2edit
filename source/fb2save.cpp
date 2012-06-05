@@ -6,11 +6,86 @@
 #include "fb2utils.h"
 
 #include <QAbstractNetworkCache>
+#include <QComboBox>
+#include <QFileDialog>
+#include <QGridLayout>
+#include <QLabel>
+#include <QList>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QScopedPointer>
+#include <QTextCodec>
 #include <QWebFrame>
 #include <QWebPage>
+
+//---------------------------------------------------------------------------
+//  Fb2SaveDialog
+//---------------------------------------------------------------------------
+
+Fb2SaveDialog::Fb2SaveDialog(QWidget *parent, Qt::WindowFlags f)
+    : QFileDialog(parent, f)
+{
+    init();
+}
+
+Fb2SaveDialog::Fb2SaveDialog(QWidget *parent, const QString &caption, const QString &directory, const QString &filter)
+    : QFileDialog(parent, caption, directory, filter)
+{
+    init();
+}
+
+void Fb2SaveDialog::init()
+{
+    QMap<QString, QString> codecMap;
+    foreach (int mib, QTextCodec::availableMibs()) {
+        QTextCodec *codec = QTextCodec::codecForMib(mib);
+
+        QString sortKey = codec->name().toUpper();
+        int rank;
+
+        if (sortKey.startsWith("UTF-8")) {
+            rank = 1;
+        } else if (sortKey.startsWith("KOI8")) {
+            rank = 2;
+        } else if (sortKey.startsWith("WINDOWS")) {
+            rank = 3;
+        } else {
+            rank = 4;
+        }
+        sortKey.prepend(QChar('0' + rank));
+        codecMap.insert(sortKey, codec->name());
+    }
+
+    setAcceptMode(AcceptSave);
+    setConfirmOverwrite(true);
+    setDefaultSuffix("fb2");
+
+    QStringList filters;
+    filters << tr("Fiction book files (*.fb2)");
+    filters << tr("Any files (*.*)");
+    setNameFilters(filters);
+
+    QGridLayout *layout = (QGridLayout*) this->layout();
+    int row = layout->rowCount();
+
+    combo = new QComboBox(this);
+    foreach (QString codec, codecMap) {
+        combo->addItem(codec);
+    }
+    combo->setCurrentIndex(0);
+
+    label = new QLabel(this);
+    label->setText(tr("&Encoding"));
+    label->setBuddy(combo);
+
+    layout->addWidget(label, row, 0);
+    layout->addWidget(combo, row, 1);
+}
+
+QString Fb2SaveDialog::codec() const
+{
+    return combo->currentText();
+}
 
 //---------------------------------------------------------------------------
 //  Fb2HtmlHandler
