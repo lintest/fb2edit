@@ -1,7 +1,7 @@
 #ifndef FB2CODE_H
 #define FB2CODE_H
 
-#ifdef USE_SCINTILLA
+#ifdef FB2_USE_SCINTILLA
 
 #include <Qsci/qsciscintilla.h>
 #include <QList>
@@ -16,18 +16,87 @@ public:
 signals:
 
 public slots:
+    void zoomReset();
 
 private slots:
     void linesChanged();
 
 };
 
-#else // USE_SCINTILLA
+#else // FB2_USE_SCINTILLA
+    #ifndef FB2_USE_PLAINTEXT
+        #define FB2_USE_PLAINTEXT
+    #endif // FB2_USE_PLAINTEXT
+#endif // FB2_USE_SCINTILLA
+
+#ifdef FB2_USE_PLAINTEXT
 
 #include <QByteArray>
 #include <QList>
 #include <QPlainTextEdit>
 #include <QObject>
+
+#include <QSyntaxHighlighter>
+#include <QTextCharFormat>
+#include <QColor>
+#include <QTextEdit>
+
+class Fb2Highlighter : public QSyntaxHighlighter
+{
+public:
+    Fb2Highlighter(QObject* parent);
+    Fb2Highlighter(QTextDocument* parent);
+    Fb2Highlighter(QTextEdit* parent);
+    ~Fb2Highlighter();
+
+    enum HighlightType
+    {
+        SyntaxChar,
+        ElementName,
+        Comment,
+        AttributeName,
+        AttributeValue,
+        Error,
+        Other
+    };
+
+    void setHighlightColor(HighlightType type, QColor color, bool foreground = true);
+    void setHighlightFormat(HighlightType type, QTextCharFormat format);
+
+protected:
+    void highlightBlock(const QString& rstrText);
+    int  processDefaultText(int i, const QString& rstrText);
+
+private:
+    void init();
+
+    QTextCharFormat fmtSyntaxChar;
+    QTextCharFormat fmtElementName;
+    QTextCharFormat fmtComment;
+    QTextCharFormat fmtAttributeName;
+    QTextCharFormat fmtAttributeValue;
+    QTextCharFormat fmtError;
+    QTextCharFormat fmtOther;
+
+    enum ParsingState
+    {
+        NoState = 0,
+        ExpectElementNameOrSlash,
+        ExpectElementName,
+        ExpectAttributeOrEndOfElement,
+        ExpectEqual,
+        ExpectAttributeValue
+    };
+
+    enum BlockState
+    {
+        NoBlock = -1,
+        InComment,
+        InElement
+    };
+
+    ParsingState state;
+};
 
 QT_BEGIN_NAMESPACE
 class QPaintEvent;
@@ -35,8 +104,6 @@ class QResizeEvent;
 class QSize;
 class QWidget;
 QT_END_NAMESPACE
-
-class LineNumberArea;
 
 class Fb2CodeEdit : public QPlainTextEdit
 {
@@ -59,8 +126,9 @@ public:
     bool isRedoAvailable() { return false; }
 
 public slots:
-    void zoomIn() {}
-    void zoomOut() {}
+    void zoomIn();
+    void zoomOut();
+    void zoomReset();
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -85,12 +153,18 @@ private:
 private:
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
+    void setZoomRatio(qreal ratio);
+
+private:
+    Fb2Highlighter * highlighter;
     QWidget *lineNumberArea;
+    qreal zoomRatio;
+    static qreal baseFontSize;
+    static qreal zoomRatioMin;
+    static qreal zoomRatioMax;
     friend class Fb2CodeEdit::LineNumberArea;
 };
 
-typedef Fb2CodeEdit Fb2CodeEdit;
-
-#endif // USE_SCINTILLA
+#endif // FB2_USE_PLAINTEXT
 
 #endif // FB2CODE_H

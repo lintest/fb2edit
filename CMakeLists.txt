@@ -14,12 +14,16 @@ project(fb2edit)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/3rdparty/cmake)
 
 find_package( Qt4 4.7.0 COMPONENTS QtCore QtGui QtMain QtNetwork QtWebkit QtXml QtXmlPatterns REQUIRED )
-find_package( QScintilla REQUIRED )
-find_package( LibXML2 REQUIRED )
+find_package( QScintilla )
+find_package( LibXML2 )
 
-INCLUDE(${QT_USE_FILE})
-ADD_DEFINITIONS(${QT_DEFINITIONS})
-ADD_DEFINITIONS(${LIBXML2_DEFINITIONS})
+include(${QT_USE_FILE})
+add_definitions(${QT_DEFINITIONS})
+add_definitions(${LIBXML2_DEFINITIONS})
+
+if (LIBXML2_FOUND) 
+    add_definitions(-DFB2_USE_LIBXML2)
+endif (LIBXML2_FOUND) 
 
 file( GLOB FB2_HEAD source/*.hpp     )
 file( GLOB FB2_SRCS source/*.cpp     )
@@ -36,7 +40,6 @@ set(CMAKE_IN_SOURCE_BUILD TRUE)
 
 add_definitions(-Wall -g)
 
-include(${QT_USE_FILE})
 qt4_wrap_ui(UI_HEADERS ${FB2_UIS})
 qt4_wrap_cpp(MOC_SRCS ${FB2_HEAD})
 qt4_add_resources(RCC_SRCS ${FB2_RES})

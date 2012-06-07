@@ -1,4 +1,7 @@
 #include "fb2xml2.h"
+
+#ifdef FB2_USE_LIBXML2
+
 #include <cstring>
 #include <libxml/tree.h>
 #include <libxml/parser.h>
@@ -651,3 +654,4 @@ int XmlReaderLocator::lineNumber(void) const
 
 } // namespace XML2
 
+#endif // FB2_USE_LIBXML2

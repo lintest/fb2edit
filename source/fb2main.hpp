@@ -55,7 +55,6 @@ private slots:
     void selectionChanged();
     void undoChanged();
     void redoChanged();
-    void zoomOrig();
     void openSettings();
 
 private:
@@ -117,7 +116,7 @@ private:
         *actionInspect,
         *actionZoomIn,
         *actionZoomOut,
-        *actionZoomOrig
+        *actionZoomReset
     ;
 };
 

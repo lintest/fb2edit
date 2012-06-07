@@ -396,7 +396,7 @@ void Fb2MainWindow::createActions()
     act->setShortcuts(QKeySequence::ZoomOut);
     menu->addAction(act);
 
-    actionZoomOrig = act = new QAction(FB2::icon("zoom-original"), tr("Zoom original"), this);
+    actionZoomReset = act = new QAction(FB2::icon("zoom-original"), tr("Zoom original"), this);
     menu->addAction(act);
 
     menu->addSeparator();
@@ -576,11 +576,6 @@ Fb2MainWindow *Fb2MainWindow::findFb2MainWindow(const QString &fileName)
     return 0;
 }
 
-void Fb2MainWindow::zoomOrig()
-{
-    if (codeEdit) codeEdit->zoomTo(1);
-}
-
 void Fb2MainWindow::checkScintillaUndo()
 {
     if (!codeEdit) return;
@@ -623,7 +618,7 @@ void Fb2MainWindow::viewCode()
     tool->addSeparator();
     tool->addAction(actionZoomIn);
     tool->addAction(actionZoomOut);
-    tool->addAction(actionZoomOrig);
+    tool->addAction(actionZoomReset);
     tool->setMovable(false);
 
     connect(codeEdit, SIGNAL(textChanged()), this, SLOT(documentWasModified()));
@@ -641,7 +636,7 @@ void Fb2MainWindow::viewCode()
 
     connect(actionZoomIn, SIGNAL(triggered()), codeEdit, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), codeEdit, SLOT(zoomOut()));
-    connect(actionZoomOrig, SIGNAL(triggered()), this, SLOT(zoomOrig()));
+    connect(actionZoomReset, SIGNAL(triggered()), codeEdit, SLOT(zoomReset()));
 }
 
 void Fb2MainWindow::viewText()
@@ -683,7 +678,7 @@ void Fb2MainWindow::viewText()
 
     connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
-    connect(actionZoomOrig, SIGNAL(triggered()), textEdit, SLOT(zoomOrig()));
+    connect(actionZoomReset, SIGNAL(triggered()), textEdit, SLOT(zoomReset()));
     connect(actionInspect, SIGNAL(triggered()), textEdit, SLOT(showInspector()));
 
     if (!xml.isEmpty()) textEdit->load(curFile, xml);
@@ -706,7 +701,7 @@ void Fb2MainWindow::viewText()
 
     tool->addAction(actionZoomIn);
     tool->addAction(actionZoomOut);
-    tool->addAction(actionZoomOrig);
+    tool->addAction(actionZoomReset);
 }
 
 void Fb2MainWindow::viewHead()

@@ -98,7 +98,7 @@ public slots:
     void insertLink();
     void zoomIn();
     void zoomOut();
-    void zoomOrig();
+    void zoomReset();
 
 private slots:
     void fixContents();

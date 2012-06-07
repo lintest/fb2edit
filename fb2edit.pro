@@ -43,8 +43,6 @@ QT += xml
 QT += webkit
 QT += network
 
-LIBS += -lqscintilla2
-
 OTHER_FILES += \
     source/res/style.css \
     source/res/blank.fb2 \
@@ -52,17 +50,9 @@ OTHER_FILES += \
     source/js/set_cursor.js \
     source/js/get_status.js
 
-if (win32) {
+if (unix) {
 
-    INCLUDEPATH += ../libxml2/include
-    INCLUDEPATH += ../iconv/include
-
-    LIBS += -L../libxml2/lib -llibxml2
-    LIBS += -L../iconv/lib -liconv
-    LIBS += -L../zlib/lib -lzlib
-
-} else {
-
+    DEFINES += FB2_USE_LIBXML2
     INCLUDEPATH += /usr/include/libxml2
     LIBS += -lxml2
 

@@ -227,7 +227,7 @@ void Fb2WebView::zoomOut()
     setZoomFactor(zoom * 0.9);
 }
 
-void Fb2WebView::zoomOrig()
+void Fb2WebView::zoomReset()
 {
     setZoomFactor(1);
 }

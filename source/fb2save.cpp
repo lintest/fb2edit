@@ -65,9 +65,6 @@ void Fb2SaveDialog::init()
     filters << tr("Any files (*.*)");
     setNameFilters(filters);
 
-    QGridLayout *layout = (QGridLayout*) this->layout();
-    int row = layout->rowCount();
-
     combo = new QComboBox(this);
     foreach (QString codec, codecMap) {
         combo->addItem(codec);
@@ -78,8 +75,8 @@ void Fb2SaveDialog::init()
     label->setText(tr("&Encoding"));
     label->setBuddy(combo);
 
-    layout->addWidget(label, row, 0);
-    layout->addWidget(combo, row, 1);
+    layout()->addWidget(label);
+    layout()->addWidget(combo);
 }
 
 QString Fb2SaveDialog::fileName() const

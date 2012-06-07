@@ -1,6 +1,8 @@
 #ifndef FB2XML2_H
 #define FB2XML2_H
 
+#ifdef FB2_USE_LIBXML2
+
 /////////////////////////////////////////////////////////////////////////////
 //
 //   Append into project file:
@@ -103,5 +105,7 @@ private:
 };
 
 } // namespace XML2
+
+#endif // FB2_USE_LIBXML2
 
 #endif // FB2XML2_H
