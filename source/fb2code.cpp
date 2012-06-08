@@ -88,7 +88,7 @@ void Fb2CodeEdit::load(const QByteArray &array, const QList<int> &folds)
 
 void Fb2CodeEdit::zoomReset()
 {
-    if (codeEdit) codeEdit->zoomTo(1);
+    zoomTo(1);
 }
 
 #endif // FB2_USE_SCINTILLA

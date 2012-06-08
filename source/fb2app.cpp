@@ -4,6 +4,12 @@
 #include "fb2app.hpp"
 #include "fb2main.hpp"
 
+#ifndef PACKAGE_NAME
+    #define PACKAGE_NAME "fb2edit"
+    #define PACKAGE_VENDOR "LinTest"
+    #define PACKAGE_VERSION "0.XX.XX"
+#endif  // PACKAGE_VERSION
+
 void Fb2Application::handleMessage(QtMsgType type, const char *msg)
 {
     /*
@@ -35,8 +41,9 @@ int main(int argc, char *argv[])
     Q_INIT_RESOURCE(fb2edit);
 
     Fb2Application app(argc, argv);
-    app.setApplicationName("fb2edit");
-    app.setOrganizationName("LinTest");
+    app.setApplicationName(QString(PACKAGE_NAME));
+    app.setOrganizationName(QString(PACKAGE_VENDOR));
+    app.setApplicationVersion(QString(PACKAGE_VERSION));
 
     QTranslator translator;
     translator.load(QLocale::system().name(), ":ts");

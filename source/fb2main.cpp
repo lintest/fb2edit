@@ -557,7 +557,7 @@ void Fb2MainWindow::setCurrentFile(const QString &filename)
         curFile = info.canonicalFilePath();
         title = info.fileName();
     }
-    title += QString(" - ") += qApp->applicationName();
+    title += QString(" - ") += qApp->applicationName() += QString(" ") += qApp->applicationVersion();
 
     setWindowModified(false);
     setWindowFilePath(curFile);
