@@ -42,8 +42,12 @@ int main(int argc, char *argv[])
     translator.load(QLocale::system().name(), ":ts");
     app.installTranslator(&translator);
 
-    Fb2MainWindow * mainWin = new Fb2MainWindow;
-    mainWin->show();
+    int count = app.arguments().count();
+    for (int i = 1; i < count; i++) {
+        QString arg = app.arguments().at(i);
+        (new Fb2MainWindow(arg))->show();
+    }
+    if (count == 1) (new Fb2MainWindow)->show();
 
     qInstallMsgHandler(fb2MessageHandler);
 
