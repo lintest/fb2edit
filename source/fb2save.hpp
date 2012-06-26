@@ -54,6 +54,7 @@ public slots:
     void onNew(const QString &name);
     void onEnd(const QString &name);
     void onTxt(const QString &text);
+    void onCom(const QString &text);
 
 private:
     static QString local(const QString &name);
@@ -76,12 +77,9 @@ public:
     void writeFiles();
 private:
     QByteArray downloadFile(const QUrl &url);
-    QByteArray getFileData(const QString &name);
-    QString newFileName(const QString &path);
 private:
     QList<int> *m_folds;
     Fb2WebView &m_view;
-    Fb2TemporaryList m_files;
     QStringList m_names;
     int m_line;
 };

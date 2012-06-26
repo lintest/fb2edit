@@ -198,14 +198,9 @@ bool Fb2WebView::save(QString *string)
     return ok;
 }
 
-QString Fb2WebView::temp(QString name)
+void Fb2WebView::data(QString name, QString type, QByteArray data)
 {
-    return m_files.get(name).fileName();
-}
-
-void Fb2WebView::data(QString name, QByteArray data)
-{
-    m_files.set(name, data);
+    m_files.set(name, type, data);
 }
 
 void Fb2WebView::html(QString name, QString html)
@@ -286,12 +281,15 @@ void Fb2WebView::insertImage()
     filters += tr("Graphics Interchange Format (*.gif);;");
     filters += tr("All Files (*)");
 
-    QString fn = QFileDialog::getOpenFileName(this, tr("Open image..."), QString(), filters);
-    if (fn.isEmpty()) return;
-    if (!QFile::exists(fn)) return;
+    QString path = QFileDialog::getOpenFileName(this, tr("Insert image..."), QString(), filters);
+    if (path.isEmpty()) return;
 
-    QUrl url = QUrl::fromLocalFile(fn);
-    execCommand("insertImage", url.toString());
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly)) return;
+
+    QByteArray data = file.readAll();
+    QString name = m_files.add(path, data);
+    execCommand("insertImage", name.prepend("fb2:"));
 }
 
 void Fb2WebView::insertNote()

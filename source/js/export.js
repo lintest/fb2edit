@@ -1,6 +1,8 @@
 (f = function(node) {
     if (node.nodeName === "#text") {
         handler.onTxt(node.data);
+    } else if (node.nodeName === "#comment") {
+        handler.onCom(node.data);
     } else {
         var atts = node.attributes;
         var count = atts.length;

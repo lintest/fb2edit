@@ -64,7 +64,7 @@ public:
     explicit Fb2WebView(QWidget *parent = 0);
     virtual ~Fb2WebView();
 
-    const Fb2TemporaryList & files() const { return m_files; }
+    Fb2TemporaryList & files() { return m_files; }
     void load(const QString &filename, const QString &xml = QString());
     bool save(QIODevice *device, const QString &codec = QString());
     bool save(QByteArray *array, QList<int> *folds = 0);
@@ -88,8 +88,7 @@ protected:
 signals:
     
 public slots:
-    QString temp(QString name);
-    void data(QString name, QByteArray data);
+    void data(QString name, QString type, QByteArray data);
     void html(QString name, QString html);
     void linkHovered(const QString &link, const QString &title, const QString &textContent);
     void showInspector();

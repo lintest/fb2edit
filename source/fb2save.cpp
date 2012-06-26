@@ -117,6 +117,11 @@ void Fb2HtmlHandler::onTxt(const QString &text)
     characters(text);
 }
 
+void Fb2HtmlHandler::onCom(const QString &text)
+{
+    Q_UNUSED(text);
+}
+
 void Fb2HtmlHandler::onEnd(const QString &name)
 {
     endElement("", local(name), name);
@@ -184,21 +189,6 @@ QByteArray Fb2SaveWriter::downloadFile(const QUrl &url)
     return reply->readAll();
 }
 
-QString Fb2SaveWriter::newFileName(const QString &path)
-{
-    QFileInfo info(path);
-    QString name = info.fileName();
-    if (!m_view.files().exists(name) && !m_files.exists(name)) return name;
-    QString base = info.baseName();
-    QString suff = info.suffix();
-    for (int i = 1; ; i++) {
-        QString name = QString("%1(%2).%3").arg(base).arg(i).arg(suff);
-        if (m_view.files().exists(name)) continue;
-        if (m_files.exists(name)) continue;
-        return name;
-    }
-}
-
 QString Fb2SaveWriter::getFileName(const QString &path)
 {
     QUrl url = path;
@@ -212,23 +202,10 @@ QString Fb2SaveWriter::getFileName(const QString &path)
     } else {
         QByteArray data = downloadFile(url);
         if (data.size() == 0) return QString();
-        QString hash = Fb2TemporaryFile::md5(data);
-        QString name = m_view.files().name(hash);
-        if (name.isEmpty()) m_files.name(hash);
-        if (name.isEmpty()) {
-            name = newFileName(url.path());
-            m_files.set(name, data, hash);
-            m_names.append(name);
-        }
+        QString name = m_view.files().add(url.path(), data);
+        m_names.append(name);
         return name;
     }
-}
-
-QByteArray Fb2SaveWriter::getFileData(const QString &name)
-{
-    QByteArray data = m_view.files().data(name);
-    if (data.size() == 0) data = m_files.data(name);
-    return data;
 }
 
 void Fb2SaveWriter::writeFiles()
@@ -237,11 +214,14 @@ void Fb2SaveWriter::writeFiles()
     while (it.hasNext()) {
         QString name = it.next();
         if (name.isEmpty()) continue;
-        QString data = getFileData(name).toBase64();
-        if (data.isEmpty()) continue;
+        Fb2TemporaryFile * file = m_view.files().get(name);
+        if (!file) continue;
+        QString type = file->type();
+        QString data = file->data().toBase64();
         writeStartElement("binary", 2);
         if (m_folds) m_folds->append(m_line);
         writeAttribute("id", name);
+        if (!type.isEmpty()) writeAttribute("content-type", type);
         writeLineEnd();
         int pos = 0;
         while (true) {

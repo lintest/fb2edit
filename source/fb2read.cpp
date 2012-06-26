@@ -340,6 +340,7 @@ Fb2ReadHandler::ImageHandler::ImageHandler(Fb2ReadHandler &owner, const QString 
 Fb2ReadHandler::BinaryHandler::BinaryHandler(Fb2ReadHandler &owner, const QString &name, const QXmlAttributes &atts)
     : BaseHandler(owner, name)
     , m_file(Value(atts, "id"))
+    , m_type(Value(atts, "content-type"))
 {
 }
 
@@ -352,7 +353,7 @@ void Fb2ReadHandler::BinaryHandler::EndTag(const QString &name)
 {
     Q_UNUSED(name);
     QByteArray in; in.append(m_text);
-    if (!m_file.isEmpty()) m_owner.addFile(m_file, QByteArray::fromBase64(in));
+    if (!m_file.isEmpty()) m_owner.addFile(m_file, m_type, QByteArray::fromBase64(in));
 }
 
 //---------------------------------------------------------------------------
@@ -383,7 +384,7 @@ QString Fb2ReadHandler::getFile(const QString &name)
     return path;
 }
 
-void Fb2ReadHandler::addFile(const QString &name, const QByteArray &data)
+void Fb2ReadHandler::addFile(const QString &name, const QString &type, const QByteArray &data)
 {
-    QMetaObject::invokeMethod(m_thread.parent(), "data", Qt::QueuedConnection, Q_ARG(QString, name), Q_ARG(QByteArray, data));
+    QMetaObject::invokeMethod(m_thread.parent(), "data", Qt::QueuedConnection, Q_ARG(QString, name), Q_ARG(QString, type), Q_ARG(QByteArray, data));
 }

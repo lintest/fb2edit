@@ -1,6 +1,8 @@
 #include "fb2temp.hpp"
 
 #include <QCryptographicHash>
+#include <QFileInfo>
+#include <QImageReader>
 #include <QUrl>
 #include <QtDebug>
 
@@ -10,10 +12,9 @@
 //  Fb2TemporaryFile
 //---------------------------------------------------------------------------
 
-Fb2TemporaryFile::Fb2TemporaryFile(const QString &name, const QString &hash)
+Fb2TemporaryFile::Fb2TemporaryFile(const QString &name)
     : QTemporaryFile()
     , m_name(name)
-    , m_hash(hash)
 {
 }
 
@@ -53,16 +54,47 @@ Fb2TemporaryList::~Fb2TemporaryList()
     while (it.hasNext()) delete it.next();
 }
 
-Fb2TemporaryFile & Fb2TemporaryList::get(const QString &name, const QString &hash)
+QString Fb2TemporaryList::add(const QString &path, const QByteArray &data)
+{
+    QString hash = Fb2TemporaryFile::md5(data);
+    QString name = this->name(hash);
+    if (name.isEmpty()) {
+        name = newName(path);
+        Fb2TemporaryFile * temp = new Fb2TemporaryFile(name);
+        temp->setHash(hash);
+        temp->write(data);
+        temp->open();
+        QString type = QImageReader::imageFormat(temp);
+        if (!type.isEmpty()) type.prepend("image/");
+        temp->setType(type);
+        temp->close();
+        append(temp);
+    }
+    return name;
+}
+
+QString Fb2TemporaryList::newName(const QString &path)
+{
+    QFileInfo info(path);
+    QString name = info.fileName();
+    if (!exists(name)) return name;
+    QString base = info.baseName();
+    QString suff = info.suffix();
+    for (int i = 1; ; i++) {
+        QString name = QString("%1(%2).%3").arg(base).arg(i).arg(suff);
+        if (exists(name)) continue;
+        return name;
+    }
+}
+
+Fb2TemporaryFile * Fb2TemporaryList::get(const QString &name) const
 {
     Fb2TemporaryIterator it(*this);
     while (it.hasNext()) {
-        Fb2TemporaryFile *file = it.next();
-        if (file->name() == name) return *file;
+        Fb2TemporaryFile * file = it.next();
+        if (file->name() == name) return file;
     }
-    Fb2TemporaryFile * file = new Fb2TemporaryFile(name, hash);
-    append(file);
-    return *file;
+    return NULL;
 }
 
 QByteArray Fb2TemporaryList::data(const QString &name) const
@@ -75,11 +107,14 @@ QByteArray Fb2TemporaryList::data(const QString &name) const
     return QByteArray();
 }
 
-QString Fb2TemporaryList::set(const QString &name, const QByteArray &data, const QString &hash)
+const QString & Fb2TemporaryList::set(const QString &name, const QString &type, const QByteArray &data, const QString &hash)
 {
-    Fb2TemporaryFile & file = get(name, hash);
-    file.write(data);
-    return file.hash();
+    Fb2TemporaryFile * file = get(name);
+    if (!file) append(file = new Fb2TemporaryFile(name));
+    file->setType(type);
+    file->setHash(hash);
+    file->write(data);
+    return file->hash();
 }
 
 QString Fb2TemporaryList::name(const QString &hash) const
