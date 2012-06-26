@@ -247,6 +247,7 @@ FB2_BEGIN_KEYHASH(Fb2SaveHandler::TextHandler)
     FB2_KEY( Parag   , "p"      );
     FB2_KEY( Strong  , "b"      );
     FB2_KEY( Emphas  , "i"      );
+    FB2_KEY( Span    , "span"   );
     FB2_KEY( Strike  , "strike" );
     FB2_KEY( Sub     , "sub"    );
     FB2_KEY( Sup     , "sup"    );
@@ -299,6 +300,7 @@ Fb2XmlHandler::NodeHandler * Fb2SaveHandler::TextHandler::NewTag(const QString &
         case Anchor    : return new AnchorHandler(this, name, atts);
         case Image     : return new ImageHandler(this, name, atts);
         case Parag     : return new ParagHandler(this, name, atts);
+        case Span      : return new SpanHandler(this, name, atts);
         case Strong    : tag = "strong"        ; break;
         case Emphas    : tag = "emphasis"      ; break;
         case Strike    : tag = "strikethrough" ; break;
@@ -357,6 +359,15 @@ void Fb2SaveHandler::BodyHandler::EndTag(const QString &name)
 {
     m_writer.writeFiles();
     TextHandler::EndTag(name);
+}
+
+//---------------------------------------------------------------------------
+//  Fb2SaveHandler::SpanHandler
+//---------------------------------------------------------------------------
+
+Fb2SaveHandler::SpanHandler::SpanHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts)
+    : TextHandler(parent, name, atts, "style")
+{
 }
 
 //---------------------------------------------------------------------------

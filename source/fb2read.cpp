@@ -296,6 +296,7 @@ Fb2XmlHandler::NodeHandler * Fb2ReadHandler::TextHandler::NewTag(const QString &
 {
     QString tag, style;
     switch (toKeyword(name)) {
+        case Style     : return new SpanHandler(this, name, atts);
         case Anchor    : return new AnchorHandler(this, name, atts);
         case Image     : return new ImageHandler(m_owner, name, atts);
         case Section   : tag = "div"; style = name; break;
@@ -328,6 +329,19 @@ bool Fb2ReadHandler::TextHandler::isNotes() const
 {
     if (m_style == "notes") return true;
     return m_parent ? m_parent->isNotes() : false;
+}
+
+//---------------------------------------------------------------------------
+//  Fb2ReadHandler::SpanHandler
+//---------------------------------------------------------------------------
+
+Fb2ReadHandler::SpanHandler::SpanHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts)
+    : TextHandler(parent, name, atts, "span")
+{
+    int count = atts.count();
+    for (int i = 0; i < count; i++) {
+        writer().writeAttribute("fb2:" + atts.qName(i), atts.value(i));
+    }
 }
 
 //---------------------------------------------------------------------------

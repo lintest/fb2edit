@@ -98,6 +98,7 @@ private:
             Anchor,
             Table,
             Image,
+            Span,
             Parag,
             Strong,
             Emphas,
@@ -141,6 +142,12 @@ private:
         explicit BodyHandler(Fb2SaveWriter &writer, const QString &name, const QXmlAttributes &atts);
     protected:
         virtual void EndTag(const QString &name);
+    };
+
+    class SpanHandler : public TextHandler
+    {
+    public:
+        explicit SpanHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts);
     };
 
     class AnchorHandler : public TextHandler

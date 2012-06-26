@@ -154,6 +154,12 @@ private:
         QString m_style;
     };
 
+    class SpanHandler : public TextHandler
+    {
+    public:
+        explicit SpanHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts);
+    };
+
     class AnchorHandler : public TextHandler
     {
     public:
