@@ -2,6 +2,10 @@ body {
   font-family: serif;
 }
 
+div.stylesheet{
+  display: none;
+}
+
 div.description div {
   display: none;
 }

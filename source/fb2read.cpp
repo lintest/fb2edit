@@ -107,6 +107,7 @@ Fb2XmlHandler::NodeHandler * Fb2ReadHandler::RootHandler::NewTag(const QString &
     switch (toKeyword(name)) {
         case Body   : return new TextHandler(m_owner, name, atts, "div", name);
         case Descr  : return new DescrHandler(m_owner, name, atts);
+        case Style  : return new StyleHandler(m_owner, name, atts);
         case Binary : return new BinaryHandler(m_owner, name, atts);
         default: return NULL;
     }
@@ -115,6 +116,35 @@ Fb2XmlHandler::NodeHandler * Fb2ReadHandler::RootHandler::NewTag(const QString &
 void Fb2ReadHandler::RootHandler::EndTag(const QString &name)
 {
     Q_UNUSED(name);
+    writer().writeEndElement();
+}
+
+//---------------------------------------------------------------------------
+//  Fb2ReadHandler::StyleHandler
+//---------------------------------------------------------------------------
+
+Fb2ReadHandler::StyleHandler::StyleHandler(Fb2ReadHandler &owner, const QString &name, const QXmlAttributes &atts)
+    : BaseHandler(owner, name)
+    , m_empty(true)
+{
+    writer().writeStartElement("div");
+    writer().writeAttribute("class", name);
+    int count = atts.count();
+    for (int i = 0; i < count; i++) {
+        writer().writeAttribute("fb2:" + atts.qName(i), atts.value(i));
+    }
+}
+
+void Fb2ReadHandler::StyleHandler::TxtTag(const QString &text)
+{
+    writer().writeCharacters(text);
+    m_empty = false;
+}
+
+void Fb2ReadHandler::StyleHandler::EndTag(const QString &name)
+{
+    Q_UNUSED(name);
+    if (m_empty) writer().writeCharacters(" ");
     writer().writeEndElement();
 }
 

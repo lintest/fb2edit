@@ -72,6 +72,17 @@ private:
         virtual void EndTag(const QString &name);
     };
 
+    class StyleHandler : public BaseHandler
+    {
+    public:
+        explicit StyleHandler(Fb2ReadHandler &owner, const QString &name, const QXmlAttributes &atts);
+    protected:
+        virtual void TxtTag(const QString &text);
+        virtual void EndTag(const QString &name);
+    private:
+        bool m_empty;
+    };
+
     class HeadHandler : public BaseHandler
     {
         FB2_BEGIN_KEYLIST
