@@ -66,32 +66,32 @@ private:
 class Fb2SaveWriter : public QXmlStreamWriter
 {
 public:
-    explicit Fb2SaveWriter(Fb2WebView &view, QByteArray *array, QList<int> *folds = 0);
-    explicit Fb2SaveWriter(Fb2WebView &view, QIODevice *device, QList<int> *folds = 0);
-    explicit Fb2SaveWriter(Fb2WebView &view, QString *string, QList<int> *folds = 0);
+    explicit Fb2SaveWriter(Fb2WebView &view, QByteArray *array);
+    explicit Fb2SaveWriter(Fb2WebView &view, QIODevice *device);
+    explicit Fb2SaveWriter(Fb2WebView &view, QString *string);
     Fb2WebView & view() { return m_view; }
     QString getFileName(const QString &src);
     void writeStartElement(const QString &name, int level);
     void writeEndElement(int level);
+    void writeComment(const QString &ch);
     void writeLineEnd();
     void writeFiles();
 private:
     QByteArray downloadFile(const QUrl &url);
 private:
-    QList<int> *m_folds;
     Fb2WebView &m_view;
     QStringList m_names;
-    int m_line;
 };
 
 class Fb2SaveHandler : public Fb2HtmlHandler
 {
 public:
     explicit Fb2SaveHandler(Fb2SaveWriter &writer);
+    virtual bool comment(const QString& ch);
     bool save();
 
 private:
-    class BodyHandler : public NodeHandler
+    class TextHandler : public NodeHandler
     {
         FB2_BEGIN_KEYLIST
             Section,
@@ -107,8 +107,8 @@ private:
             Code,
        FB2_END_KEYLIST
     public:
-        explicit BodyHandler(Fb2SaveWriter &writer, const QString &name, const QXmlAttributes &atts, const QString &tag);
-        explicit BodyHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts, const QString &tag);
+        explicit TextHandler(Fb2SaveWriter &writer, const QString &name, const QXmlAttributes &atts, const QString &tag);
+        explicit TextHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts, const QString &tag);
         const QString & tag() { return m_tag; }
     protected:
         virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
@@ -125,32 +125,42 @@ private:
         bool m_hasChild;
     };
 
-    class RootHandler : public BodyHandler
+    class RootHandler : public NodeHandler
     {
     public:
-        explicit RootHandler(Fb2SaveWriter &writer, const QString &name, const QXmlAttributes &atts);
+        explicit RootHandler(Fb2SaveWriter &writer, const QString &name);
+    protected:
+        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
+    protected:
+        Fb2SaveWriter &m_writer;
+    };
+
+    class BodyHandler : public TextHandler
+    {
+    public:
+        explicit BodyHandler(Fb2SaveWriter &writer, const QString &name, const QXmlAttributes &atts);
     protected:
         virtual void EndTag(const QString &name);
     };
 
-    class AnchorHandler : public BodyHandler
+    class AnchorHandler : public TextHandler
     {
     public:
-        explicit AnchorHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts);
+        explicit AnchorHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts);
     };
 
-    class ImageHandler : public BodyHandler
+    class ImageHandler : public TextHandler
     {
     public:
-        explicit ImageHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts);
+        explicit ImageHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts);
     protected:
         virtual void EndTag(const QString &name) { Q_UNUSED(name); }
     };
 
-    class ParagHandler : public BodyHandler
+    class ParagHandler : public TextHandler
     {
     public:
-        explicit ParagHandler(BodyHandler *parent, const QString &name, const QXmlAttributes &atts);
+        explicit ParagHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts);
     protected:
         virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
         virtual void TxtTag(const QString &text);

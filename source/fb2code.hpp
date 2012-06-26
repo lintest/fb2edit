@@ -114,9 +114,8 @@ public:
 
     QString text() const { return toPlainText(); }
 
-    bool read(QIODevice *device) { return true; }
-
-    void zoomTo ( int size ) {}
+    bool read(QIODevice *device)
+        { Q_UNUSED(device); return true; }
 
     void load(const QByteArray data, const QList<int> folds)
         { setPlainText(QString::fromUtf8(data.data())); }
@@ -124,6 +123,8 @@ public:
     bool isUndoAvailable() { return false; }
 
     bool isRedoAvailable() { return false; }
+
+    void zoomTo ( int size ) {}
 
 public slots:
     void zoomIn();

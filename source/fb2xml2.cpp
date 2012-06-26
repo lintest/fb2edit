@@ -468,6 +468,12 @@ void XmlReaderPrivate::process(xmlTextReaderPtr reader)
             QString qName = C2S(xmlTextReaderConstName(reader));
             contenthandler->endElement("", localName, qName);
         } break;
+        case XML_READER_TYPE_COMMENT: {
+            if (lexicalhandler) {
+                QString value = C2S(xmlTextReaderConstValue(reader));
+                lexicalhandler->comment(value);
+            }
+        } break;
     }
 }
 

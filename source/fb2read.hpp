@@ -40,6 +40,8 @@ class Fb2ReadHandler : public Fb2XmlHandler
 {
 public:
     explicit Fb2ReadHandler(Fb2ReadThread &thread, QXmlStreamWriter &writer);
+    virtual ~Fb2ReadHandler();
+    virtual bool comment(const QString& ch);
     Fb2ReadThread & thread() { return m_thread; }
     QXmlStreamWriter & writer() { return m_writer; }
 

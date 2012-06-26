@@ -591,7 +591,7 @@ void Fb2MainWindow::viewCode()
     QByteArray xml;
     QList<int> folds;
     if (textEdit) {
-        textEdit->save(&xml, &folds);
+        textEdit->save(&xml);
         load = true;
     }
 

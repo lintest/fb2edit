@@ -182,9 +182,9 @@ bool Fb2WebView::save(QIODevice *device, const QString &codec)
     return Fb2SaveHandler(writer).save();
 }
 
-bool Fb2WebView::save(QByteArray *array, QList<int> *folds)
+bool Fb2WebView::save(QByteArray *array)
 {
-    Fb2SaveWriter writer(*this, array, folds);
+    Fb2SaveWriter writer(*this, array);
     return Fb2SaveHandler(writer).save();
 }
 

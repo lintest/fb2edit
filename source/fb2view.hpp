@@ -67,7 +67,7 @@ public:
     Fb2TemporaryList & files() { return m_files; }
     void load(const QString &filename, const QString &xml = QString());
     bool save(QIODevice *device, const QString &codec = QString());
-    bool save(QByteArray *array, QList<int> *folds = 0);
+    bool save(QByteArray *array);
     bool save(QString *string);
     QString toBodyXml();
     QString status();

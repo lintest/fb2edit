@@ -43,6 +43,7 @@ bool Fb2ReadThread::parse()
     Fb2ReadHandler handler(*this, writer);
     XML2::XmlReader reader;
     reader.setContentHandler(&handler);
+    reader.setLexicalHandler(&handler);
     reader.setErrorHandler(&handler);
     if (m_xml.isEmpty()) {
         QFile file(m_filename);
@@ -66,6 +67,7 @@ bool Fb2ReadThread::parse()
     Fb2ReadHandler handler(*this, writer);
     QXmlSimpleReader reader;
     reader.setContentHandler(&handler);
+    reader.setLexicalHandler(&handler);
     reader.setErrorHandler(&handler);
     QXmlInputSource source;
     if (m_xml.isEmpty()) {
@@ -97,15 +99,6 @@ FB2_END_KEYHASH
 Fb2ReadHandler::RootHandler::RootHandler(Fb2ReadHandler &owner, const QString &name)
     : BaseHandler(owner, name)
 {
-    writer().writeStartDocument();
-    writer().writeStartElement("html");
-    writer().writeStartElement("head");
-    writer().writeStartElement("script");
-    writer().writeAttribute("type", "text/javascript");
-    writer().writeAttribute("src", "qrc:/js/jquery.js");
-    writer().writeCharacters(" ");
-    writer().writeEndElement();
-    writer().writeEndElement();
     writer().writeStartElement("body");
 }
 
@@ -123,8 +116,6 @@ void Fb2ReadHandler::RootHandler::EndTag(const QString &name)
 {
     Q_UNUSED(name);
     writer().writeEndElement();
-    writer().writeEndElement();
-    writer().writeEndDocument();
 }
 
 //---------------------------------------------------------------------------
@@ -367,6 +358,20 @@ Fb2ReadHandler::Fb2ReadHandler(Fb2ReadThread &thread, QXmlStreamWriter &writer)
 {
     m_writer.setAutoFormatting(true);
     m_writer.setAutoFormattingIndent(2);
+
+    m_writer.writeStartElement("html");
+    m_writer.writeStartElement("head");
+    m_writer.writeStartElement("script");
+    m_writer.writeAttribute("type", "text/javascript");
+    m_writer.writeAttribute("src", "qrc:/js/jquery.js");
+    m_writer.writeCharacters(" ");
+    m_writer.writeEndElement();
+    m_writer.writeEndElement();
+}
+
+Fb2ReadHandler::~Fb2ReadHandler()
+{
+    m_writer.writeEndElement();
 }
 
 Fb2XmlHandler::NodeHandler * Fb2ReadHandler::CreateRoot(const QString &name, const QXmlAttributes &atts)
@@ -375,6 +380,12 @@ Fb2XmlHandler::NodeHandler * Fb2ReadHandler::CreateRoot(const QString &name, con
     if (name == "fictionbook") return new RootHandler(*this, name);
     m_error = QObject::tr("The file is not an FB2 file.");
     return 0;
+}
+
+bool Fb2ReadHandler::comment(const QString& ch)
+{
+    m_writer.writeComment(ch);
+    return true;
 }
 
 QString Fb2ReadHandler::getFile(const QString &name)
