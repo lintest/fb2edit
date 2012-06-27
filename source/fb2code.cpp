@@ -1,4 +1,5 @@
 #include "fb2code.hpp"
+#include "fb2dlgs.hpp"
 
 #ifdef FB2_USE_SCINTILLA
 
@@ -529,6 +530,17 @@ void Fb2CodeEdit::lineNumberAreaPaintEvent(QPaintEvent *event)
         bottom = top + (int) blockBoundingRect(block).height();
         ++blockNumber;
     }
+}
+
+bool Fb2CodeEdit::findText(const QString &exp, QTextDocument::FindFlags options)
+{
+    return QPlainTextEdit::find(exp, options);
+}
+
+void Fb2CodeEdit::find()
+{
+    Fb2CodeFindDlg dlg(*this);
+    dlg.exec();
 }
 
 void Fb2CodeEdit::zoomIn()

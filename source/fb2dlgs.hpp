@@ -3,35 +3,56 @@
 
 #include <QDialog>
 
+class Fb2CodeEdit;
 class Fb2WebView;
 
 namespace Ui {
-class Fb2Note;
 class Fb2Find;
+class Fb2Note;
 }
+
+class Fb2CodeFindDlg : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit Fb2CodeFindDlg(Fb2CodeEdit &edit);
+    virtual ~Fb2CodeFindDlg();
+
+private slots:
+    void find();
+
+private:
+    Ui::Fb2Find * ui;
+    Fb2CodeEdit & m_edit;
+};
+
+class Fb2TextFindDlg : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit Fb2TextFindDlg(Fb2WebView &edit);
+    virtual ~Fb2TextFindDlg();
+
+private slots:
+    void find();
+
+private:
+    Ui::Fb2Find * ui;
+    Fb2WebView & m_edit;
+};
 
 class Fb2NoteDlg : public QDialog
 {
     Q_OBJECT
     
 public:
-    explicit Fb2NoteDlg(Fb2WebView &view, QWidget *parent = 0);
+    explicit Fb2NoteDlg(Fb2WebView &view);
     virtual ~Fb2NoteDlg();
-    
-private:
-    Ui::Fb2Note *ui;
-};
-
-class Fb2FindDlg : public QDialog
-{
-    Q_OBJECT
-
-public:
-    explicit Fb2FindDlg(QWidget *parent = 0);
-    virtual ~Fb2FindDlg();
 
 private:
-    Ui::Fb2Find *ui;
+    Ui::Fb2Note * ui;
 };
 
 #endif // FB2DLGS_H

@@ -126,7 +126,10 @@ public:
 
     void zoomTo ( int size ) {}
 
+    bool findText(const QString &exp, QTextDocument::FindFlags options = 0);
+
 public slots:
+    void find();
     void zoomIn();
     void zoomOut();
     void zoomReset();

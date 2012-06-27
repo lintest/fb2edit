@@ -272,9 +272,9 @@ bool Fb2WebView::SupChecked()
     return pageAction(QWebPage::ToggleSuperscript)->isChecked();
 }
 
-void Fb2WebView::findText()
+void Fb2WebView::find()
 {
-    Fb2FindDlg dlg(this);
+    Fb2TextFindDlg dlg(*this);
     dlg.exec();
 }
 
