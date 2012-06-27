@@ -219,7 +219,7 @@ void Fb2SaveWriter::writeFiles()
         if (!file) continue;
         writeStartElement("binary", 2);
         writeAttribute("id", name);
-        QByteArray &array = file->data();
+        QByteArray array = file->data();
         QString data = array.toBase64();
         writeContentType(array);
         writeLineEnd();

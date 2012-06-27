@@ -98,13 +98,13 @@ void Fb2CodeEdit::zoomReset()
 
 #include <QtGui>
 
-static const QColor DEFAULT_SYNTAX_CHAR		= Qt::blue;
-static const QColor DEFAULT_ELEMENT_NAME	= Qt::darkRed;
-static const QColor DEFAULT_COMMENT			= Qt::darkGreen;
-static const QColor DEFAULT_ATTRIBUTE_NAME	= Qt::red;
-static const QColor DEFAULT_ATTRIBUTE_VALUE	= Qt::darkGreen;
-static const QColor DEFAULT_ERROR			= Qt::darkMagenta;
-static const QColor DEFAULT_OTHER			= Qt::black;
+static const QColor DEFAULT_SYNTAX_CHAR     = Qt::blue;
+static const QColor DEFAULT_ELEMENT_NAME    = Qt::darkRed;
+static const QColor DEFAULT_COMMENT         = Qt::darkGray;
+static const QColor DEFAULT_ATTRIBUTE_NAME  = Qt::red;
+static const QColor DEFAULT_ATTRIBUTE_VALUE = Qt::darkGreen;
+static const QColor DEFAULT_ERROR           = Qt::darkMagenta;
+static const QColor DEFAULT_OTHER           = Qt::black;
 
 // Regular expressions for parsing XML borrowed from:
 // http://www.cs.sfu.ca/~cameron/REX.html
