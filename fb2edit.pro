@@ -9,9 +9,9 @@ HEADERS = \
     source/fb2temp.hpp \
     source/fb2tree.hpp \
     source/fb2view.hpp \
-    source/fb2note.hpp \
     source/fb2utils.h \
-    source/fb2save.hpp
+    source/fb2save.hpp \
+    source/fb2dlgs.hpp
 
 SOURCES = \
     source/fb2app.cpp \
@@ -25,8 +25,8 @@ SOURCES = \
     source/fb2view.cpp \
     source/fb2xml.cpp \
     source/fb2xml2.cpp \
-    source/fb2note.cpp \
-    source/fb2utils.cpp
+    source/fb2utils.cpp \
+    source/fb2dlgs.cpp
 
 RESOURCES = \
     3rdparty/gnome/gnome.qrc \
@@ -59,4 +59,5 @@ if (unix) {
 }
 
 FORMS += \
-    source/fb2note.ui
+    source/fb2note.ui \
+    source/fb2find.ui

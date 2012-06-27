@@ -1,5 +1,5 @@
 #include "fb2view.hpp"
-#include "fb2note.hpp"
+#include "fb2dlgs.hpp"
 #include "fb2read.hpp"
 #include "fb2save.hpp"
 #include "fb2utils.h"
@@ -270,6 +270,12 @@ bool Fb2WebView::SubChecked()
 bool Fb2WebView::SupChecked()
 {
     return pageAction(QWebPage::ToggleSuperscript)->isChecked();
+}
+
+void Fb2WebView::findText()
+{
+    Fb2FindDlg dlg(this);
+    dlg.exec();
 }
 
 void Fb2WebView::insertImage()

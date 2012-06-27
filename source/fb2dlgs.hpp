@@ -1,5 +1,5 @@
-#ifndef FB2NOTE_H
-#define FB2NOTE_H
+#ifndef FB2DLGS_H
+#define FB2DLGS_H
 
 #include <QDialog>
 
@@ -7,6 +7,7 @@ class Fb2WebView;
 
 namespace Ui {
 class Fb2Note;
+class Fb2Find;
 }
 
 class Fb2NoteDlg : public QDialog
@@ -21,4 +22,16 @@ private:
     Ui::Fb2Note *ui;
 };
 
-#endif // FB2NOTE_H
+class Fb2FindDlg : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit Fb2FindDlg(QWidget *parent = 0);
+    virtual ~Fb2FindDlg();
+
+private:
+    Ui::Fb2Find *ui;
+};
+
+#endif // FB2DLGS_H

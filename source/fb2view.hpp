@@ -91,6 +91,7 @@ public slots:
     void data(QString name, QByteArray data);
     void html(QString name, QString html);
     void linkHovered(const QString &link, const QString &title, const QString &textContent);
+    void findText();
     void showInspector();
     void insertImage();
     void insertNote();
