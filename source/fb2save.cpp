@@ -6,6 +6,7 @@
 #include "fb2utils.h"
 
 #include <QAbstractNetworkCache>
+#include <QBuffer>
 #include <QComboBox>
 #include <QFileDialog>
 #include <QGridLayout>
@@ -216,11 +217,11 @@ void Fb2SaveWriter::writeFiles()
         if (name.isEmpty()) continue;
         Fb2TemporaryFile * file = m_view.files().get(name);
         if (!file) continue;
-        QString type = file->type();
-        QString data = file->data().toBase64();
         writeStartElement("binary", 2);
         writeAttribute("id", name);
-        if (!type.isEmpty()) writeAttribute("content-type", type);
+        QByteArray &array = file->data();
+        QString data = array.toBase64();
+        writeContentType(array);
         writeLineEnd();
         int pos = 0;
         while (true) {
@@ -233,6 +234,16 @@ void Fb2SaveWriter::writeFiles()
         writeCharacters("  ");
         QXmlStreamWriter::writeEndElement();
     }
+}
+
+void Fb2SaveWriter::writeContentType(QByteArray &data)
+{
+    QBuffer buffer(&data);
+    buffer.open(QIODevice::ReadOnly);
+    QString type = QImageReader::imageFormat(&buffer);
+    if (type.isEmpty()) return;
+    type.prepend("image/");
+    writeAttribute("content-type", type);
 }
 
 //---------------------------------------------------------------------------
@@ -285,7 +296,7 @@ void Fb2SaveHandler::TextHandler::Init(const QXmlAttributes &atts)
             m_writer.writeAttribute(name, atts.value(i));
         } else if (name == "name") {
             m_writer.writeAttribute(name, atts.value(i));
-        } else if (name.left(4) == "fb2:") {
+        } else if (name.left(4) == "fb2.") {
             m_writer.writeAttribute(name.mid(4), atts.value(i));
         }
     }

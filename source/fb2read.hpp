@@ -53,6 +53,7 @@ private:
             : NodeHandler(name), m_owner(owner) {}
     protected:
         QXmlStreamWriter & writer() { return m_owner.writer(); }
+        void writeAttributes(const QXmlAttributes &atts);
     protected:
         Fb2ReadHandler &m_owner;
     };
@@ -181,7 +182,6 @@ private:
         virtual void EndTag(const QString &name);
     private:
         QString m_file;
-        QString m_type;
         QString m_text;
     };
 
@@ -189,7 +189,7 @@ protected:
     virtual NodeHandler * CreateRoot(const QString &name, const QXmlAttributes &atts);
 
 private:
-    void addFile(const QString &name, const QString &type, const QByteArray &data);
+    void addFile(const QString &name, const QByteArray &data);
     QString getFile(const QString &name);
 
 private:

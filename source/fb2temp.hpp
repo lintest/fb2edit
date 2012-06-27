@@ -19,14 +19,11 @@ public:
     explicit Fb2TemporaryFile(const QString &name);
     inline qint64 write(const QByteArray &data);
     void setHash(const QString &hash) { m_hash = hash; }
-    void setType(const QString &type) { m_type = type; }
     const QString & hash() const { return m_hash; }
     const QString & name() const { return m_name; }
-    const QString & type() const { return m_type; }
     QByteArray data();
 private:
     const QString m_name;
-    QString m_type;
     QString m_hash;
 };
 
@@ -39,7 +36,7 @@ public:
     QString add(const QString &path, const QByteArray &data);
     bool exists(const QString &name) const;
     Fb2TemporaryFile * get(const QString &name) const;
-    const QString & set(const QString &name, const QString &type, const QByteArray &data, const QString &hash = QString());
+    const QString & set(const QString &name, const QByteArray &data, const QString &hash = QString());
     QString name(const QString &hash) const;
     QByteArray data(const QString &name) const;
 private:

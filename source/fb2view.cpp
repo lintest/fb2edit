@@ -198,9 +198,9 @@ bool Fb2WebView::save(QString *string)
     return ok;
 }
 
-void Fb2WebView::data(QString name, QString type, QByteArray data)
+void Fb2WebView::data(QString name, QByteArray data)
 {
-    m_files.set(name, type, data);
+    m_files.set(name, data);
 }
 
 void Fb2WebView::html(QString name, QString html)

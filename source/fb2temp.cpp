@@ -24,6 +24,7 @@ qint64 Fb2TemporaryFile::write(const QByteArray &data)
     if (m_hash.isEmpty()) m_hash = md5(data);
     qint64 size = QTemporaryFile::write(data);
     close();
+
     return size;
 }
 
@@ -63,11 +64,6 @@ QString Fb2TemporaryList::add(const QString &path, const QByteArray &data)
         Fb2TemporaryFile * temp = new Fb2TemporaryFile(name);
         temp->setHash(hash);
         temp->write(data);
-        temp->open();
-        QString type = QImageReader::imageFormat(temp);
-        if (!type.isEmpty()) type.prepend("image/");
-        temp->setType(type);
-        temp->close();
         append(temp);
     }
     return name;
@@ -107,11 +103,10 @@ QByteArray Fb2TemporaryList::data(const QString &name) const
     return QByteArray();
 }
 
-const QString & Fb2TemporaryList::set(const QString &name, const QString &type, const QByteArray &data, const QString &hash)
+const QString & Fb2TemporaryList::set(const QString &name, const QByteArray &data, const QString &hash)
 {
     Fb2TemporaryFile * file = get(name);
     if (!file) append(file = new Fb2TemporaryFile(name));
-    file->setType(type);
     file->setHash(hash);
     file->write(data);
     return file->hash();

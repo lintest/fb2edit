@@ -78,6 +78,7 @@ public:
     void writeFiles();
 private:
     QByteArray downloadFile(const QUrl &url);
+    void writeContentType(QByteArray &data);
 private:
     Fb2WebView &m_view;
     QStringList m_names;

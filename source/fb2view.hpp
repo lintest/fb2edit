@@ -88,7 +88,7 @@ protected:
 signals:
     
 public slots:
-    void data(QString name, QString type, QByteArray data);
+    void data(QString name, QByteArray data);
     void html(QString name, QString html);
     void linkHovered(const QString &link, const QString &title, const QString &textContent);
     void showInspector();
