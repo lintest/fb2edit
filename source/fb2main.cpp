@@ -328,7 +328,27 @@ void Fb2MainWindow::createActions()
     actionLink = act = new QAction(FB2::icon("insert-link"), tr("&Hiperlink"), this);
     menu->addAction(act);
 
-    actionBody = act = new QAction(FB2::icon("insert-object"), tr("&Body"), this);
+    menu->addSeparator();
+
+    actionSection = act = new QAction(FB2::icon("insert-object"), tr("&Section"), this);
+    menu->addAction(act);
+
+    actionTtile = act = new QAction(tr("&Title"), this);
+    menu->addAction(act);
+
+    actionAuthor = act = new QAction(tr("&Author"), this);
+    menu->addAction(act);
+
+    actionDescr = act = new QAction(tr("&Annotation"), this);
+    menu->addAction(act);
+
+    actionPoem = act = new QAction(tr("&Poem"), this);
+    menu->addAction(act);
+
+    actionStanza = act = new QAction(tr("&Stanza"), this);
+    menu->addAction(act);
+
+    actionBody = act = new QAction(tr("&Body"), this);
     menu->addAction(act);
 
     menuText = menu = menuBar()->addMenu(tr("Fo&rmat"));
@@ -709,7 +729,7 @@ void Fb2MainWindow::viewText()
     tool->addAction(actionImage);
     tool->addAction(actionNote);
     tool->addAction(actionLink);
-    tool->addAction(actionBody);
+    tool->addAction(actionSection);
 
     tool->addSeparator();
 
