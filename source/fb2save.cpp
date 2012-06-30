@@ -377,7 +377,7 @@ void Fb2SaveHandler::BodyHandler::EndTag(const QString &name)
 //---------------------------------------------------------------------------
 
 Fb2SaveHandler::SpanHandler::SpanHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts)
-    : TextHandler(parent, name, atts, "style")
+    : TextHandler(parent, name, atts, Value(atts, "class") == "Apple-style-span" ? "" : "style")
 {
 }
 
