@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>347</width>
-    <height>122</height>
+    <width>377</width>
+    <height>128</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -37,7 +37,10 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Find what:</string>
+        <string>&amp;Find what:</string>
+       </property>
+       <property name="buddy">
+        <cstring>editText</cstring>
        </property>
       </widget>
      </item>
@@ -51,7 +54,7 @@
      <item>
       <widget class="QPushButton" name="btnFind">
        <property name="text">
-        <string>Find Next</string>
+        <string>Find &amp;next</string>
        </property>
        <property name="default">
         <bool>true</bool>

@@ -2,6 +2,60 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU">
 <context>
+    <name>Fb2CodeFindDlg</name>
+    <message>
+        <source>Complete words</source>
+        <translation>Слова полностью</translation>
+    </message>
+</context>
+<context>
+    <name>Fb2Find</name>
+    <message>
+        <source>Find</source>
+        <translation>Поиск</translation>
+    </message>
+    <message>
+        <source>Find what:</source>
+        <translation type="obsolete">&amp;Образец:</translation>
+    </message>
+    <message>
+        <source>Find Next</source>
+        <translation type="obsolete">&amp;Найти далее</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
+    </message>
+    <message>
+        <source>&amp;Direction</source>
+        <translation>На&amp;правление</translation>
+    </message>
+    <message>
+        <source>&amp;Up</source>
+        <translation>В&amp;верх</translation>
+    </message>
+    <message>
+        <source>&amp;Down</source>
+        <translation>В&amp;низ</translation>
+    </message>
+    <message>
+        <source>&amp;Case sensitive </source>
+        <translation>С &amp;учетом регистра</translation>
+    </message>
+    <message>
+        <source>&amp;Highlights all</source>
+        <translation>&amp;Подсветить</translation>
+    </message>
+    <message>
+        <source>Find &amp;next</source>
+        <translation>&amp;Найти далее</translation>
+    </message>
+    <message>
+        <source>&amp;Find what:</source>
+        <translation>&amp;Образец:</translation>
+    </message>
+</context>
+<context>
     <name>Fb2HeadItem</name>
     <message>
         <source>#</source>
@@ -358,6 +412,30 @@
         <source>Zoom original</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Section</source>
+        <translation>&amp;Секция &lt;section&gt;</translation>
+    </message>
+    <message>
+        <source>&amp;Title</source>
+        <translation>&amp;Заголовок &lt;title&gt;</translation>
+    </message>
+    <message>
+        <source>&amp;Author</source>
+        <translation>&amp;Автор &lt;author&gt;</translation>
+    </message>
+    <message>
+        <source>&amp;Annotation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Poem</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Stanza</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Fb2Note</name>
@@ -377,12 +455,31 @@
         <source>Title:</source>
         <translation>Заголовок:</translation>
     </message>
+    <message>
+        <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Fb2NoteDlg</name>
     <message>
         <source>&lt;create new&gt;</source>
         <translation>&lt;создать новый&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>Fb2SaveDialog</name>
+    <message>
+        <source>Fiction book files (*.fb2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Any files (*.*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Encoding</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -408,7 +505,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Open image...</source>
+        <source>Insert image...</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -427,8 +524,60 @@
         <translation></translation>
     </message>
     <message>
-        <source>The tag &lt;body&gt; was not found.</source>
+        <source>The tag &lt;html&gt; was not found.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Undo</source>
+        <translation type="unfinished">&amp;Отменить</translation>
+    </message>
+    <message>
+        <source>&amp;Redo</source>
+        <translation type="unfinished">&amp;Повторить</translation>
+    </message>
+    <message>
+        <source>Cu&amp;t</source>
+        <translation type="unfinished">Вы&amp;резать</translation>
+    </message>
+    <message>
+        <source>Cut the current selection&apos;s contents to the clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Copy</source>
+        <translation type="unfinished">&amp;Копировать</translation>
+    </message>
+    <message>
+        <source>Copy the current selection&apos;s contents to the clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Paste</source>
+        <translation type="unfinished">&amp;Вставить</translation>
+    </message>
+    <message>
+        <source>Paste the clipboard&apos;s contents into the current selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Bold</source>
+        <translation type="unfinished">&amp;Жирный</translation>
+    </message>
+    <message>
+        <source>&amp;Italic</source>
+        <translation type="unfinished">&amp;Курсив</translation>
+    </message>
+    <message>
+        <source>&amp;Strikethrough</source>
+        <translation type="unfinished">&amp;Зачеркнутый</translation>
+    </message>
+    <message>
+        <source>Su&amp;perscript</source>
+        <translation type="unfinished">&amp;Верхний индекс</translation>
+    </message>
+    <message>
+        <source>Su&amp;bscript</source>
+        <translation type="unfinished">&amp;Нижний индекс</translation>
     </message>
 </context>
 </TS>
