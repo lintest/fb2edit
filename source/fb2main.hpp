@@ -15,6 +15,7 @@ class QWebInspector;
 QT_END_NAMESPACE
 
 class Fb2CodeEdit;
+class Fb2TreeView;
 class Fb2WebView;
 
 class Fb2MainWindow : public QMainWindow
@@ -41,11 +42,9 @@ private slots:
     void about();
     void documentWasModified();
     void checkScintillaUndo();
-    void treeActivated(const QModelIndex &index);
     void treeDestroyed();
     void logDestroyed();
     void logShowed();
-    void updateTree();
     void viewCode();
     void viewText();
     void viewHead();
@@ -82,7 +81,7 @@ private:
     QTextEdit *messageEdit;
     QDockWidget *dockTree;
     Fb2CodeEdit *codeEdit;
-    QTreeView *treeView;
+    Fb2TreeView *treeView;
     QString curFile;
     bool isUntitled;
 

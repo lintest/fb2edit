@@ -83,15 +83,6 @@ void Fb2MainWindow::logDestroyed()
     messageEdit = NULL;
 }
 
-void Fb2MainWindow::treeActivated(const QModelIndex &index)
-{
-    if (!treeView) return;
-    Fb2TreeModel *model = dynamic_cast<Fb2TreeModel*>(treeView->model());
-    if (!model) return;
-    model->select(index);
-    selectionChanged();
-}
-
 void Fb2MainWindow::treeDestroyed()
 {
     treeView = NULL;
@@ -448,11 +439,7 @@ void Fb2MainWindow::openSettings()
 void Fb2MainWindow::createTree()
 {
     if (treeView) return;
-    treeView = new Fb2TreeView(this);
-    treeView->setHeaderHidden(true);
-    connect(textEdit, SIGNAL(updateTree()), SLOT(updateTree()));
-    connect(textEdit, SIGNAL(selectTree()), treeView, SLOT(select()));
-    connect(treeView, SIGNAL(activated(QModelIndex)), SLOT(treeActivated(QModelIndex)));
+    treeView = new Fb2TreeView(*textEdit, this);
     connect(treeView, SIGNAL(destroyed()), SLOT(treeDestroyed()));
     dockTree = new QDockWidget(tr("Contents"), this);
     dockTree->setAttribute(Qt::WA_DeleteOnClose);
@@ -465,20 +452,10 @@ void Fb2MainWindow::createTree()
 void Fb2MainWindow::loadFinished(bool ok)
 {
     Q_UNUSED(ok);
-    updateTree();
     if (headTree) {
         Fb2HeadModel *model = new Fb2HeadModel(*textEdit, treeView);
         headTree->setModel(model);
         model->expand(headTree);
-    }
-}
-
-void Fb2MainWindow::updateTree()
-{
-    if (treeView) {
-        Fb2TreeModel *model = new Fb2TreeModel(*textEdit, treeView);
-        treeView->setModel(model);
-        model->expand(treeView);
     }
 }
 

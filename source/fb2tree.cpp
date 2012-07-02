@@ -216,7 +216,7 @@ void Fb2TreeModel::select(const QModelIndex &index)
     m_view.setFocus();
 }
 
-QModelIndex Fb2TreeModel::index(const QString &location) const
+QModelIndex Fb2TreeModel::index(const QString &location, QModelIndex current) const
 {
     QModelIndex index;
     Fb2TreeItem * parent = m_root;
@@ -229,6 +229,12 @@ QModelIndex Fb2TreeModel::index(const QString &location) const
         Fb2TreeItem * child = parent->content(*this, key, index);
         parent = child;
     }
+
+    while (current.isValid()) {
+        if (current == index) return QModelIndex();
+        current = this->parent(current);
+    }
+
     return index;
 }
 
@@ -236,23 +242,67 @@ QModelIndex Fb2TreeModel::index(const QString &location) const
 //  Fb2TreeView
 //---------------------------------------------------------------------------
 
-void Fb2TreeView::select()
+Fb2TreeView::Fb2TreeView(Fb2WebView &view, QWidget *parent)
+    : QTreeView(parent)
+    , m_view(view)
+{
+    setHeaderHidden(true);
+    connect(&m_view, SIGNAL(loadFinished(bool)), SLOT(updateTree()));
+    connect(&m_view, SIGNAL(updateTree()), SLOT(updateTree()));
+    connect(&m_view, SIGNAL(selectTree()), SLOT(selectTree()));
+    connect(this, SIGNAL(activated(QModelIndex)), SLOT(activated(QModelIndex)));
+    connect(m_view.page(), SIGNAL(contentsChanged()), SLOT(contentsChanged()));
+    connect(m_view.page(), SIGNAL(selectionChanged()), SLOT(selectionChanged()));
+
+    m_timerSelect.setInterval(1000);
+    m_timerSelect.setSingleShot(true);
+    connect(&m_timerSelect, SIGNAL(timeout()), SLOT(selectTree()));
+
+    m_timerUpdate.setInterval(1000);
+    m_timerUpdate.setSingleShot(true);
+    connect(&m_timerUpdate, SIGNAL(timeout()), SLOT(updateTree()));
+}
+
+void Fb2TreeView::selectionChanged()
+{
+    m_timerSelect.start();
+}
+
+void Fb2TreeView::contentsChanged()
+{
+    m_timerUpdate.start();
+}
+
+void Fb2TreeView::activated(const QModelIndex &index)
+{
+    if (!model()) return;
+    Fb2TreeModel *model = static_cast<Fb2TreeModel*>(this->model());
+
+    disconnect(m_view.page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
+    model->select(index);
+    connect(m_view.page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
+}
+
+void Fb2TreeView::selectTree()
 {
     if (model() == 0) return;
     Fb2TreeModel * model = static_cast<Fb2TreeModel*>(this->model());
     QWebFrame * frame = model->view().page()->mainFrame();
     static const QString javascript = FB2::read(":/js/get_location.js");
     QString location = frame->evaluateJavaScript(javascript).toString();
-    QModelIndex index = model->index(location);
-    if (index.isValid()) {
-        setCurrentIndex(index);
-        scrollTo(index);
-    }
+    QModelIndex index = model->index(location, currentIndex());
+    if (!index.isValid()) return;
+
+    disconnect(this, SIGNAL(activated(QModelIndex)), this, SLOT(activated(QModelIndex)));
+    setCurrentIndex(index);
+    scrollTo(index);
+    connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(activated(QModelIndex)));
 }
 
-void Fb2TreeView::update()
+void Fb2TreeView::updateTree()
 {
-    if (model() == 0) return;
-    Fb2TreeModel * model = static_cast<Fb2TreeModel*>(this->model());
-    Fb2WebView & view = model->view();
+    Fb2TreeModel * model = new Fb2TreeModel(m_view, this);
+    setModel(model);
+    model->expand(this);
+    selectTree();
 }
