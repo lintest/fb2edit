@@ -3,6 +3,7 @@
 
 #include <QAbstractItemModel>
 #include <QTreeView>
+#include <QTimer>
 #include <QWebElement>
 
 class Fb2WebView;
@@ -72,7 +73,7 @@ class Fb2TreeModel: public QAbstractItemModel
 public:
     explicit Fb2TreeModel(Fb2WebView &view, QObject *parent = 0);
     virtual ~Fb2TreeModel();
-    QModelIndex index(const QString &location) const;
+    QModelIndex index(const QString &location, QModelIndex current) const;
     Fb2WebView & view() { return m_view; }
     void select(const QModelIndex &index);
     void expand(QTreeView *view);
@@ -97,12 +98,19 @@ class Fb2TreeView : public QTreeView
     Q_OBJECT
 
 public:
-    explicit Fb2TreeView(QWidget *parent = 0) : QTreeView(parent) {}
+    explicit Fb2TreeView(Fb2WebView &view, QWidget *parent = 0);
 
-public slots:
-    void select();
-    void update();
+private slots:
+    void activated(const QModelIndex &index);
+    void contentsChanged();
+    void selectionChanged();
+    void selectTree();
+    void updateTree();
 
+private:
+    Fb2WebView & m_view;
+    QTimer m_timerSelect;
+    QTimer m_timerUpdate;
 };
 
 #endif // FB2TREE_H
