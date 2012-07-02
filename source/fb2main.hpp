@@ -59,6 +59,7 @@ private slots:
 
 private:
     bool loadXML(const QString &filename);
+    QString appTitle() const;
 
 private:
     void init();

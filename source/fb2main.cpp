@@ -191,12 +191,9 @@ void Fb2MainWindow::documentWasModified()
     if (isWindowModified()) return;
     QFileInfo info = windowFilePath();
     QString title = info.fileName();
-    title += QString("[*]");
-    title += QString(" - ") += qApp->applicationName();
+    title += QString("[*]") += appTitle();
     setWindowTitle(title);
     setWindowModified(true);
-    if (codeEdit) disconnect(codeEdit, SIGNAL(textChanged()), this, SLOT(documentWasModified()));
-    if (textEdit) disconnect(textEdit->page(), SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
 }
 
 void Fb2MainWindow::createActions()
@@ -431,8 +428,9 @@ void Fb2MainWindow::openSettings()
 void Fb2MainWindow::createTree()
 {
     if (treeView) return;
-    treeView = new QTreeView(this);
+    treeView = new Fb2TreeView(this);
     treeView->setHeaderHidden(true);
+    connect(textEdit->page(), SIGNAL(selectionChanged()), treeView, SLOT(select()));
     connect(treeView, SIGNAL(activated(QModelIndex)), SLOT(treeActivated(QModelIndex)));
     connect(treeView, SIGNAL(destroyed()), SLOT(treeDestroyed()));
     dockTree = new QDockWidget(tr("Contents"), this);
@@ -557,11 +555,16 @@ void Fb2MainWindow::setCurrentFile(const QString &filename)
         curFile = info.canonicalFilePath();
         title = info.fileName();
     }
-    title += QString(" - ") += qApp->applicationName() += QString(" ") += qApp->applicationVersion();
+    title += appTitle();
 
     setWindowModified(false);
     setWindowFilePath(curFile);
     setWindowTitle(title);
+}
+
+QString Fb2MainWindow::appTitle() const
+{
+    return QString(" - ") += qApp->applicationName() += QString(" ") += qApp->applicationVersion();
 }
 
 Fb2MainWindow *Fb2MainWindow::findFb2MainWindow(const QString &fileName)

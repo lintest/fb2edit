@@ -48,7 +48,8 @@ OTHER_FILES += \
     source/res/blank.fb2 \
     source/js/export.js \
     source/js/set_cursor.js \
-    source/js/get_status.js
+    source/js/get_status.js \
+    source/js/get_location.js
 
 if (unix) {
 

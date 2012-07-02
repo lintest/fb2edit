@@ -2,12 +2,10 @@
 #define FB2TREE_H
 
 #include <QAbstractItemModel>
+#include <QTreeView>
 #include <QWebElement>
-#include <QWebView>
 
-QT_BEGIN_NAMESPACE
-class QTreeView;
-QT_END_NAMESPACE
+class Fb2WebView;
 
 class Fb2TreeItem: public QObject
 {
@@ -30,6 +28,10 @@ public:
         return m_list.size();
     }
 
+    const QWebElement element() const {
+        return element();
+    }
+
     Fb2TreeItem * parent() const {
         return m_parent;
     }
@@ -46,12 +48,15 @@ public:
 
     QString selector() const;
 
+    Fb2TreeItem * content(int index) const;
+
 private:
     QString static title(const QWebElement &element);
-    void addChildren(QWebElement &parent);
+    void addChildren(QWebElement &parent, bool direct = true);
 
 private:
     QList<Fb2TreeItem*> m_list;
+    QList<Fb2TreeItem*> m_content;
     QWebElement m_element;
     QString m_name;
     QString m_text;
@@ -63,8 +68,10 @@ class Fb2TreeModel: public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit Fb2TreeModel(QWebView &view, QObject *parent = 0);
+    explicit Fb2TreeModel(Fb2WebView &view, QObject *parent = 0);
     virtual ~Fb2TreeModel();
+    QModelIndex index(const QString &location) const;
+    Fb2WebView & view() { return m_view; }
     void select(const QModelIndex &index);
     void expand(QTreeView *view);
 
@@ -79,8 +86,21 @@ protected:
     Fb2TreeItem * item(const QModelIndex &index) const;
 
 private:
-    QWebView & m_view;
+    Fb2WebView & m_view;
     Fb2TreeItem * m_root;
+};
+
+class Fb2TreeView : public QTreeView
+{
+    Q_OBJECT
+
+public:
+    explicit Fb2TreeView(QWidget *parent = 0) : QTreeView(parent) {}
+
+public slots:
+    void select();
+    void update();
+
 };
 
 #endif // FB2TREE_H

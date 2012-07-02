@@ -3,11 +3,11 @@
 #include <QtDebug>
 #include <QWebFrame>
 #include <QWebPage>
-#include <QWebView>
 #include <QTreeView>
 #include <QUrl>
 
 #include "fb2utils.h"
+#include "fb2view.hpp"
 
 Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent)
     : QObject(parent)
@@ -46,17 +46,21 @@ QString Fb2TreeItem::title(const QWebElement &element)
     return element.toPlainText().left(255).simplified();
 }
 
-void Fb2TreeItem::addChildren(QWebElement &parent)
+void Fb2TreeItem::addChildren(QWebElement &parent, bool direct)
 {
     QWebElement child = parent.firstChild();
     while (!child.isNull()) {
         QString tag = child.tagName().toLower();
         if (tag == "div") {
-            m_list << new Fb2TreeItem(child, this);
+            Fb2TreeItem * item = new Fb2TreeItem(child, this);
+            m_list << item;
+            if (direct) m_content << item;
         } else if (tag == "img") {
-            m_list << new Fb2TreeItem(child, this);
+            Fb2TreeItem * item = new Fb2TreeItem(child, this);
+            m_list << item;
+            if (direct) m_content << item;
         } else {
-            addChildren(child);
+            addChildren(child, false);
         }
         child = child.nextSibling();
     }
@@ -103,11 +107,16 @@ QString Fb2TreeItem::selector() const
     return selector.prepend("$('html')");
 }
 
+Fb2TreeItem * Fb2TreeItem::content(int index) const
+{
+    return (0 <= index && index < m_content.count()) ? m_content[index] : 0;
+}
+
 //---------------------------------------------------------------------------
 //  Fb2TreeModel
 //---------------------------------------------------------------------------
 
-Fb2TreeModel::Fb2TreeModel(QWebView &view, QObject *parent)
+Fb2TreeModel::Fb2TreeModel(Fb2WebView &view, QObject *parent)
     : QAbstractItemModel(parent)
     , m_view(view)
     , m_root(NULL)
@@ -197,4 +206,42 @@ void Fb2TreeModel::select(const QModelIndex &index)
     frame->evaluateJavaScript(javascript);
 
     m_view.setFocus();
+}
+
+QModelIndex Fb2TreeModel::index(const QString &location) const
+{
+    QModelIndex index;
+    Fb2TreeItem * parent = m_root;
+    QStringList list = location.split(",");
+    QStringListIterator iterator(list);
+    while (parent && iterator.hasNext()) {
+        QString str = iterator.next();
+        if (str.left(5) == "HTML=") continue;
+        int key = str.mid(str.indexOf("=")+1).toInt();
+        Fb2TreeItem * child = parent->content(key);
+        if (child) index = this->index(key, 0, index);
+        parent = child;
+    }
+    return QModelIndex();
+}
+
+//---------------------------------------------------------------------------
+//  Fb2TreeView
+//---------------------------------------------------------------------------
+
+void Fb2TreeView::select()
+{
+    return;
+    if (model() == 0) return;
+    Fb2TreeModel * model = static_cast<Fb2TreeModel*>(this->model());
+    QWebFrame * frame = model->view().page()->mainFrame();
+    static const QString javascript = FB2::read(":/js/get_location.js");
+    QString location = frame->evaluateJavaScript(javascript).toString();
+    QModelIndex index = model->index(location);
+    setCurrentIndex(index);
+    this->expand(index);
+}
+
+void Fb2TreeView::update()
+{
 }
