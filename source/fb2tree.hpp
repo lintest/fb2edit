@@ -7,12 +7,14 @@
 
 class Fb2WebView;
 
+class Fb2TreeModel;
+
 class Fb2TreeItem: public QObject
 {
     Q_OBJECT
 
 public:
-    explicit Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent = 0);
+    explicit Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent = 0, int index = 0);
 
     virtual ~Fb2TreeItem();
 
@@ -48,7 +50,7 @@ public:
 
     QString selector() const;
 
-    Fb2TreeItem * content(int index) const;
+    Fb2TreeItem * content(const Fb2TreeModel &model, int number, QModelIndex &index) const;
 
 private:
     QString static title(const QWebElement &element);
@@ -56,11 +58,11 @@ private:
 
 private:
     QList<Fb2TreeItem*> m_list;
-    QList<Fb2TreeItem*> m_content;
     QWebElement m_element;
     QString m_name;
     QString m_text;
     Fb2TreeItem * m_parent;
+    int m_number;
 };
 
 class Fb2TreeModel: public QAbstractItemModel

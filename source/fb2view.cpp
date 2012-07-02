@@ -93,7 +93,16 @@ Fb2WebView::Fb2WebView(QWidget *parent)
     page()->setNetworkAccessManager(new Fb2NetworkAccessManager(*this));
     page()->setContentEditable(true);
     connect(page(), SIGNAL(contentsChanged()), this, SLOT(fixContents()));
+    connect(page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
     connect(page(), SIGNAL(linkHovered(QString,QString,QString)), this, SLOT(linkHovered(QString,QString,QString)));
+
+    m_timerSelect.setInterval(1000);
+    m_timerSelect.setSingleShot(true);
+    connect(&m_timerSelect, SIGNAL(timeout()), SIGNAL(selectTree()));
+
+    m_timerUpdate.setInterval(1000);
+    m_timerUpdate.setSingleShot(true);
+    connect(&m_timerUpdate, SIGNAL(timeout()), SIGNAL(updateTree()));
 }
 
 Fb2WebView::~Fb2WebView()
@@ -130,6 +139,12 @@ void Fb2WebView::fixContents()
     foreach (QWebElement span, doc().findAll("span.apple-style-span[style]")) {
         span.removeAttribute("style");
     }
+    m_timerUpdate.start();
+ }
+
+void Fb2WebView::selectionChanged()
+{
+    m_timerSelect.start();
 }
 
 void Fb2WebView::mouseMoveEvent(QMouseEvent *event)

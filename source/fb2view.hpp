@@ -86,7 +86,9 @@ protected:
     virtual void mouseMoveEvent(QMouseEvent *event);
 
 signals:
-    
+    void selectTree();
+    void updateTree();
+
 public slots:
     void data(QString name, QByteArray data);
     void html(QString name, QString html);
@@ -101,6 +103,7 @@ public slots:
     void find();
 
 private slots:
+    void selectionChanged();
     void fixContents();
 
 private:
@@ -110,6 +113,8 @@ private:
     QWebElement doc();
 
 private:
+    QTimer m_timerUpdate;
+    QTimer m_timerSelect;
     QWebInspector * m_inspector;
     Fb2TemporaryList m_files;
     Fb2NoteView *m_noteView;

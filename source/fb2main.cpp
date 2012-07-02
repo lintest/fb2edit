@@ -430,7 +430,8 @@ void Fb2MainWindow::createTree()
     if (treeView) return;
     treeView = new Fb2TreeView(this);
     treeView->setHeaderHidden(true);
-    connect(textEdit->page(), SIGNAL(selectionChanged()), treeView, SLOT(select()));
+    connect(textEdit, SIGNAL(updateTree()), SLOT(updateTree()));
+    connect(textEdit, SIGNAL(selectTree()), treeView, SLOT(select()));
     connect(treeView, SIGNAL(activated(QModelIndex)), SLOT(treeActivated(QModelIndex)));
     connect(treeView, SIGNAL(destroyed()), SLOT(treeDestroyed()));
     dockTree = new QDockWidget(tr("Contents"), this);
@@ -443,11 +444,17 @@ void Fb2MainWindow::createTree()
 
 void Fb2MainWindow::loadFinished(bool ok)
 {
+    Q_UNUSED(ok);
+    updateTree();
     if (headTree) {
         Fb2HeadModel *model = new Fb2HeadModel(*textEdit, treeView);
         headTree->setModel(model);
         model->expand(headTree);
     }
+}
+
+void Fb2MainWindow::updateTree()
+{
     if (treeView) {
         Fb2TreeModel *model = new Fb2TreeModel(*textEdit, treeView);
         treeView->setModel(model);

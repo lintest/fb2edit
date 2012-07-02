@@ -9,10 +9,11 @@
 #include "fb2utils.h"
 #include "fb2view.hpp"
 
-Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent)
+Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent, int number)
     : QObject(parent)
     , m_element(element)
     , m_parent(parent)
+    , m_number(number)
 {
     m_name = element.tagName().toLower();
     QString style = element.attribute("class").toLower();
@@ -48,21 +49,19 @@ QString Fb2TreeItem::title(const QWebElement &element)
 
 void Fb2TreeItem::addChildren(QWebElement &parent, bool direct)
 {
+    int number = 0;
     QWebElement child = parent.firstChild();
     while (!child.isNull()) {
         QString tag = child.tagName().toLower();
         if (tag == "div") {
-            Fb2TreeItem * item = new Fb2TreeItem(child, this);
-            m_list << item;
-            if (direct) m_content << item;
+            m_list << new Fb2TreeItem(child, this, direct ? number : -1);
         } else if (tag == "img") {
-            Fb2TreeItem * item = new Fb2TreeItem(child, this);
-            m_list << item;
-            if (direct) m_content << item;
+            m_list << new Fb2TreeItem(child, this, direct ? number : -1);
         } else {
             addChildren(child, false);
         }
         child = child.nextSibling();
+        number++;
     }
 }
 
@@ -107,9 +106,18 @@ QString Fb2TreeItem::selector() const
     return selector.prepend("$('html')");
 }
 
-Fb2TreeItem * Fb2TreeItem::content(int index) const
+Fb2TreeItem * Fb2TreeItem::content(const Fb2TreeModel &model, int number, QModelIndex &index) const
 {
-    return (0 <= index && index < m_content.count()) ? m_content[index] : 0;
+    int row = 0;
+    QList<Fb2TreeItem*>::const_iterator i;
+    for (i = m_list.constBegin(); i != m_list.constEnd(); ++i) {
+        if ((*i)->m_number == number) {
+            index = model.index(row, 0, index);
+            return *i;
+        }
+        row++;
+    }
+    return 0;
 }
 
 //---------------------------------------------------------------------------
@@ -218,11 +226,10 @@ QModelIndex Fb2TreeModel::index(const QString &location) const
         QString str = iterator.next();
         if (str.left(5) == "HTML=") continue;
         int key = str.mid(str.indexOf("=")+1).toInt();
-        Fb2TreeItem * child = parent->content(key);
-        if (child) index = this->index(key, 0, index);
+        Fb2TreeItem * child = parent->content(*this, key, index);
         parent = child;
     }
-    return QModelIndex();
+    return index;
 }
 
 //---------------------------------------------------------------------------
@@ -231,17 +238,21 @@ QModelIndex Fb2TreeModel::index(const QString &location) const
 
 void Fb2TreeView::select()
 {
-    return;
     if (model() == 0) return;
     Fb2TreeModel * model = static_cast<Fb2TreeModel*>(this->model());
     QWebFrame * frame = model->view().page()->mainFrame();
     static const QString javascript = FB2::read(":/js/get_location.js");
     QString location = frame->evaluateJavaScript(javascript).toString();
     QModelIndex index = model->index(location);
-    setCurrentIndex(index);
-    this->expand(index);
+    if (index.isValid()) {
+        setCurrentIndex(index);
+        scrollTo(index);
+    }
 }
 
 void Fb2TreeView::update()
 {
+    if (model() == 0) return;
+    Fb2TreeModel * model = static_cast<Fb2TreeModel*>(this->model());
+    Fb2WebView & view = model->view();
 }

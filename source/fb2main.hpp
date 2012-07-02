@@ -45,6 +45,7 @@ private slots:
     void treeDestroyed();
     void logDestroyed();
     void logShowed();
+    void updateTree();
     void viewCode();
     void viewText();
     void viewHead();
