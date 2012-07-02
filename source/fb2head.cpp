@@ -6,6 +6,8 @@
 #include <QWebView>
 #include <QTreeView>
 
+#include "fb2view.hpp"
+
 Fb2HeadItem::HintHash::HintHash()
 {
     insert( "title-info"    , tr( "Book"        ));
@@ -242,3 +244,23 @@ void Fb2HeadModel::select(const QModelIndex &index)
     if (!node || node->id().isEmpty()) return;
     m_view.page()->mainFrame()->scrollToAnchor(node->id());
 }
+
+
+//---------------------------------------------------------------------------
+//  Fb2TreeView
+//---------------------------------------------------------------------------
+
+Fb2HeadView::Fb2HeadView(Fb2WebView &view, QWidget *parent)
+    : QTreeView(parent)
+    , m_view(view)
+{
+    connect(&m_view, SIGNAL(loadFinished(bool)), SLOT(updateTree()));
+}
+
+void Fb2HeadView::updateTree()
+{
+    Fb2HeadModel * model = new Fb2HeadModel(m_view, this);
+    setModel(model);
+    model->expand(this);
+}
+

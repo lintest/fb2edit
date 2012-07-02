@@ -100,12 +100,14 @@ class Fb2TreeView : public QTreeView
 public:
     explicit Fb2TreeView(Fb2WebView &view, QWidget *parent = 0);
 
+public slots:
+    void updateTree();
+
 private slots:
     void activated(const QModelIndex &index);
     void contentsChanged();
     void selectionChanged();
     void selectTree();
-    void updateTree();
 
 private:
     Fb2WebView & m_view;

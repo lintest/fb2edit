@@ -16,6 +16,7 @@ QT_END_NAMESPACE
 
 class Fb2CodeEdit;
 class Fb2TreeView;
+class Fb2HeadView;
 class Fb2WebView;
 
 class Fb2MainWindow : public QMainWindow
@@ -51,7 +52,6 @@ private slots:
     void viewTree();
 
     void clipboardDataChanged();
-    void loadFinished(bool ok);
     void selectionChanged();
     void undoChanged();
     void redoChanged();
@@ -76,7 +76,7 @@ private:
 
     Fb2WebView *textEdit;
     QWebInspector *inspector;
-    QTreeView *headTree;
+    Fb2HeadView *headTree;
     QTextEdit *noteEdit;
     QTextEdit *messageEdit;
     QDockWidget *dockTree;
