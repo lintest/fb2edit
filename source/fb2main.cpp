@@ -449,16 +449,6 @@ void Fb2MainWindow::createTree()
     treeView->setFocus();
 }
 
-void Fb2MainWindow::loadFinished(bool ok)
-{
-    Q_UNUSED(ok);
-    if (headTree) {
-        Fb2HeadModel *model = new Fb2HeadModel(*textEdit, treeView);
-        headTree->setModel(model);
-        model->expand(headTree);
-    }
-}
-
 void Fb2MainWindow::selectionChanged()
 {
     actionCut->setEnabled(textEdit->CutEnabled());
@@ -664,7 +654,6 @@ void Fb2MainWindow::viewText()
 
     connect(textEdit->page(), SIGNAL(contentsChanged()), SLOT(documentWasModified()));
     connect(textEdit->page(), SIGNAL(selectionChanged()), SLOT(selectionChanged()));
-    connect(textEdit, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
 
     connect(textEdit->pageAction(QWebPage::Undo), SIGNAL(changed()), SLOT(undoChanged()));
     connect(textEdit->pageAction(QWebPage::Redo), SIGNAL(changed()), SLOT(redoChanged()));
@@ -726,23 +715,21 @@ void Fb2MainWindow::viewHead()
     FB2DELETE(codeEdit);
     FB2DELETE(toolEdit);
 
+    if (!textEdit) {
+        textEdit = new Fb2WebView(this);
+    }
+
     if (!headTree) {
-        headTree = new QTreeView(this);
+        headTree = new Fb2HeadView(*textEdit, this);
         headTree->header()->setDefaultSectionSize(200);
     }
-    if (textEdit) {
-        this->setFocus();
-        textEdit->setParent(NULL);
-        setCentralWidget(headTree);
-        textEdit->setParent(this);
-        Fb2HeadModel *model = new Fb2HeadModel(*textEdit, treeView);
-        headTree->setModel(model);
-        model->expand(headTree);
-    } else {
-        textEdit = new Fb2WebView(this);
-        connect(textEdit, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
-        setCentralWidget(headTree);
-    }
+
+    this->setFocus();
+    textEdit->setParent(NULL);
+    setCentralWidget(headTree);
+    textEdit->setParent(this);
+    headTree->updateTree();
+
     headTree->setFocus();
 
     if (!xml.isEmpty()) textEdit->load(curFile, xml);
@@ -774,7 +761,7 @@ void Fb2MainWindow::viewTree()
 {
     if (centralWidget() != textEdit) return;
     if (treeView == NULL) createTree();
-    loadFinished(true);
+    treeView->updateTree();
 }
 
 void Fb2MainWindow::clipboardDataChanged()

@@ -248,8 +248,6 @@ Fb2TreeView::Fb2TreeView(Fb2WebView &view, QWidget *parent)
 {
     setHeaderHidden(true);
     connect(&m_view, SIGNAL(loadFinished(bool)), SLOT(updateTree()));
-    connect(&m_view, SIGNAL(updateTree()), SLOT(updateTree()));
-    connect(&m_view, SIGNAL(selectTree()), SLOT(selectTree()));
     connect(this, SIGNAL(activated(QModelIndex)), SLOT(activated(QModelIndex)));
     connect(m_view.page(), SIGNAL(contentsChanged()), SLOT(contentsChanged()));
     connect(m_view.page(), SIGNAL(selectionChanged()), SLOT(selectionChanged()));

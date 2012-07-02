@@ -2,14 +2,13 @@
 #define FB2HEAD_H
 
 #include <QAbstractItemModel>
+#include <QTreeView>
 #include <QWebElement>
 #include <QWebView>
 
-QT_BEGIN_NAMESPACE
-class QTreeView;
-QT_END_NAMESPACE
-
 #include "fb2xml.h"
+
+class Fb2WebView;
 
 class Fb2HeadItem: public QObject
 {
@@ -100,6 +99,20 @@ protected:
 private:
     QWebView & m_view;
     Fb2HeadItem * m_root;
+};
+
+class Fb2HeadView : public QTreeView
+{
+    Q_OBJECT
+
+public:
+    explicit Fb2HeadView(Fb2WebView &view, QWidget *parent = 0);
+
+public slots:
+    void updateTree();
+
+private:
+    Fb2WebView & m_view;
 };
 
 #endif // FB2HEAD_H
