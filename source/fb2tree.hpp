@@ -76,7 +76,6 @@ public:
     QModelIndex index(const QString &location, QModelIndex current) const;
     Fb2WebView & view() { return m_view; }
     void selectText(const QModelIndex &index);
-    void expandBody(QTreeView *view);
 
 public:
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;

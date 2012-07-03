@@ -192,17 +192,6 @@ QVariant Fb2TreeModel::data(const QModelIndex &index, int role) const
     return i ? i->text() : QVariant();
 }
 
-void Fb2TreeModel::expandBody(QTreeView *view)
-{
-    QModelIndex parent = QModelIndex();
-    int count = rowCount(parent);
-    for (int i = 0; i < count; i++) {
-        QModelIndex child = index(i, 0, parent);
-        Fb2TreeItem *node = item(child);
-        if (node && node->name() == "body") view->expand(child);
-    }
-}
-
 void Fb2TreeModel::selectText(const QModelIndex &index)
 {
     Fb2TreeItem *node = item(index);
@@ -302,6 +291,5 @@ void Fb2TreeView::updateTree()
 {
     Fb2TreeModel * model = new Fb2TreeModel(m_view, this);
     setModel(model);
-    model->expandBody(this);
     selectTree();
 }
