@@ -198,11 +198,8 @@ void Fb2TreeModel::selectText(const QModelIndex &index)
     if (!node) return;
     QWebFrame *frame = m_view.page()->mainFrame();
     frame->scroll(0, node->pos().y() - frame->scrollPosition().y());
-
-    static const QString setCursor = FB2::read(":/js/set_cursor.js");
-    QString javascript = QString("var element=%1;").arg(node->selector()) + setCursor;
-    frame->evaluateJavaScript(javascript);
-
+    QString selector = QString("var element=%1;").arg(node->selector());
+    Fb2WebView::selectText(&m_view, selector);
     m_view.setFocus();
 }
 
