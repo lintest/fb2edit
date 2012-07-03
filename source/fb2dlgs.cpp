@@ -84,6 +84,7 @@ Fb2NoteDlg::Fb2NoteDlg(Fb2WebView &view)
     page->setNetworkAccessManager(view.page()->networkAccessManager());
     page->setContentEditable(true);
     ui->m_text->setPage(page);
+    ui->m_text->setHtml("<p></p>");
 
     FB2::addTools(ui->m_toolbar, ui->m_text);
 }

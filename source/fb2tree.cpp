@@ -206,6 +206,7 @@ void Fb2TreeModel::expandBody(QTreeView *view)
 void Fb2TreeModel::selectText(const QModelIndex &index)
 {
     Fb2TreeItem *node = item(index);
+    if (!node) return;
     QWebFrame *frame = m_view.page()->mainFrame();
     if (node) frame->scroll(0, node->pos().y() - frame->scrollPosition().y());
 
