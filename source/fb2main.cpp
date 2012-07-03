@@ -51,6 +51,7 @@ void Fb2MainWindow::init()
     treeView = NULL;
     headTree = NULL;
     toolEdit = NULL;
+    dockTree = NULL;
     messageEdit = NULL;
 
     readSettings();

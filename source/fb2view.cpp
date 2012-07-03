@@ -307,8 +307,6 @@ void Fb2WebView::insertNote()
 
 void Fb2WebView::insertLink()
 {
-    Fb2SaveDialog dlg;
-    dlg.exec();
 }
 
 void Fb2WebView::execCommand(const QString &cmd, const QString &arg)

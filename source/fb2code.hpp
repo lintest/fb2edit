@@ -114,8 +114,7 @@ public:
 
     QString text() const { return toPlainText(); }
 
-    bool read(QIODevice *device)
-        { Q_UNUSED(device); return true; }
+    bool read(QIODevice *device);
 
     void load(const QByteArray data, const QList<int> folds)
         { setPlainText(QString::fromUtf8(data.data())); }

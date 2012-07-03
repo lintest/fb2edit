@@ -75,8 +75,8 @@ public:
     virtual ~Fb2TreeModel();
     QModelIndex index(const QString &location, QModelIndex current) const;
     Fb2WebView & view() { return m_view; }
-    void select(const QModelIndex &index);
-    void expand(QTreeView *view);
+    void selectText(const QModelIndex &index);
+    void expandBody(QTreeView *view);
 
 public:
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;

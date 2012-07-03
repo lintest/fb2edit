@@ -140,17 +140,6 @@ Fb2TreeModel::~Fb2TreeModel()
     if (m_root) delete m_root;
 }
 
-void Fb2TreeModel::expand(QTreeView *view)
-{
-    QModelIndex parent = QModelIndex();
-    int count = rowCount(parent);
-    for (int i = 0; i < count; i++) {
-        QModelIndex child = index(i, 0, parent);
-        Fb2TreeItem *node = item(child);
-        if (node && node->name() == "body") view->expand(child);
-    }
-}
-
 Fb2TreeItem * Fb2TreeModel::item(const QModelIndex &index) const
 {
     if (index.isValid()) {
@@ -203,7 +192,18 @@ QVariant Fb2TreeModel::data(const QModelIndex &index, int role) const
     return i ? i->text() : QVariant();
 }
 
-void Fb2TreeModel::select(const QModelIndex &index)
+void Fb2TreeModel::expandBody(QTreeView *view)
+{
+    QModelIndex parent = QModelIndex();
+    int count = rowCount(parent);
+    for (int i = 0; i < count; i++) {
+        QModelIndex child = index(i, 0, parent);
+        Fb2TreeItem *node = item(child);
+        if (node && node->name() == "body") view->expand(child);
+    }
+}
+
+void Fb2TreeModel::selectText(const QModelIndex &index)
 {
     Fb2TreeItem *node = item(index);
     QWebFrame *frame = m_view.page()->mainFrame();
@@ -277,7 +277,7 @@ void Fb2TreeView::activated(const QModelIndex &index)
     Fb2TreeModel *model = static_cast<Fb2TreeModel*>(this->model());
 
     disconnect(m_view.page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
-    model->select(index);
+    model->selectText(index);
     connect(m_view.page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
 }
 
@@ -301,6 +301,6 @@ void Fb2TreeView::updateTree()
 {
     Fb2TreeModel * model = new Fb2TreeModel(m_view, this);
     setModel(model);
-    model->expand(this);
+    model->expandBody(this);
     selectTree();
 }

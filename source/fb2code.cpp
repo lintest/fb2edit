@@ -96,6 +96,7 @@ void Fb2CodeEdit::zoomReset()
 
 #ifdef FB2_USE_PLAINTEXT
 
+#include <QXmlInputSource>
 #include <QtGui>
 
 static const QColor DEFAULT_SYNTAX_CHAR     = Qt::blue;
@@ -448,6 +449,15 @@ Fb2CodeEdit::Fb2CodeEdit(QWidget *parent) : QPlainTextEdit(parent)
 
     updateLineNumberAreaWidth(0);
     highlightCurrentLine();
+}
+
+bool Fb2CodeEdit::read(QIODevice *device)
+{
+    QByteArray data = device->readAll();
+    QXmlInputSource source;
+    source.setData(data);
+    setPlainText(source.data());
+    return true;
 }
 
 int Fb2CodeEdit::lineNumberAreaWidth()
