@@ -83,6 +83,13 @@ bool Fb2WebPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest
 //  Fb2WebView
 //---------------------------------------------------------------------------
 
+void Fb2WebView::selectText(QWebView *view, const QString &locator)
+{
+    QWebFrame * frame = view->page()->mainFrame();
+    static const QString javascript = FB2::read(":/js/set_cursor.js");
+    frame->evaluateJavaScript(locator + ";" + javascript);
+}
+
 Fb2WebView::Fb2WebView(QWidget *parent)
     : Fb2BaseWebView(parent)
     , m_inspector(0)
@@ -94,6 +101,7 @@ Fb2WebView::Fb2WebView(QWidget *parent)
     page()->setContentEditable(true);
     connect(page(), SIGNAL(contentsChanged()), this, SLOT(fixContents()));
     connect(page(), SIGNAL(linkHovered(QString,QString,QString)), this, SLOT(linkHovered(QString,QString,QString)));
+    connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished()));
 }
 
 Fb2WebView::~Fb2WebView()
@@ -332,3 +340,7 @@ void Fb2WebView::showInspector()
     m_inspector->show();
 }
 
+void Fb2WebView::loadFinished()
+{
+    selectText(this, "var element=$('div.body').get(0);if(element===undefined)element=document.body");
+}

@@ -81,10 +81,11 @@ Fb2NoteDlg::Fb2NoteDlg(Fb2WebView &view)
     ui->m_title->setFocus();
 
     Fb2WebPage *page = new Fb2WebPage(this);
+    connect(ui->m_text, SIGNAL(loadFinished(bool)), SLOT(loadFinished()));
     page->setNetworkAccessManager(view.page()->networkAccessManager());
     page->setContentEditable(true);
     ui->m_text->setPage(page);
-    ui->m_text->setHtml("<p></p>");
+    ui->m_text->setHtml("<body><p></p></body>");
 
     FB2::addTools(ui->m_toolbar, ui->m_text);
 }
@@ -92,4 +93,9 @@ Fb2NoteDlg::Fb2NoteDlg(Fb2WebView &view)
 Fb2NoteDlg::~Fb2NoteDlg()
 {
     delete ui;
+}
+
+void Fb2NoteDlg::loadFinished()
+{
+    Fb2WebView::selectText(ui->m_text, "var element=document.body");
 }

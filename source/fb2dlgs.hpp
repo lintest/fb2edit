@@ -51,6 +51,9 @@ public:
     explicit Fb2NoteDlg(Fb2WebView &view);
     virtual ~Fb2NoteDlg();
 
+private slots:
+    void loadFinished();
+
 private:
     Ui::Fb2Note * ui;
 };
