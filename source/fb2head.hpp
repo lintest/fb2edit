@@ -44,6 +44,8 @@ public:
 
     QString text(int col = 0) const;
 
+    void setText(const QString &text);
+
     const QString & id() const {
         return m_id;
     }
@@ -86,12 +88,14 @@ public:
     void expand(QTreeView *view);
 
 public:
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     virtual QModelIndex parent(const QModelIndex &child) const;
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
 protected:
     Fb2HeadItem * item(const QModelIndex &index) const;
@@ -109,7 +113,11 @@ public:
     explicit Fb2HeadView(Fb2WebView &view, QWidget *parent = 0);
 
 public slots:
+    void editCurrent();
     void updateTree();
+
+private slots:
+    void activated(const QModelIndex &index);
 
 private:
     Fb2WebView & m_view;

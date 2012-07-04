@@ -4,6 +4,7 @@
 #include <QWebFrame>
 #include <QWebPage>
 #include <QWebView>
+#include <QItemDelegate>
 #include <QTreeView>
 
 #include "fb2view.hpp"
@@ -42,13 +43,15 @@ Fb2HeadItem::Fb2HeadItem(QWebElement &element, Fb2HeadItem *parent)
     , m_parent(parent)
 {
     m_name = element.tagName().toLower();
-    QString style = element.attribute("class").toLower();
+    m_id = element.attribute("id");
     if (m_name == "div") {
+        QString style = element.attribute("class").toLower();
         if (!style.isEmpty()) m_name = style;
+        if (style == "annotation") return;
+        if (style == "history") return;
     } else if (m_name == "img") {
         m_text = element.attribute("alt");
     }
-    m_id = element.attribute("id");
     addChildren(element);
 }
 
@@ -109,7 +112,10 @@ QString Fb2HeadItem::value() const
 {
     switch (toKeyword(m_name)) {
         case Auth : {
-            return sub("last-name") + " " + sub("first-name") + " " + sub("middle-name");
+            QString result = sub("last-name");
+            result += " " + sub("first-name");
+            result += " " + sub("middle-name");
+            return result.simplified();
         } break;
         case Cover : {
             QString text;
@@ -122,11 +128,11 @@ QString Fb2HeadItem::value() const
             return text;
         } break;
         case Image : {
-            return m_element.attribute("alt");
+            return m_element.attribute("src");
         } break;
         case Seqn : {
-            QString text = m_element.attribute("fb2:name");
-            QString numb = m_element.attribute("fb2:number");
+            QString text = m_element.attribute("fb2.name");
+            QString numb = m_element.attribute("fb2.number");
             if (numb.isEmpty() || numb == "0") return text;
             return text + ", " + tr("#") + numb;
         } break;
@@ -222,7 +228,7 @@ int Fb2HeadModel::rowCount(const QModelIndex &parent) const
 
 QVariant Fb2HeadModel::data(const QModelIndex &index, int role) const
 {
-    if (role != Qt::DisplayRole) return QVariant();
+    if (role != Qt::DisplayRole && role != Qt::EditRole) return QVariant();
     Fb2HeadItem * i = item(index);
     return i ? i->text(index.column()) : QVariant();
 }
@@ -245,6 +251,27 @@ void Fb2HeadModel::select(const QModelIndex &index)
     m_view.page()->mainFrame()->scrollToAnchor(node->id());
 }
 
+void Fb2HeadItem::setText(const QString &text)
+{
+    m_text = text;
+}
+
+bool Fb2HeadModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (role != Qt::EditRole) return false;
+    Fb2HeadItem * i = item(index);
+    if (!i) return false;
+    i->setText(value.toString());
+    emit dataChanged(index, index);
+}
+
+Qt::ItemFlags Fb2HeadModel::flags(const QModelIndex &index) const
+{
+    if (!index.isValid()) return 0;
+    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    if (index.column() == 1) flags |= Qt::ItemIsEditable;
+    return flags;
+}
 
 //---------------------------------------------------------------------------
 //  Fb2TreeView
@@ -254,7 +281,11 @@ Fb2HeadView::Fb2HeadView(Fb2WebView &view, QWidget *parent)
     : QTreeView(parent)
     , m_view(view)
 {
+    //setItemDelegate(new QItemDelegate(this));
+    setSelectionBehavior(QAbstractItemView::SelectItems);
+    setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     connect(&m_view, SIGNAL(loadFinished(bool)), SLOT(updateTree()));
+    connect(this, SIGNAL(activated(QModelIndex)), SLOT(activated(QModelIndex)));
 }
 
 void Fb2HeadView::updateTree()
@@ -264,3 +295,17 @@ void Fb2HeadView::updateTree()
     model->expand(this);
 }
 
+void Fb2HeadView::editCurrent()
+{
+    QModelIndex current = currentIndex();
+    if (!current.isValid()) return;
+    Fb2HeadModel * m = static_cast<Fb2HeadModel*>(model());
+    QModelIndex index = m->index(current.row(), 1, m->parent(current));
+    setCurrentIndex(index);
+    edit(index);
+}
+
+void Fb2HeadView::activated(const QModelIndex &index)
+{
+    if (index.isValid() && index.column() == 1) edit(index);
+}

@@ -290,3 +290,4 @@ void Fb2TreeView::updateTree()
     setModel(model);
     selectTree();
 }
+
