@@ -203,7 +203,7 @@ void Fb2TreeModel::selectText(const QModelIndex &index)
     m_view.setFocus();
 }
 
-QModelIndex Fb2TreeModel::index(const QString &location, QModelIndex current) const
+QModelIndex Fb2TreeModel::index(const QString &location) const
 {
     QModelIndex index;
     Fb2TreeItem * parent = m_root;
@@ -216,12 +216,6 @@ QModelIndex Fb2TreeModel::index(const QString &location, QModelIndex current) co
         Fb2TreeItem * child = parent->content(*this, key, index);
         parent = child;
     }
-
-    while (current.isValid()) {
-        if (current == index) return QModelIndex();
-        current = this->parent(current);
-    }
-
     return index;
 }
 
@@ -275,7 +269,7 @@ void Fb2TreeView::selectTree()
     QWebFrame * frame = model->view().page()->mainFrame();
     static const QString javascript = FB2::read(":/js/get_location.js");
     QString location = frame->evaluateJavaScript(javascript).toString();
-    QModelIndex index = model->index(location, currentIndex());
+    QModelIndex index = model->index(location);
     if (!index.isValid()) return;
 
     disconnect(this, SIGNAL(activated(QModelIndex)), this, SLOT(activated(QModelIndex)));
