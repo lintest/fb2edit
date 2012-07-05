@@ -441,13 +441,14 @@ void Fb2MainWindow::openSettings()
 
 void Fb2MainWindow::createTree()
 {
-    if (!textEdit) return;
-    dockTree = new QDockWidget(tr("Contents"), this);
-    dockTree->setAttribute(Qt::WA_DeleteOnClose);
-    dockTree->setFeatures(QDockWidget::AllDockWidgetFeatures);
-    dockTree->setWidget(new Fb2TreeWidget(*textEdit, this));
-    connect(dockTree, SIGNAL(destroyed()), SLOT(treeDestroyed()));
-    addDockWidget(Qt::LeftDockWidgetArea, dockTree);
+    if (textEdit && centralWidget() == textEdit) {
+        dockTree = new QDockWidget(tr("Contents"), this);
+        dockTree->setAttribute(Qt::WA_DeleteOnClose);
+        dockTree->setFeatures(QDockWidget::AllDockWidgetFeatures);
+        dockTree->setWidget(new Fb2TreeWidget(*textEdit, this));
+        connect(dockTree, SIGNAL(destroyed()), SLOT(treeDestroyed()));
+        addDockWidget(Qt::LeftDockWidgetArea, dockTree);
+    }
 }
 
 void Fb2MainWindow::selectionChanged()
