@@ -4,6 +4,7 @@
 #include <QAbstractItemModel>
 #include <QTreeView>
 #include <QTimer>
+#include <QToolBar>
 #include <QWebElement>
 
 class Fb2WebView;
@@ -108,6 +109,14 @@ private slots:
     void selectionChanged();
     void selectTree();
 
+    void insertNode();
+    void deleteNode();
+
+    void moveUp();
+    void moveDown();
+    void moveLeft();
+    void moveRight();
+
 private:
     Fb2WebView & m_view;
     QTimer m_timerSelect;
@@ -116,8 +125,14 @@ private:
 
 class Fb2TreeWidget : public QWidget
 {
+    Q_OBJECT
+
 public:
-    explicit Fb2TreeWidget(QWidget* parent = 0, Qt::WindowFlags f = 0);
+    explicit Fb2TreeWidget(Fb2WebView &view, QWidget* parent = 0);
+
+protected:
+    QToolBar * m_tool;
+    Fb2TreeView * m_tree;
 };
 
 #endif // FB2TREE_H

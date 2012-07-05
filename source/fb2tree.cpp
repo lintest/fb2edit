@@ -1,6 +1,8 @@
 #include "fb2tree.hpp"
 
 #include <QtDebug>
+#include <QAction>
+#include <QVBoxLayout>
 #include <QWebFrame>
 #include <QWebPage>
 #include <QTreeView>
@@ -232,8 +234,8 @@ Fb2TreeView::Fb2TreeView(Fb2WebView &view, QWidget *parent)
     , m_view(view)
 {
     setHeaderHidden(true);
-    connect(&m_view, SIGNAL(loadFinished(bool)), SLOT(updateTree()));
     connect(this, SIGNAL(activated(QModelIndex)), SLOT(activated(QModelIndex)));
+    connect(m_view.page(), SIGNAL(loadFinished(bool)), SLOT(updateTree()));
     connect(m_view.page(), SIGNAL(contentsChanged()), SLOT(contentsChanged()));
     connect(m_view.page(), SIGNAL(selectionChanged()), SLOT(selectionChanged()));
 
@@ -244,6 +246,8 @@ Fb2TreeView::Fb2TreeView(Fb2WebView &view, QWidget *parent)
     m_timerUpdate.setInterval(1000);
     m_timerUpdate.setSingleShot(true);
     connect(&m_timerUpdate, SIGNAL(timeout()), SLOT(updateTree()));
+
+    QMetaObject::invokeMethod(this, "updateTree", Qt::QueuedConnection);
 }
 
 void Fb2TreeView::selectionChanged()
@@ -289,11 +293,78 @@ void Fb2TreeView::updateTree()
     selectTree();
 }
 
+void Fb2TreeView::insertNode()
+{
+}
+
+void Fb2TreeView::deleteNode()
+{
+}
+
+void Fb2TreeView::moveUp()
+{
+}
+
+void Fb2TreeView::moveDown()
+{
+}
+
+void Fb2TreeView::moveLeft()
+{
+}
+
+void Fb2TreeView::moveRight()
+{
+}
+
 //---------------------------------------------------------------------------
 //  Fb2TreeWidget
 //---------------------------------------------------------------------------
 
-Fb2TreeWidget::Fb2TreeWidget(QWidget* parent = 0, Qt::WindowFlags f = 0)
-    : QWidget(parent, f)
+Fb2TreeWidget::Fb2TreeWidget(Fb2WebView &view, QWidget* parent)
+    : QWidget(parent)
 {
+    QAction * act;
+
+    QVBoxLayout * layout = new QVBoxLayout(this);
+    layout->setSpacing(0);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setObjectName(QString::fromUtf8("verticalLayout"));
+
+    m_tree = new Fb2TreeView(view, this);
+    m_tree->setContextMenuPolicy(Qt::ActionsContextMenu);
+    layout->addWidget(m_tree);
+
+    m_tool = new QToolBar(this);
+    layout->addWidget(m_tool);
+
+    act = new QAction(FB2::icon("list-add"), tr("&Insert"), this);
+    connect(act, SIGNAL(triggered()), m_tree, SLOT(insertNode()));
+    m_tool->addAction(act);
+
+    act = new QAction(FB2::icon("list-remove"), tr("&Delete"), this);
+    connect(act, SIGNAL(triggered()), m_tree, SLOT(deleteNode()));
+    m_tool->addAction(act);
+
+    m_tool->addSeparator();
+
+    act = new QAction(FB2::icon("go-up"), tr("&Up"), this);
+    connect(act, SIGNAL(triggered()), m_tree, SLOT(moveUp()));
+    m_tree->actions().append(act);
+    m_tool->addAction(act);
+
+    act = new QAction(FB2::icon("go-down"), tr("&Down"), this);
+    connect(act, SIGNAL(triggered()), m_tree, SLOT(moveDown()));
+    m_tree->actions().append(act);
+    m_tool->addAction(act);
+
+    act = new QAction(FB2::icon("go-previous"), tr("&Left"), this);
+    connect(act, SIGNAL(triggered()), m_tree, SLOT(moveLeft()));
+    m_tree->actions().append(act);
+    m_tool->addAction(act);
+
+    act = new QAction(FB2::icon("go-next"), tr("&Right"), this);
+    connect(act, SIGNAL(triggered()), m_tree, SLOT(moveRight()));
+    m_tree->actions().append(act);
+    m_tool->addAction(act);
 }

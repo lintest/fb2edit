@@ -81,7 +81,6 @@ private:
     QTextEdit *messageEdit;
     QDockWidget *dockTree;
     Fb2CodeEdit *codeEdit;
-    Fb2TreeView *treeView;
     QString curFile;
     bool isUntitled;
 

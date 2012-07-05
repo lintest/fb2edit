@@ -48,7 +48,6 @@ void Fb2MainWindow::init()
     textEdit = NULL;
     noteEdit = NULL;
     codeEdit = NULL;
-    treeView = NULL;
     headTree = NULL;
     toolEdit = NULL;
     dockTree = NULL;
@@ -86,7 +85,6 @@ void Fb2MainWindow::logDestroyed()
 
 void Fb2MainWindow::treeDestroyed()
 {
-    treeView = NULL;
     dockTree = NULL;
 }
 
@@ -443,15 +441,13 @@ void Fb2MainWindow::openSettings()
 
 void Fb2MainWindow::createTree()
 {
-    if (treeView) return;
-    treeView = new Fb2TreeView(*textEdit, this);
-    connect(treeView, SIGNAL(destroyed()), SLOT(treeDestroyed()));
+    if (!textEdit) return;
     dockTree = new QDockWidget(tr("Contents"), this);
     dockTree->setAttribute(Qt::WA_DeleteOnClose);
     dockTree->setFeatures(QDockWidget::AllDockWidgetFeatures);
-    dockTree->setWidget(treeView);
+    dockTree->setWidget(new Fb2TreeWidget(*textEdit, this));
+    connect(dockTree, SIGNAL(destroyed()), SLOT(treeDestroyed()));
     addDockWidget(Qt::LeftDockWidgetArea, dockTree);
-    treeView->setFocus();
 }
 
 void Fb2MainWindow::selectionChanged()
@@ -767,9 +763,7 @@ void Fb2MainWindow::viewHead()
 
 void Fb2MainWindow::viewTree()
 {
-    if (centralWidget() != textEdit) return;
-    if (treeView == NULL) createTree();
-    treeView->updateTree();
+    if (dockTree) dockTree->deleteLater(); else createTree();
 }
 
 void Fb2MainWindow::clipboardDataChanged()
