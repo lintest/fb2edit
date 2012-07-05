@@ -181,7 +181,14 @@ void Fb2HeadModel::expand(QTreeView *view)
     for (int i = 0; i < count; i++) {
         QModelIndex child = index(i, 0, parent);
         Fb2HeadItem *node = item(child);
-        if (node) view->expand(child);
+        if (!node) continue;
+        view->expand(child);
+        int count = rowCount(child);
+        for (int j = 0; j < count; j++) {
+            QModelIndex ch = index(j, 0, child);
+            Fb2HeadItem *node = item(ch);
+            if (node) view->expand(ch);
+        }
     }
 }
 
@@ -190,7 +197,7 @@ Fb2HeadItem * Fb2HeadModel::item(const QModelIndex &index) const
     if (index.isValid()) {
         return static_cast<Fb2HeadItem*>(index.internalPointer());
     } else {
-        return m_root;
+        return 0;
     }
 }
 
@@ -203,11 +210,17 @@ int Fb2HeadModel::columnCount(const QModelIndex &parent) const
 QModelIndex Fb2HeadModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!m_root || row < 0 || column < 0) return QModelIndex();
+
+    if (!parent.isValid() && m_root) {
+        return createIndex(row, column, (void*)m_root);
+    }
+
     if (Fb2HeadItem *owner = item(parent)) {
         if (Fb2HeadItem *child = owner->item(row)) {
             return createIndex(row, column, (void*)child);
         }
     }
+
     return QModelIndex();
 }
 
@@ -217,6 +230,8 @@ QModelIndex Fb2HeadModel::parent(const QModelIndex &child) const
         if (Fb2HeadItem * parent = node->parent()) {
             if (Fb2HeadItem * owner = parent->parent()) {
                 return createIndex(owner->index(parent), 0, (void*)parent);
+            } else {
+                return createIndex(0, 0, (void*)parent);
             }
         }
     }
@@ -226,6 +241,7 @@ QModelIndex Fb2HeadModel::parent(const QModelIndex &child) const
 int Fb2HeadModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.column() > 0) return 0;
+    if (!parent.isValid()) return m_root ? 1 : 0;
     Fb2HeadItem *owner = item(parent);
     return owner ? owner->count() : 0;
 }
