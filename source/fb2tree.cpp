@@ -9,6 +9,10 @@
 #include "fb2utils.h"
 #include "fb2view.hpp"
 
+//---------------------------------------------------------------------------
+//  Fb2TreeItem
+//---------------------------------------------------------------------------
+
 Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent, int number)
     : QObject(parent)
     , m_element(element)
@@ -289,4 +293,13 @@ void Fb2TreeView::updateTree()
     Fb2TreeModel * model = new Fb2TreeModel(m_view, this);
     setModel(model);
     selectTree();
+}
+
+//---------------------------------------------------------------------------
+//  Fb2TreeWidget
+//---------------------------------------------------------------------------
+
+Fb2TreeWidget::Fb2TreeWidget(QWidget* parent = 0, Qt::WindowFlags f = 0)
+    : QWidget(parent, f)
+{
 }

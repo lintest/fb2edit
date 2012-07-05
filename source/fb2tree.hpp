@@ -114,4 +114,10 @@ private:
     QTimer m_timerUpdate;
 };
 
+class Fb2TreeWidget : public QWidget
+{
+public:
+    explicit Fb2TreeWidget(QWidget* parent = 0, Qt::WindowFlags f = 0);
+};
+
 #endif // FB2TREE_H
