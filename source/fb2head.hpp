@@ -146,6 +146,7 @@ public slots:
 
 private slots:
     void activated(const QModelIndex &index);
+    void collapsed(const QModelIndex &index);
 
 protected:
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);

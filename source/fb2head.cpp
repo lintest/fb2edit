@@ -395,10 +395,12 @@ Fb2HeadView::Fb2HeadView(Fb2WebView &view, QWidget *parent)
     act->setShortcuts(QKeySequence::Delete);
 
     //setItemDelegate(new QItemDelegate(this));
+    setRootIsDecorated(false);
     setSelectionBehavior(QAbstractItemView::SelectItems);
     setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     connect(&m_view, SIGNAL(loadFinished(bool)), SLOT(updateTree()));
     connect(this, SIGNAL(activated(QModelIndex)), SLOT(activated(QModelIndex)));
+    connect(this, SIGNAL(collapsed(QModelIndex)), SLOT(collapsed(QModelIndex)));
 
     header()->setDefaultSectionSize(200);
     connect(actionModify, SIGNAL(triggered()), SLOT(editCurrent()));
@@ -448,4 +450,11 @@ void Fb2HeadView::showStatus(const QModelIndex &current)
     QModelIndex parent = model()->parent(current);
     QModelIndex index = model()->index(current.row(), 2, parent);
     emit status(model()->data(index).toString());
+}
+
+void Fb2HeadView::collapsed(const QModelIndex &index)
+{
+    if (model() && !model()->parent(index).isValid()) {
+        expand(index);
+    }
 }

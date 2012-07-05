@@ -296,7 +296,7 @@ void Fb2SaveHandler::TextHandler::Init(const QXmlAttributes &atts)
             m_writer.writeAttribute(name, atts.value(i));
         } else if (name == "name") {
             m_writer.writeAttribute(name, atts.value(i));
-        } else if (name.left(4) == "fb2.") {
+        } else if (name.left(4) == "fb2_") {
             m_writer.writeAttribute(name.mid(4), atts.value(i));
         }
     }

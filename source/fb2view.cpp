@@ -42,7 +42,7 @@ void Fb2NoteView::hint(const QWebElement element, const QRect &rect)
     QString html = element.toOuterXml();
     html.prepend(
         "<body bgcolor=lightyellow style='overflow:hidden;padding:0;margin:0;margin-top:2;'>"
-        "<div class=body name=notes style='padding:0;margin:0;'>"
+        "<div class=body fb2_name=notes style='padding:0;margin:0;'>"
     );
     html.append("</div></body>");
     setGeometry(rect);

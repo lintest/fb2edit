@@ -95,7 +95,7 @@ void Fb2ReadHandler::BaseHandler::writeAttributes(const QXmlAttributes &atts)
     for (int i = 0; i < count; i++) {
         if (atts.localName(i) == "href") continue;
         QString name = atts.qName(i);
-        if (name != "id") name.prepend("fb2.");
+        if (name != "id") name.prepend("fb2_");
         writer().writeAttribute(name, atts.value(i));
     }
 }

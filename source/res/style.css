@@ -92,7 +92,7 @@ div.poem p {
   margin-bottom: 0;
 }
 
-div.body[name=notes] {
+div.body[fb2_name=notes] {
   border-top: none;
   border-bottom: none;
   border-left: none;
@@ -103,7 +103,7 @@ div.body[name=notes] {
   padding-right: 0;
 }
 
-div.body[name=notes] div[id] div.title {
+div.body[fb2_name=notes] div[id] div.title {
   font: inherit;
   float: left;
   margin-left: 4;
@@ -112,7 +112,7 @@ div.body[name=notes] div[id] div.title {
   padding-right: 4;
 }
 
-div.body[name=notes] div[id] div.title p {
+div.body[fb2_name=notes] div[id] div.title p {
   margin-top: 0;
   margin-bottom: 0;
 }

@@ -2,6 +2,7 @@
 
 #include <QtDebug>
 #include <QAction>
+#include <QApplication>
 #include <QVBoxLayout>
 #include <QWebFrame>
 #include <QWebPage>
@@ -206,7 +207,6 @@ void Fb2TreeModel::selectText(const QModelIndex &index)
     frame->scroll(0, node->pos().y() - frame->scrollPosition().y());
     QString selector = QString("var element=%1;").arg(node->selector());
     Fb2WebView::selectText(&m_view, selector);
-    m_view.setFocus();
 }
 
 QModelIndex Fb2TreeModel::index(const QString &location) const
@@ -262,16 +262,15 @@ void Fb2TreeView::contentsChanged()
 
 void Fb2TreeView::activated(const QModelIndex &index)
 {
+    if (qApp->focusWidget() == &m_view) return;
     if (!model()) return;
     Fb2TreeModel *model = static_cast<Fb2TreeModel*>(this->model());
-
-    disconnect(m_view.page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
     model->selectText(index);
-    connect(m_view.page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
 }
 
 void Fb2TreeView::selectTree()
 {
+    if (qApp->focusWidget() == this) return;
     if (model() == 0) return;
     Fb2TreeModel * model = static_cast<Fb2TreeModel*>(this->model());
     QWebFrame * frame = model->view().page()->mainFrame();
@@ -279,11 +278,8 @@ void Fb2TreeView::selectTree()
     QString location = frame->evaluateJavaScript(javascript).toString();
     QModelIndex index = model->index(location);
     if (!index.isValid()) return;
-
-    disconnect(this, SIGNAL(activated(QModelIndex)), this, SLOT(activated(QModelIndex)));
     setCurrentIndex(index);
     scrollTo(index);
-    connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(activated(QModelIndex)));
 }
 
 void Fb2TreeView::updateTree()
