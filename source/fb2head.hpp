@@ -6,6 +6,11 @@
 #include <QWebElement>
 #include <QWebView>
 
+QT_BEGIN_NAMESPACE
+class QAction;
+class QToolBar;
+QT_END_NAMESPACE
+
 #include "fb2xml.h"
 
 class Fb2WebView;
@@ -111,6 +116,7 @@ class Fb2HeadView : public QTreeView
 
 public:
     explicit Fb2HeadView(Fb2WebView &view, QWidget *parent = 0);
+    void initToolbar(QToolBar &toolbar);
 
 public slots:
     void editCurrent();
@@ -121,6 +127,9 @@ private slots:
 
 private:
     Fb2WebView & m_view;
+    QAction * actionInsert;
+    QAction * actionModify;
+    QAction * actionDelete;
 };
 
 #endif // FB2HEAD_H

@@ -289,22 +289,6 @@ void Fb2MainWindow::createActions()
 
     menu->addSeparator();
 
-    actionInsert = act = new QAction(FB2::icon("list-add"), tr("&Append"), this);
-    act->setPriority(QAction::LowPriority);
-    act->setShortcuts(QKeySequence::New);
-    menu->addAction(act);
-
-    actionModify = act = new QAction(FB2::icon("list-add"), tr("&Modify"), this);
-    act->setPriority(QAction::LowPriority);
-    menu->addAction(act);
-
-    actionDelete = act = new QAction(FB2::icon("list-remove"), tr("&Delete"), this);
-    act->setPriority(QAction::LowPriority);
-    act->setShortcuts(QKeySequence::Delete);
-    menu->addAction(act);
-
-    menu->addSeparator();
-
     act = new QAction(FB2::icon("preferences-desktop"), tr("&Settings"), this);
     act->setShortcuts(QKeySequence::Preferences);
     act->setStatusTip(tr("Application settings"));
@@ -724,8 +708,6 @@ void Fb2MainWindow::viewHead()
 
     if (!headTree) {
         headTree = new Fb2HeadView(*textEdit, this);
-        headTree->header()->setDefaultSectionSize(200);
-        connect(actionModify, SIGNAL(triggered()), headTree, SLOT(editCurrent()));
     }
 
     this->setFocus();
@@ -754,12 +736,10 @@ void Fb2MainWindow::viewHead()
     }
 
     FB2DELETE(toolEdit);
-    QToolBar *tool = toolEdit = addToolBar(tr("Edit"));
-    tool->addSeparator();
-    tool->addAction(actionInsert);
-    tool->addAction(actionModify);
-    tool->addAction(actionDelete);
-    tool->setMovable(false);
+    toolEdit = addToolBar(tr("Edit"));
+    headTree->initToolbar(*toolEdit);
+    toolEdit->addSeparator();
+    toolEdit->setMovable(false);
 }
 
 void Fb2MainWindow::viewTree()

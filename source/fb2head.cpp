@@ -1,6 +1,9 @@
 #include "fb2head.hpp"
 
 #include <QtDebug>
+#include <QAction>
+#include <QHeaderView>
+#include <QToolBar>
 #include <QWebFrame>
 #include <QWebPage>
 #include <QWebView>
@@ -8,6 +11,7 @@
 #include <QTreeView>
 
 #include "fb2view.hpp"
+#include "fb2utils.h"
 
 Fb2HeadItem::HintHash::HintHash()
 {
@@ -263,6 +267,7 @@ bool Fb2HeadModel::setData(const QModelIndex &index, const QVariant &value, int 
     if (!i) return false;
     i->setText(value.toString());
     emit dataChanged(index, index);
+    return true;
 }
 
 Qt::ItemFlags Fb2HeadModel::flags(const QModelIndex &index) const
@@ -281,11 +286,34 @@ Fb2HeadView::Fb2HeadView(Fb2WebView &view, QWidget *parent)
     : QTreeView(parent)
     , m_view(view)
 {
+    QAction * act;
+
+    actionInsert = act = new QAction(FB2::icon("list-add"), tr("&Append"), this);
+    act->setPriority(QAction::LowPriority);
+    act->setShortcuts(QKeySequence::New);
+
+    actionModify = act = new QAction(FB2::icon("list-add"), tr("&Modify"), this);
+    act->setPriority(QAction::LowPriority);
+
+    actionDelete = act = new QAction(FB2::icon("list-remove"), tr("&Delete"), this);
+    act->setPriority(QAction::LowPriority);
+    act->setShortcuts(QKeySequence::Delete);
+
     //setItemDelegate(new QItemDelegate(this));
     setSelectionBehavior(QAbstractItemView::SelectItems);
     setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     connect(&m_view, SIGNAL(loadFinished(bool)), SLOT(updateTree()));
     connect(this, SIGNAL(activated(QModelIndex)), SLOT(activated(QModelIndex)));
+
+    header()->setDefaultSectionSize(200);
+    connect(actionModify, SIGNAL(triggered()), SLOT(editCurrent()));
+}
+
+void Fb2HeadView::initToolbar(QToolBar &toolbar)
+{
+    toolbar.addSeparator();
+    toolbar.addAction(actionInsert);
+    toolbar.addAction(actionDelete);
 }
 
 void Fb2HeadView::updateTree()
@@ -309,3 +337,4 @@ void Fb2HeadView::activated(const QModelIndex &index)
 {
     if (index.isValid() && index.column() == 1) edit(index);
 }
+
