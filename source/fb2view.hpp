@@ -97,6 +97,7 @@ public slots:
     void insertImage();
     void insertNote();
     void insertLink();
+    void insertTitle();
     void zoomIn();
     void zoomOut();
     void zoomReset();

@@ -49,7 +49,8 @@ OTHER_FILES += \
     source/js/export.js \
     source/js/set_cursor.js \
     source/js/get_status.js \
-    source/js/get_location.js
+    source/js/get_location.js \
+    source/js/insert_title.js
 
 if (unix) {
 

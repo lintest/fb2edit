@@ -344,3 +344,9 @@ void Fb2WebView::loadFinished()
 {
     selectText(this, "var element=$('div.body').get(0);if(element===undefined)element=document.body");
 }
+
+void Fb2WebView::insertTitle()
+{
+    static const QString javascript = FB2::read(":/js/insert_title.js");
+    page()->mainFrame()->evaluateJavaScript(javascript);
+}

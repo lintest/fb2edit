@@ -104,6 +104,7 @@ private:
         *actionFind,
         *actionReplace,
         *actionInsert,
+        *actionModify,
         *actionDelete,
         *actionImage,
         *actionNote,

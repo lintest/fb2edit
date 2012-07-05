@@ -406,23 +406,23 @@
     </message>
     <message>
         <source>&amp;Body</source>
-        <translation>&amp;Тело &lt;body&gt;</translation>
+        <translation>Тело &lt;body&gt;</translation>
     </message>
     <message>
         <source>Zoom original</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&amp;Section</source>
-        <translation>&amp;Секция &lt;section&gt;</translation>
+        <translation>Секция &lt;section&gt;</translation>
     </message>
     <message>
         <source>&amp;Title</source>
-        <translation>&amp;Заголовок &lt;title&gt;</translation>
+        <translation>Заголовок &lt;title&gt;</translation>
     </message>
     <message>
         <source>&amp;Author</source>
-        <translation>&amp;Автор &lt;author&gt;</translation>
+        <translation>Автор &lt;author&gt;</translation>
     </message>
     <message>
         <source>&amp;Annotation</source>

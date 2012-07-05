@@ -73,7 +73,7 @@ class Fb2TreeModel: public QAbstractItemModel
 public:
     explicit Fb2TreeModel(Fb2WebView &view, QObject *parent = 0);
     virtual ~Fb2TreeModel();
-    QModelIndex index(const QString &location, QModelIndex current) const;
+    QModelIndex index(const QString &location) const;
     Fb2WebView & view() { return m_view; }
     void selectText(const QModelIndex &index);
 
