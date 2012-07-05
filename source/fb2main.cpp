@@ -708,6 +708,7 @@ void Fb2MainWindow::viewHead()
 
     if (!headTree) {
         headTree = new Fb2HeadView(*textEdit, this);
+        connect(headTree, SIGNAL(status(QString)), this, SLOT(status(QString)));
     }
 
     this->setFocus();
@@ -754,4 +755,7 @@ void Fb2MainWindow::clipboardDataChanged()
     }
 }
 
-
+void Fb2MainWindow::status(const QString &text)
+{
+    statusBar()->showMessage(text);
+}

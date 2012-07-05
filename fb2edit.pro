@@ -31,7 +31,8 @@ SOURCES = \
 RESOURCES = \
     3rdparty/gnome/gnome.qrc \
     source/res/fb2edit.qrc \
-    source/js/javascript.qrc
+    source/js/javascript.qrc \
+    3rdparty/fb2/fb2.qrc
 
 TARGET = fb2edit
 
@@ -50,7 +51,8 @@ OTHER_FILES += \
     source/js/set_cursor.js \
     source/js/get_status.js \
     source/js/get_location.js \
-    source/js/insert_title.js
+    source/js/insert_title.js \
+    CMakeLists.txt
 
 if (unix) {
 

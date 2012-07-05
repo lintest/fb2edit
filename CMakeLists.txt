@@ -33,6 +33,7 @@ set(FB2_DEFINITIONS "PACKAGE_NAME=\"${PACKAGE_NAME}\"; PACKAGE_VENDOR=\"${PACKAG
 set_source_files_properties( source/fb2app.cpp PROPERTIES COMPILE_DEFINITIONS "${FB2_DEFINITIONS}")
 
 set(FB2_RES
+    3rdparty/fb2/fb2.qrc
     3rdparty/gnome/gnome.qrc
     source/js/javascript.qrc
     source/res/fb2edit.qrc

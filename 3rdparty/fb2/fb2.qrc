@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/fb2">
+        <file>FictionBook2.1.xsd</file>
+        <file>FictionBookGenres.xsd</file>
+        <file>FictionBookLang.xsd</file>
+        <file>FictionBookLinks.xsd</file>
+    </qresource>
+</RCC>
+

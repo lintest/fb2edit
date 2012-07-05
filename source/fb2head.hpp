@@ -2,6 +2,8 @@
 #define FB2HEAD_H
 
 #include <QAbstractItemModel>
+#include <QDomDocument>
+#include <QDomElement>
 #include <QTreeView>
 #include <QWebElement>
 #include <QWebView>
@@ -69,6 +71,7 @@ private:
     };
 
 private:
+    QDomElement scheme() const;
     void addChildren(QWebElement &parent);
     QString value() const;
     QString hint() const;
@@ -76,9 +79,9 @@ private:
 private:
     QList<Fb2HeadItem*> m_list;
     QWebElement m_element;
+    Fb2HeadItem * m_parent;
     QString m_name;
     QString m_text;
-    Fb2HeadItem * m_parent;
     QString m_id;
 };
 
@@ -110,6 +113,22 @@ private:
     Fb2HeadItem * m_root;
 };
 
+class Fb2Scheme : public QObject
+{
+    Q_OBJECT
+
+public:
+    static const Fb2Scheme & fb2();
+    explicit Fb2Scheme();
+
+public:
+    static QString info(QDomElement parent);
+    QDomElement element(const QString &name, QDomElement parent) const;
+
+private:
+    QDomDocument doc;
+};
+
 class Fb2HeadView : public QTreeView
 {
     Q_OBJECT
@@ -118,12 +137,21 @@ public:
     explicit Fb2HeadView(Fb2WebView &view, QWidget *parent = 0);
     void initToolbar(QToolBar &toolbar);
 
+signals:
+    void status(const QString &text);
+
 public slots:
     void editCurrent();
     void updateTree();
 
 private slots:
     void activated(const QModelIndex &index);
+
+protected:
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+
+private:
+    void showStatus(const QModelIndex &current);
 
 private:
     Fb2WebView & m_view;

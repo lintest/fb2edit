@@ -100,6 +100,7 @@ QString Fb2HeadItem::text(int col) const
     switch (col) {
         case 0: return QString("<%1> %2").arg(m_name).arg(hint());
         case 1: return value();
+        case 2: return Fb2Scheme::info(scheme());
     }
     return QString();
 }
@@ -152,6 +153,17 @@ QString Fb2HeadItem::sub(const QString &key) const
         if (item->m_name == key) return item->value();
     }
     return QString();
+}
+
+QDomElement Fb2HeadItem::scheme() const
+{
+    QDomElement parent;
+    if (m_parent) {
+        parent = m_parent->scheme();
+    } else {
+        parent = Fb2Scheme::fb2().element("FictionBook", parent);
+    }
+    return Fb2Scheme::fb2().element(m_name, parent);
 }
 
 //---------------------------------------------------------------------------
@@ -295,6 +307,73 @@ Qt::ItemFlags Fb2HeadModel::flags(const QModelIndex &index) const
 }
 
 //---------------------------------------------------------------------------
+//  Fb2Scheme
+//---------------------------------------------------------------------------
+
+const Fb2Scheme & Fb2Scheme::fb2()
+{
+    static const Fb2Scheme scheme;
+    return scheme;
+}
+
+Fb2Scheme::Fb2Scheme()
+{
+    QFile file(":/fb2/FictionBook2.1.xsd");
+    if (file.open(QIODevice::ReadOnly)) {
+        doc.setContent(&file);
+    }
+}
+
+QDomElement Fb2Scheme::element(const QString &name, QDomElement parent) const
+{
+    if (parent.isNull()) parent = doc.documentElement();
+    QDomElement child = parent.firstChildElement();
+    while (!child.isNull()) {
+        QDomElement result;
+        const QString tagName = child.tagName();
+        if (tagName == "xs:element") {
+            if (child.attribute("name") == name) result = child;
+        } else if (tagName == "xs:complexType") {
+            result = element(name, child);
+        } else if (tagName == "xs:sequence") {
+            result = element(name, child);
+        } else if (tagName == "xs:choice") {
+            result = element(name, child);
+        }
+        if (!result.isNull()) return result;
+        child = child.nextSiblingElement();
+    }
+
+    QString type = parent.attribute("type");
+    if (type.isEmpty()) return QDomElement();
+
+    child = doc.firstChildElement().firstChildElement();
+    while (!child.isNull()) {
+        if (child.tagName() == "xs:complexType") {
+            QString attr = child.attribute("name");
+            if (attr == type) return element(name, child);
+            if (child.attribute("name") == type) return element(name, child);
+        }
+        child = child.nextSiblingElement();
+    }
+
+    return QDomElement();
+}
+
+QString Fb2Scheme::info(QDomElement parent)
+{
+    if (parent.isNull()) return QString();
+
+    parent = parent.firstChildElement("xs:annotation");
+    if (parent.isNull()) return QString();
+
+    parent = parent.firstChildElement("xs:documentation");
+    if (parent.isNull()) return QString();
+
+    return parent.text();
+}
+
+//---------------------------------------------------------------------------
 //  Fb2TreeView
 //---------------------------------------------------------------------------
 
@@ -341,10 +420,11 @@ void Fb2HeadView::updateTree()
 
 void Fb2HeadView::editCurrent()
 {
+    if (!model()) return;
     QModelIndex current = currentIndex();
     if (!current.isValid()) return;
-    Fb2HeadModel * m = static_cast<Fb2HeadModel*>(model());
-    QModelIndex index = m->index(current.row(), 1, m->parent(current));
+    QModelIndex parent = model()->parent(current);
+    QModelIndex index = model()->index(current.row(), 1, parent);
     setCurrentIndex(index);
     edit(index);
 }
@@ -352,5 +432,20 @@ void Fb2HeadView::editCurrent()
 void Fb2HeadView::activated(const QModelIndex &index)
 {
     if (index.isValid() && index.column() == 1) edit(index);
+    showStatus(index);
 }
 
+void Fb2HeadView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+    QTreeView::currentChanged(current, previous);
+    showStatus(current);
+}
+
+void Fb2HeadView::showStatus(const QModelIndex &current)
+{
+    if (!model()) return;
+    if (!current.isValid()) return;
+    QModelIndex parent = model()->parent(current);
+    QModelIndex index = model()->index(current.row(), 2, parent);
+    emit status(model()->data(index).toString());
+}
