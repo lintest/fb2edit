@@ -18,6 +18,7 @@
 #include <QTextCodec>
 #include <QWebFrame>
 #include <QWebPage>
+#include <QtDebug>
 
 //---------------------------------------------------------------------------
 //  Fb2SaveDialog
@@ -221,7 +222,7 @@ void Fb2SaveWriter::writeFiles()
         writeAttribute("id", name);
         QByteArray array = file->data();
         QString data = array.toBase64();
-        writeContentType(array);
+        writeContentType(name, array);
         writeLineEnd();
         int pos = 0;
         while (true) {
@@ -236,12 +237,15 @@ void Fb2SaveWriter::writeFiles()
     }
 }
 
-void Fb2SaveWriter::writeContentType(QByteArray &data)
+void Fb2SaveWriter::writeContentType(const QString &name, QByteArray &data)
 {
     QBuffer buffer(&data);
     buffer.open(QIODevice::ReadOnly);
     QString type = QImageReader::imageFormat(&buffer);
-    if (type.isEmpty()) return;
+    if (type.isEmpty()) {
+        qCritical() << QObject::tr("Unknown image format: %1").arg(name);
+        return;
+    }
     type.prepend("image/");
     writeAttribute("content-type", type);
 }
