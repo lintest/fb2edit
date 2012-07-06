@@ -36,6 +36,7 @@ Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent, int number)
         }
         if (!style.isEmpty()) m_name = style;
     } else if (m_name == "img") {
+        m_name = "image";
         QUrl url = element.attribute("src");
         m_text = url.path();
     }

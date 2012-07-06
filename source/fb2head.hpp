@@ -67,7 +67,7 @@ public:
 
     Fb2HeadItem * append(const QString name);
 
-    bool remove(int row);
+    void remove(int row);
 
     Fb2HeadItem * item(const QModelIndex &index) const;
 

@@ -311,7 +311,10 @@ void Fb2MainWindow::createActions()
     actionSection = act = new QAction(FB2::icon("insert-object"), tr("&Section"), this);
     menu->addAction(act);
 
-    actionTtile = act = new QAction(tr("&Title"), this);
+    actionTitle = act = new QAction(tr("&Title"), this);
+    menu->addAction(act);
+
+    actionSubtitle = act = new QAction(tr("&Subtitle"), this);
     menu->addAction(act);
 
     actionAuthor = act = new QAction(tr("&Author"), this);
@@ -661,7 +664,7 @@ void Fb2MainWindow::viewText()
     connect(actionImage, SIGNAL(triggered()), textEdit, SLOT(insertImage()));
     connect(actionNote, SIGNAL(triggered()), textEdit, SLOT(insertNote()));
     connect(actionLink, SIGNAL(triggered()), textEdit, SLOT(insertLink()));
-    connect(actionTtile, SIGNAL(triggered()), textEdit, SLOT(insertTitle()));
+    connect(actionTitle, SIGNAL(triggered()), textEdit, SLOT(insertTitle()));
 
     connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));

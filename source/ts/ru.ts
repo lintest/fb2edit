@@ -142,6 +142,21 @@
     </message>
 </context>
 <context>
+    <name>Fb2HeadView</name>
+    <message>
+        <source>&amp;Append</source>
+        <translation type="unfinished">&amp;Добавить</translation>
+    </message>
+    <message>
+        <source>&amp;Modify</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Delete</source>
+        <translation type="unfinished">&amp;Удалить</translation>
+    </message>
+</context>
+<context>
     <name>Fb2MainWindow</name>
     <message>
         <source>&amp;New</source>
@@ -309,11 +324,11 @@
     </message>
     <message>
         <source>&amp;Append</source>
-        <translation>&amp;Добавить</translation>
+        <translation type="obsolete">&amp;Добавить</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation>&amp;Удалить</translation>
+        <translation type="obsolete">&amp;Удалить</translation>
     </message>
     <message>
         <source>&amp;Insert</source>
@@ -414,26 +429,41 @@
     </message>
     <message>
         <source>&amp;Section</source>
-        <translation>Секция &lt;section&gt;</translation>
+        <translation>&amp;Секция &lt;section&gt;</translation>
     </message>
     <message>
         <source>&amp;Title</source>
-        <translation>Заголовок &lt;title&gt;</translation>
+        <translation>&amp;Заголовок &lt;title&gt;</translation>
     </message>
     <message>
         <source>&amp;Author</source>
-        <translation>Автор &lt;author&gt;</translation>
+        <translation>&amp;Автор &lt;author&gt;</translation>
     </message>
     <message>
         <source>&amp;Annotation</source>
-        <translation type="unfinished"></translation>
+        <translation>А&amp;ннотация &lt;annotation&gt;</translation>
     </message>
     <message>
         <source>&amp;Poem</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Поэма  &lt;poem&gt;</translation>
     </message>
     <message>
         <source>&amp;Stanza</source>
+        <translation>С&amp;трофа &lt;stanza&gt;</translation>
+    </message>
+    <message>
+        <source>&amp;Subtitle</source>
+        <translation>По&amp;дзаголовок &lt;subtitle&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>Fb2NodeDlg</name>
+    <message>
+        <source>Insert tag</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tag name:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -479,6 +509,33 @@
     </message>
     <message>
         <source>&amp;Encoding</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Fb2TreeView</name>
+    <message>
+        <source>&amp;Insert</source>
+        <translation type="unfinished">&amp;Вставка</translation>
+    </message>
+    <message>
+        <source>&amp;Delete</source>
+        <translation type="unfinished">&amp;Удалить</translation>
+    </message>
+    <message>
+        <source>&amp;Up</source>
+        <translation type="unfinished">В&amp;верх</translation>
+    </message>
+    <message>
+        <source>&amp;Down</source>
+        <translation type="unfinished">В&amp;низ</translation>
+    </message>
+    <message>
+        <source>&amp;Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Right</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -578,6 +635,10 @@
     <message>
         <source>Su&amp;bscript</source>
         <translation type="unfinished">&amp;Нижний индекс</translation>
+    </message>
+    <message>
+        <source>Unknown image format: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

@@ -283,8 +283,8 @@ QString Fb2HeadItem::value() const
             return m_element.attribute("src");
         } break;
         case Seqn : {
-            QString text = m_element.attribute("fb2.name");
-            QString numb = m_element.attribute("fb2.number");
+            QString text = m_element.attribute("fb2_name");
+            QString numb = m_element.attribute("fb2_number");
             if (numb.isEmpty() || numb == "0") return text;
             return text + ", " + tr("#") + numb;
         } break;
@@ -308,9 +308,9 @@ Fb2Scheme Fb2HeadItem::scheme() const
     return parent.element(m_name);
 }
 
-bool Fb2HeadItem::remove(int row)
+void Fb2HeadItem::remove(int row)
 {
-    if (row < 0 || row >= count()) return false;
+    if (row < 0 || row >= count()) return;
     m_list[row]->m_element.removeFromDocument();
     m_list.removeAt(row);
 }
@@ -486,7 +486,7 @@ Fb2HeadView::Fb2HeadView(Fb2WebView &view, QWidget *parent)
 
     //setItemDelegate(new QItemDelegate(this));
     setRootIsDecorated(false);
-    setSelectionBehavior(QAbstractItemView::SelectItems);
+    setSelectionBehavior(QAbstractItemView::SelectRows);
     setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     connect(&m_view, SIGNAL(loadFinished(bool)), SLOT(updateTree()));
     connect(this, SIGNAL(activated(QModelIndex)), SLOT(activated(QModelIndex)));
