@@ -64,4 +64,5 @@ if (unix) {
 
 FORMS += \
     source/fb2note.ui \
-    source/fb2find.ui
+    source/fb2find.ui \
+    source/new_node.ui

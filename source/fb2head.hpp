@@ -2,8 +2,12 @@
 #define FB2HEAD_H
 
 #include <QAbstractItemModel>
+#include <QDialog>
+#include <QComboBox>
+#include <QLabel>
 #include <QDomDocument>
 #include <QDomElement>
+#include <QStringList>
 #include <QTreeView>
 #include <QWebElement>
 #include <QWebView>
@@ -20,8 +24,10 @@ class Fb2WebView;
 class Fb2Scheme : public QDomElement
 {
     FB2_BEGIN_KEYLIST
-        Element,
-        Content,
+        XsElement,
+        XsChoice,
+        XsComplexType,
+        XsSequence,
     FB2_END_KEYLIST
 
 private:
@@ -35,9 +41,12 @@ public:
 
     static const QDomDocument & fb2();
     Fb2Scheme element(const QString &name) const;
+    void items(QStringList &list) const;
     QString info() const;
     QString type() const;
 
+private:
+    Fb2Scheme typeScheme() const;
 };
 
 class Fb2HeadItem: public QObject
@@ -86,6 +95,8 @@ public:
 
     QString sub(const QString &key) const;
 
+    Fb2Scheme scheme() const;
+
 private:
     class HintHash : public QHash<QString, QString>
     {
@@ -94,7 +105,6 @@ private:
     };
 
 private:
-    Fb2Scheme scheme() const;
     void addChildren(QWebElement &parent);
     QString value() const;
     QString hint() const;
@@ -117,6 +127,7 @@ public:
     virtual ~Fb2HeadModel();
     void select(const QModelIndex &index);
     void expand(QTreeView *view);
+    Fb2HeadItem * item(const QModelIndex &index) const;
 
 public:
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
@@ -127,9 +138,6 @@ public:
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
-
-protected:
-    Fb2HeadItem * item(const QModelIndex &index) const;
 
 private:
     QWebView & m_view;
@@ -154,6 +162,8 @@ public slots:
 private slots:
     void activated(const QModelIndex &index);
     void collapsed(const QModelIndex &index);
+    void insertNode();
+    void deleteNode();
 
 protected:
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);
@@ -166,6 +176,22 @@ private:
     QAction * actionInsert;
     QAction * actionModify;
     QAction * actionDelete;
+};
+
+class Fb2NodeDlg : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit Fb2NodeDlg(Fb2HeadView &view, Fb2Scheme scheme);
+
+private slots:
+    void comboChanged(const QString &text);
+
+private:
+    const Fb2Scheme m_scheme;
+    QComboBox * m_combo;
+    QLabel * m_text;
 };
 
 #endif // FB2HEAD_H

@@ -2,6 +2,8 @@
 
 #include <QtDebug>
 #include <QAction>
+#include <QDialogButtonBox>
+#include <QGridLayout>
 #include <QHeaderView>
 #include <QToolBar>
 #include <QWebFrame>
@@ -34,11 +36,47 @@ const QDomDocument & Fb2Scheme::fb2()
 }
 
 FB2_BEGIN_KEYHASH(Fb2Scheme)
-    FB2_KEY( Element , "xs:element"     );
-    FB2_KEY( Content , "xs:choice"      );
-    FB2_KEY( Content , "xs:complexType" );
-    FB2_KEY( Content , "xs:sequence"    );
+    FB2_KEY( XsElement     , "xs:element"     );
+    FB2_KEY( XsChoice      , "xs:choice"      );
+    FB2_KEY( XsComplexType , "xs:complexType" );
+    FB2_KEY( XsSequence    , "xs:sequence"    );
 FB2_END_KEYHASH
+
+void Fb2Scheme::items(QStringList &list) const
+{
+    Fb2Scheme child = typeScheme().firstChildElement();
+    while (!child.isNull()) {
+        switch (toKeyword(child.tagName())) {
+            case XsElement: {
+                    QString name = child.attribute("name");
+                    if (!list.contains(name)) list << name;
+                } break;
+            case XsChoice:
+            case XsComplexType:
+            case XsSequence: {
+                    child.items(list);
+                } break;
+            default: ;
+        }
+        child = child.nextSiblingElement();
+    }
+}
+
+Fb2Scheme Fb2Scheme::typeScheme() const
+{
+    QString typeName = type();
+    if (typeName.isEmpty()) return *this;
+
+    Fb2Scheme child = fb2().firstChildElement("xs:schema").firstChildElement();
+    while (!child.isNull()) {
+        if (child.tagName() == "xs:complexType") {
+            if (child.attribute("name") == typeName) return child.element(typeName);
+        }
+        child = child.nextSiblingElement();
+    }
+
+    return Fb2Scheme();
+}
 
 QString Fb2Scheme::info() const
 {
@@ -56,6 +94,7 @@ QString Fb2Scheme::info() const
 
 QString Fb2Scheme::type() const
 {
+    if (isNull()) return QString();
     QString result = attribute("type");
     if (!result.isEmpty()) return result;
     Fb2Scheme child = firstChildElement("xs:complexType");
@@ -75,10 +114,12 @@ Fb2Scheme Fb2Scheme::element(const QString &name) const
     Fb2Scheme child = parent.firstChildElement();
     while (!child.isNull()) {
         switch (toKeyword(child.tagName())) {
-            case Element: {
+            case XsElement: {
                     if (child.attribute("name") == name) return child;
                 } break;
-            case Content: {
+            case XsChoice:
+            case XsComplexType:
+            case XsSequence: {
                     Fb2Scheme result = child.element(name);
                     if (!result.isNull()) return result;
                 } break;
@@ -88,9 +129,9 @@ Fb2Scheme Fb2Scheme::element(const QString &name) const
     }
 
     QString type = this->type();
-    if (type.isEmpty()) return QDomElement();
+    if (type.isEmpty()) return *this;
 
-    child = fb2().firstChildElement().firstChildElement();
+    child = fb2().firstChildElement("xs:schema").firstChildElement();
     while (!child.isNull()) {
         if (child.tagName() == "xs:complexType") {
             if (child.attribute("name") == type) return child.element(name);
@@ -98,7 +139,7 @@ Fb2Scheme Fb2Scheme::element(const QString &name) const
         child = child.nextSiblingElement();
     }
 
-    return QDomElement();
+    return Fb2Scheme();
 }
 
 //---------------------------------------------------------------------------
@@ -146,6 +187,7 @@ Fb2HeadItem::Fb2HeadItem(QWebElement &element, Fb2HeadItem *parent)
         if (style == "annotation") return;
         if (style == "history") return;
     } else if (m_name == "img") {
+        m_name == "image";
         m_text = element.attribute("alt");
     }
     addChildren(element);
@@ -408,14 +450,14 @@ Fb2HeadView::Fb2HeadView(Fb2WebView &view, QWidget *parent)
 
     actionInsert = act = new QAction(FB2::icon("list-add"), tr("&Append"), this);
     act->setPriority(QAction::LowPriority);
-    act->setShortcuts(QKeySequence::New);
+    connect(act, SIGNAL(triggered()), SLOT(insertNode()));
 
     actionModify = act = new QAction(FB2::icon("list-add"), tr("&Modify"), this);
     act->setPriority(QAction::LowPriority);
 
     actionDelete = act = new QAction(FB2::icon("list-remove"), tr("&Delete"), this);
     act->setPriority(QAction::LowPriority);
-    act->setShortcuts(QKeySequence::Delete);
+    connect(act, SIGNAL(triggered()), SLOT(deleteNode()));
 
     //setItemDelegate(new QItemDelegate(this));
     setRootIsDecorated(false);
@@ -480,4 +522,68 @@ void Fb2HeadView::collapsed(const QModelIndex &index)
     if (model() && !model()->parent(index).isValid()) {
         expand(index);
     }
+}
+
+void Fb2HeadView::insertNode()
+{
+    Fb2HeadModel * m = qobject_cast<Fb2HeadModel*>(model());
+    if (!m) return;
+    QModelIndex current = currentIndex();
+    Fb2HeadItem * i = m->item(current);
+    if (!i) return;
+    Fb2NodeDlg dlg(*this, i->scheme());
+    dlg.exec();
+}
+
+void Fb2HeadView::deleteNode()
+{
+}
+
+//---------------------------------------------------------------------------
+//  Fb2NodeDlg
+//---------------------------------------------------------------------------
+
+Fb2NodeDlg::Fb2NodeDlg(Fb2HeadView &view, Fb2Scheme scheme)
+    : QDialog(&view)
+    , m_scheme(scheme)
+{
+    setWindowTitle(tr("Insert tag"));
+
+    QGridLayout * layout = new QGridLayout(this);
+
+    QLabel * label = new QLabel(this);
+    label->setObjectName(QString::fromUtf8("label"));
+    label->setText(tr("Tag name:"));
+    layout->addWidget(label, 0, 0, 1, 1);
+
+    QStringList list;
+    scheme.items(list);
+
+    m_combo = new QComboBox(this);
+    m_combo->setEditable(true);
+    m_combo->addItems(list);
+    layout->addWidget(m_combo, 0, 1, 1, 1);
+
+    m_text = new QLabel(this);
+    m_text->setStyleSheet(QString::fromUtf8("border-style:outset;border-width:1px;border-radius:10px;padding:6px;"));
+    m_text->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
+    m_text->setMinimumSize(QSize(300, 100));
+    m_text->setWordWrap(true);
+    layout->addWidget(m_text, 1, 0, 1, 2);
+
+    QDialogButtonBox * buttons = new QDialogButtonBox(this);
+    buttons->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+    buttons->setOrientation(Qt::Horizontal);
+    layout->addWidget(buttons, 2, 0, 1, 2);
+
+    layout->setColumnStretch(1, 1);
+
+    connect(m_combo, SIGNAL(editTextChanged(QString)), SLOT(comboChanged(QString)));
+    connect(buttons, SIGNAL(accepted()), SLOT(accept()));
+    connect(buttons, SIGNAL(rejected()), SLOT(reject()));
+}
+
+void Fb2NodeDlg::comboChanged(const QString &text)
+{
+    m_text->setText(m_scheme.element(text).info());
 }
