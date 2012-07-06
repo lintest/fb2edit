@@ -88,6 +88,7 @@ private:
 
 private:
     Fb2WebView & m_view;
+    QString m_path;
 };
 
 #endif // FB2TEMP_H

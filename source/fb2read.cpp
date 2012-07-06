@@ -366,8 +366,6 @@ Fb2ReadHandler::ImageHandler::ImageHandler(Fb2ReadHandler &owner, const QString 
     : TextHandler(owner, name, atts, "img")
 {
     QString href = Value(atts, "href");
-    if (href.left(1) == "#") href.remove(0, 1);
-    href.prepend("fb2:");
     writer().writeAttribute("src", href);
 }
 

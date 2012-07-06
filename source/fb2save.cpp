@@ -193,15 +193,15 @@ QByteArray Fb2SaveWriter::downloadFile(const QUrl &url)
 
 QString Fb2SaveWriter::getFileName(const QString &path)
 {
-    QUrl url = path;
-    if (url.scheme() == "fb2") {
-        QString name = url.path();
+    if (path.left(1) == "#") {
+        QString name = path.mid(1);
         if (m_view.files().exists(name)) {
             m_names.append(name);
             return name;
         }
         return QString();
     } else {
+        QUrl url = path;
         QByteArray data = downloadFile(url);
         if (data.size() == 0) return QString();
         QString name = m_view.files().add(url.path(), data);

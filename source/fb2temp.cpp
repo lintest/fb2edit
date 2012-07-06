@@ -195,14 +195,13 @@ Fb2NetworkAccessManager::Fb2NetworkAccessManager(Fb2WebView &view)
 
 QNetworkReply * Fb2NetworkAccessManager::createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData)
 {
-    if (request.url().scheme() == "fb2") return imageRequest(op, request);
+    if (request.url().scheme() == "fb2" && request.url().path() == m_view.url().path()) return imageRequest(op, request);
     return QNetworkAccessManager::createRequest(op, request, outgoingData);
 }
 
 QNetworkReply * Fb2NetworkAccessManager::imageRequest(Operation op, const QNetworkRequest &request)
 {
-    QString name = request.url().path();
-    name = QFileInfo(name).fileName();
+    QString name = request.url().fragment();
     QByteArray data = m_view.files().data(name);
     return new Fb2ImageReply(op, request, data);
 }
