@@ -17,6 +17,31 @@ QT_END_NAMESPACE
 
 class Fb2WebView;
 
+class Fb2Scheme : public QDomElement
+{
+    FB2_BEGIN_KEYLIST
+        Element,
+        Choice,
+        Complex,
+        Sequence,
+    FB2_END_KEYLIST
+
+private:
+    class Fb2 : public QDomDocument { public: Fb2(); };
+
+public:
+    Fb2Scheme() {}
+    Fb2Scheme(const Fb2Scheme &x) : QDomElement(x) {}
+    Fb2Scheme(const QDomElement &x) : QDomElement(x) {}
+    Fb2Scheme& operator=(const Fb2Scheme &x) { QDomElement::operator=(x); return *this; }
+
+    static const QDomDocument & fb2();
+    Fb2Scheme element(const QString &name) const;
+    QString info() const;
+    QString type() const;
+
+};
+
 class Fb2HeadItem: public QObject
 {
     Q_OBJECT
@@ -71,7 +96,7 @@ private:
     };
 
 private:
-    QDomElement scheme() const;
+    Fb2Scheme scheme() const;
     void addChildren(QWebElement &parent);
     QString value() const;
     QString hint() const;
@@ -111,22 +136,6 @@ protected:
 private:
     QWebView & m_view;
     Fb2HeadItem * m_root;
-};
-
-class Fb2Scheme : public QObject
-{
-    Q_OBJECT
-
-public:
-    static const Fb2Scheme & fb2();
-    explicit Fb2Scheme();
-
-public:
-    static QString info(QDomElement parent);
-    QDomElement element(const QString &name, QDomElement parent) const;
-
-private:
-    QDomDocument doc;
 };
 
 class Fb2HeadView : public QTreeView

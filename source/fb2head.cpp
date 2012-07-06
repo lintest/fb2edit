@@ -13,6 +13,95 @@
 #include "fb2view.hpp"
 #include "fb2utils.h"
 
+//---------------------------------------------------------------------------
+//  Fb2Scheme::Fb2
+//---------------------------------------------------------------------------
+
+Fb2Scheme::Fb2::Fb2()
+{
+    QFile file(":/fb2/FictionBook2.1.xsd");
+    if (file.open(QIODevice::ReadOnly)) setContent(&file);
+}
+
+//---------------------------------------------------------------------------
+//  Fb2Scheme
+//---------------------------------------------------------------------------
+
+const QDomDocument & Fb2Scheme::fb2()
+{
+    static const Fb2 doc;
+    return doc;
+}
+
+FB2_BEGIN_KEYHASH(Fb2Scheme)
+    FB2_KEY( Element  , "xs:element"     );
+    FB2_KEY( Choice   , "xs:choice"      );
+    FB2_KEY( Complex  , "xs:complexType" );
+    FB2_KEY( Sequence , "xs:sequence"    );
+FB2_END_KEYHASH
+
+QString Fb2Scheme::info() const
+{
+    QDomElement element = *this;
+    if (element.isNull()) return QString();
+
+    element = element.firstChildElement("xs:annotation");
+    if (element.isNull()) return QString();
+
+    element = element.firstChildElement("xs:documentation");
+    if (element.isNull()) return QString();
+
+    return element.text();
+}
+
+QString Fb2Scheme::type() const
+{
+    return attribute("type");
+}
+
+Fb2Scheme Fb2Scheme::element(const QString &name) const
+{
+    Fb2Scheme parent = *this;
+    if (parent.isNull()) {
+        parent = fb2().documentElement();
+        parent = parent.element("FictionBook");
+    }
+
+    Fb2Scheme child = parent.firstChildElement();
+    while (!child.isNull()) {
+        switch (toKeyword(child.tagName())) {
+            case Element: {
+                    if (child.attribute("name") == name) return child;
+                } break;
+            case Choice:
+            case Complex:
+            case Sequence: {
+                    Fb2Scheme result = child.element(name);
+                    if (!result.isNull()) return result;
+                } break;
+            default: ;
+        }
+        child = child.nextSiblingElement();
+    }
+
+    QString type = this->type();
+    if (type.isEmpty()) return QDomElement();
+
+    child = fb2().firstChildElement().firstChildElement();
+    while (!child.isNull()) {
+        if (child.tagName() == "xs:complexType") {
+            if (child.attribute("name") == type) return child.element(name);
+        }
+        child = child.nextSiblingElement();
+    }
+
+    return QDomElement();
+}
+
+//---------------------------------------------------------------------------
+//  Fb2HeadItem
+//---------------------------------------------------------------------------
+
 Fb2HeadItem::HintHash::HintHash()
 {
     insert( "title-info"    , tr( "Book"        ));
@@ -100,7 +189,7 @@ QString Fb2HeadItem::text(int col) const
     switch (col) {
         case 0: return QString("<%1> %2").arg(m_name).arg(hint());
         case 1: return value();
-        case 2: return Fb2Scheme::info(scheme());
+        case 2: return scheme().info();
     }
     return QString();
 }
@@ -155,15 +244,10 @@ QString Fb2HeadItem::sub(const QString &key) const
     return QString();
 }
 
-QDomElement Fb2HeadItem::scheme() const
+Fb2Scheme Fb2HeadItem::scheme() const
 {
-    QDomElement parent;
-    if (m_parent) {
-        parent = m_parent->scheme();
-    } else {
-        parent = Fb2Scheme::fb2().element("FictionBook", parent);
-    }
-    return Fb2Scheme::fb2().element(m_name, parent);
+    Fb2Scheme parent = m_parent ? m_parent->scheme() : Fb2Scheme();
+    return parent.element(m_name);
 }
 
 //---------------------------------------------------------------------------
@@ -304,73 +388,6 @@ Qt::ItemFlags Fb2HeadModel::flags(const QModelIndex &index) const
     Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     if (index.column() == 1) flags |= Qt::ItemIsEditable;
     return flags;
-}
-
-//---------------------------------------------------------------------------
-//  Fb2Scheme
-//---------------------------------------------------------------------------
-
-const Fb2Scheme & Fb2Scheme::fb2()
-{
-    static const Fb2Scheme scheme;
-    return scheme;
-}
-
-Fb2Scheme::Fb2Scheme()
-{
-    QFile file(":/fb2/FictionBook2.1.xsd");
-    if (file.open(QIODevice::ReadOnly)) {
-        doc.setContent(&file);
-    }
-}
-
-QDomElement Fb2Scheme::element(const QString &name, QDomElement parent) const
-{
-    if (parent.isNull()) parent = doc.documentElement();
-    QDomElement child = parent.firstChildElement();
-    while (!child.isNull()) {
-        QDomElement result;
-        const QString tagName = child.tagName();
-        if (tagName == "xs:element") {
-            if (child.attribute("name") == name) result = child;
-        } else if (tagName == "xs:complexType") {
-            result = element(name, child);
-        } else if (tagName == "xs:sequence") {
-            result = element(name, child);
-        } else if (tagName == "xs:choice") {
-            result = element(name, child);
-        }
-        if (!result.isNull()) return result;
-        child = child.nextSiblingElement();
-    }
-
-    QString type = parent.attribute("type");
-    if (type.isEmpty()) return QDomElement();
-
-    child = doc.firstChildElement().firstChildElement();
-    while (!child.isNull()) {
-        if (child.tagName() == "xs:complexType") {
-            QString attr = child.attribute("name");
-            if (attr == type) return element(name, child);
-            if (child.attribute("name") == type) return element(name, child);
-        }
-        child = child.nextSiblingElement();
-    }
-
-    return QDomElement();
-}
-
-QString Fb2Scheme::info(QDomElement parent)
-{
-    if (parent.isNull()) return QString();
-
-    parent = parent.firstChildElement("xs:annotation");
-    if (parent.isNull()) return QString();
-
-    parent = parent.firstChildElement("xs:documentation");
-    if (parent.isNull()) return QString();
-
-    return parent.text();
 }
 
 //---------------------------------------------------------------------------
