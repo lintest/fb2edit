@@ -31,7 +31,7 @@ Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent, int number)
         } else if (style == "subtitle") {
             m_text = title(element);
         } else if (style == "body") {
-            QString name = element.attribute("name");
+            QString name = element.attribute("fb2_name");
             if (!name.isEmpty()) style += " name=" + name;
         }
         if (!style.isEmpty()) m_name = style;

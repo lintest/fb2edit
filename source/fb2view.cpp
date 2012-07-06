@@ -86,6 +86,23 @@ bool Fb2WebPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest
     return QWebPage::acceptNavigationRequest(frame, request, type);
 }
 
+QWebElement Fb2WebPage::body()
+{
+    return doc().findFirst("body");
+}
+
+QWebElement Fb2WebPage::doc()
+{
+    return mainFrame()->documentElement();
+}
+
+void Fb2WebPage::insertBody()
+{
+    body().appendInside("<div class=body><div class=section><p>text</p></div></div>");
+    QWebElement element = body().lastChild();
+    emit contentsChanged();
+}
+
 //---------------------------------------------------------------------------
 //  Fb2WebView
 //---------------------------------------------------------------------------
@@ -128,16 +145,14 @@ Fb2NoteView & Fb2WebView::noteView()
     return *m_noteView;
 }
 
+QWebElement Fb2WebView::body()
+{
+    return doc().findFirst("body");
+}
+
 QWebElement Fb2WebView::doc()
 {
     return page()->mainFrame()->documentElement();
-}
-
-QString Fb2WebView::toBodyXml()
-{
-    QWebElement body = doc().findFirst("body");
-    if (body.isNull()) return QString();
-    return body.toOuterXml();
 }
 
 void Fb2WebView::fixContents()
@@ -311,7 +326,7 @@ void Fb2WebView::insertImage()
 
     QByteArray data = file.readAll();
     QString name = m_files.add(path, data);
-    execCommand("insertImage", name.prepend("fb2:"));
+    execCommand("insertImage", name.prepend("#"));
 }
 
 void Fb2WebView::insertNote()
@@ -358,3 +373,4 @@ void Fb2WebView::insertTitle()
     static const QString javascript = FB2::read(":/js/insert_title.js");
     page()->mainFrame()->evaluateJavaScript(javascript);
 }
+

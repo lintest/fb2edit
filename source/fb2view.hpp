@@ -53,8 +53,15 @@ class Fb2WebPage : public QWebPage
 public:
     explicit Fb2WebPage(QObject *parent = 0);
 
+public slots:
+    void insertBody();
+
 protected:
     virtual bool acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type);
+
+private:
+    QWebElement body();
+    QWebElement doc();
 };
 
 class Fb2WebView : public Fb2BaseWebView
@@ -73,7 +80,6 @@ public:
     bool save(QIODevice *device, const QString &codec = QString());
     bool save(QByteArray *array);
     bool save(QString *string);
-    QString toBodyXml();
     QString status();
 
     bool UndoEnabled();
@@ -111,6 +117,7 @@ private:
     void execCommand(const QString &cmd, const QString &arg);
     Fb2TemporaryFile * file(const QString &name);
     Fb2NoteView & noteView();
+    QWebElement body();
     QWebElement doc();
 
 private:
