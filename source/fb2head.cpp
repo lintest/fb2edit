@@ -34,10 +34,10 @@ const QDomDocument & Fb2Scheme::fb2()
 }
 
 FB2_BEGIN_KEYHASH(Fb2Scheme)
-    FB2_KEY( Element  , "xs:element"     );
-    FB2_KEY( Choice   , "xs:choice"      );
-    FB2_KEY( Complex  , "xs:complexType" );
-    FB2_KEY( Sequence , "xs:sequence"    );
+    FB2_KEY( Element , "xs:element"     );
+    FB2_KEY( Content , "xs:choice"      );
+    FB2_KEY( Content , "xs:complexType" );
+    FB2_KEY( Content , "xs:sequence"    );
 FB2_END_KEYHASH
 
 QString Fb2Scheme::info() const
@@ -56,7 +56,12 @@ QString Fb2Scheme::info() const
 
 QString Fb2Scheme::type() const
 {
-    return attribute("type");
+    QString result = attribute("type");
+    if (!result.isEmpty()) return result;
+    Fb2Scheme child = firstChildElement("xs:complexType");
+    child = child.firstChildElement("xs:complexContent");
+    child = child.firstChildElement("xs:extension");
+    return child.attribute("base");
 }
 
 Fb2Scheme Fb2Scheme::element(const QString &name) const
@@ -73,9 +78,7 @@ Fb2Scheme Fb2Scheme::element(const QString &name) const
             case Element: {
                     if (child.attribute("name") == name) return child;
                 } break;
-            case Choice:
-            case Complex:
-            case Sequence: {
+            case Content: {
                     Fb2Scheme result = child.element(name);
                     if (!result.isNull()) return result;
                 } break;
@@ -190,6 +193,9 @@ QString Fb2HeadItem::text(int col) const
         case 0: return QString("<%1> %2").arg(m_name).arg(hint());
         case 1: return value();
         case 2: return scheme().info();
+        case 3: return scheme().type();
+        case 4: return scheme().attribute("minOccurs");
+        case 5: return scheme().attribute("maxOccurs");
     }
     return QString();
 }
@@ -300,7 +306,7 @@ Fb2HeadItem * Fb2HeadModel::item(const QModelIndex &index) const
 int Fb2HeadModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return 2;
+    return 6;
 }
 
 QModelIndex Fb2HeadModel::index(int row, int column, const QModelIndex &parent) const

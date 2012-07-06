@@ -21,9 +21,7 @@ class Fb2Scheme : public QDomElement
 {
     FB2_BEGIN_KEYLIST
         Element,
-        Choice,
-        Complex,
-        Sequence,
+        Content,
     FB2_END_KEYLIST
 
 private:
