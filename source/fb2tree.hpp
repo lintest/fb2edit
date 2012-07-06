@@ -99,6 +99,7 @@ class Fb2TreeView : public QTreeView
 
 public:
     explicit Fb2TreeView(Fb2WebView &view, QWidget *parent = 0);
+    void initToolbar(QToolBar *toolbar);
 
 public slots:
     void updateTree();

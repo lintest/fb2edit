@@ -170,7 +170,7 @@ Fb2HeadItem::HintHash::HintHash()
 FB2_BEGIN_KEYHASH(Fb2HeadItem)
     FB2_KEY( Auth   , "author"    );
     FB2_KEY( Cover  , "coverpage" );
-    FB2_KEY( Image  , "img"       );
+    FB2_KEY( Image  , "image"       );
     FB2_KEY( Seqn   , "sequence"  );
 FB2_END_KEYHASH
 
@@ -187,7 +187,7 @@ Fb2HeadItem::Fb2HeadItem(QWebElement &element, Fb2HeadItem *parent)
         if (style == "annotation") return;
         if (style == "history") return;
     } else if (m_name == "img") {
-        m_name == "image";
+        m_name = "image";
         m_text = element.attribute("alt");
     }
     addChildren(element);
@@ -198,6 +198,17 @@ Fb2HeadItem::~Fb2HeadItem()
     foreach (Fb2HeadItem * item, m_list) {
         delete item;
     }
+}
+
+Fb2HeadItem * Fb2HeadItem::append(const QString name)
+{
+    QWebElement element;
+    element.setOuterXml("<div>text</div>");
+    element.addClass(name);
+    m_element.appendInside(element);
+    Fb2HeadItem * child = new Fb2HeadItem(element, this);
+    m_list << child;
+    return child;
 }
 
 void Fb2HeadItem::addChildren(QWebElement &parent)
@@ -262,7 +273,7 @@ QString Fb2HeadItem::value() const
         case Cover : {
             QString text;
             foreach (Fb2HeadItem * item, m_list) {
-                if (item->m_name == "img") {
+                if (item->m_name == "image") {
                     if (!text.isEmpty()) text += ", ";
                     text += item->value();
                 }
@@ -448,16 +459,24 @@ Fb2HeadView::Fb2HeadView(Fb2WebView &view, QWidget *parent)
 {
     QAction * act;
 
+    setContextMenuPolicy(Qt::ActionsContextMenu);
+
     actionInsert = act = new QAction(FB2::icon("list-add"), tr("&Append"), this);
+    act->setShortcutContext(Qt::WidgetShortcut);
+    act->setShortcut(QKeySequence("Insert"));
     act->setPriority(QAction::LowPriority);
     connect(act, SIGNAL(triggered()), SLOT(insertNode()));
+    addAction(act);
 
     actionModify = act = new QAction(FB2::icon("list-add"), tr("&Modify"), this);
     act->setPriority(QAction::LowPriority);
 
     actionDelete = act = new QAction(FB2::icon("list-remove"), tr("&Delete"), this);
+    act->setShortcutContext(Qt::WidgetShortcut);
+    act->setShortcut(QKeySequence("Delete"));
     act->setPriority(QAction::LowPriority);
     connect(act, SIGNAL(triggered()), SLOT(deleteNode()));
+    addAction(act);
 
     //setItemDelegate(new QItemDelegate(this));
     setRootIsDecorated(false);
@@ -528,11 +547,31 @@ void Fb2HeadView::insertNode()
 {
     Fb2HeadModel * m = qobject_cast<Fb2HeadModel*>(model());
     if (!m) return;
+
     QModelIndex current = currentIndex();
-    Fb2HeadItem * i = m->item(current);
-    if (!i) return;
-    Fb2NodeDlg dlg(*this, i->scheme());
-    dlg.exec();
+    Fb2HeadItem * item = m->item(current);
+    if (!item) return;
+
+    QString name = item->name().toLower();
+    if (name == "annotation") {
+        item = item->parent();
+    } else if (name == "history") {
+        item = item->parent();
+    }
+
+    QStringList list;
+    item->scheme().items(list);
+    if (list.count() == 0) {
+        item = item->parent();
+        if (!item) return;
+        item->scheme().items(list);
+    }
+
+    Fb2NodeDlg dlg(this, item->scheme(), list);
+    int res = dlg.exec();
+    if (res) {
+        item->append(dlg.value());
+    }
 }
 
 void Fb2HeadView::deleteNode()
@@ -543,8 +582,8 @@ void Fb2HeadView::deleteNode()
 //  Fb2NodeDlg
 //---------------------------------------------------------------------------
 
-Fb2NodeDlg::Fb2NodeDlg(Fb2HeadView &view, Fb2Scheme scheme)
-    : QDialog(&view)
+Fb2NodeDlg::Fb2NodeDlg(QWidget *parent, Fb2Scheme scheme, QStringList &list)
+    : QDialog(parent)
     , m_scheme(scheme)
 {
     setWindowTitle(tr("Insert tag"));
@@ -555,9 +594,6 @@ Fb2NodeDlg::Fb2NodeDlg(Fb2HeadView &view, Fb2Scheme scheme)
     label->setObjectName(QString::fromUtf8("label"));
     label->setText(tr("Tag name:"));
     layout->addWidget(label, 0, 0, 1, 1);
-
-    QStringList list;
-    scheme.items(list);
 
     m_combo = new QComboBox(this);
     m_combo->setEditable(true);
@@ -581,9 +617,19 @@ Fb2NodeDlg::Fb2NodeDlg(Fb2HeadView &view, Fb2Scheme scheme)
     connect(m_combo, SIGNAL(editTextChanged(QString)), SLOT(comboChanged(QString)));
     connect(buttons, SIGNAL(accepted()), SLOT(accept()));
     connect(buttons, SIGNAL(rejected()), SLOT(reject()));
+
+    if (list.count()) {
+        m_combo->setCurrentIndex(0);
+        comboChanged(list.first());
+    }
 }
 
 void Fb2NodeDlg::comboChanged(const QString &text)
 {
     m_text->setText(m_scheme.element(text).info());
+}
+
+QString Fb2NodeDlg::value() const
+{
+    return m_combo->currentText();
 }

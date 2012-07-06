@@ -65,6 +65,8 @@ public:
 
     virtual ~Fb2HeadItem();
 
+    Fb2HeadItem * append(const QString name);
+
     Fb2HeadItem * item(const QModelIndex &index) const;
 
     Fb2HeadItem * item(int row) const;
@@ -183,7 +185,8 @@ class Fb2NodeDlg : public QDialog
     Q_OBJECT
 
 public:
-    explicit Fb2NodeDlg(Fb2HeadView &view, Fb2Scheme scheme);
+    explicit Fb2NodeDlg(QWidget *parent, Fb2Scheme scheme, QStringList &list);
+    QString value() const;
 
 private slots:
     void comboChanged(const QString &text);
