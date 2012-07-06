@@ -32,8 +32,8 @@ public:
         return m_list.size();
     }
 
-    const QWebElement element() const {
-        return element();
+    QWebElement element() const {
+        return m_element;
     }
 
     Fb2TreeItem * parent() const {

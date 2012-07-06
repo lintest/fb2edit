@@ -67,6 +67,8 @@ public:
 
     Fb2HeadItem * append(const QString name);
 
+    bool remove(int row);
+
     Fb2HeadItem * item(const QModelIndex &index) const;
 
     Fb2HeadItem * item(int row) const;
@@ -130,6 +132,8 @@ public:
     void select(const QModelIndex &index);
     void expand(QTreeView *view);
     Fb2HeadItem * item(const QModelIndex &index) const;
+    QModelIndex append(const QModelIndex &parent, const QString &name);
+    void remove(const QModelIndex &index);
 
 public:
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
@@ -164,8 +168,8 @@ public slots:
 private slots:
     void activated(const QModelIndex &index);
     void collapsed(const QModelIndex &index);
-    void insertNode();
-    void deleteNode();
+    void appendNode();
+    void removeNode();
 
 protected:
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);

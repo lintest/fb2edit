@@ -202,10 +202,9 @@ Fb2HeadItem::~Fb2HeadItem()
 
 Fb2HeadItem * Fb2HeadItem::append(const QString name)
 {
-    QWebElement element;
-    element.setOuterXml("<div>text</div>");
+    m_element.appendInside("<div></div>");
+    QWebElement element = m_element.lastChild();
     element.addClass(name);
-    m_element.appendInside(element);
     Fb2HeadItem * child = new Fb2HeadItem(element, this);
     m_list << child;
     return child;
@@ -307,6 +306,13 @@ Fb2Scheme Fb2HeadItem::scheme() const
 {
     Fb2Scheme parent = m_parent ? m_parent->scheme() : Fb2Scheme();
     return parent.element(m_name);
+}
+
+bool Fb2HeadItem::remove(int row)
+{
+    if (row < 0 || row >= count()) return false;
+    m_list[row]->m_element.removeFromDocument();
+    m_list.removeAt(row);
 }
 
 //---------------------------------------------------------------------------
@@ -465,7 +471,7 @@ Fb2HeadView::Fb2HeadView(Fb2WebView &view, QWidget *parent)
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(QKeySequence("Insert"));
     act->setPriority(QAction::LowPriority);
-    connect(act, SIGNAL(triggered()), SLOT(insertNode()));
+    connect(act, SIGNAL(triggered()), SLOT(appendNode()));
     addAction(act);
 
     actionModify = act = new QAction(FB2::icon("list-add"), tr("&Modify"), this);
@@ -475,7 +481,7 @@ Fb2HeadView::Fb2HeadView(Fb2WebView &view, QWidget *parent)
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(QKeySequence("Delete"));
     act->setPriority(QAction::LowPriority);
-    connect(act, SIGNAL(triggered()), SLOT(deleteNode()));
+    connect(act, SIGNAL(triggered()), SLOT(removeNode()));
     addAction(act);
 
     //setItemDelegate(new QItemDelegate(this));
@@ -543,7 +549,7 @@ void Fb2HeadView::collapsed(const QModelIndex &index)
     }
 }
 
-void Fb2HeadView::insertNode()
+void Fb2HeadView::appendNode()
 {
     Fb2HeadModel * m = qobject_cast<Fb2HeadModel*>(model());
     if (!m) return;
@@ -553,29 +559,52 @@ void Fb2HeadView::insertNode()
     if (!item) return;
 
     QString name = item->name().toLower();
-    if (name == "annotation") {
-        item = item->parent();
-    } else if (name == "history") {
-        item = item->parent();
+    if (name == "annotation" || name == "history") {
+        current = m->parent(current);
+        item = m->item(current);
     }
 
     QStringList list;
     item->scheme().items(list);
     if (list.count() == 0) {
-        item = item->parent();
+        current = m->parent(current);
+        item = m->item(current);
         if (!item) return;
         item->scheme().items(list);
     }
 
     Fb2NodeDlg dlg(this, item->scheme(), list);
-    int res = dlg.exec();
-    if (res) {
-        item->append(dlg.value());
+    if (dlg.exec()) {
+        current = m->append(current, dlg.value());
+        if (current.isValid()) setCurrentIndex(current);
     }
 }
 
-void Fb2HeadView::deleteNode()
+void Fb2HeadView::removeNode()
 {
+    Fb2HeadModel * m = qobject_cast<Fb2HeadModel*>(model());
+    if (m) m->remove(currentIndex());
+}
+
+QModelIndex Fb2HeadModel::append(const QModelIndex &parent, const QString &name)
+{
+    Fb2HeadItem * owner = item(parent);
+    if (!owner) return QModelIndex();
+    int row = owner->count();
+    beginInsertRows(parent, row, row);
+    Fb2HeadItem * item = owner->append(name);
+    endInsertRows();
+    return createIndex(row, 0, (void*)item);
+}
+
+void Fb2HeadModel::remove(const QModelIndex &index)
+{
+    int r = index.row();
+    QModelIndex p = parent(index);
+    beginRemoveRows(p, r, r + 1);
+    Fb2HeadItem * i = item(p);
+    if (i) i->remove(r);
+    endRemoveRows();
 }
 
 //---------------------------------------------------------------------------
