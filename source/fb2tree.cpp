@@ -13,6 +13,16 @@
 #include "fb2view.hpp"
 
 //---------------------------------------------------------------------------
+//  Fb2WebElement
+//---------------------------------------------------------------------------
+
+void Fb2WebElement::select()
+{
+    static const QString javascript = FB2::read(":/js/set_cursor.js");
+    evaluateJavaScript(javascript);
+}
+
+//---------------------------------------------------------------------------
 //  Fb2TreeItem
 //---------------------------------------------------------------------------
 
@@ -202,12 +212,9 @@ QVariant Fb2TreeModel::data(const QModelIndex &index, int role) const
 
 void Fb2TreeModel::selectText(const QModelIndex &index)
 {
-    Fb2TreeItem *node = item(index);
-    if (!node) return;
-    QWebFrame *frame = m_view.page()->mainFrame();
-    frame->scroll(0, node->pos().y() - frame->scrollPosition().y());
-    QString selector = QString("var element=%1;").arg(node->selector());
-    Fb2WebView::selectText(&m_view, selector);
+    if (Fb2TreeItem *node = item(index)) {
+        node->element().select();
+    }
 }
 
 QModelIndex Fb2TreeModel::index(const QString &location) const

@@ -11,6 +11,17 @@ class Fb2WebView;
 
 class Fb2TreeModel;
 
+class Fb2WebElement : public QWebElement
+{
+public:
+    Fb2WebElement() {}
+    Fb2WebElement(const QWebElement &x) : QWebElement(x) {}
+    Fb2WebElement &operator=(const QWebElement &x) { QWebElement::operator=(x); return *this; }
+
+public:
+    void select();
+};
+
 class Fb2TreeItem: public QObject
 {
     Q_OBJECT
@@ -32,7 +43,7 @@ public:
         return m_list.size();
     }
 
-    QWebElement element() const {
+    Fb2WebElement element() const {
         return m_element;
     }
 

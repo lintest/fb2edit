@@ -67,9 +67,6 @@ private:
 class Fb2WebView : public Fb2BaseWebView
 {
     Q_OBJECT
-public:
-    static void selectText(QWebView *view, const QString &locator);
-    static void selectBody(QWebView *view);
 
 public:
     explicit Fb2WebView(QWidget *parent = 0);

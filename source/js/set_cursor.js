@@ -1,6 +1,7 @@
+window.scrollTo(0,this.offsetTop);
 var range = document.createRange();
-range.setStart(element, 0);
-range.setEnd(element, 0);
+range.setStart(this,0);
+range.setEnd(this,0);
 var selection = window.getSelection();
 selection.removeAllRanges();
 selection.addRange(range);

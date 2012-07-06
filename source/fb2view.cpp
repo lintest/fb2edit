@@ -1,6 +1,7 @@
 #include "fb2view.hpp"
 #include "fb2dlgs.hpp"
 #include "fb2read.hpp"
+#include "fb2tree.hpp"
 #include "fb2save.hpp"
 #include "fb2utils.h"
 #include "fb2xml2.h"
@@ -106,13 +107,6 @@ void Fb2WebPage::insertBody()
 //---------------------------------------------------------------------------
 //  Fb2WebView
 //---------------------------------------------------------------------------
-
-void Fb2WebView::selectText(QWebView *view, const QString &locator)
-{
-    QWebFrame * frame = view->page()->mainFrame();
-    static const QString javascript = FB2::read(":/js/set_cursor.js");
-    frame->evaluateJavaScript(locator + ";" + javascript);
-}
 
 Fb2WebView::Fb2WebView(QWidget *parent)
     : Fb2BaseWebView(parent)
@@ -365,7 +359,9 @@ void Fb2WebView::showInspector()
 
 void Fb2WebView::loadFinished()
 {
-    selectText(this, "var element=$('div.body').get(0);if(element===undefined)element=document.body");
+    Fb2WebElement element = body().findFirst("div.body");
+    if (element.isNull()) element = body();
+    element.select();
 }
 
 void Fb2WebView::insertTitle()

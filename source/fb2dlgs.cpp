@@ -1,9 +1,13 @@
 #include "fb2dlgs.hpp"
 #include "fb2code.hpp"
+#include "fb2tree.hpp"
 #include "fb2view.hpp"
 #include "fb2utils.h"
 #include "ui_fb2find.h"
 #include "ui_fb2note.h"
+
+#include <QWebFrame>
+#include <QWebPage>
 
 //---------------------------------------------------------------------------
 //  Fb2CodeFindDlg
@@ -97,5 +101,6 @@ Fb2NoteDlg::~Fb2NoteDlg()
 
 void Fb2NoteDlg::loadFinished()
 {
-    Fb2WebView::selectText(ui->m_text, "var element=document.body");
+    Fb2WebElement body = ui->m_text->page()->mainFrame()->documentElement().findFirst("body");
+    body.select();
 }
