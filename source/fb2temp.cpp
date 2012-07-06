@@ -202,6 +202,7 @@ QNetworkReply * Fb2NetworkAccessManager::createRequest(Operation op, const QNetw
 QNetworkReply * Fb2NetworkAccessManager::imageRequest(Operation op, const QNetworkRequest &request)
 {
     QString name = request.url().path();
+    name = QFileInfo(name).fileName();
     QByteArray data = m_view.files().data(name);
     return new Fb2ImageReply(op, request, data);
 }

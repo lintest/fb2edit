@@ -22,11 +22,18 @@
 class Fb2NoteView : public QWebView
 {
 public:
-    explicit Fb2NoteView(QWidget* parent = 0) : QWebView(parent) {}
+    explicit Fb2NoteView(QWidget *parent, const QUrl &url);
     void hint(const QWebElement element, const QRect &rect);
 protected:
     void paintEvent(QPaintEvent *event);
+    const QUrl m_url;
 };
+
+Fb2NoteView::Fb2NoteView(QWidget *parent, const QUrl &url)
+    : QWebView(parent)
+    , m_url(url)
+{
+}
 
 void Fb2NoteView::paintEvent(QPaintEvent *event)
 {
@@ -46,7 +53,7 @@ void Fb2NoteView::hint(const QWebElement element, const QRect &rect)
     );
     html.append("</div></body>");
     setGeometry(rect);
-    setHtml(html);
+    setHtml(html, m_url);
     show();
 }
 
@@ -113,7 +120,7 @@ Fb2WebView::~Fb2WebView()
 Fb2NoteView & Fb2WebView::noteView()
 {
     if (m_noteView) return *m_noteView;
-    m_noteView = new Fb2NoteView(qobject_cast<QWidget*>(parent()));
+    m_noteView = new Fb2NoteView(qobject_cast<QWidget*>(parent()), url());
     m_noteView->setPage(new Fb2WebPage(this));
     m_noteView->page()->setNetworkAccessManager(page()->networkAccessManager());
     m_noteView->page()->setContentEditable(false);
@@ -213,7 +220,8 @@ void Fb2WebView::data(QString name, QByteArray data)
 
 void Fb2WebView::html(QString name, QString html)
 {
-    setHtml(html, QUrl::fromLocalFile(name));
+    static int number = 0;
+    setHtml(html, QUrl(QString("fb2:/%1/").arg(number++)));
     if (m_thread) m_thread->deleteLater();
     m_thread = 0;
 }
