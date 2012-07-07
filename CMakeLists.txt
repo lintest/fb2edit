@@ -66,10 +66,7 @@ if (LIBXML2_FOUND)
     add_definitions(${LIBXML2_DEFINITIONS})
     add_definitions(-DFB2_USE_LIBXML2)
 endif (LIBXML2_FOUND) 
-
-set(LINUX_DESKTOP_FILE desktop/fb2edit.desktop)
-set(LINUX_DESKTOP_ICON desktop/fb2edit048.png)
-    
+   
 #############################################################################
 # You can change the install location by 
 # running cmake like this:
@@ -80,8 +77,10 @@ set(LINUX_DESKTOP_ICON desktop/fb2edit048.png)
 # 
 if( UNIX AND NOT APPLE )
     install( TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin )
-    install( FILES ${LINUX_DESKTOP_FILE} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications )
-    install( FILES ${LINUX_DESKTOP_ICON} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/pixmaps RENAME fb2edit.png )
+    install( FILES desktop/fb2edit.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications )
+    install( FILES desktop/fb2edit048.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/48x48/apps RENAME fb2edit.png )
+    install( FILES desktop/fb2edit128.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/128x128/apps RENAME fb2edit.png )
+    install( FILES desktop/fb2edit256.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/256x256/apps RENAME fb2edit.png )
+    install( CODE "EXECUTE_PROCESS(COMMAND ln -sf ../icons/hicolor/48x48/apps/fb2edit.png ${CMAKE_INSTALL_PREFIX}/share/pixmaps/fb2edit.png)")
     install( FILES ${QM_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/fb2edit/translations )
 endif()
-
