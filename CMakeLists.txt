@@ -78,8 +78,12 @@ endif (LIBXML2_FOUND)
 if( UNIX AND NOT APPLE )
     install( TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin )
     install( FILES desktop/fb2edit.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications )
-    install( FILES desktop/fb2edit048.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/pixmaps RENAME fb2edit.png )
+    install( FILES desktop/fb2edit048.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/48x48/apps RENAME fb2edit.png )
     install( FILES desktop/fb2edit128.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/128x128/apps RENAME fb2edit.png )
     install( FILES desktop/fb2edit256.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/256x256/apps RENAME fb2edit.png )
     install( FILES ${QM_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/fb2edit/translations )
+    install( CODE "FILE(MAKE_DIRECTORY WORKING_DIRECTORY \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/share/pixmaps/)" )
+    install( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink ../icons/hicolor/48x48/apps/fb2edit.png fb2edit.png WORKING_DIRECTORY \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/share/pixmaps)" )
 endif()
+
+

@@ -7,30 +7,26 @@
 #
 
 Name:           fb2edit
-Version:        0.0.1
+Version:        0.0.3
 Release:        0
 License:        GPL-3.0
 Summary:        FB2 Files Editor
-Url:            http://fb2edit.lintest.ru
+URL:            http://fb2edit.lintest.ru
 Group:          Productivity/Text/Editors
-Source0:        fb2edit-0.0.1.tar.bz2
+Source0:        http://www.lintest.ru/pub/%{name}-%{version}.tar.bz2
 BuildRequires:  cmake
 BuildRequires:  desktop-file-utils
 BuildRequires:  gcc-c++
+BuildRequires:  hicolor-icon-theme
+BuildRequires:  pkgconfig(QtCore) >= 4.7.0
+BuildRequires:  pkgconfig(QtGui) >= 4.7.0
+BuildRequires:  pkgconfig(QtNetwork) >= 4.7.0
 BuildRequires:  pkgconfig(QtWebKit) >= 4.7.0
+BuildRequires:  pkgconfig(QtXml) >= 4.7.0
 BuildRequires:  pkgconfig(libxml-2.0)
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
-%if 0%{?fedora_version}
-BuildRequires:  qscintilla-devel
-%endif
-
-%if 0%{?mandriva_version}
-BuildRequires:  qscintilla-qt4-devel
-%endif
-
 %if 0%{?suse_version}
-BuildRequires:  libqscintilla-devel
 BuildRequires:  update-desktop-files
 %endif
 
@@ -68,33 +64,46 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/%{name}.desktop
 %if 0%{?fedora_version}
 %post
 /usr/bin/update-desktop-database &> /dev/null || :
+/bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
 
 %postun
 /usr/bin/update-desktop-database &> /dev/null || :
+if [ $1 -eq 0 ] ; then
+    /bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null
+    /usr/bin/gtk-update-icon-cache -f %{_datadir}/icons/hicolor &>/dev/null || :
+fi
+
+%posttrans
+/usr/bin/gtk-update-icon-cache -f %{_datadir}/icons/hicolor &>/dev/null || :
 %endif
 
 %if 0%{?mandriva_version}
 %post
 %update_desktop_database
+%update_icon_cache hicolor
 %update_menus
 
 %postun
 %clean_desktop_database
+%update_icon_cache hicolor
 %clean_menus
 %endif
 
 %if 0%{?suse_version}
 %post
 %desktop_database_post
+%icon_theme_cache_post
 
 %postun
 %desktop_database_postun
+%icon_theme_cache_postun
 %endif
 
 %files
 %defattr(-,root,root,-)
 %{_bindir}/%{name}
 %{_datadir}/applications/%{name}.desktop
+%{_datadir}/icons/hicolor/*/*/%{name}.png
 %{_datadir}/pixmaps/%{name}.png
 
 %changelog

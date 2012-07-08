@@ -5,4 +5,4 @@ Icon=fb2edit
 Type=Application
 Comment=FB2 file editor
 Categories=Office;FileTools;Qt;Viewer;TextTools;TextEditor;Utility;
-MimeType=application/x-fb2;
+MimeType=application/x-fictionbook+xml;
