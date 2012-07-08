@@ -1,26 +1,16 @@
-#ifndef FB2TREE_H
-#define FB2TREE_H
+#ifndef FB2TREE_HPP
+#define FB2TREE_HPP
 
 #include <QAbstractItemModel>
 #include <QTreeView>
 #include <QTimer>
 #include <QToolBar>
-#include <QWebElement>
+
+#include "fb2tree.h"
 
 class Fb2WebView;
 
 class Fb2TreeModel;
-
-class Fb2WebElement : public QWebElement
-{
-public:
-    Fb2WebElement() {}
-    Fb2WebElement(const QWebElement &x) : QWebElement(x) {}
-    Fb2WebElement &operator=(const QWebElement &x) { QWebElement::operator=(x); return *this; }
-
-public:
-    void select();
-};
 
 class Fb2TreeItem: public QObject
 {
@@ -147,4 +137,4 @@ protected:
     Fb2TreeView * m_tree;
 };
 
-#endif // FB2TREE_H
+#endif // FB2TREE_HPP
