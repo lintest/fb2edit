@@ -1,0 +1,2 @@
+?package(fb2edit):needs="x11" section="Applications/Viewers" \
+	title="FB2 e-book editor" command="fb2edit"

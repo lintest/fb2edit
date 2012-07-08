@@ -129,7 +129,6 @@ class Fb2HeadModel: public QAbstractItemModel
 public:
     explicit Fb2HeadModel(QWebView &view, QObject *parent = 0);
     virtual ~Fb2HeadModel();
-    void select(const QModelIndex &index);
     void expand(QTreeView *view);
     Fb2HeadItem * item(const QModelIndex &index) const;
     QModelIndex append(const QModelIndex &parent, const QString &name);

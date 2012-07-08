@@ -425,13 +425,6 @@ QVariant Fb2HeadModel::headerData(int section, Qt::Orientation orientation, int 
     return QVariant();
 }
 
-void Fb2HeadModel::select(const QModelIndex &index)
-{
-    Fb2HeadItem *node = item(index);
-    if (!node || node->id().isEmpty()) return;
-    m_view.page()->mainFrame()->scrollToAnchor(node->id());
-}
-
 void Fb2HeadItem::setText(const QString &text)
 {
     m_text = text;

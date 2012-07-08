@@ -20,7 +20,7 @@ message( STATUS "PACKAGE_NAME = ${PACKAGE_STRING}")
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/3rdparty/cmake)
 
-find_package( Qt4 4.7.0 COMPONENTS QtCore QtGui QtNetwork QtWebkit QtXml QtXmlPatterns REQUIRED )
+find_package( Qt4 4.6.0 COMPONENTS QtCore QtGui QtNetwork QtWebkit QtXml QtXmlPatterns REQUIRED )
 find_package( QScintilla )
 find_package( LibXML2 )
 

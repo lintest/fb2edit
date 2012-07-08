@@ -1,0 +1,16 @@
+Source: fb2edit
+Section: x11
+Priority: optional
+Maintainer: Kandrashin Denis <mail@lintest.ru>
+Build-Depends: debhelper (>= 7), cmake, libqt4-dev (>= 4.6), libxml2-dev
+Standards-Version: 3.8.0
+Homepage: http://fb2edit.lintest.ru
+
+Package: fb2edit
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Application for editing FB2 e-books files.
+ fb2eidt — свободная (бесплатная и открытая) программа 
+ для редактирования электронных книг формата fb2. 
+ .
+ http://fb2edit.lintest.ru
