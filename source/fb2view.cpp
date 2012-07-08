@@ -11,6 +11,7 @@
 #include <QFileDialog>
 #include <QNetworkRequest>
 #include <QToolTip>
+#include <QUndoStack>
 #include <QWebElement>
 #include <QWebInspector>
 #include <QWebFrame>
@@ -203,7 +204,9 @@ bool Fb2WebView::save(QIODevice *device, const QString &codec)
 {
     Fb2SaveWriter writer(*this, device);
     if (!codec.isEmpty()) writer.setCodec(codec.toLatin1());
-    return Fb2SaveHandler(writer).save();
+    bool ok = Fb2SaveHandler(writer).save();
+    if (ok) page()->undoStack()->setClean();
+    return ok;
 }
 
 bool Fb2WebView::save(QByteArray *array)

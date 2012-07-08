@@ -178,12 +178,24 @@ void Fb2MainWindow::about()
 
 void Fb2MainWindow::documentWasModified()
 {
-    if (isWindowModified()) return;
+    bool modified = false;
+    if (codeEdit) modified = codeEdit->isModified();
     QFileInfo info = windowFilePath();
     QString title = info.fileName();
-    title += QString("[*]") += appTitle();
+    if (modified) title += QString("[*]");
+    title += appTitle();
     setWindowTitle(title);
-    setWindowModified(true);
+    setWindowModified(modified);
+}
+
+void Fb2MainWindow::cleanChanged(bool clean)
+{
+    QFileInfo info = windowFilePath();
+    QString title = info.fileName();
+    if (!clean) title += QString("[*]");
+    title += appTitle();
+    setWindowTitle(title);
+    setWindowModified(!clean);
 }
 
 void Fb2MainWindow::createActions()
@@ -641,7 +653,7 @@ void Fb2MainWindow::viewText()
     textEdit->setFocus();
     viewTree();
 
-    connect(textEdit->page(), SIGNAL(contentsChanged()), SLOT(documentWasModified()));
+    connect(textEdit->page()->undoStack(), SIGNAL(cleanChanged(bool)), SLOT(cleanChanged(bool)));
     connect(textEdit->page(), SIGNAL(selectionChanged()), SLOT(selectionChanged()));
 
     connect(textEdit->pageAction(QWebPage::Undo), SIGNAL(changed()), SLOT(undoChanged()));

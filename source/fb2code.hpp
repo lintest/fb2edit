@@ -127,6 +127,8 @@ public:
 
     bool findText(const QString &exp, QTextDocument::FindFlags options = 0);
 
+    bool isModified() const { return document()->isModified(); }
+
 public slots:
     void find();
     void zoomIn();
