@@ -1,5 +1,5 @@
-fb2edit (0.0.3-squeeze1) quantal; urgency=low
+fb2edit (0.0.3-squeeze3) squeeze; urgency=low
 
-  * Alpha-test release.
+  * Initial release
 
- -- Denis Kandrashin <mail@lintest.ru>  Sun, 08 Jul 2012 18:53:27 +0400
+ -- Denis Kandrashin <mail@lintest.ru>  Mon, 09 Jul 2012 23:27:30 +0400
