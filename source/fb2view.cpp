@@ -99,10 +99,33 @@ QWebElement Fb2WebPage::doc()
     return mainFrame()->documentElement();
 }
 
+class Fb2InsertBodyCommand : public QUndoCommand
+{
+public:
+    explicit Fb2InsertBodyCommand(Fb2WebPage &page, QUndoCommand *parent = 0) : QUndoCommand(parent), m_page(page) {}
+    virtual void undo();
+    virtual void redo();
+private:
+    Fb2WebPage & m_page;
+};
+
+void Fb2InsertBodyCommand::undo()
+{
+    m_page.body().lastChild().removeFromDocument();
+    Fb2WebElement(m_page.body().lastChild()).select();
+}
+
+void Fb2InsertBodyCommand::redo()
+{
+    m_page.body().appendInside("<div class=body><div class=section><p>text</p></div></div>");
+    Fb2WebElement(m_page.body().lastChild()).select();
+}
+
 void Fb2WebPage::insertBody()
 {
-    body().appendInside("<div class=body><div class=section><p>text</p></div></div>");
-    QWebElement element = body().lastChild();
+    undoStack()->beginMacro("Insert title");
+    undoStack()->push(new Fb2InsertBodyCommand(*this));
+    undoStack()->endMacro();
     emit contentsChanged();
 }
 
@@ -367,11 +390,6 @@ void Fb2WebView::loadFinished()
     if (element.isNull()) element = body();
     element.select();
 }
-
-class Fb2UndoCommand : public QUndoCommand
-{
-
-};
 
 void Fb2WebView::insertTitle()
 {
