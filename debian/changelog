@@ -1,4 +1,10 @@
-fb2edit (0.0.3-squeeze3) squeeze; urgency=low
+fb2edit (0.0.4-squeeze1) squeeze; urgency=low
+
+  * Update release
+
+ -- Denis Kandrashin <mail@lintest.ru>  Mon, 09 Jul 2012 23:50:30 +0400
+
+fb2edit (0.0.3-squeeze1) squeeze; urgency=low
 
   * Initial release
 

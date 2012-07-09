@@ -10,7 +10,7 @@
 cmake_minimum_required(VERSION 2.6.0)
 
 project(fb2edit)
-set(PACKAGE_VERSION "0.0.3")
+set(PACKAGE_VERSION "0.0.4")
 set(PACKAGE_NAME ${PROJECT_NAME})
 set(PACKAGE_VENDOR "LinTest")
 set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
