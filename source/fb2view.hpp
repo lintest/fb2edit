@@ -52,16 +52,14 @@ class Fb2WebPage : public QWebPage
 
 public:
     explicit Fb2WebPage(QObject *parent = 0);
+    QWebElement body();
+    QWebElement doc();
 
 public slots:
     void insertBody();
 
 protected:
     virtual bool acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type);
-
-private:
-    QWebElement body();
-    QWebElement doc();
 };
 
 class Fb2WebView : public Fb2BaseWebView

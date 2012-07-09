@@ -11,6 +11,7 @@
 #include <QFileDialog>
 #include <QNetworkRequest>
 #include <QToolTip>
+#include <QUndoCommand>
 #include <QUndoStack>
 #include <QWebElement>
 #include <QWebInspector>
@@ -98,10 +99,33 @@ QWebElement Fb2WebPage::doc()
     return mainFrame()->documentElement();
 }
 
+class Fb2InsertBodyCommand : public QUndoCommand
+{
+public:
+    explicit Fb2InsertBodyCommand(Fb2WebPage &page, QUndoCommand *parent = 0) : QUndoCommand(parent), m_page(page) {}
+    virtual void undo();
+    virtual void redo();
+private:
+    Fb2WebPage & m_page;
+};
+
+void Fb2InsertBodyCommand::undo()
+{
+    m_page.body().lastChild().removeFromDocument();
+    Fb2WebElement(m_page.body().lastChild()).select();
+}
+
+void Fb2InsertBodyCommand::redo()
+{
+    m_page.body().appendInside("<div class=body><div class=section><p>text</p></div></div>");
+    Fb2WebElement(m_page.body().lastChild()).select();
+}
+
 void Fb2WebPage::insertBody()
 {
-    body().appendInside("<div class=body><div class=section><p>text</p></div></div>");
-    QWebElement element = body().lastChild();
+    undoStack()->beginMacro("Insert title");
+    undoStack()->push(new Fb2InsertBodyCommand(*this));
+    undoStack()->endMacro();
     emit contentsChanged();
 }
 
@@ -369,7 +393,9 @@ void Fb2WebView::loadFinished()
 
 void Fb2WebView::insertTitle()
 {
+    page()->undoStack()->beginMacro("Insert title");
     static const QString javascript = FB2::read(":/js/insert_title.js");
     page()->mainFrame()->evaluateJavaScript(javascript);
+    page()->undoStack()->endMacro();
 }
 

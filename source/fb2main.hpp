@@ -52,6 +52,8 @@ private slots:
     void viewTree();
 
     void cleanChanged(bool clean);
+    void canUndoChanged(bool canUndo);
+    void canRedoChanged(bool canRedo);
     void status(const QString &text);
     void clipboardDataChanged();
     void selectionChanged();
