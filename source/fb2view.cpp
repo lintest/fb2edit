@@ -11,6 +11,7 @@
 #include <QFileDialog>
 #include <QNetworkRequest>
 #include <QToolTip>
+#include <QUndoCommand>
 #include <QUndoStack>
 #include <QWebElement>
 #include <QWebInspector>
@@ -367,9 +368,16 @@ void Fb2WebView::loadFinished()
     element.select();
 }
 
+class Fb2UndoCommand : public QUndoCommand
+{
+
+};
+
 void Fb2WebView::insertTitle()
 {
+    page()->undoStack()->beginMacro("Insert title");
     static const QString javascript = FB2::read(":/js/insert_title.js");
     page()->mainFrame()->evaluateJavaScript(javascript);
+    page()->undoStack()->endMacro();
 }
 

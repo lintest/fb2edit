@@ -464,6 +464,16 @@ void Fb2MainWindow::selectionChanged()
     statusBar()->showMessage(textEdit->status());
 }
 
+void Fb2MainWindow::canUndoChanged(bool canUndo)
+{
+    actionUndo->setEnabled(canUndo);
+}
+
+void Fb2MainWindow::canRedoChanged(bool canRedo)
+{
+    actionRedo->setEnabled(canRedo);
+}
+
 void Fb2MainWindow::undoChanged()
 {
     actionUndo->setEnabled(textEdit->UndoEnabled());
@@ -654,6 +664,8 @@ void Fb2MainWindow::viewText()
     viewTree();
 
     connect(textEdit->page()->undoStack(), SIGNAL(cleanChanged(bool)), SLOT(cleanChanged(bool)));
+    connect(textEdit->page()->undoStack(), SIGNAL(canUndoChanged(bool)), SLOT(canUndoChanged(bool)));
+    connect(textEdit->page()->undoStack(), SIGNAL(canRedoChanged(bool)), SLOT(canRedoChanged(bool)));
     connect(textEdit->page(), SIGNAL(selectionChanged()), SLOT(selectionChanged()));
 
     connect(textEdit->pageAction(QWebPage::Undo), SIGNAL(changed()), SLOT(undoChanged()));
