@@ -13,16 +13,6 @@
 #include "fb2view.hpp"
 
 //---------------------------------------------------------------------------
-//  Fb2WebElement
-//---------------------------------------------------------------------------
-
-void Fb2WebElement::select()
-{
-    static const QString javascript = FB2::read(":/js/set_cursor.js");
-    evaluateJavaScript(javascript);
-}
-
-//---------------------------------------------------------------------------
 //  Fb2TreeItem
 //---------------------------------------------------------------------------
 
@@ -136,6 +126,14 @@ Fb2TreeItem * Fb2TreeItem::content(const Fb2TreeModel &model, int number, QModel
         row++;
     }
     return 0;
+}
+
+bool Fb2TreeItem::moveUp(Fb2TreeItem * child)
+{
+    int index = this->index(child);
+    if (index == 0) return false;
+    m_list.move(index, index-1);
+    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -346,6 +344,40 @@ void Fb2TreeView::deleteNode()
 
 void Fb2TreeView::moveUp()
 {
+    QModelIndex index = currentIndex();
+    if (!index.isValid()) return;
+
+    Fb2TreeModel *model = qobject_cast<Fb2TreeModel*>(this->model());
+    if (!model) return;
+
+    QModelIndex result = model->moveUp(index);
+    if (!result.isValid()) return;
+
+    setCurrentIndex(result);
+    emit currentChanged(result, index);
+    emit QTreeView::activated(result);
+    scrollTo(result);
+}
+
+QModelIndex Fb2TreeModel::moveUp(const QModelIndex &index)
+{
+    int row = index.row();
+    if (!row) return QModelIndex();
+
+    Fb2TreeItem *child = item(index);
+    if (!child) return QModelIndex();
+
+    Fb2TreeItem *owner = child->parent();
+    if (!owner) return QModelIndex();
+
+    QModelIndex parent = this->parent(index);
+
+    QModelIndex result = createIndex(row - 1, 0, (void*)child);
+    beginMoveRows(parent, row, row, parent, row - 1);
+    if (!owner->moveUp(child)) result = QModelIndex();
+    endMoveRows();
+
+    return result;
 }
 
 void Fb2TreeView::moveDown()

@@ -6,7 +6,7 @@
 #include <QTimer>
 #include <QToolBar>
 
-#include "fb2tree.h"
+#include "fb2html.h"
 
 class Fb2WebView;
 
@@ -55,6 +55,8 @@ public:
 
     Fb2TreeItem * content(const Fb2TreeModel &model, int number, QModelIndex &index) const;
 
+    bool moveUp(Fb2TreeItem * child);
+
 private:
     QString static title(const QWebElement &element);
     void addChildren(QWebElement &parent, bool direct = true);
@@ -78,6 +80,7 @@ public:
     QModelIndex index(const QString &location) const;
     Fb2WebView & view() { return m_view; }
     void selectText(const QModelIndex &index);
+    QModelIndex moveUp(const QModelIndex &index);
 
 public:
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;

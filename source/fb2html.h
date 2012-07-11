@@ -1,5 +1,5 @@
-#ifndef FB2TREE_H
-#define FB2TREE_H
+#ifndef FB2HTML_H
+#define FB2HTML_H
 
 #include <QWebElement>
 
@@ -14,4 +14,4 @@ public:
     void select();
 };
 
-#endif // FB2TREE_H
+#endif // FB2HTML_H

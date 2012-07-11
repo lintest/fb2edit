@@ -3,7 +3,7 @@
 #include "fb2read.hpp"
 #include "fb2save.hpp"
 #include "fb2utils.h"
-#include "fb2tree.h"
+#include "fb2html.h"
 #include "fb2xml2.h"
 
 #include <QAction>

@@ -12,7 +12,7 @@ HEADERS = \
     source/fb2utils.h \
     source/fb2save.hpp \
     source/fb2dlgs.hpp \
-    source/fb2tree.h
+    source/fb2html.h
 
 SOURCES = \
     source/fb2app.cpp \
@@ -27,7 +27,8 @@ SOURCES = \
     source/fb2xml.cpp \
     source/fb2xml2.cpp \
     source/fb2utils.cpp \
-    source/fb2dlgs.cpp
+    source/fb2dlgs.cpp \
+    source/fb2html.cpp
 
 RESOURCES = \
     3rdparty/gnome/gnome.qrc \
