@@ -130,9 +130,12 @@ Fb2TreeItem * Fb2TreeItem::content(const Fb2TreeModel &model, int number, QModel
 
 bool Fb2TreeItem::move(Fb2TreeItem * child, int delta)
 {
-    int i = index(child);
-    int j = i + delta;
-    if (j < 0 || j >= count()) return false;
+    int x = index(child);
+    int i = x; if (delta < 0) i += delta;
+    int j = x; if (delta > 0) j += delta;
+    if (i < 0 || j >= count()) return false;
+    m_list[i]->m_element = m_list[i]->element().takeFromDocument();
+    m_list[j]->element().appendOutside(m_list[i]->m_element);
     m_list.move(i, j);
     return true;
 }
