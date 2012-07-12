@@ -128,16 +128,15 @@ Fb2TreeItem * Fb2TreeItem::content(const Fb2TreeModel &model, int number, QModel
     return 0;
 }
 
-bool Fb2TreeItem::move(Fb2TreeItem * child, int delta)
+void Fb2TreeItem::move(Fb2TreeItem * child, int delta)
 {
     int x = index(child);
     int i = x; if (delta < 0) i += delta;
     int j = x; if (delta > 0) j += delta;
-    if (i < 0 || j >= count()) return false;
-    m_list[i]->m_element = m_list[i]->element().takeFromDocument();
-    m_list[j]->element().appendOutside(m_list[i]->m_element);
+    if (i < 0 || j >= count()) return;
+    QWebElement element = m_list[i]->element().takeFromDocument();
+    m_list[j]->element().appendOutside(element);
     m_list.move(i, j);
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -351,7 +350,7 @@ Fb2TreeModel * Fb2TreeView::model()
     return qobject_cast<Fb2TreeModel*>(QTreeView::model());
 }
 
-QModelIndex Fb2TreeModel::move(const QModelIndex &index, int delta)
+QModelIndex Fb2TreeModel::move(const QModelIndex &index, int dx, int dy)
 {
     Fb2TreeItem *child = item(index);
     if (!child) return QModelIndex();
@@ -359,31 +358,61 @@ QModelIndex Fb2TreeModel::move(const QModelIndex &index, int delta)
     Fb2TreeItem *owner = child->parent();
     if (!owner) return QModelIndex();
 
-    QModelIndex parent = this->parent(index);
-
     int from = index.row();
-    int to = from + delta;
-    QModelIndex result = createIndex(to, 0, (void*)child);
+    QModelIndex parent = this->parent(index);
+    QModelIndex result;
 
-    if (delta > 0) {
-        from = to;
-        to = index.row();
+    switch (dx) {
+        case -1: {
+            if (owner == m_root) return QModelIndex();
+            QModelIndex target = this->parent(parent);
+            int to = parent.row() + 1;
+            result = createIndex(to, 0, (void*)child);
+            beginMoveRows(parent, from, from, target, to);
+            QWebElement element = child->element().takeFromDocument();
+            owner->element().appendOutside(element);
+            owner->takeAt(from);
+            owner->parent()->insert(child, to);
+            endMoveRows();
+        } break;
+
+        case +1: {
+            if (from == 0) return QModelIndex();
+            Fb2TreeItem * brother = owner->item(from - 1);
+            QModelIndex target = createIndex(from - 1, 0, (void*)brother);
+            int to = rowCount(target);
+            result = createIndex(to, 0, (void*)child);
+            beginMoveRows(parent, from, from, target, to);
+            QWebElement element = child->element().takeFromDocument();
+            brother->element().appendInside(element);
+            owner->takeAt(from);
+            brother->insert(child, to);
+            endMoveRows();
+        } break;
+
+        default: {
+            int to = from + dy;
+            if (to < 0 || rowCount(parent) <= to) return QModelIndex();
+            result = createIndex(to, 0, (void*)child);
+
+            if (dy > 0) {
+                from = to;
+                to = index.row();
+            }
+
+            beginMoveRows(parent, from, from, parent, to);
+            owner->move(child, dy);
+            endMoveRows();
+        } break;
     }
-
-    if (to < 0 || from >= rowCount(parent)) return QModelIndex();
-
-    beginMoveRows(parent, from, from, parent, to);
-    if (!owner->move(child, delta)) result = QModelIndex();
-    endMoveRows();
-
     return result;
 }
 
-void Fb2TreeView::moveCurrent(int delta)
+void Fb2TreeView::moveCurrent(int dx, int dy)
 {
     if (Fb2TreeModel * m = model()) {
         QModelIndex index = currentIndex();
-        QModelIndex result = m->move(index, delta);
+        QModelIndex result = m->move(index, dx, dy);
         if (result.isValid()) {
             setCurrentIndex(result);
             emit currentChanged(result, index);
@@ -395,20 +424,22 @@ void Fb2TreeView::moveCurrent(int delta)
 
 void Fb2TreeView::moveUp()
 {
-    moveCurrent(-1);
+    moveCurrent(0, -1);
 }
 
 void Fb2TreeView::moveDown()
 {
-    moveCurrent(+1);
+    moveCurrent(0, +1);
 }
 
 void Fb2TreeView::moveLeft()
 {
+    moveCurrent(-1, 0);
 }
 
 void Fb2TreeView::moveRight()
 {
+    moveCurrent(+1, 0);
 }
 
 //---------------------------------------------------------------------------

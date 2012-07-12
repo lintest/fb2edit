@@ -29,6 +29,15 @@ public:
         return m_list.indexOf(child);
     }
 
+    void insert(Fb2TreeItem * child, int row) {
+        m_list.insert(row, child);
+        child->m_parent = this;
+    }
+
+    Fb2TreeItem * takeAt(int row) {
+        return m_list.takeAt(row);
+    }
+
     int count() const {
         return m_list.size();
     }
@@ -55,7 +64,7 @@ public:
 
     Fb2TreeItem * content(const Fb2TreeModel &model, int number, QModelIndex &index) const;
 
-    bool move(Fb2TreeItem * child, int delta);
+    void move(Fb2TreeItem * child, int delta);
 
 private:
     QString static title(const QWebElement &element);
@@ -80,7 +89,7 @@ public:
     QModelIndex index(const QString &location) const;
     Fb2WebView & view() { return m_view; }
     void selectText(const QModelIndex &index);
-    QModelIndex move(const QModelIndex &index, int delta);
+    QModelIndex move(const QModelIndex &index, int dx, int dy);
 
 public:
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
@@ -123,7 +132,7 @@ private slots:
     void moveRight();
 
 private:
-    void moveCurrent(int delta);
+    void moveCurrent(int dx, int dy);
     Fb2TreeModel * model();
 
 private:
