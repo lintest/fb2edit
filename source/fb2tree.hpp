@@ -55,7 +55,7 @@ public:
 
     Fb2TreeItem * content(const Fb2TreeModel &model, int number, QModelIndex &index) const;
 
-    bool moveUp(Fb2TreeItem * child);
+    bool move(Fb2TreeItem * child, int delta);
 
 private:
     QString static title(const QWebElement &element);
@@ -80,7 +80,7 @@ public:
     QModelIndex index(const QString &location) const;
     Fb2WebView & view() { return m_view; }
     void selectText(const QModelIndex &index);
-    QModelIndex moveUp(const QModelIndex &index);
+    QModelIndex move(const QModelIndex &index, int delta);
 
 public:
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
@@ -121,6 +121,10 @@ private slots:
     void moveDown();
     void moveLeft();
     void moveRight();
+
+private:
+    void moveCurrent(int delta);
+    Fb2TreeModel * model();
 
 private:
     Fb2WebView & m_view;

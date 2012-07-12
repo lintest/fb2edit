@@ -128,11 +128,12 @@ Fb2TreeItem * Fb2TreeItem::content(const Fb2TreeModel &model, int number, QModel
     return 0;
 }
 
-bool Fb2TreeItem::moveUp(Fb2TreeItem * child)
+bool Fb2TreeItem::move(Fb2TreeItem * child, int delta)
 {
-    int index = this->index(child);
-    if (index == 0) return false;
-    m_list.move(index, index-1);
+    int i = index(child);
+    int j = i + delta;
+    if (j < 0 || j >= count()) return false;
+    m_list.move(i, j);
     return true;
 }
 
@@ -308,23 +309,23 @@ void Fb2TreeView::contentsChanged()
 void Fb2TreeView::activated(const QModelIndex &index)
 {
     if (qApp->focusWidget() == &m_view) return;
-    if (!model()) return;
-    Fb2TreeModel *model = static_cast<Fb2TreeModel*>(this->model());
-    model->selectText(index);
+    if (Fb2TreeModel * m = model()) {
+        m->selectText(index);
+    }
 }
 
 void Fb2TreeView::selectTree()
 {
     if (qApp->focusWidget() == this) return;
-    if (model() == 0) return;
-    Fb2TreeModel * model = static_cast<Fb2TreeModel*>(this->model());
-    QWebFrame * frame = model->view().page()->mainFrame();
-    static const QString javascript = FB2::read(":/js/get_location.js");
-    QString location = frame->evaluateJavaScript(javascript).toString();
-    QModelIndex index = model->index(location);
-    if (!index.isValid()) return;
-    setCurrentIndex(index);
-    scrollTo(index);
+    if (Fb2TreeModel * m = model()) {
+        QWebFrame * frame = m->view().page()->mainFrame();
+        static const QString javascript = FB2::read(":/js/get_location.js");
+        QString location = frame->evaluateJavaScript(javascript).toString();
+        QModelIndex index = m->index(location);
+        if (!index.isValid()) return;
+        setCurrentIndex(index);
+        scrollTo(index);
+    }
 }
 
 void Fb2TreeView::updateTree()
@@ -342,28 +343,13 @@ void Fb2TreeView::deleteNode()
 {
 }
 
-void Fb2TreeView::moveUp()
+Fb2TreeModel * Fb2TreeView::model()
 {
-    QModelIndex index = currentIndex();
-    if (!index.isValid()) return;
-
-    Fb2TreeModel *model = qobject_cast<Fb2TreeModel*>(this->model());
-    if (!model) return;
-
-    QModelIndex result = model->moveUp(index);
-    if (!result.isValid()) return;
-
-    setCurrentIndex(result);
-    emit currentChanged(result, index);
-    emit QTreeView::activated(result);
-    scrollTo(result);
+    return qobject_cast<Fb2TreeModel*>(QTreeView::model());
 }
 
-QModelIndex Fb2TreeModel::moveUp(const QModelIndex &index)
+QModelIndex Fb2TreeModel::move(const QModelIndex &index, int delta)
 {
-    int row = index.row();
-    if (!row) return QModelIndex();
-
     Fb2TreeItem *child = item(index);
     if (!child) return QModelIndex();
 
@@ -372,16 +358,46 @@ QModelIndex Fb2TreeModel::moveUp(const QModelIndex &index)
 
     QModelIndex parent = this->parent(index);
 
-    QModelIndex result = createIndex(row - 1, 0, (void*)child);
-    beginMoveRows(parent, row, row, parent, row - 1);
-    if (!owner->moveUp(child)) result = QModelIndex();
+    int from = index.row();
+    int to = from + delta;
+    QModelIndex result = createIndex(to, 0, (void*)child);
+
+    if (delta > 0) {
+        from = to;
+        to = index.row();
+    }
+
+    if (to < 0 || from >= rowCount(parent)) return QModelIndex();
+
+    beginMoveRows(parent, from, from, parent, to);
+    if (!owner->move(child, delta)) result = QModelIndex();
     endMoveRows();
 
     return result;
 }
 
+void Fb2TreeView::moveCurrent(int delta)
+{
+    if (Fb2TreeModel * m = model()) {
+        QModelIndex index = currentIndex();
+        QModelIndex result = m->move(index, delta);
+        if (result.isValid()) {
+            setCurrentIndex(result);
+            emit currentChanged(result, index);
+            emit QTreeView::activated(result);
+            scrollTo(result);
+        }
+    }
+}
+
+void Fb2TreeView::moveUp()
+{
+    moveCurrent(-1);
+}
+
 void Fb2TreeView::moveDown()
 {
+    moveCurrent(+1);
 }
 
 void Fb2TreeView::moveLeft()
