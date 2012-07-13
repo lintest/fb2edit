@@ -64,8 +64,6 @@ public:
 
     Fb2TreeItem * content(const Fb2TreeModel &model, int number, QModelIndex &index) const;
 
-    void move(Fb2TreeItem * child, int delta);
-
 private:
     QString static title(const QWebElement &element);
     void addChildren(QWebElement &parent, bool direct = true);

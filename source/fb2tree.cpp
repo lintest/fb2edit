@@ -128,17 +128,6 @@ Fb2TreeItem * Fb2TreeItem::content(const Fb2TreeModel &model, int number, QModel
     return 0;
 }
 
-void Fb2TreeItem::move(Fb2TreeItem * child, int delta)
-{
-    int x = index(child);
-    int i = x; if (delta < 0) i += delta;
-    int j = x; if (delta > 0) j += delta;
-    if (i < 0 || j >= count()) return;
-    QWebElement element = m_list[i]->element().takeFromDocument();
-    m_list[j]->element().appendOutside(element);
-    m_list.move(i, j);
-}
-
 //---------------------------------------------------------------------------
 //  Fb2TreeModel
 //---------------------------------------------------------------------------
@@ -396,12 +385,16 @@ QModelIndex Fb2TreeModel::move(const QModelIndex &index, int dx, int dy)
             result = createIndex(to, 0, (void*)child);
 
             if (dy > 0) {
-                from = to;
                 to = index.row();
+                from = to + dy;
             }
 
             beginMoveRows(parent, from, from, parent, to);
-            owner->move(child, dy);
+            Fb2TreeItem * child = owner->item(to);
+            Fb2TreeItem * brother = owner->takeAt(from);
+            owner->insert(brother, to);
+            QWebElement element = child->element().takeFromDocument();
+            brother->element().appendOutside(element);
             endMoveRows();
         } break;
     }
