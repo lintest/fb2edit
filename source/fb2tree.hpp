@@ -89,6 +89,8 @@ public:
     Fb2WebView & view() { return m_view; }
     void selectText(const QModelIndex &index);
     QModelIndex move(const QModelIndex &index, int dx, int dy);
+    QModelIndex append(const QModelIndex &parent);
+    Fb2TreeItem * item(const QModelIndex &index) const;
 
 public:
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
@@ -97,9 +99,6 @@ public:
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     virtual bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
-
-protected:
-    Fb2TreeItem * item(const QModelIndex &index) const;
 
 private:
     Fb2WebView & m_view;

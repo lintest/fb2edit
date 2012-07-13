@@ -431,8 +431,42 @@ void Fb2TreeView::updateTree()
     selectTree();
 }
 
+QModelIndex Fb2TreeModel::append(const QModelIndex &parent)
+{
+    Fb2TreeItem * owner = item(parent);
+    if (!owner || owner == m_root) return QModelIndex();
+    int row = owner->count();
+    owner->element().appendInside("<div class=section><div class=title><p><br/></p></div><p><br/></p></div>");
+    QWebElement element = owner->element().lastChild();
+    Fb2TreeItem * child = new Fb2TreeItem(element);
+    beginInsertRows(parent, row, row);
+    owner->insert(child, row);
+    endInsertRows();
+    return createIndex(row, 0, (void*)child);
+}
+
 void Fb2TreeView::insertNode()
 {
+    if (Fb2TreeModel * m = model()) {
+        QModelIndex index = currentIndex();
+        Fb2TreeItem * item = m->item(index);
+        if (!item) return;
+
+        QString n = item->name();
+        if (n != "section" && n != "body") {
+            index = m->parent(index);
+            item = item->parent();
+            n = item->name();
+            if (n != "section" && n != "body") return;
+        }
+
+        QModelIndex result = m->append(index);
+        if (!result.isValid()) return;
+        setCurrentIndex(result);
+        emit QTreeView::currentChanged(result, index);
+        emit QTreeView::activated(result);
+        scrollTo(result);
+    }
 }
 
 void Fb2TreeView::deleteNode()
@@ -443,8 +477,8 @@ void Fb2TreeView::deleteNode()
         setCurrentIndex(result);
         emit currentChanged(result, index);
         emit QTreeView::activated(result);
-        scrollTo(result);
         m->removeRow(index.row(), result);
+        scrollTo(result);
     }
 }
 

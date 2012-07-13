@@ -10,10 +10,10 @@
 cmake_minimum_required(VERSION 2.6.0)
 
 project(fb2edit)
-set(PACKAGE_VERSION "0.0.4")
-set(PACKAGE_NAME ${PROJECT_NAME})
+set(PACKAGE_VERSION "0.0.5")
 set(PACKAGE_VENDOR "LinTest")
-set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
+set(PACKAGE_NAME ${PROJECT_NAME})
+set(PACKAGE_STRING "${PROJECT_NAME} ${PACKAGE_VERSION}")
 set(PACKAGE_BUGREPORT "mail@lintest.ru")
 
 message( STATUS "PACKAGE_NAME = ${PACKAGE_STRING}")
@@ -21,7 +21,6 @@ message( STATUS "PACKAGE_NAME = ${PACKAGE_STRING}")
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/3rdparty/cmake)
 
 find_package( Qt4 4.6.0 COMPONENTS QtCore QtGui QtNetwork QtWebkit QtXml QtXmlPatterns REQUIRED )
-find_package( QScintilla )
 find_package( LibXML2 )
 
 file( GLOB FB2_HEAD source/*.hpp     )
@@ -54,11 +53,6 @@ include(${QT_USE_FILE})
 include_directories(${CMAKE_BINARY_DIR})
 target_link_libraries(fb2edit ${QT_LIBRARIES})
 add_definitions(${QT_DEFINITIONS})
-
-if (QSCINTILLA_FOUND) 
-    include_directories(${QSCINTILLA_INCLUDE_DIR})
-    target_link_libraries(fb2edit ${QSCINTILLA_LIBRARIES})
-endif (QSCINTILLA_FOUND) 
 
 if (LIBXML2_FOUND) 
     include_directories(${LIBXML2_INCLUDE_DIRS})
