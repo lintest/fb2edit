@@ -372,21 +372,29 @@ void Fb2TreeView::initToolbar(QToolBar *toolbar)
     toolbar->addSeparator();
 
     act = new QAction(FB2::icon("go-up"), tr("&Up"), this);
+    act->setShortcutContext(Qt::WidgetShortcut);
+    act->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Up));
     connect(act, SIGNAL(triggered()), SLOT(moveUp()));
     toolbar->addAction(act);
     addAction(act);
 
     act = new QAction(FB2::icon("go-down"), tr("&Down"), this);
+    act->setShortcutContext(Qt::WidgetShortcut);
+    act->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Down));
     connect(act, SIGNAL(triggered()), SLOT(moveDown()));
     toolbar->addAction(act);
     addAction(act);
 
     act = new QAction(FB2::icon("go-previous"), tr("&Left"), this);
+    act->setShortcutContext(Qt::WidgetShortcut);
+    act->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Left));
     connect(act, SIGNAL(triggered()), SLOT(moveLeft()));
     toolbar->addAction(act);
     addAction(act);
 
     act = new QAction(FB2::icon("go-next"), tr("&Right"), this);
+    act->setShortcutContext(Qt::WidgetShortcut);
+    act->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
     connect(act, SIGNAL(triggered()), SLOT(moveRight()));
     toolbar->addAction(act);
     addAction(act);
