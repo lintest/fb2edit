@@ -29,8 +29,20 @@ div.description div.title-info div.annotation {
   border-top-right-radius: 10;
   border-bottom-left-radius: 10;
   border-bottom-right-radius: 10;
-  margin-top: 1em;
+  margin-top: 0;
   margin-bottom: 1em;
+}
+
+div.annotation:before {
+    color: gray;
+    text-align: right;
+    content: "<annotation>";
+    display: inline-block;
+    position: relative;
+    font-size: 0.8em;
+    width: 100%;
+    margin-top: 0;
+    margin-bottom: -1em;
 }
 
 div.description div.title-info div.annotation div {
@@ -58,6 +70,18 @@ div.description div.document-info div.history {
   border-bottom-right-radius: 10;
   margin-top: 1em;
   margin-bottom: 1em;
+}
+
+div.history:before {
+    color: gray;
+    text-align: right;
+    content: "<history>";
+    display: inline-block;
+    position: relative;
+    font-size: 0.8em;
+    width: 100%;
+    margin-top: 0;
+    margin-bottom: -1em;
 }
 
 div.description div.document-info div.history div {
