@@ -423,7 +423,7 @@ Fb2SaveHandler::ParagHandler::ParagHandler(TextHandler *parent, const QString &n
 
 Fb2XmlHandler::NodeHandler * Fb2SaveHandler::ParagHandler::NewTag(const QString &name, const QXmlAttributes &atts)
 {
-    if (m_empty) start();
+    if (m_empty && name != "br") start();
     return TextHandler::NewTag(name, atts);
 }
 

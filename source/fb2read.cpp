@@ -287,7 +287,9 @@ Fb2ReadHandler::TextHandler::TextHandler(TextHandler *parent, const QString &nam
     , m_style(style)
 {
     Init(atts);
-    if (name == "empty-line") writer().writeCharacters(QChar(160));
+    if (name == "empty-line") {
+        writer().writeEmptyElement("br");
+    }
 }
 
 void Fb2ReadHandler::TextHandler::Init(const QXmlAttributes &atts)
