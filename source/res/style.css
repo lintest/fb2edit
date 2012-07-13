@@ -37,6 +37,33 @@ div.description div.title-info div.annotation div {
   display: block;
 }
 
+div.description div.document-info {
+  display: block;
+}
+
+div.description div.document-info div {
+  display: none;
+}
+
+div.description div.document-info div.history {
+  display: block;
+  padding-left: 10;
+  padding-right: 10;
+  border-width: thin;
+  border-style: solid;
+  border-color: blue;
+  border-top-left-radius: 10;
+  border-top-right-radius: 10;
+  border-bottom-left-radius: 10;
+  border-bottom-right-radius: 10;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+div.description div.document-info div.history div {
+  display: block;
+}
+
 div.section {
   border-top: none;
   border-bottom: none; 

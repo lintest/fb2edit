@@ -55,18 +55,27 @@ QString Fb2TreeItem::title(const QWebElement &element)
     return element.toPlainText().left(255).simplified();
 }
 
-void Fb2TreeItem::addChildren(QWebElement &parent, bool direct)
+void Fb2TreeItem::addChildren(QWebElement &parent, bool direct, bool header)
 {
     int number = 0;
     QWebElement child = parent.firstChild();
     while (!child.isNull()) {
         QString tag = child.tagName().toLower();
         if (tag == "div") {
-            m_list << new Fb2TreeItem(child, this, direct ? number : -1);
+            bool h = header;
+            QString style = child.attribute("class").toLower();
+            h = h || style == "description" || style == "stylesheet";
+            if (!h || style == "annotation" || style == "history") {
+                m_list << new Fb2TreeItem(child, this, direct ? number : -1);
+            } else {
+                addChildren(child, false, h);
+            }
+        } else if (header) {
+            // skip
         } else if (tag == "img") {
             m_list << new Fb2TreeItem(child, this, direct ? number : -1);
         } else {
-            addChildren(child, false);
+            addChildren(child, false, header);
         }
         child = child.nextSibling();
         number++;

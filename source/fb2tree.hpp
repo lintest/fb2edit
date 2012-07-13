@@ -66,7 +66,7 @@ public:
 
 private:
     QString static title(const QWebElement &element);
-    void addChildren(QWebElement &parent, bool direct = true);
+    void addChildren(QWebElement &parent, bool direct = true, bool header = false);
 
 private:
     QList<Fb2TreeItem*> m_list;

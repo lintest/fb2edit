@@ -216,9 +216,9 @@ Fb2XmlHandler::NodeHandler * Fb2ReadHandler::DescrHandler::NewTag(const QString 
     Q_UNUSED(atts);
     switch (toKeyword(name)) {
         case Title :
-            return new TitleHandler(m_owner, name, atts);
         case Document :
         case Publish :
+            return new TitleHandler(m_owner, name, atts);
         case Custom :
             return new HeadHandler(m_owner, name, atts);
         default:
@@ -232,7 +232,9 @@ Fb2XmlHandler::NodeHandler * Fb2ReadHandler::DescrHandler::NewTag(const QString 
 
 Fb2XmlHandler::NodeHandler * Fb2ReadHandler::TitleHandler::NewTag(const QString &name, const QXmlAttributes &atts)
 {
-    if (name == "annotation") return new TextHandler(m_owner, name, atts, "div", name);
+    if (name == "annotation" || name == "history") {
+        return new TextHandler(m_owner, name, atts, "div", name);
+    }
     return new HeadHandler(m_owner, name, atts);
 }
 
