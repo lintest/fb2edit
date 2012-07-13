@@ -247,7 +247,9 @@ QModelIndex Fb2TreeModel::move(const QModelIndex &index, int dx, int dy)
 
     switch (dx) {
         case -1: {
-            if (owner == m_root) return QModelIndex();
+            if (!owner || owner == m_root) return QModelIndex();
+            if (child->name() != "section") return QModelIndex();
+            if (owner->name() != "section") return QModelIndex();
             QModelIndex target = this->parent(parent);
             int to = parent.row() + 1;
             result = createIndex(to, 0, (void*)child);
@@ -262,6 +264,8 @@ QModelIndex Fb2TreeModel::move(const QModelIndex &index, int dx, int dy)
         case +1: {
             if (from == 0) return QModelIndex();
             Fb2TreeItem * brother = owner->item(from - 1);
+            if (child->name() != "section") return QModelIndex();
+            if (brother->name() != "section") return QModelIndex();
             QModelIndex target = createIndex(from - 1, 0, (void*)brother);
             int to = rowCount(target);
             result = createIndex(to, 0, (void*)child);
@@ -283,9 +287,15 @@ QModelIndex Fb2TreeModel::move(const QModelIndex &index, int dx, int dy)
                 from = to + dy;
             }
 
-            beginMoveRows(parent, from, from, parent, to);
             Fb2TreeItem * child = owner->item(to);
-            Fb2TreeItem * brother = owner->takeAt(from);
+            Fb2TreeItem * brother = owner->item(from);
+
+            QString n = child->name();
+            bool ok = (n == "body" || n == "section") && n == brother->name();
+            if (!ok) return QModelIndex();
+
+            beginMoveRows(parent, from, from, parent, to);
+            brother = owner->takeAt(from);
             owner->insert(brother, to);
             QWebElement element = child->element().takeFromDocument();
             brother->element().appendOutside(element);
