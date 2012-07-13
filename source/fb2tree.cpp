@@ -31,8 +31,7 @@ Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent, int number)
         } else if (style == "subtitle") {
             m_text = title(element);
         } else if (style == "body") {
-            QString name = element.attribute("fb2_name");
-            if (!name.isEmpty()) style += " name=" + name;
+            m_body = element.attribute("fb2_name");
         }
         if (!style.isEmpty()) m_name = style;
     } else if (m_name == "img") {
@@ -97,7 +96,9 @@ Fb2TreeItem * Fb2TreeItem::item(int row) const
 
 QString Fb2TreeItem::text() const
 {
-    return QString("<%1> %2").arg(m_name).arg(m_text);
+    QString name = m_name;
+    if (!m_body.isEmpty()) name += " name=" + m_body;
+    return QString("<%1> %2").arg(name).arg(m_text);
 }
 
 QString Fb2TreeItem::selector() const
