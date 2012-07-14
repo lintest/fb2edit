@@ -205,6 +205,9 @@ Fb2HeadItem * Fb2HeadItem::append(const QString name)
     m_element.appendInside("<div></div>");
     QWebElement element = m_element.lastChild();
     element.addClass(name);
+    if (name == "annotation" || name == "history") {
+        element.appendInside("<p><br></p>");
+    }
     Fb2HeadItem * child = new Fb2HeadItem(element, this);
     m_list << child;
     return child;
