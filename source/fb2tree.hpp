@@ -2,11 +2,16 @@
 #define FB2TREE_HPP
 
 #include <QAbstractItemModel>
+#include <QMenu>
 #include <QTreeView>
 #include <QTimer>
 #include <QToolBar>
 
 #include "fb2html.h"
+
+QT_BEGIN_NAMESPACE
+class QAction;
+QT_END_NAMESPACE
 
 class Fb2WebView;
 
@@ -111,13 +116,14 @@ class Fb2TreeView : public QTreeView
 
 public:
     explicit Fb2TreeView(Fb2WebView &view, QWidget *parent = 0);
-    void initToolbar(QToolBar *toolbar);
+    void initActions(QToolBar *toolbar);
 
 public slots:
     void updateTree();
 
 private slots:
     void activated(const QModelIndex &index);
+    void contextMenu(const QPoint &pos);
     void contentsChanged();
     void selectionChanged();
     void selectTree();
@@ -138,6 +144,11 @@ private:
     Fb2WebView & m_view;
     QTimer m_timerSelect;
     QTimer m_timerUpdate;
+    QMenu m_menu;
+    QAction
+        *actionCut,
+        *actionCopy,
+        *actionPaste;
 };
 
 class Fb2TreeWidget : public QWidget

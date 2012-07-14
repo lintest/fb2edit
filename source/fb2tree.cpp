@@ -3,6 +3,7 @@
 #include <QtDebug>
 #include <QAction>
 #include <QApplication>
+#include <QCursor>
 #include <QVBoxLayout>
 #include <QWebFrame>
 #include <QWebPage>
@@ -331,12 +332,13 @@ Fb2TreeView::Fb2TreeView(Fb2WebView &view, QWidget *parent)
     , m_view(view)
 {
     setHeaderHidden(true);
-    setContextMenuPolicy(Qt::ActionsContextMenu);
+    setContextMenuPolicy(Qt::CustomContextMenu);
 
     connect(this, SIGNAL(activated(QModelIndex)), SLOT(activated(QModelIndex)));
     connect(m_view.page(), SIGNAL(loadFinished(bool)), SLOT(updateTree()));
     connect(m_view.page(), SIGNAL(contentsChanged()), SLOT(contentsChanged()));
     connect(m_view.page(), SIGNAL(selectionChanged()), SLOT(selectionChanged()));
+    connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(contextMenu(QPoint)));
 
     m_timerSelect.setInterval(1000);
     m_timerSelect.setSingleShot(true);
@@ -349,7 +351,7 @@ Fb2TreeView::Fb2TreeView(Fb2WebView &view, QWidget *parent)
     QMetaObject::invokeMethod(this, "updateTree", Qt::QueuedConnection);
 }
 
-void Fb2TreeView::initToolbar(QToolBar *toolbar)
+void Fb2TreeView::initActions(QToolBar *toolbar)
 {
     QAction * act;
 
@@ -359,7 +361,7 @@ void Fb2TreeView::initToolbar(QToolBar *toolbar)
     act->setPriority(QAction::LowPriority);
     connect(act, SIGNAL(triggered()), SLOT(insertNode()));
     toolbar->addAction(act);
-    addAction(act);
+    m_menu.addAction(act);
 
     act = new QAction(FB2::icon("list-remove"), tr("&Delete"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
@@ -367,37 +369,65 @@ void Fb2TreeView::initToolbar(QToolBar *toolbar)
     act->setPriority(QAction::LowPriority);
     connect(act, SIGNAL(triggered()), SLOT(deleteNode()));
     toolbar->addAction(act);
-    addAction(act);
+    m_menu.addAction(act);
+
+    m_menu.addSeparator();
+
+    actionCut = act = new QAction(FB2::icon("edit-cut"), tr("Cu&t"), this);
+    act->setShortcutContext(Qt::WidgetShortcut);
+    act->setPriority(QAction::LowPriority);
+    act->setShortcuts(QKeySequence::Cut);
+    act->setEnabled(false);
+    m_menu.addAction(act);
+
+    actionCopy = act = new QAction(FB2::icon("edit-copy"), tr("&Copy"), this);
+    act->setShortcutContext(Qt::WidgetShortcut);
+    act->setPriority(QAction::LowPriority);
+    act->setShortcuts(QKeySequence::Copy);
+    act->setEnabled(false);
+    m_menu.addAction(act);
+
+    actionPaste = act = new QAction(FB2::icon("edit-paste"), tr("&Paste"), this);
+    act->setShortcutContext(Qt::WidgetShortcut);
+    act->setPriority(QAction::LowPriority);
+    act->setShortcuts(QKeySequence::Paste);
+    m_menu.addAction(act);
 
     toolbar->addSeparator();
+    m_menu.addSeparator();
 
     act = new QAction(FB2::icon("go-up"), tr("&Up"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Up));
     connect(act, SIGNAL(triggered()), SLOT(moveUp()));
     toolbar->addAction(act);
-    addAction(act);
+    m_menu.addAction(act);
 
     act = new QAction(FB2::icon("go-down"), tr("&Down"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Down));
     connect(act, SIGNAL(triggered()), SLOT(moveDown()));
     toolbar->addAction(act);
-    addAction(act);
+    m_menu.addAction(act);
 
     act = new QAction(FB2::icon("go-previous"), tr("&Left"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Left));
     connect(act, SIGNAL(triggered()), SLOT(moveLeft()));
     toolbar->addAction(act);
-    addAction(act);
+    m_menu.addAction(act);
 
     act = new QAction(FB2::icon("go-next"), tr("&Right"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
     connect(act, SIGNAL(triggered()), SLOT(moveRight()));
     toolbar->addAction(act);
-    addAction(act);
+    m_menu.addAction(act);
+}
+
+void Fb2TreeView::contextMenu(const QPoint &pos)
+{
+    m_menu.exec(QCursor::pos());
 }
 
 void Fb2TreeView::selectionChanged()
@@ -542,11 +572,10 @@ Fb2TreeWidget::Fb2TreeWidget(Fb2WebView &view, QWidget* parent)
     layout->setObjectName(QString::fromUtf8("verticalLayout"));
 
     m_tree = new Fb2TreeView(view, this);
-    m_tree->setContextMenuPolicy(Qt::ActionsContextMenu);
     layout->addWidget(m_tree);
 
     m_tool = new QToolBar(this);
     layout->addWidget(m_tool);
 
-    m_tree->initToolbar(m_tool);
+    m_tree->initActions(m_tool);
 }

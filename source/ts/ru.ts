@@ -516,27 +516,39 @@
     <name>Fb2TreeView</name>
     <message>
         <source>&amp;Insert</source>
-        <translation type="unfinished">&amp;Вставка</translation>
+        <translation>&amp;Вставка</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation type="unfinished">&amp;Удалить</translation>
+        <translation>&amp;Удалить</translation>
     </message>
     <message>
         <source>&amp;Up</source>
-        <translation type="unfinished">В&amp;верх</translation>
+        <translation>В&amp;верх</translation>
     </message>
     <message>
         <source>&amp;Down</source>
-        <translation type="unfinished">В&amp;низ</translation>
+        <translation>В&amp;низ</translation>
     </message>
     <message>
         <source>&amp;Left</source>
-        <translation type="unfinished"></translation>
+        <translation>В&amp;лево</translation>
     </message>
     <message>
         <source>&amp;Right</source>
-        <translation type="unfinished"></translation>
+        <translation>В&amp;право</translation>
+    </message>
+    <message>
+        <source>Cu&amp;t</source>
+        <translation>Вы&amp;резать</translation>
+    </message>
+    <message>
+        <source>&amp;Copy</source>
+        <translation>&amp;Копировать</translation>
+    </message>
+    <message>
+        <source>&amp;Paste</source>
+        <translation>&amp;Вставить</translation>
     </message>
 </context>
 <context>

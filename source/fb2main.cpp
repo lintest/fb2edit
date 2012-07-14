@@ -270,6 +270,7 @@ void Fb2MainWindow::createActions()
     menu->addSeparator();
 
     actionCut = act = new QAction(FB2::icon("edit-cut"), tr("Cu&t"), this);
+    act->setShortcutContext(Qt::WidgetShortcut);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Cut);
     act->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
@@ -277,6 +278,7 @@ void Fb2MainWindow::createActions()
     menu->addAction(act);
 
     actionCopy = act = new QAction(FB2::icon("edit-copy"), tr("&Copy"), this);
+    act->setShortcutContext(Qt::WidgetShortcut);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Copy);
     act->setStatusTip(tr("Copy the current selection's contents to the clipboard"));
@@ -284,6 +286,7 @@ void Fb2MainWindow::createActions()
     menu->addAction(act);
 
     actionPaste = act = new QAction(FB2::icon("edit-paste"), tr("&Paste"), this);
+    act->setShortcutContext(Qt::WidgetShortcut);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Paste);
     act->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
