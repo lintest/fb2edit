@@ -496,6 +496,18 @@
         <source>&lt;create new&gt;</source>
         <translation>&lt;создать новый&gt;</translation>
     </message>
+    <message>
+        <source>Insert footnote</source>
+        <translation>Вставить сноску</translation>
+    </message>
+    <message>
+        <source>Identifier:</source>
+        <translation>Идентификатор:</translation>
+    </message>
+    <message>
+        <source>Title:</source>
+        <translation>Заголовок:</translation>
+    </message>
 </context>
 <context>
     <name>Fb2SaveDialog</name>

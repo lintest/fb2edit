@@ -6,9 +6,15 @@
 class Fb2CodeEdit;
 class Fb2WebView;
 
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QLineEdit;
+class QToolBar;
+class QWebView;
+QT_END_NAMESPACE
+
 namespace Ui {
 class Fb2Find;
-class Fb2Note;
 }
 
 class Fb2CodeFindDlg : public QDialog
@@ -49,13 +55,15 @@ class Fb2NoteDlg : public QDialog
     
 public:
     explicit Fb2NoteDlg(Fb2WebView &view);
-    virtual ~Fb2NoteDlg();
 
 private slots:
     void loadFinished();
 
 private:
-    Ui::Fb2Note * ui;
+    QComboBox *m_key;
+    QWebView *m_text;
+    QLineEdit *m_title;
+    QToolBar *m_toolbar;
 };
 
 #endif // FB2DLGS_H

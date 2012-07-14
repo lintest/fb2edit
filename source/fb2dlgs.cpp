@@ -4,8 +4,11 @@
 #include "fb2view.hpp"
 #include "fb2utils.h"
 #include "ui_fb2find.h"
-#include "ui_fb2note.h"
 
+#include <QComboBox>
+#include <QDialogButtonBox>
+#include <QLineEdit>
+#include <QToolBar>
 #include <QWebFrame>
 #include <QWebPage>
 
@@ -77,30 +80,61 @@ void Fb2TextFindDlg::find()
 
 Fb2NoteDlg::Fb2NoteDlg(Fb2WebView &view)
     : QDialog(&view)
-    , ui(new Ui::Fb2Note)
 {
-    ui->setupUi(this);
-    ui->m_key->addItem(tr("<create new>"));
-    ui->m_key->setCurrentIndex(0);
-    ui->m_title->setFocus();
+    setWindowTitle(tr("Insert footnote"));
+    resize(460, 300);
+
+    QGridLayout * gridLayout = new QGridLayout(this);
+
+    QLabel * label1 = new QLabel(this);
+    label1->setText(tr("Identifier:"));
+    gridLayout->addWidget(label1, 0, 0, 1, 1);
+
+    m_key = new QComboBox(this);
+    QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    gridLayout->addWidget(m_key, 0, 1, 1, 1);
+
+    QLabel * label2 = new QLabel(this);
+    label2->setText(tr("Title:"));
+    gridLayout->addWidget(label2, 1, 0, 1, 1);
+
+    m_title = new QLineEdit(this);
+    m_title->setObjectName(QString::fromUtf8("m_title"));
+    gridLayout->addWidget(m_title, 1, 1, 1, 1);
+
+    m_toolbar = new QToolBar(this);
+    gridLayout->addWidget(m_toolbar, 2, 0, 1, 2);
+
+    m_text = new Fb2BaseWebView(this);
+    m_text->setObjectName(QString::fromUtf8("m_text"));
+    m_text->setUrl(QUrl(QString::fromUtf8("about:blank")));
+    gridLayout->addWidget(m_text, 3, 0, 1, 2);
+
+    QDialogButtonBox * buttonBox = new QDialogButtonBox(this);
+    buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
+    buttonBox->setOrientation(Qt::Horizontal);
+    buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+    gridLayout->addWidget(buttonBox, 4, 0, 1, 2);
+
+    QObject::connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    QObject::connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+    m_key->addItem(tr("<create new>"));
+    m_key->setCurrentIndex(0);
+    m_title->setFocus();
 
     Fb2WebPage *page = new Fb2WebPage(this);
-    connect(ui->m_text, SIGNAL(loadFinished(bool)), SLOT(loadFinished()));
+    connect(m_text, SIGNAL(loadFinished(bool)), SLOT(loadFinished()));
     page->setNetworkAccessManager(view.page()->networkAccessManager());
     page->setContentEditable(true);
-    ui->m_text->setPage(page);
-    ui->m_text->setHtml("<body><p></p></body>");
+    m_text->setPage(page);
+    m_text->setHtml("<body><p><br></p></body>");
 
-    FB2::addTools(ui->m_toolbar, ui->m_text);
-}
-
-Fb2NoteDlg::~Fb2NoteDlg()
-{
-    delete ui;
+    FB2::addTools(m_toolbar, m_text);
 }
 
 void Fb2NoteDlg::loadFinished()
 {
-    Fb2WebElement body = ui->m_text->page()->mainFrame()->documentElement().findFirst("body");
+    Fb2WebElement body = m_text->page()->mainFrame()->documentElement().findFirst("body");
     body.select();
 }
