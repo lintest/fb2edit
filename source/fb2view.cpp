@@ -10,6 +10,8 @@
 #include <QtDebug>
 #include <QFileDialog>
 #include <QNetworkRequest>
+#include <QStyle>
+#include <QStyleOptionFrame>
 #include <QToolTip>
 #include <QUndoCommand>
 #include <QUndoStack>
@@ -127,6 +129,19 @@ void Fb2WebPage::insertBody()
     undoStack()->push(new Fb2InsertBodyCommand(*this));
     undoStack()->endMacro();
     emit contentsChanged();
+}
+
+//---------------------------------------------------------------------------
+//  Fb2BaseWebView
+//---------------------------------------------------------------------------
+
+void Fb2BaseWebView::paintEvent(QPaintEvent *event)
+{
+    QWebView::paintEvent(event);
+    QPainter painter(this);
+    QStyleOptionFrame option;
+    option.initFrom(this);
+    style()->drawPrimitive(QStyle::PE_Frame, &option, &painter, this);
 }
 
 //---------------------------------------------------------------------------

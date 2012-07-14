@@ -41,6 +41,8 @@ protected:
           m_timer.start();
      }
 
+     void paintEvent(QPaintEvent *event);
+
 private:
     QTimer m_timer;
     QSize m_size;
