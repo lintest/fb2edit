@@ -105,10 +105,19 @@ Fb2NoteDlg::Fb2NoteDlg(Fb2WebView &view)
     m_toolbar = new QToolBar(this);
     gridLayout->addWidget(m_toolbar, 2, 0, 1, 2);
 
-    m_text = new Fb2BaseWebView(this);
+    QFrame * frame = new QFrame(this);
+    frame->setFrameShape(QFrame::StyledPanel);
+    frame->setFrameShadow(QFrame::Sunken);
+    gridLayout->addWidget(frame, 3, 0, 1, 2);
+
+    QLayout * frameLayout = new QBoxLayout(QBoxLayout::LeftToRight, frame);
+    frameLayout->setSpacing(0);
+    frameLayout->setMargin(0);
+
+    m_text = new QWebView(frame);
     m_text->setObjectName(QString::fromUtf8("m_text"));
     m_text->setUrl(QUrl(QString::fromUtf8("about:blank")));
-    gridLayout->addWidget(m_text, 3, 0, 1, 2);
+    frameLayout->addWidget(m_text);
 
     QDialogButtonBox * buttonBox = new QDialogButtonBox(this);
     buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
