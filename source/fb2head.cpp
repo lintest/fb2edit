@@ -465,7 +465,7 @@ Fb2HeadView::Fb2HeadView(Fb2WebView &view, QWidget *parent)
 
     actionInsert = act = new QAction(FB2::icon("list-add"), tr("&Append"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
-    act->setShortcut(QKeySequence("Insert"));
+    act->setShortcut(Qt::Key_Insert);
     act->setPriority(QAction::LowPriority);
     connect(act, SIGNAL(triggered()), SLOT(appendNode()));
     addAction(act);
@@ -475,7 +475,7 @@ Fb2HeadView::Fb2HeadView(Fb2WebView &view, QWidget *parent)
 
     actionDelete = act = new QAction(FB2::icon("list-remove"), tr("&Delete"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
-    act->setShortcut(QKeySequence("Delete"));
+    act->setShortcut(Qt::Key_Delete);
     act->setPriority(QAction::LowPriority);
     connect(act, SIGNAL(triggered()), SLOT(removeNode()));
     addAction(act);

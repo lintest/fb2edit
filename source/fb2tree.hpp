@@ -136,6 +136,9 @@ private slots:
     void moveLeft();
     void moveRight();
 
+protected:
+    void keyPressEvent(QKeyEvent *event);
+
 private:
     void moveCurrent(int dx, int dy);
     Fb2TreeModel * model();

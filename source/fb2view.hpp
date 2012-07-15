@@ -77,6 +77,8 @@ public:
     bool save(QIODevice *device, const QString &codec = QString());
     bool save(QByteArray *array);
     bool save(QString *string);
+    QWebElement current();
+    QString location();
     QString status();
 
     bool UndoEnabled();
@@ -100,6 +102,7 @@ public slots:
     void insertNote();
     void insertLink();
     void insertTitle();
+    void insertSubtitle();
     void zoomIn();
     void zoomOut();
     void zoomReset();

@@ -370,11 +370,34 @@ void Fb2WebView::execCommand(const QString &cmd, const QString &arg)
     page()->mainFrame()->evaluateJavaScript(javascript);
 }
 
+QWebElement Fb2WebView::current()
+{
+    QStringList list = location().split(",");
+    QStringListIterator iterator(list);
+    QWebElement result = doc();
+    while (iterator.hasNext()) {
+        QString str = iterator.next();
+        int pos = str.indexOf("=");
+        QString tag = str.left(pos);
+        int key = str.mid(pos + 1).toInt();
+        if (key < 0) break;
+        result = result.firstChild();
+        while (0 < key--) result = result.nextSibling();
+        if (tag == "P") break;
+    }
+    return result;
+}
+
+QString Fb2WebView::location()
+{
+    static const QString javascript = FB2::read(":/js/get_location.js");
+    return page()->mainFrame()->evaluateJavaScript(javascript).toString();
+}
+
 QString Fb2WebView::status()
 {
     static const QString javascript = FB2::read(":/js/get_status.js");
     return page()->mainFrame()->evaluateJavaScript(javascript).toString();
-    return QString();
 }
 
 void Fb2WebView::loadFinished()
@@ -390,6 +413,28 @@ void Fb2WebView::insertTitle()
     static const QString javascript = FB2::read(":/js/insert_title.js");
     page()->mainFrame()->evaluateJavaScript(javascript);
     page()->undoStack()->endMacro();
+}
+
+void Fb2WebView::insertSubtitle()
+{
+    Fb2WebElement element = current();
+    while (!element.isNull()) {
+        Fb2WebElement parent = element.parent();
+        if (parent.isSection()) {
+            Fb2WebElement subtitle;
+            QString html = "<div class=subtitle><p><br/></p></div>";
+            if (element.isTitle()) {
+                element.appendOutside(html);
+                subtitle = element.nextSibling();
+            } else {
+                element.prependOutside(html);
+                subtitle = element.previousSibling();
+            }
+            subtitle.select();
+            break;
+        }
+        element = parent;
+    }
 }
 
 //---------------------------------------------------------------------------

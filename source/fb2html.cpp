@@ -11,3 +11,12 @@ void Fb2WebElement::select()
     evaluateJavaScript(javascript);
 }
 
+bool Fb2WebElement::isSection() const
+{
+    return tagName() == "DIV" && attribute("class").toLower() == "section";
+}
+
+bool Fb2WebElement::isTitle() const
+{
+    return tagName() == "DIV" && attribute("class").toLower() == "title";
+}

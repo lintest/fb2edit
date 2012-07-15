@@ -693,6 +693,7 @@ void Fb2MainWindow::viewText()
     connect(actionNote, SIGNAL(triggered()), textEdit, SLOT(insertNote()));
     connect(actionLink, SIGNAL(triggered()), textEdit, SLOT(insertLink()));
     connect(actionTitle, SIGNAL(triggered()), textEdit, SLOT(insertTitle()));
+    connect(actionSubtitle, SIGNAL(triggered()), textEdit, SLOT(insertSubtitle()));
     connect(actionBody, SIGNAL(triggered()), textEdit->page(), SLOT(insertBody()));
 
     connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));

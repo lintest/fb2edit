@@ -357,7 +357,7 @@ void Fb2TreeView::initActions(QToolBar *toolbar)
 
     act = new QAction(FB2::icon("list-add"), tr("&Insert"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
-    act->setShortcut(QKeySequence("Insert"));
+    act->setShortcut(Qt::Key_Insert);
     act->setPriority(QAction::LowPriority);
     connect(act, SIGNAL(triggered()), SLOT(insertNode()));
     toolbar->addAction(act);
@@ -365,7 +365,7 @@ void Fb2TreeView::initActions(QToolBar *toolbar)
 
     act = new QAction(FB2::icon("list-remove"), tr("&Delete"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
-    act->setShortcut(QKeySequence("Delete"));
+    act->setShortcut(Qt::Key_Delete);
     act->setPriority(QAction::LowPriority);
     connect(act, SIGNAL(triggered()), SLOT(deleteNode()));
     toolbar->addAction(act);
@@ -425,6 +425,17 @@ void Fb2TreeView::initActions(QToolBar *toolbar)
     m_menu.addAction(act);
 }
 
+void Fb2TreeView::keyPressEvent(QKeyEvent *event)
+{
+    if (event->modifiers() == Qt::NoModifier) {
+        switch (event->key()) {
+            case Qt::Key_Insert: insertNode(); return;
+            case Qt::Key_Delete: deleteNode(); return;
+        }
+    }
+    QTreeView::keyPressEvent(event);
+}
+
 void Fb2TreeView::contextMenu(const QPoint &pos)
 {
     m_menu.exec(QCursor::pos());
@@ -452,9 +463,7 @@ void Fb2TreeView::selectTree()
 {
     if (qApp->focusWidget() == this) return;
     if (Fb2TreeModel * m = model()) {
-        QWebFrame * frame = m->view().page()->mainFrame();
-        static const QString javascript = FB2::read(":/js/get_location.js");
-        QString location = frame->evaluateJavaScript(javascript).toString();
+        QString location = m->view().location();
         QModelIndex index = m->index(location);
         if (!index.isValid()) return;
         setCurrentIndex(index);
