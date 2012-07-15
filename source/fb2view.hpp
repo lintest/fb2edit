@@ -12,6 +12,7 @@
 
 QT_BEGIN_NAMESPACE
 class QWebInspector;
+class QDockWidget;
 QT_END_NAMESPACE
 
 class Fb2NoteView;
@@ -95,7 +96,6 @@ public slots:
     void data(QString name, QByteArray data);
     void html(QString name, QString html);
     void linkHovered(const QString &link, const QString &title, const QString &textContent);
-    void showInspector();
     void insertImage();
     void insertNote();
     void insertLink();
@@ -117,7 +117,6 @@ private:
     QWebElement doc();
 
 private:
-    QWebInspector * m_inspector;
     Fb2TemporaryList m_files;
     Fb2NoteView *m_noteView;
     QThread *m_thread;
@@ -126,9 +125,19 @@ private:
 
 class Fb2WebFrame : public QFrame
 {
+    Q_OBJECT
+
 public:
     explicit Fb2WebFrame(QWidget* parent = 0);
+    ~Fb2WebFrame();
+    void hideInspector();
     Fb2WebView view;
+
+public slots:
+    void showInspector();
+
+private:
+    QDockWidget * dock;
 };
 
 #endif // FB2VIEW_H

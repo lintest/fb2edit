@@ -698,7 +698,7 @@ void Fb2MainWindow::viewText()
     connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
     connect(actionZoomReset, SIGNAL(triggered()), textEdit, SLOT(zoomReset()));
-    connect(actionInspect, SIGNAL(triggered()), textEdit, SLOT(showInspector()));
+    connect(actionInspect, SIGNAL(triggered()), textFrame, SLOT(showInspector()));
 
     if (!xml.isEmpty()) textFrame->view.load(curFile, xml);
 
@@ -726,6 +726,8 @@ void Fb2MainWindow::viewText()
 void Fb2MainWindow::viewHead()
 {
     if (headTree && centralWidget() == headTree) return;
+
+    if (textFrame) textFrame->hideInspector();
 
     QString xml;
     if (codeEdit) xml = codeEdit->text();

@@ -8,7 +8,9 @@
 
 #include <QAction>
 #include <QBoxLayout>
+#include <QDockWidget>
 #include <QFileDialog>
+#include <QMainWindow>
 #include <QNetworkRequest>
 #include <QStyle>
 #include <QStyleOptionFrame>
@@ -138,7 +140,6 @@ void Fb2WebPage::insertBody()
 
 Fb2WebView::Fb2WebView(QWidget *parent)
     : Fb2BaseWebView(parent)
-    , m_inspector(0)
     , m_noteView(0)
     , m_thread(0)
 {
@@ -152,7 +153,6 @@ Fb2WebView::Fb2WebView(QWidget *parent)
 
 Fb2WebView::~Fb2WebView()
 {
-    FB2DELETE(m_inspector);
     FB2DELETE(m_noteView);
 }
 
@@ -377,16 +377,6 @@ QString Fb2WebView::status()
     return QString();
 }
 
-void Fb2WebView::showInspector()
-{
-    if (!m_inspector) {
-        m_inspector = new QWebInspector();
-        m_inspector->setAttribute(Qt::WA_DeleteOnClose, false);
-        m_inspector->setPage(page());
-    }
-    m_inspector->show();
-}
-
 void Fb2WebView::loadFinished()
 {
     Fb2WebElement element = body().findFirst("div.body");
@@ -409,6 +399,7 @@ void Fb2WebView::insertTitle()
 Fb2WebFrame::Fb2WebFrame(QWidget* parent)
     : QFrame(parent)
     , view(this)
+    , dock(0)
 {
     setFrameShape(QFrame::StyledPanel);
     setFrameShadow(QFrame::Sunken);
@@ -417,4 +408,33 @@ Fb2WebFrame::Fb2WebFrame(QWidget* parent)
     layout->setSpacing(0);
     layout->setMargin(0);
     layout->addWidget(&view);
+}
+
+Fb2WebFrame::~Fb2WebFrame()
+{
+    if (dock) dock->deleteLater();
+}
+
+void Fb2WebFrame::showInspector()
+{
+    if (dock) {
+        dock->show();
+        return;
+    }
+
+    QMainWindow * main = qobject_cast<QMainWindow*>(parent());
+    if (!main) return;
+
+    dock = new QDockWidget(tr("Web inspector"), this);
+    dock->setFeatures(QDockWidget::AllDockWidgetFeatures);
+    main->addDockWidget(Qt::BottomDockWidgetArea, dock);
+
+    QWebInspector * inspector = new QWebInspector(this);
+    inspector->setPage(view.page());
+    dock->setWidget(inspector);
+}
+
+void Fb2WebFrame::hideInspector()
+{
+    if (dock) dock->hide();
 }
