@@ -1,6 +1,7 @@
 #ifndef FB2VIEW_H
 #define FB2VIEW_H
 
+#include <QFrame>
 #include <QResizeEvent>
 #include <QTimer>
 #include <QThread>
@@ -40,8 +41,6 @@ protected:
           if (!m_timer.isActive()) m_size = event->oldSize();
           m_timer.start();
      }
-
-     void paintEvent(QPaintEvent *event);
 
 private:
     QTimer m_timer;
@@ -123,6 +122,13 @@ private:
     Fb2NoteView *m_noteView;
     QThread *m_thread;
     QPoint m_point;
+};
+
+class Fb2WebFrame : public QFrame
+{
+public:
+    explicit Fb2WebFrame(QWidget* parent = 0);
+    Fb2WebView view;
 };
 
 #endif // FB2VIEW_H

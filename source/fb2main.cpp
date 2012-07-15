@@ -17,7 +17,7 @@ Fb2MainWindow::Fb2MainWindow()
     init();
     setCurrentFile();
     viewText();
-    textEdit->load(":blank.fb2");
+    textFrame->view.load(":blank.fb2");
 }
 
 Fb2MainWindow::Fb2MainWindow(const QString &filename, ViewMode mode)
@@ -26,7 +26,7 @@ Fb2MainWindow::Fb2MainWindow(const QString &filename, ViewMode mode)
     setCurrentFile(filename);
     if (mode == FB2) {
         viewText();
-        textEdit->load(filename);
+        textFrame->view.load(filename);
     } else {
         viewCode();
         loadXML(filename);
@@ -45,7 +45,7 @@ void Fb2MainWindow::init()
     createActions();
     createStatusBar();
 
-    textEdit = NULL;
+    textFrame = NULL;
     noteEdit = NULL;
     codeEdit = NULL;
     headTree = NULL;
@@ -130,10 +130,10 @@ void Fb2MainWindow::fileOpen()
         return;
     }
 
-    if (textEdit) {
+    if (textFrame) {
         if (isUntitled && !isWindowModified()) {
             setCurrentFile(filename);
-            textEdit->load(filename);
+            textFrame->view.load(filename);
         } else {
             Fb2MainWindow * other = new Fb2MainWindow(filename, FB2);
             other->move(x() + 40, y() + 40);
@@ -443,11 +443,11 @@ void Fb2MainWindow::openSettings()
 
 void Fb2MainWindow::createTree()
 {
-    if (textEdit && centralWidget() == textEdit) {
+    if (textFrame && centralWidget() == textFrame) {
         dockTree = new QDockWidget(tr("Contents"), this);
         dockTree->setAttribute(Qt::WA_DeleteOnClose);
         dockTree->setFeatures(QDockWidget::AllDockWidgetFeatures);
-        dockTree->setWidget(new Fb2TreeWidget(*textEdit, this));
+        dockTree->setWidget(new Fb2TreeWidget(textFrame->view, this));
         connect(dockTree, SIGNAL(destroyed()), SLOT(treeDestroyed()));
         addDockWidget(Qt::LeftDockWidgetArea, dockTree);
     }
@@ -455,16 +455,16 @@ void Fb2MainWindow::createTree()
 
 void Fb2MainWindow::selectionChanged()
 {
-    actionCut->setEnabled(textEdit->CutEnabled());
-    actionCopy->setEnabled(textEdit->CopyEnabled());
+    actionCut->setEnabled(textFrame->view.CutEnabled());
+    actionCopy->setEnabled(textFrame->view.CopyEnabled());
 
-    actionTextBold->setChecked(textEdit->BoldChecked());
-    actionTextItalic->setChecked(textEdit->ItalicChecked());
-    actionTextStrike->setChecked(textEdit->StrikeChecked());
-    actionTextSub->setChecked(textEdit->SubChecked());
-    actionTextSup->setChecked(textEdit->SupChecked());
+    actionTextBold->setChecked(textFrame->view.BoldChecked());
+    actionTextItalic->setChecked(textFrame->view.ItalicChecked());
+    actionTextStrike->setChecked(textFrame->view.StrikeChecked());
+    actionTextSub->setChecked(textFrame->view.SubChecked());
+    actionTextSup->setChecked(textFrame->view.SupChecked());
 
-    statusBar()->showMessage(textEdit->status());
+    statusBar()->showMessage(textFrame->view.status());
 }
 
 void Fb2MainWindow::canUndoChanged(bool canUndo)
@@ -479,12 +479,12 @@ void Fb2MainWindow::canRedoChanged(bool canRedo)
 
 void Fb2MainWindow::undoChanged()
 {
-    actionUndo->setEnabled(textEdit->UndoEnabled());
+    actionUndo->setEnabled(textFrame->view.UndoEnabled());
 }
 
 void Fb2MainWindow::redoChanged()
 {
-    actionRedo->setEnabled(textEdit->RedoEnabled());
+    actionRedo->setEnabled(textFrame->view.RedoEnabled());
 }
 
 void Fb2MainWindow::createStatusBar()
@@ -510,7 +510,7 @@ void Fb2MainWindow::writeSettings()
 
 bool Fb2MainWindow::maybeSave()
 {
-    if (textEdit && textEdit->isModified()) {
+    if (textFrame && textFrame->view.isModified()) {
         QMessageBox::StandardButton ret;
         ret = QMessageBox::warning(this, qApp->applicationName(),
                      tr("The document has been modified. Do you want to save your changes?"),
@@ -532,8 +532,8 @@ bool Fb2MainWindow::saveFile(const QString &fileName, const QString &codec)
         return false;
     }
 
-    if (textEdit) {
-        textEdit->save(&file, codec);
+    if (textFrame) {
+        textFrame->view.save(&file, codec);
         setCurrentFile(fileName);
     }
     return true;
@@ -541,7 +541,7 @@ bool Fb2MainWindow::saveFile(const QString &fileName, const QString &codec)
 /*
     QTextStream out(&file);
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    out << textEdit->toPlainText();
+    out << textFrame->view.toPlainText();
     QApplication::restoreOverrideCursor();
 
     setCurrentFile(fileName);
@@ -601,12 +601,12 @@ void Fb2MainWindow::viewCode()
     bool load = false;
     QByteArray xml;
     QList<int> folds;
-    if (textEdit) {
-        textEdit->save(&xml);
+    if (textFrame) {
+        textFrame->view.save(&xml);
         load = true;
     }
 
-    FB2DELETE(textEdit);
+    FB2DELETE(textFrame);
     FB2DELETE(dockTree);
     FB2DELETE(headTree);
 
@@ -654,40 +654,41 @@ void Fb2MainWindow::viewCode()
 
 void Fb2MainWindow::viewText()
 {
-    if (textEdit && centralWidget() == textEdit) return;
+    if (textFrame && centralWidget() == textFrame) return;
     QString xml;
     if (codeEdit) xml = codeEdit->text();
     FB2DELETE(codeEdit);
     FB2DELETE(headTree);
-    if (!textEdit) {
-        textEdit = new Fb2WebView(this);
+    if (!textFrame) {
+        textFrame = new Fb2WebFrame(this);
     }
-    setCentralWidget(textEdit);
-    textEdit->setFocus();
+    setCentralWidget(textFrame);
+    textFrame->view.setFocus();
     viewTree();
 
-    connect(textEdit->page()->undoStack(), SIGNAL(cleanChanged(bool)), SLOT(cleanChanged(bool)));
-    connect(textEdit->page()->undoStack(), SIGNAL(canUndoChanged(bool)), SLOT(canUndoChanged(bool)));
-    connect(textEdit->page()->undoStack(), SIGNAL(canRedoChanged(bool)), SLOT(canRedoChanged(bool)));
-    connect(textEdit->page(), SIGNAL(selectionChanged()), SLOT(selectionChanged()));
+    connect(textFrame->view.page()->undoStack(), SIGNAL(cleanChanged(bool)), SLOT(cleanChanged(bool)));
+    connect(textFrame->view.page()->undoStack(), SIGNAL(canUndoChanged(bool)), SLOT(canUndoChanged(bool)));
+    connect(textFrame->view.page()->undoStack(), SIGNAL(canRedoChanged(bool)), SLOT(canRedoChanged(bool)));
+    connect(textFrame->view.page(), SIGNAL(selectionChanged()), SLOT(selectionChanged()));
 
-    connect(textEdit->pageAction(QWebPage::Undo), SIGNAL(changed()), SLOT(undoChanged()));
-    connect(textEdit->pageAction(QWebPage::Redo), SIGNAL(changed()), SLOT(redoChanged()));
-    connect(actionUndo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Undo), SIGNAL(triggered()));
-    connect(actionRedo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Redo), SIGNAL(triggered()));
+    connect(textFrame->view.pageAction(QWebPage::Undo), SIGNAL(changed()), SLOT(undoChanged()));
+    connect(textFrame->view.pageAction(QWebPage::Redo), SIGNAL(changed()), SLOT(redoChanged()));
+    connect(actionUndo, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::Undo), SIGNAL(triggered()));
+    connect(actionRedo, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::Redo), SIGNAL(triggered()));
 
-    connect(actionCut, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Cut), SIGNAL(triggered()));
-    connect(actionCopy, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Copy), SIGNAL(triggered()));
-    connect(actionPaste, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Paste), SIGNAL(triggered()));
+    connect(actionCut, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::Cut), SIGNAL(triggered()));
+    connect(actionCopy, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::Copy), SIGNAL(triggered()));
+    connect(actionPaste, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::Paste), SIGNAL(triggered()));
+
+    connect(actionTextBold, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::ToggleBold), SIGNAL(triggered()));
+    connect(actionTextItalic, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::ToggleItalic), SIGNAL(triggered()));
+    connect(actionTextStrike, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::ToggleStrikethrough), SIGNAL(triggered()));
+    connect(actionTextSub, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::ToggleSubscript), SIGNAL(triggered()));
+    connect(actionTextSup, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::ToggleSuperscript), SIGNAL(triggered()));
+
+    QWebView * textEdit = &(textFrame->view);
 
     connect(actionFind, SIGNAL(triggered()), textEdit, SLOT(find()));
-
-    connect(actionTextBold, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleBold), SIGNAL(triggered()));
-    connect(actionTextItalic, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleItalic), SIGNAL(triggered()));
-    connect(actionTextStrike, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleStrikethrough), SIGNAL(triggered()));
-    connect(actionTextSub, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSubscript), SIGNAL(triggered()));
-    connect(actionTextSup, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSuperscript), SIGNAL(triggered()));
-
     connect(actionImage, SIGNAL(triggered()), textEdit, SLOT(insertImage()));
     connect(actionNote, SIGNAL(triggered()), textEdit, SLOT(insertNote()));
     connect(actionLink, SIGNAL(triggered()), textEdit, SLOT(insertLink()));
@@ -699,7 +700,7 @@ void Fb2MainWindow::viewText()
     connect(actionZoomReset, SIGNAL(triggered()), textEdit, SLOT(zoomReset()));
     connect(actionInspect, SIGNAL(triggered()), textEdit, SLOT(showInspector()));
 
-    if (!xml.isEmpty()) textEdit->load(curFile, xml);
+    if (!xml.isEmpty()) textFrame->view.load(curFile, xml);
 
     FB2DELETE(toolEdit);
     QToolBar *tool = toolEdit = addToolBar(tr("Edit"));
@@ -733,26 +734,26 @@ void Fb2MainWindow::viewHead()
     FB2DELETE(codeEdit);
     FB2DELETE(toolEdit);
 
-    if (!textEdit) {
-        textEdit = new Fb2WebView(this);
+    if (!textFrame) {
+        textFrame = new Fb2WebFrame(this);
     }
 
     if (!headTree) {
-        headTree = new Fb2HeadView(*textEdit, this);
+        headTree = new Fb2HeadView(textFrame->view, this);
         connect(headTree, SIGNAL(status(QString)), this, SLOT(status(QString)));
     }
 
     this->setFocus();
-    textEdit->setParent(NULL);
+    textFrame->setParent(NULL);
     setCentralWidget(headTree);
-    textEdit->setParent(this);
+    textFrame->setParent(this);
     headTree->updateTree();
 
     headTree->setFocus();
 
-    if (!xml.isEmpty()) textEdit->load(curFile, xml);
+    if (!xml.isEmpty()) textFrame->view.load(curFile, xml);
 
-    if (textEdit) {
+    if (textFrame) {
         actionUndo->disconnect();
         actionRedo->disconnect();
 

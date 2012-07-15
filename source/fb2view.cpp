@@ -7,7 +7,7 @@
 #include "fb2xml2.h"
 
 #include <QAction>
-#include <QtDebug>
+#include <QBoxLayout>
 #include <QFileDialog>
 #include <QNetworkRequest>
 #include <QStyle>
@@ -19,6 +19,7 @@
 #include <QWebInspector>
 #include <QWebFrame>
 #include <QWebPage>
+#include <QtDebug>
 
 //---------------------------------------------------------------------------
 //  Fb2NoteView
@@ -129,19 +130,6 @@ void Fb2WebPage::insertBody()
     undoStack()->push(new Fb2InsertBodyCommand(*this));
     undoStack()->endMacro();
     emit contentsChanged();
-}
-
-//---------------------------------------------------------------------------
-//  Fb2BaseWebView
-//---------------------------------------------------------------------------
-
-void Fb2BaseWebView::paintEvent(QPaintEvent *event)
-{
-    QWebView::paintEvent(event);
-    QPainter painter(this);
-    QStyleOptionFrame option;
-    option.initFrom(this);
-    style()->drawPrimitive(QStyle::PE_Frame, &option, &painter, this);
 }
 
 //---------------------------------------------------------------------------
@@ -414,3 +402,19 @@ void Fb2WebView::insertTitle()
     page()->undoStack()->endMacro();
 }
 
+//---------------------------------------------------------------------------
+//  Fb2WebFrame
+//---------------------------------------------------------------------------
+
+Fb2WebFrame::Fb2WebFrame(QWidget* parent)
+    : QFrame(parent)
+    , view(this)
+{
+    setFrameShape(QFrame::StyledPanel);
+    setFrameShadow(QFrame::Sunken);
+
+    QLayout * layout = new QBoxLayout(QBoxLayout::LeftToRight, this);
+    layout->setSpacing(0);
+    layout->setMargin(0);
+    layout->addWidget(&view);
+}
