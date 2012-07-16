@@ -126,13 +126,13 @@ private:
     QPoint m_point;
 };
 
-class Fb2WebFrame : public QFrame
+class Fb2TextFrame : public QFrame
 {
     Q_OBJECT
 
 public:
-    explicit Fb2WebFrame(QWidget* parent = 0);
-    ~Fb2WebFrame();
+    explicit Fb2TextFrame(QWidget* parent = 0);
+    ~Fb2TextFrame();
     void hideInspector();
     Fb2WebView view;
 

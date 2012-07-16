@@ -17,7 +17,7 @@ QT_END_NAMESPACE
 class Fb2CodeEdit;
 class Fb2TreeView;
 class Fb2HeadView;
-class Fb2WebFrame;
+class Fb2TextFrame;
 class Fb2WebView;
 
 class Fb2MainWindow : public QMainWindow
@@ -79,7 +79,7 @@ private:
     void setCurrentFile(const QString &fileName = QString());
     Fb2MainWindow *findFb2MainWindow(const QString &fileName);
 
-    Fb2WebFrame *textFrame;
+    Fb2TextFrame *textFrame;
     QWebInspector *inspector;
     Fb2HeadView *headTree;
     QTextEdit *noteEdit;

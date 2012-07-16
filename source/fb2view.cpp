@@ -434,10 +434,10 @@ void Fb2WebView::insertSubtitle()
 }
 
 //---------------------------------------------------------------------------
-//  Fb2WebFrame
+//  Fb2TextFrame
 //---------------------------------------------------------------------------
 
-Fb2WebFrame::Fb2WebFrame(QWidget* parent)
+Fb2TextFrame::Fb2TextFrame(QWidget* parent)
     : QFrame(parent)
     , view(this)
     , dock(0)
@@ -451,12 +451,12 @@ Fb2WebFrame::Fb2WebFrame(QWidget* parent)
     layout->addWidget(&view);
 }
 
-Fb2WebFrame::~Fb2WebFrame()
+Fb2TextFrame::~Fb2TextFrame()
 {
     if (dock) dock->deleteLater();
 }
 
-void Fb2WebFrame::showInspector()
+void Fb2TextFrame::showInspector()
 {
     if (dock) {
         dock->show();
@@ -475,7 +475,7 @@ void Fb2WebFrame::showInspector()
     dock->setWidget(inspector);
 }
 
-void Fb2WebFrame::hideInspector()
+void Fb2TextFrame::hideInspector()
 {
     if (dock) dock->hide();
 }

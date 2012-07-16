@@ -660,7 +660,7 @@ void Fb2MainWindow::viewText()
     FB2DELETE(codeEdit);
     FB2DELETE(headTree);
     if (!textFrame) {
-        textFrame = new Fb2WebFrame(this);
+        textFrame = new Fb2TextFrame(this);
     }
     setCentralWidget(textFrame);
     textFrame->view.setFocus();
@@ -738,7 +738,7 @@ void Fb2MainWindow::viewHead()
     FB2DELETE(toolEdit);
 
     if (!textFrame) {
-        textFrame = new Fb2WebFrame(this);
+        textFrame = new Fb2TextFrame(this);
     }
 
     if (!headTree) {
