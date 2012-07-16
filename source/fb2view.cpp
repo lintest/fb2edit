@@ -421,15 +421,11 @@ void Fb2WebView::insertSubtitle()
     while (!element.isNull()) {
         Fb2WebElement parent = element.parent();
         if (parent.isSection()) {
-            Fb2WebElement subtitle;
+            Fb2WebElement previous = element.previousSibling();
+            if (!previous.isNull()) element = previous;
             QString html = "<div class=subtitle><p><br/></p></div>";
-            if (element.isTitle()) {
-                element.appendOutside(html);
-                subtitle = element.nextSibling();
-            } else {
-                element.prependOutside(html);
-                subtitle = element.previousSibling();
-            }
+            element.appendOutside(html);
+            Fb2WebElement subtitle = element.nextSibling();
             subtitle.select();
             break;
         }
