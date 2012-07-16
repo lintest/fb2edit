@@ -56,6 +56,7 @@ class Fb2TextPage : public QWebPage
 public:
     explicit Fb2TextPage(QObject *parent = 0);
 
+    void update();
     Fb2TextElement element(const QString &location);
     Fb2TextElement current();
     QString location();

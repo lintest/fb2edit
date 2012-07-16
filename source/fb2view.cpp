@@ -118,12 +118,14 @@ void Fb2InsertBodyCommand::undo()
 {
     m_page.body().lastChild().removeFromDocument();
     Fb2TextElement(m_page.body().lastChild()).select();
+    m_page.update();
 }
 
 void Fb2InsertBodyCommand::redo()
 {
     m_page.body().appendInside("<div class=body><div class=section><p>text</p></div></div>");
     Fb2TextElement(m_page.body().lastChild()).select();
+    m_page.update();
 }
 
 void Fb2TextPage::insertBody()
@@ -131,7 +133,6 @@ void Fb2TextPage::insertBody()
     undoStack()->beginMacro("Insert title");
     undoStack()->push(new Fb2InsertBodyCommand(*this));
     undoStack()->endMacro();
-    emit contentsChanged();
 }
 
 class Fb2InsertSubtitleCmd : public QUndoCommand
@@ -160,8 +161,7 @@ void Fb2InsertSubtitleCmd::redo()
     element = element.nextSibling();
     m_position = element.location();
     element.select();
-    QMetaObject::invokeMethod(&m_page, "selectionChanged");
-    QMetaObject::invokeMethod(&m_page, "contentsChanged");
+    m_page.update();
 }
 
 void Fb2InsertSubtitleCmd::undo()
@@ -170,8 +170,13 @@ void Fb2InsertSubtitleCmd::undo()
     Fb2TextElement parent = element.parent();
     m_element = element.takeFromDocument();
     parent.select();
-    QMetaObject::invokeMethod(&m_page, "selectionChanged");
-    QMetaObject::invokeMethod(&m_page, "contentsChanged");
+    m_page.update();
+}
+
+void Fb2TextPage::update()
+{
+    emit contentsChanged();
+    emit selectionChanged();
 }
 
 void Fb2TextPage::insertSubtitle()
@@ -185,7 +190,6 @@ void Fb2TextPage::insertSubtitle()
             undoStack()->beginMacro("Insert subtitle");
             undoStack()->push(new Fb2InsertSubtitleCmd(*this, element.location()));
             undoStack()->endMacro();
-            emit contentsChanged();
             break;
         }
         element = parent;
