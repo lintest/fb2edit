@@ -16,7 +16,7 @@ QT_END_NAMESPACE
 
 #include "fb2temp.hpp"
 
-class Fb2WebView;
+class Fb2TextEdit;
 
 class Fb2SaveDialog : public QFileDialog
 {
@@ -66,10 +66,10 @@ private:
 class Fb2SaveWriter : public QXmlStreamWriter
 {
 public:
-    explicit Fb2SaveWriter(Fb2WebView &view, QByteArray *array);
-    explicit Fb2SaveWriter(Fb2WebView &view, QIODevice *device);
-    explicit Fb2SaveWriter(Fb2WebView &view, QString *string);
-    Fb2WebView & view() { return m_view; }
+    explicit Fb2SaveWriter(Fb2TextEdit &view, QByteArray *array);
+    explicit Fb2SaveWriter(Fb2TextEdit &view, QIODevice *device);
+    explicit Fb2SaveWriter(Fb2TextEdit &view, QString *string);
+    Fb2TextEdit & view() { return m_view; }
     QString getFileName(const QString &src);
     void writeStartElement(const QString &name, int level);
     void writeEndElement(int level);
@@ -80,7 +80,7 @@ private:
     QByteArray downloadFile(const QUrl &url);
     void writeContentType(const QString &name, QByteArray &data);
 private:
-    Fb2WebView &m_view;
+    Fb2TextEdit &m_view;
     QStringList m_names;
 };
 

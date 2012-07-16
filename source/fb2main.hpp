@@ -18,7 +18,7 @@ class Fb2CodeEdit;
 class Fb2TreeView;
 class Fb2HeadView;
 class Fb2TextFrame;
-class Fb2WebView;
+class Fb2TextEdit;
 
 class Fb2MainWindow : public QMainWindow
 {

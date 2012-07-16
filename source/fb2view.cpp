@@ -66,10 +66,10 @@ void Fb2NoteView::hint(const QWebElement element, const QRect &rect)
 }
 
 //---------------------------------------------------------------------------
-//  Fb2WebPage
+//  Fb2TextPage
 //---------------------------------------------------------------------------
 
-Fb2WebPage::Fb2WebPage(QObject *parent)
+Fb2TextPage::Fb2TextPage(QObject *parent)
     : QWebPage(parent)
 {
     QWebSettings *s = settings();
@@ -83,7 +83,7 @@ Fb2WebPage::Fb2WebPage(QObject *parent)
     s->setUserStyleSheetUrl(QUrl::fromLocalFile(":style.css"));
 }
 
-bool Fb2WebPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type)
+bool Fb2TextPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type)
 {
     Q_UNUSED(frame);
     if (type == NavigationTypeLinkClicked) {
@@ -94,12 +94,12 @@ bool Fb2WebPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest
     return QWebPage::acceptNavigationRequest(frame, request, type);
 }
 
-QWebElement Fb2WebPage::body()
+QWebElement Fb2TextPage::body()
 {
     return doc().findFirst("body");
 }
 
-QWebElement Fb2WebPage::doc()
+QWebElement Fb2TextPage::doc()
 {
     return mainFrame()->documentElement();
 }
@@ -107,26 +107,26 @@ QWebElement Fb2WebPage::doc()
 class Fb2InsertBodyCommand : public QUndoCommand
 {
 public:
-    explicit Fb2InsertBodyCommand(Fb2WebPage &page, QUndoCommand *parent = 0) : QUndoCommand(parent), m_page(page) {}
+    explicit Fb2InsertBodyCommand(Fb2TextPage &page, QUndoCommand *parent = 0) : QUndoCommand(parent), m_page(page) {}
     virtual void undo();
     virtual void redo();
 private:
-    Fb2WebPage & m_page;
+    Fb2TextPage & m_page;
 };
 
 void Fb2InsertBodyCommand::undo()
 {
     m_page.body().lastChild().removeFromDocument();
-    Fb2WebElement(m_page.body().lastChild()).select();
+    Fb2TextElement(m_page.body().lastChild()).select();
 }
 
 void Fb2InsertBodyCommand::redo()
 {
     m_page.body().appendInside("<div class=body><div class=section><p>text</p></div></div>");
-    Fb2WebElement(m_page.body().lastChild()).select();
+    Fb2TextElement(m_page.body().lastChild()).select();
 }
 
-void Fb2WebPage::insertBody()
+void Fb2TextPage::insertBody()
 {
     undoStack()->beginMacro("Insert title");
     undoStack()->push(new Fb2InsertBodyCommand(*this));
@@ -135,15 +135,15 @@ void Fb2WebPage::insertBody()
 }
 
 //---------------------------------------------------------------------------
-//  Fb2WebView
+//  Fb2TextEdit
 //---------------------------------------------------------------------------
 
-Fb2WebView::Fb2WebView(QWidget *parent)
-    : Fb2BaseWebView(parent)
+Fb2TextEdit::Fb2TextEdit(QWidget *parent)
+    : Fb2TextBase(parent)
     , m_noteView(0)
     , m_thread(0)
 {
-    setPage(new Fb2WebPage(this));
+    setPage(new Fb2TextPage(this));
     page()->setNetworkAccessManager(new Fb2NetworkAccessManager(*this));
     page()->setContentEditable(true);
     connect(page(), SIGNAL(contentsChanged()), this, SLOT(fixContents()));
@@ -151,46 +151,46 @@ Fb2WebView::Fb2WebView(QWidget *parent)
     connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished()));
 }
 
-Fb2WebView::~Fb2WebView()
+Fb2TextEdit::~Fb2TextEdit()
 {
     FB2DELETE(m_noteView);
 }
 
-Fb2NoteView & Fb2WebView::noteView()
+Fb2NoteView & Fb2TextEdit::noteView()
 {
     if (m_noteView) return *m_noteView;
     m_noteView = new Fb2NoteView(qobject_cast<QWidget*>(parent()), url());
-    m_noteView->setPage(new Fb2WebPage(this));
+    m_noteView->setPage(new Fb2TextPage(this));
     m_noteView->page()->setNetworkAccessManager(page()->networkAccessManager());
     m_noteView->page()->setContentEditable(false);
     m_noteView->setGeometry(QRect(100, 100, 400, 200));
     return *m_noteView;
 }
 
-QWebElement Fb2WebView::body()
+QWebElement Fb2TextEdit::body()
 {
     return doc().findFirst("body");
 }
 
-QWebElement Fb2WebView::doc()
+QWebElement Fb2TextEdit::doc()
 {
     return page()->mainFrame()->documentElement();
 }
 
-void Fb2WebView::fixContents()
+void Fb2TextEdit::fixContents()
 {
     foreach (QWebElement span, doc().findAll("span.apple-style-span[style]")) {
         span.removeAttribute("style");
     }
 }
 
-void Fb2WebView::mouseMoveEvent(QMouseEvent *event)
+void Fb2TextEdit::mouseMoveEvent(QMouseEvent *event)
 {
     m_point = event->pos();
     QWebView::mouseMoveEvent(event);
 }
 
-void Fb2WebView::linkHovered(const QString &link, const QString &title, const QString &textContent)
+void Fb2TextEdit::linkHovered(const QString &link, const QString &title, const QString &textContent)
 {
     Q_UNUSED(title);
     Q_UNUSED(textContent);
@@ -220,14 +220,14 @@ void Fb2WebView::linkHovered(const QString &link, const QString &title, const QS
     noteView().hint(element, QRect(point, size));
 }
 
-void Fb2WebView::load(const QString &filename, const QString &xml)
+void Fb2TextEdit::load(const QString &filename, const QString &xml)
 {
     if (m_thread) return;
     m_thread = new Fb2ReadThread(this, filename, xml);
     m_thread->start();
 }
 
-bool Fb2WebView::save(QIODevice *device, const QString &codec)
+bool Fb2TextEdit::save(QIODevice *device, const QString &codec)
 {
     Fb2SaveWriter writer(*this, device);
     if (!codec.isEmpty()) writer.setCodec(codec.toLatin1());
@@ -236,13 +236,13 @@ bool Fb2WebView::save(QIODevice *device, const QString &codec)
     return ok;
 }
 
-bool Fb2WebView::save(QByteArray *array)
+bool Fb2TextEdit::save(QByteArray *array)
 {
     Fb2SaveWriter writer(*this, array);
     return Fb2SaveHandler(writer).save();
 }
 
-bool Fb2WebView::save(QString *string)
+bool Fb2TextEdit::save(QString *string)
 {
     // Use class QByteArray instead QString
     // to store information about encoding.
@@ -252,12 +252,12 @@ bool Fb2WebView::save(QString *string)
     return ok;
 }
 
-void Fb2WebView::data(QString name, QByteArray data)
+void Fb2TextEdit::data(QString name, QByteArray data)
 {
     m_files.set(name, data);
 }
 
-void Fb2WebView::html(QString name, QString html)
+void Fb2TextEdit::html(QString name, QString html)
 {
     static int number = 0;
     setHtml(html, QUrl(QString("fb2:/%1/").arg(number++)));
@@ -265,75 +265,75 @@ void Fb2WebView::html(QString name, QString html)
     m_thread = 0;
 }
 
-void Fb2WebView::zoomIn()
+void Fb2TextEdit::zoomIn()
 {
     qreal zoom = zoomFactor();
     setZoomFactor(zoom * 1.1);
 }
 
-void Fb2WebView::zoomOut()
+void Fb2TextEdit::zoomOut()
 {
     qreal zoom = zoomFactor();
     setZoomFactor(zoom * 0.9);
 }
 
-void Fb2WebView::zoomReset()
+void Fb2TextEdit::zoomReset()
 {
     setZoomFactor(1);
 }
 
-bool Fb2WebView::UndoEnabled()
+bool Fb2TextEdit::UndoEnabled()
 {
     return pageAction(QWebPage::Undo)->isEnabled();
 }
 
-bool Fb2WebView::RedoEnabled()
+bool Fb2TextEdit::RedoEnabled()
 {
     return pageAction(QWebPage::Redo)->isEnabled();
 }
 
-bool Fb2WebView::CutEnabled()
+bool Fb2TextEdit::CutEnabled()
 {
     return pageAction(QWebPage::Cut)->isEnabled();
 }
 
-bool Fb2WebView::CopyEnabled()
+bool Fb2TextEdit::CopyEnabled()
 {
     return pageAction(QWebPage::Copy)->isEnabled();
 }
 
-bool Fb2WebView::BoldChecked()
+bool Fb2TextEdit::BoldChecked()
 {
     return pageAction(QWebPage::ToggleBold)->isChecked();
 }
 
-bool Fb2WebView::ItalicChecked()
+bool Fb2TextEdit::ItalicChecked()
 {
     return pageAction(QWebPage::ToggleItalic)->isChecked();
 }
 
-bool Fb2WebView::StrikeChecked()
+bool Fb2TextEdit::StrikeChecked()
 {
     return pageAction(QWebPage::ToggleStrikethrough)->isChecked();
 }
 
-bool Fb2WebView::SubChecked()
+bool Fb2TextEdit::SubChecked()
 {
     return pageAction(QWebPage::ToggleSubscript)->isChecked();
 }
 
-bool Fb2WebView::SupChecked()
+bool Fb2TextEdit::SupChecked()
 {
     return pageAction(QWebPage::ToggleSuperscript)->isChecked();
 }
 
-void Fb2WebView::find()
+void Fb2TextEdit::find()
 {
     Fb2TextFindDlg dlg(*this);
     dlg.exec();
 }
 
-void Fb2WebView::insertImage()
+void Fb2TextEdit::insertImage()
 {
     QString filters;
     filters += tr("Common Graphics (*.png *.jpg *.jpeg *.gif);;");
@@ -353,24 +353,24 @@ void Fb2WebView::insertImage()
     execCommand("insertImage", name.prepend("#"));
 }
 
-void Fb2WebView::insertNote()
+void Fb2TextEdit::insertNote()
 {
     Fb2NoteDlg dlg(*this);
     dlg.exec();
 }
 
 
-void Fb2WebView::insertLink()
+void Fb2TextEdit::insertLink()
 {
 }
 
-void Fb2WebView::execCommand(const QString &cmd, const QString &arg)
+void Fb2TextEdit::execCommand(const QString &cmd, const QString &arg)
 {
     QString javascript = QString("document.execCommand(\"%1\",false,\"%2\")").arg(cmd).arg(arg);
     page()->mainFrame()->evaluateJavaScript(javascript);
 }
 
-QWebElement Fb2WebView::current()
+QWebElement Fb2TextEdit::current()
 {
     QStringList list = location().split(",");
     QStringListIterator iterator(list);
@@ -388,26 +388,26 @@ QWebElement Fb2WebView::current()
     return result;
 }
 
-QString Fb2WebView::location()
+QString Fb2TextEdit::location()
 {
     static const QString javascript = FB2::read(":/js/get_location.js");
     return page()->mainFrame()->evaluateJavaScript(javascript).toString();
 }
 
-QString Fb2WebView::status()
+QString Fb2TextEdit::status()
 {
     static const QString javascript = FB2::read(":/js/get_status.js");
     return page()->mainFrame()->evaluateJavaScript(javascript).toString();
 }
 
-void Fb2WebView::loadFinished()
+void Fb2TextEdit::loadFinished()
 {
-    Fb2WebElement element = body().findFirst("div.body");
+    Fb2TextElement element = body().findFirst("div.body");
     if (element.isNull()) element = body();
     element.select();
 }
 
-void Fb2WebView::insertTitle()
+void Fb2TextEdit::insertTitle()
 {
     page()->undoStack()->beginMacro("Insert title");
     static const QString javascript = FB2::read(":/js/insert_title.js");
@@ -415,17 +415,17 @@ void Fb2WebView::insertTitle()
     page()->undoStack()->endMacro();
 }
 
-void Fb2WebView::insertSubtitle()
+void Fb2TextEdit::insertSubtitle()
 {
-    Fb2WebElement element = current();
+    Fb2TextElement element = current();
     while (!element.isNull()) {
-        Fb2WebElement parent = element.parent();
+        Fb2TextElement parent = element.parent();
         if (parent.isSection()) {
-            Fb2WebElement previous = element.previousSibling();
+            Fb2TextElement previous = element.previousSibling();
             if (!previous.isNull()) element = previous;
             QString html = "<div class=subtitle><p><br/></p></div>";
             element.appendOutside(html);
-            Fb2WebElement subtitle = element.nextSibling();
+            Fb2TextElement subtitle = element.nextSibling();
             subtitle.select();
             break;
         }

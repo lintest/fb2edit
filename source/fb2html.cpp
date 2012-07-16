@@ -2,21 +2,21 @@
 #include "fb2utils.h"
 
 //---------------------------------------------------------------------------
-//  Fb2WebElement
+//  Fb2TextElement
 //---------------------------------------------------------------------------
 
-void Fb2WebElement::select()
+void Fb2TextElement::select()
 {
     static const QString javascript = FB2::read(":/js/set_cursor.js");
     evaluateJavaScript(javascript);
 }
 
-bool Fb2WebElement::isSection() const
+bool Fb2TextElement::isSection() const
 {
     return tagName() == "DIV" && attribute("class").toLower() == "section";
 }
 
-bool Fb2WebElement::isTitle() const
+bool Fb2TextElement::isTitle() const
 {
     return tagName() == "DIV" && attribute("class").toLower() == "title";
 }

@@ -4,7 +4,7 @@
 #include <QDialog>
 
 class Fb2CodeEdit;
-class Fb2WebView;
+class Fb2TextEdit;
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -38,7 +38,7 @@ class Fb2TextFindDlg : public QDialog
     Q_OBJECT
 
 public:
-    explicit Fb2TextFindDlg(Fb2WebView &edit);
+    explicit Fb2TextFindDlg(Fb2TextEdit &edit);
     virtual ~Fb2TextFindDlg();
 
 private slots:
@@ -46,7 +46,7 @@ private slots:
 
 private:
     Ui::Fb2Find * ui;
-    Fb2WebView & m_edit;
+    Fb2TextEdit & m_edit;
 };
 
 class Fb2NoteDlg : public QDialog
@@ -54,7 +54,7 @@ class Fb2NoteDlg : public QDialog
     Q_OBJECT
     
 public:
-    explicit Fb2NoteDlg(Fb2WebView &view);
+    explicit Fb2NoteDlg(Fb2TextEdit &view);
 
 private slots:
     void loadFinished();

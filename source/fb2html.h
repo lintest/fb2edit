@@ -3,12 +3,12 @@
 
 #include <QWebElement>
 
-class Fb2WebElement : public QWebElement
+class Fb2TextElement : public QWebElement
 {
 public:
-    Fb2WebElement() {}
-    Fb2WebElement(const QWebElement &x) : QWebElement(x) {}
-    Fb2WebElement &operator=(const QWebElement &x) { QWebElement::operator=(x); return *this; }
+    Fb2TextElement() {}
+    Fb2TextElement(const QWebElement &x) : QWebElement(x) {}
+    Fb2TextElement &operator=(const QWebElement &x) { QWebElement::operator=(x); return *this; }
     bool isSection() const;
     bool isTitle() const;
 

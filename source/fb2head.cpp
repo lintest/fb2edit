@@ -455,7 +455,7 @@ Qt::ItemFlags Fb2HeadModel::flags(const QModelIndex &index) const
 //  Fb2TreeView
 //---------------------------------------------------------------------------
 
-Fb2HeadView::Fb2HeadView(Fb2WebView &view, QWidget *parent)
+Fb2HeadView::Fb2HeadView(Fb2TextEdit &view, QWidget *parent)
     : QTreeView(parent)
     , m_view(view)
 {

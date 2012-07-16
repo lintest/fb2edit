@@ -8,7 +8,7 @@
 #include <QTemporaryFile>
 #include <QNetworkAccessManager>
 
-class Fb2WebView;
+class Fb2TextEdit;
 
 class Fb2TemporaryFile : public QTemporaryFile
 {
@@ -78,7 +78,7 @@ class Fb2NetworkAccessManager : public QNetworkAccessManager
 {
     Q_OBJECT
 public:
-    explicit Fb2NetworkAccessManager(Fb2WebView &view);
+    explicit Fb2NetworkAccessManager(Fb2TextEdit &view);
 
 protected:
     virtual QNetworkReply *createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData = 0);
@@ -87,7 +87,7 @@ private:
     QNetworkReply *imageRequest(Operation op, const QNetworkRequest &request);
 
 private:
-    Fb2WebView & m_view;
+    Fb2TextEdit & m_view;
     QString m_path;
 };
 

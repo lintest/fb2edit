@@ -133,19 +133,19 @@ void Fb2HtmlHandler::onEnd(const QString &name)
 //  Fb2SaveWriter
 //---------------------------------------------------------------------------
 
-Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QByteArray *array)
+Fb2SaveWriter::Fb2SaveWriter(Fb2TextEdit &view, QByteArray *array)
     : QXmlStreamWriter(array)
     , m_view(view)
 {
 }
 
-Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QIODevice *device)
+Fb2SaveWriter::Fb2SaveWriter(Fb2TextEdit &view, QIODevice *device)
     : QXmlStreamWriter(device)
     , m_view(view)
 {
 }
 
-Fb2SaveWriter::Fb2SaveWriter(Fb2WebView &view, QString *string)
+Fb2SaveWriter::Fb2SaveWriter(Fb2TextEdit &view, QString *string)
     : QXmlStreamWriter(string)
     , m_view(view)
 {

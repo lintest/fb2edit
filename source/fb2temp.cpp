@@ -187,7 +187,7 @@ qint64 Fb2ImageReply::readData(char *data, qint64 maxSize)
 //    http://doc.trolltech.com/qq/32/qq32-webkit-protocols.html
 //---------------------------------------------------------------------------
 
-Fb2NetworkAccessManager::Fb2NetworkAccessManager(Fb2WebView &view)
+Fb2NetworkAccessManager::Fb2NetworkAccessManager(Fb2TextEdit &view)
     : QNetworkAccessManager(&view)
     , m_view(view)
 {

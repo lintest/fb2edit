@@ -143,7 +143,7 @@ Fb2TreeItem * Fb2TreeItem::content(const Fb2TreeModel &model, int number, QModel
 //  Fb2TreeModel
 //---------------------------------------------------------------------------
 
-Fb2TreeModel::Fb2TreeModel(Fb2WebView &view, QObject *parent)
+Fb2TreeModel::Fb2TreeModel(Fb2TextEdit &view, QObject *parent)
     : QAbstractItemModel(parent)
     , m_view(view)
     , m_root(NULL)
@@ -327,7 +327,7 @@ bool Fb2TreeModel::removeRows(int row, int count, const QModelIndex &parent)
 //  Fb2TreeView
 //---------------------------------------------------------------------------
 
-Fb2TreeView::Fb2TreeView(Fb2WebView &view, QWidget *parent)
+Fb2TreeView::Fb2TreeView(Fb2TextEdit &view, QWidget *parent)
     : QTreeView(parent)
     , m_view(view)
 {
@@ -572,7 +572,7 @@ void Fb2TreeView::moveRight()
 //  Fb2TreeWidget
 //---------------------------------------------------------------------------
 
-Fb2TreeWidget::Fb2TreeWidget(Fb2WebView &view, QWidget* parent)
+Fb2TreeWidget::Fb2TreeWidget(Fb2TextEdit &view, QWidget* parent)
     : QWidget(parent)
 {
     QVBoxLayout * layout = new QVBoxLayout(this);

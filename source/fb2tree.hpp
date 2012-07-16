@@ -13,7 +13,7 @@ QT_BEGIN_NAMESPACE
 class QAction;
 QT_END_NAMESPACE
 
-class Fb2WebView;
+class Fb2TextEdit;
 
 class Fb2TreeModel;
 
@@ -47,7 +47,7 @@ public:
         return m_list.size();
     }
 
-    Fb2WebElement element() const {
+    Fb2TextElement element() const {
         return m_element;
     }
 
@@ -88,10 +88,10 @@ class Fb2TreeModel: public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit Fb2TreeModel(Fb2WebView &view, QObject *parent = 0);
+    explicit Fb2TreeModel(Fb2TextEdit &view, QObject *parent = 0);
     virtual ~Fb2TreeModel();
     QModelIndex index(const QString &location) const;
-    Fb2WebView & view() { return m_view; }
+    Fb2TextEdit & view() { return m_view; }
     void selectText(const QModelIndex &index);
     QModelIndex move(const QModelIndex &index, int dx, int dy);
     QModelIndex append(const QModelIndex &parent);
@@ -106,7 +106,7 @@ public:
     virtual bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
 
 private:
-    Fb2WebView & m_view;
+    Fb2TextEdit & m_view;
     Fb2TreeItem * m_root;
 };
 
@@ -115,7 +115,7 @@ class Fb2TreeView : public QTreeView
     Q_OBJECT
 
 public:
-    explicit Fb2TreeView(Fb2WebView &view, QWidget *parent = 0);
+    explicit Fb2TreeView(Fb2TextEdit &view, QWidget *parent = 0);
     void initActions(QToolBar *toolbar);
 
 public slots:
@@ -144,7 +144,7 @@ private:
     Fb2TreeModel * model();
 
 private:
-    Fb2WebView & m_view;
+    Fb2TextEdit & m_view;
     QTimer m_timerSelect;
     QTimer m_timerUpdate;
     QMenu m_menu;
@@ -159,7 +159,7 @@ class Fb2TreeWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit Fb2TreeWidget(Fb2WebView &view, QWidget* parent = 0);
+    explicit Fb2TreeWidget(Fb2TextEdit &view, QWidget* parent = 0);
 
 protected:
     QToolBar * m_tool;

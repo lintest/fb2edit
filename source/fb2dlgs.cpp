@@ -47,7 +47,7 @@ void Fb2CodeFindDlg::find()
 //  Fb2TextFindDlg
 //---------------------------------------------------------------------------
 
-Fb2TextFindDlg::Fb2TextFindDlg(Fb2WebView &edit)
+Fb2TextFindDlg::Fb2TextFindDlg(Fb2TextEdit &edit)
     : QDialog(&edit)
     , ui(new Ui::Fb2Find)
     , m_edit(edit)
@@ -78,7 +78,7 @@ void Fb2TextFindDlg::find()
 //  Fb2NoteDlg
 //---------------------------------------------------------------------------
 
-Fb2NoteDlg::Fb2NoteDlg(Fb2WebView &view)
+Fb2NoteDlg::Fb2NoteDlg(Fb2TextEdit &view)
     : QDialog(&view)
 {
     setWindowTitle(tr("Insert footnote"));
@@ -132,7 +132,7 @@ Fb2NoteDlg::Fb2NoteDlg(Fb2WebView &view)
     m_key->setCurrentIndex(0);
     m_title->setFocus();
 
-    Fb2WebPage *page = new Fb2WebPage(this);
+    Fb2TextPage *page = new Fb2TextPage(this);
     connect(m_text, SIGNAL(loadFinished(bool)), SLOT(loadFinished()));
     page->setNetworkAccessManager(view.page()->networkAccessManager());
     page->setContentEditable(true);
@@ -144,6 +144,6 @@ Fb2NoteDlg::Fb2NoteDlg(Fb2WebView &view)
 
 void Fb2NoteDlg::loadFinished()
 {
-    Fb2WebElement body = m_text->page()->mainFrame()->documentElement().findFirst("body");
+    Fb2TextElement body = m_text->page()->mainFrame()->documentElement().findFirst("body");
     body.select();
 }

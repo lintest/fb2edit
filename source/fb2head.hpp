@@ -19,7 +19,7 @@ QT_END_NAMESPACE
 
 #include "fb2xml.h"
 
-class Fb2WebView;
+class Fb2TextEdit;
 
 class Fb2Scheme : public QDomElement
 {
@@ -154,7 +154,7 @@ class Fb2HeadView : public QTreeView
     Q_OBJECT
 
 public:
-    explicit Fb2HeadView(Fb2WebView &view, QWidget *parent = 0);
+    explicit Fb2HeadView(Fb2TextEdit &view, QWidget *parent = 0);
     void initToolbar(QToolBar &toolbar);
 
 signals:
@@ -177,7 +177,7 @@ private:
     void showStatus(const QModelIndex &current);
 
 private:
-    Fb2WebView & m_view;
+    Fb2TextEdit & m_view;
     QAction * actionInsert;
     QAction * actionModify;
     QAction * actionDelete;

@@ -17,12 +17,12 @@ QT_END_NAMESPACE
 
 class Fb2NoteView;
 
-class Fb2BaseWebView : public QWebView
+class Fb2TextBase : public QWebView
 {
     Q_OBJECT
 
 public:
-    Fb2BaseWebView(QWidget* parent = 0)
+    Fb2TextBase(QWidget* parent = 0)
         : QWebView(parent)
     {
           m_timer.setInterval(100);
@@ -48,12 +48,12 @@ private:
     QSize m_size;
 };
 
-class Fb2WebPage : public QWebPage
+class Fb2TextPage : public QWebPage
 {
     Q_OBJECT
 
 public:
-    explicit Fb2WebPage(QObject *parent = 0);
+    explicit Fb2TextPage(QObject *parent = 0);
     QWebElement body();
     QWebElement doc();
 
@@ -64,13 +64,13 @@ protected:
     virtual bool acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type);
 };
 
-class Fb2WebView : public Fb2BaseWebView
+class Fb2TextEdit : public Fb2TextBase
 {
     Q_OBJECT
 
 public:
-    explicit Fb2WebView(QWidget *parent = 0);
-    virtual ~Fb2WebView();
+    explicit Fb2TextEdit(QWidget *parent = 0);
+    virtual ~Fb2TextEdit();
 
     Fb2TemporaryList & files() { return m_files; }
     void load(const QString &filename, const QString &xml = QString());
@@ -134,7 +134,7 @@ public:
     explicit Fb2TextFrame(QWidget* parent = 0);
     ~Fb2TextFrame();
     void hideInspector();
-    Fb2WebView view;
+    Fb2TextEdit view;
 
 public slots:
     void showInspector();
