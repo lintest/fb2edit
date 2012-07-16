@@ -463,7 +463,7 @@ void Fb2TreeView::selectTree()
 {
     if (qApp->focusWidget() == this) return;
     if (Fb2TreeModel * m = model()) {
-        QString location = m->view().location();
+        QString location = m->view().page()->location();
         QModelIndex index = m->index(location);
         if (!index.isValid()) return;
         setCurrentIndex(index);

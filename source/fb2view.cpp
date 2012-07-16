@@ -94,12 +94,12 @@ bool Fb2TextPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkReques
     return QWebPage::acceptNavigationRequest(frame, request, type);
 }
 
-QWebElement Fb2TextPage::body()
+Fb2TextElement Fb2TextPage::body()
 {
     return doc().findFirst("body");
 }
 
-QWebElement Fb2TextPage::doc()
+Fb2TextElement Fb2TextPage::doc()
 {
     return mainFrame()->documentElement();
 }
@@ -134,6 +134,99 @@ void Fb2TextPage::insertBody()
     emit contentsChanged();
 }
 
+class Fb2InsertSubtitleCmd : public QUndoCommand
+{
+public:
+    explicit Fb2InsertSubtitleCmd(Fb2TextPage &page, const QString &location, QUndoCommand *parent = 0)
+        : QUndoCommand(parent), m_page(page), m_location(location) {}
+    virtual void undo();
+    virtual void redo();
+private:
+    Fb2TextElement m_element;
+    Fb2TextPage & m_page;
+    QString m_location;
+    QString m_position;
+};
+
+void Fb2InsertSubtitleCmd::redo()
+{
+    QString html = "<div class=subtitle><p><br/></p></div>";
+    Fb2TextElement element = m_page.element(m_location);
+    if (m_element.isNull()) {
+        element.appendOutside(html);
+    } else {
+        element.appendOutside(m_element);
+    }
+    element = element.nextSibling();
+    m_position = element.location();
+    element.select();
+    QMetaObject::invokeMethod(&m_page, "selectionChanged");
+    QMetaObject::invokeMethod(&m_page, "contentsChanged");
+}
+
+void Fb2InsertSubtitleCmd::undo()
+{
+    Fb2TextElement element = m_page.element(m_position);
+    Fb2TextElement parent = element.parent();
+    m_element = element.takeFromDocument();
+    parent.select();
+    QMetaObject::invokeMethod(&m_page, "selectionChanged");
+    QMetaObject::invokeMethod(&m_page, "contentsChanged");
+}
+
+void Fb2TextPage::insertSubtitle()
+{
+    Fb2TextElement element = current();
+    while (!element.isNull()) {
+        Fb2TextElement parent = element.parent();
+        if (parent.isSection()) {
+            Fb2TextElement previous = element.previousSibling();
+            if (!previous.isNull()) element = previous;
+            undoStack()->beginMacro("Insert subtitle");
+            undoStack()->push(new Fb2InsertSubtitleCmd(*this, element.location()));
+            undoStack()->endMacro();
+            emit contentsChanged();
+            break;
+        }
+        element = parent;
+    }
+}
+
+Fb2TextElement Fb2TextPage::current()
+{
+    return element(location());
+}
+
+Fb2TextElement Fb2TextPage::element(const QString &location)
+{
+    QStringList list = location.split(",");
+    QStringListIterator iterator(list);
+    QWebElement result = doc();
+    while (iterator.hasNext()) {
+        QString str = iterator.next();
+        int pos = str.indexOf("=");
+        QString tag = str.left(pos);
+        int key = str.mid(pos + 1).toInt();
+        if (key < 0) break;
+        result = result.firstChild();
+        while (0 < key--) result = result.nextSibling();
+        if (tag == "P") break;
+    }
+    return result;
+}
+
+QString Fb2TextPage::location()
+{
+    static const QString javascript = FB2::read(":/js/get_location.js").prepend("var element=document.getSelection().anchorNode;");
+    return mainFrame()->evaluateJavaScript(javascript).toString();
+}
+
+QString Fb2TextPage::status()
+{
+    static const QString javascript = FB2::read(":/js/get_status.js");
+    return mainFrame()->evaluateJavaScript(javascript).toString();
+}
+
 //---------------------------------------------------------------------------
 //  Fb2TextEdit
 //---------------------------------------------------------------------------
@@ -154,6 +247,11 @@ Fb2TextEdit::Fb2TextEdit(QWidget *parent)
 Fb2TextEdit::~Fb2TextEdit()
 {
     FB2DELETE(m_noteView);
+}
+
+Fb2TextPage * Fb2TextEdit::page()
+{
+    return qobject_cast<Fb2TextPage*>(Fb2TextBase::page());
 }
 
 Fb2NoteView & Fb2TextEdit::noteView()
@@ -370,36 +468,6 @@ void Fb2TextEdit::execCommand(const QString &cmd, const QString &arg)
     page()->mainFrame()->evaluateJavaScript(javascript);
 }
 
-QWebElement Fb2TextEdit::current()
-{
-    QStringList list = location().split(",");
-    QStringListIterator iterator(list);
-    QWebElement result = doc();
-    while (iterator.hasNext()) {
-        QString str = iterator.next();
-        int pos = str.indexOf("=");
-        QString tag = str.left(pos);
-        int key = str.mid(pos + 1).toInt();
-        if (key < 0) break;
-        result = result.firstChild();
-        while (0 < key--) result = result.nextSibling();
-        if (tag == "P") break;
-    }
-    return result;
-}
-
-QString Fb2TextEdit::location()
-{
-    static const QString javascript = FB2::read(":/js/get_location.js");
-    return page()->mainFrame()->evaluateJavaScript(javascript).toString();
-}
-
-QString Fb2TextEdit::status()
-{
-    static const QString javascript = FB2::read(":/js/get_status.js");
-    return page()->mainFrame()->evaluateJavaScript(javascript).toString();
-}
-
 void Fb2TextEdit::loadFinished()
 {
     Fb2TextElement element = body().findFirst("div.body");
@@ -413,24 +481,6 @@ void Fb2TextEdit::insertTitle()
     static const QString javascript = FB2::read(":/js/insert_title.js");
     page()->mainFrame()->evaluateJavaScript(javascript);
     page()->undoStack()->endMacro();
-}
-
-void Fb2TextEdit::insertSubtitle()
-{
-    Fb2TextElement element = current();
-    while (!element.isNull()) {
-        Fb2TextElement parent = element.parent();
-        if (parent.isSection()) {
-            Fb2TextElement previous = element.previousSibling();
-            if (!previous.isNull()) element = previous;
-            QString html = "<div class=subtitle><p><br/></p></div>";
-            element.appendOutside(html);
-            Fb2TextElement subtitle = element.nextSibling();
-            subtitle.select();
-            break;
-        }
-        element = parent;
-    }
 }
 
 //---------------------------------------------------------------------------

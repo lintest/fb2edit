@@ -16,6 +16,7 @@ class QDockWidget;
 QT_END_NAMESPACE
 
 class Fb2NoteView;
+class Fb2TextElement;
 
 class Fb2TextBase : public QWebView
 {
@@ -54,11 +55,18 @@ class Fb2TextPage : public QWebPage
 
 public:
     explicit Fb2TextPage(QObject *parent = 0);
-    QWebElement body();
-    QWebElement doc();
+
+    Fb2TextElement element(const QString &location);
+    Fb2TextElement current();
+    QString location();
+    QString status();
+
+    Fb2TextElement body();
+    Fb2TextElement doc();
 
 public slots:
     void insertBody();
+    void insertSubtitle();
 
 protected:
     virtual bool acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type);
@@ -72,14 +80,12 @@ public:
     explicit Fb2TextEdit(QWidget *parent = 0);
     virtual ~Fb2TextEdit();
 
+    Fb2TextPage * page();
     Fb2TemporaryList & files() { return m_files; }
     void load(const QString &filename, const QString &xml = QString());
     bool save(QIODevice *device, const QString &codec = QString());
     bool save(QByteArray *array);
     bool save(QString *string);
-    QWebElement current();
-    QString location();
-    QString status();
 
     bool UndoEnabled();
     bool RedoEnabled();
@@ -102,7 +108,6 @@ public slots:
     void insertNote();
     void insertLink();
     void insertTitle();
-    void insertSubtitle();
     void zoomIn();
     void zoomOut();
     void zoomReset();

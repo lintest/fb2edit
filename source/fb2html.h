@@ -9,6 +9,7 @@ public:
     Fb2TextElement() {}
     Fb2TextElement(const QWebElement &x) : QWebElement(x) {}
     Fb2TextElement &operator=(const QWebElement &x) { QWebElement::operator=(x); return *this; }
+    QString location();
     bool isSection() const;
     bool isTitle() const;
 

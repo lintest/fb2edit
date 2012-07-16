@@ -1,11 +1,9 @@
-var startNode = document.getSelection().anchorNode;
 // create a reverse function for jQuery
 $.fn.reverse = [].reverse; 
-var hierarchy = $( startNode ).parents().reverse().add( $( startNode ) ) ;
+var hierarchy = $(element).parents().reverse().add($(element));
 hierarchy.map(function () { 
-    if ( undefined !== $( this ).parent().get( 0 ).tagName )
-	{
-        var first_part = $( this ).parent().get( 0 ).tagName + "=";
-        return first_part + $( this ).parent().children().index( this );
+    var parent = $(this).parent();
+    if (undefined !== parent.get( 0 ).tagName) {
+        return parent.get(0).tagName + "=" + parent.children().index(this);
     }
 }).get().join(",");
