@@ -214,7 +214,6 @@ Fb2TextElement Fb2TextPage::element(const QString &location)
         if (key < 0) break;
         result = result.firstChild();
         while (0 < key--) result = result.nextSibling();
-        if (tag == "P") break;
     }
     return result;
 }
