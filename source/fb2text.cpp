@@ -1,4 +1,4 @@
-#include "fb2view.hpp"
+#include "fb2text.hpp"
 #include "fb2dlgs.hpp"
 #include "fb2read.hpp"
 #include "fb2save.hpp"
@@ -104,73 +104,11 @@ Fb2TextElement Fb2TextPage::doc()
     return mainFrame()->documentElement();
 }
 
-class Fb2InsertBodyCommand : public QUndoCommand
-{
-public:
-    explicit Fb2InsertBodyCommand(Fb2TextPage &page, QUndoCommand *parent = 0) : QUndoCommand(parent), m_page(page) {}
-    virtual void undo();
-    virtual void redo();
-private:
-    Fb2TextPage & m_page;
-};
-
-void Fb2InsertBodyCommand::undo()
-{
-    m_page.body().lastChild().removeFromDocument();
-    Fb2TextElement(m_page.body().lastChild()).select();
-    m_page.update();
-}
-
-void Fb2InsertBodyCommand::redo()
-{
-    m_page.body().appendInside("<div class=body><div class=section><p>text</p></div></div>");
-    Fb2TextElement(m_page.body().lastChild()).select();
-    m_page.update();
-}
-
 void Fb2TextPage::insertBody()
 {
-    undoStack()->beginMacro("Insert title");
-    undoStack()->push(new Fb2InsertBodyCommand(*this));
+    undoStack()->beginMacro("Append body");
+    undoStack()->push(new Fb2AddBodyCmd(*this));
     undoStack()->endMacro();
-}
-
-class Fb2InsertSubtitleCmd : public QUndoCommand
-{
-public:
-    explicit Fb2InsertSubtitleCmd(Fb2TextPage &page, const QString &location, QUndoCommand *parent = 0)
-        : QUndoCommand(parent), m_page(page), m_location(location) {}
-    virtual void undo();
-    virtual void redo();
-private:
-    Fb2TextElement m_element;
-    Fb2TextPage & m_page;
-    QString m_location;
-    QString m_position;
-};
-
-void Fb2InsertSubtitleCmd::redo()
-{
-    QString html = "<div class=subtitle><p><br/></p></div>";
-    Fb2TextElement element = m_page.element(m_location);
-    if (m_element.isNull()) {
-        element.appendOutside(html);
-    } else {
-        element.appendOutside(m_element);
-    }
-    element = element.nextSibling();
-    m_position = element.location();
-    element.select();
-    m_page.update();
-}
-
-void Fb2InsertSubtitleCmd::undo()
-{
-    Fb2TextElement element = m_page.element(m_position);
-    Fb2TextElement parent = element.parent();
-    m_element = element.takeFromDocument();
-    parent.select();
-    m_page.update();
 }
 
 void Fb2TextPage::update()
@@ -188,7 +126,7 @@ void Fb2TextPage::insertSubtitle()
             Fb2TextElement previous = element.previousSibling();
             if (!previous.isNull()) element = previous;
             undoStack()->beginMacro("Insert subtitle");
-            undoStack()->push(new Fb2InsertSubtitleCmd(*this, element.location()));
+            undoStack()->push(new Fb2SubtitleCmd(*this, element.location()));
             undoStack()->endMacro();
             break;
         }

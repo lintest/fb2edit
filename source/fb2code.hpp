@@ -1,36 +1,6 @@
 #ifndef FB2CODE_H
 #define FB2CODE_H
 
-#ifdef FB2_USE_SCINTILLA
-
-#include <Qsci/qsciscintilla.h>
-#include <QList>
-
-class Fb2CodeEdit : public QsciScintilla
-{
-    Q_OBJECT
-public:
-    explicit Fb2CodeEdit(QWidget *parent = 0);
-    void load(const QByteArray &array, const QList<int> &folds);
-    
-signals:
-
-public slots:
-    void zoomReset();
-
-private slots:
-    void linesChanged();
-
-};
-
-#else // FB2_USE_SCINTILLA
-    #ifndef FB2_USE_PLAINTEXT
-        #define FB2_USE_PLAINTEXT
-    #endif // FB2_USE_PLAINTEXT
-#endif // FB2_USE_SCINTILLA
-
-#ifdef FB2_USE_PLAINTEXT
-
 #include <QByteArray>
 #include <QList>
 #include <QPlainTextEdit>
@@ -169,7 +139,5 @@ private:
     static qreal zoomRatioMax;
     friend class Fb2CodeEdit::LineNumberArea;
 };
-
-#endif // FB2_USE_PLAINTEXT
 
 #endif // FB2CODE_H

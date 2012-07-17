@@ -1,7 +1,10 @@
 #ifndef FB2HTML_H
 #define FB2HTML_H
 
+#include <QUndoCommand>
 #include <QWebElement>
+
+class Fb2TextPage;
 
 class Fb2TextElement : public QWebElement
 {
@@ -15,6 +18,30 @@ public:
 
 public:
     void select();
+};
+
+class Fb2AddBodyCmd : public QUndoCommand
+{
+public:
+    explicit Fb2AddBodyCmd(Fb2TextPage &page, QUndoCommand *parent = 0) : QUndoCommand(parent), m_page(page) {}
+    virtual void undo();
+    virtual void redo();
+private:
+    Fb2TextPage & m_page;
+};
+
+class Fb2SubtitleCmd : public QUndoCommand
+{
+public:
+    explicit Fb2SubtitleCmd(Fb2TextPage &page, const QString &location, QUndoCommand *parent = 0)
+        : QUndoCommand(parent), m_page(page), m_location(location) {}
+    virtual void undo();
+    virtual void redo();
+private:
+    Fb2TextElement m_element;
+    Fb2TextPage & m_page;
+    QString m_location;
+    QString m_position;
 };
 
 #endif // FB2HTML_H

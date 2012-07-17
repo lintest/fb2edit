@@ -10,8 +10,8 @@
 #include <QTreeView>
 #include <QUrl>
 
+#include "fb2text.hpp"
 #include "fb2utils.h"
-#include "fb2view.hpp"
 
 //---------------------------------------------------------------------------
 //  Fb2TreeItem

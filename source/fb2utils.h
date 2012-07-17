@@ -1,5 +1,5 @@
-#ifndef FB2TOOL_H
-#define FB2TOOL_H
+#ifndef FB2UTILS_H
+#define FB2UTILS_H
 
 #include <QIcon>
 #include <QString>
@@ -22,4 +22,4 @@ void addTools(QToolBar *tool, QWebView *view);
 
 }
 
-#endif // FB2TOOL_H
+#endif // FB2UTILS_H

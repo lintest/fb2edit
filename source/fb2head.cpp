@@ -12,7 +12,7 @@
 #include <QItemDelegate>
 #include <QTreeView>
 
-#include "fb2view.hpp"
+#include "fb2text.hpp"
 #include "fb2utils.h"
 
 //---------------------------------------------------------------------------

@@ -7,8 +7,8 @@
 #include "fb2code.hpp"
 #include "fb2read.hpp"
 #include "fb2save.hpp"
+#include "fb2text.hpp"
 #include "fb2tree.hpp"
-#include "fb2view.hpp"
 #include "fb2head.hpp"
 #include "fb2utils.h"
 
@@ -329,13 +329,16 @@ void Fb2MainWindow::createActions()
     actionTitle = act = new QAction(tr("&Title"), this);
     menu->addAction(act);
 
+    actionEpigraph = act = new QAction(tr("&Epigraph"), this);
+    menu->addAction(act);
+
+    actionDescr = act = new QAction(tr("&Annotation"), this);
+    menu->addAction(act);
+
     actionSubtitle = act = new QAction(tr("&Subtitle"), this);
     menu->addAction(act);
 
     actionAuthor = act = new QAction(tr("&Author"), this);
-    menu->addAction(act);
-
-    actionDescr = act = new QAction(tr("&Annotation"), this);
     menu->addAction(act);
 
     actionPoem = act = new QAction(tr("&Poem"), this);

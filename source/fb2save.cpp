@@ -2,7 +2,7 @@
 #include <QtDebug>
 
 #include "fb2save.hpp"
-#include "fb2view.hpp"
+#include "fb2text.hpp"
 #include "fb2utils.h"
 
 #include <QAbstractNetworkCache>

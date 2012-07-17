@@ -1,7 +1,7 @@
 #include "fb2dlgs.hpp"
 #include "fb2code.hpp"
+#include "fb2text.hpp"
 #include "fb2tree.hpp"
-#include "fb2view.hpp"
 #include "fb2utils.h"
 #include "ui_fb2find.h"
 

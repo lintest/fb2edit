@@ -1,5 +1,5 @@
-#ifndef Fb2Save_H
-#define Fb2Save_H
+#ifndef FB2SAVE_H
+#define FB2SAVE_H
 
 #include "fb2xml.h"
 #include "fb2temp.hpp"
@@ -188,4 +188,4 @@ private:
     Fb2SaveWriter & m_writer;
 };
 
-#endif // Fb2Save_H
+#endif // FB2SAVE_H

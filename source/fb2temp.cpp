@@ -6,7 +6,7 @@
 #include <QUrl>
 #include <QtDebug>
 
-#include "fb2view.hpp"
+#include "fb2text.hpp"
 
 //---------------------------------------------------------------------------
 //  Fb2TemporaryFile

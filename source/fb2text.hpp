@@ -1,5 +1,5 @@
-#ifndef FB2VIEW_H
-#define FB2VIEW_H
+#ifndef FB2TEXT_H
+#define FB2TEXT_H
 
 #include <QFrame>
 #include <QResizeEvent>
@@ -149,4 +149,4 @@ private:
     QDockWidget * dock;
 };
 
-#endif // FB2VIEW_H
+#endif // FB2TEXT_H

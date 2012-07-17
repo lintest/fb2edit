@@ -1,5 +1,5 @@
-#ifndef FB2TREE_HPP
-#define FB2TREE_HPP
+#ifndef FB2TREE_H
+#define FB2TREE_H
 
 #include <QAbstractItemModel>
 #include <QMenu>
@@ -166,4 +166,4 @@ protected:
     Fb2TreeView * m_tree;
 };
 
-#endif // FB2TREE_HPP
+#endif // FB2TREE_H

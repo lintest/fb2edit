@@ -112,6 +112,7 @@ private:
         *actionLink,
         *actionBody,
         *actionTitle,
+        *actionEpigraph,
         *actionSubtitle,
         *actionDescr,
         *actionPoem,
