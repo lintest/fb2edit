@@ -11,6 +11,7 @@
 #include <QUrl>
 
 #include "fb2text.hpp"
+#include "fb2html.h"
 #include "fb2utils.h"
 
 //---------------------------------------------------------------------------
@@ -38,7 +39,7 @@ Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent, int number)
     } else if (m_name == "img") {
         m_name = "image";
         QUrl url = element.attribute("src");
-        m_text = url.path();
+        m_text = url.fragment();
     }
     addChildren(element);
 }
@@ -315,7 +316,11 @@ bool Fb2TreeModel::removeRows(int row, int count, const QModelIndex &parent)
     beginRemoveRows(parent, row, last);
     for (int i = last; i >= row; i--) {
         if (Fb2TreeItem * child = owner->takeAt(i)) {
-            child->element().removeFromDocument();
+//            child->element().removeFromDocument();
+            Fb2TextPage & page = *m_view.page();
+            page.undoStack()->beginMacro("Delete element");
+            page.undoStack()->push(new Fb2DeleteCmd(page, child->element()));
+            page.undoStack()->endMacro();
             delete child;
         }
     }

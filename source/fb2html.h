@@ -44,4 +44,18 @@ private:
     QString m_position;
 };
 
+class Fb2DeleteCmd : public QUndoCommand
+{
+public:
+    explicit Fb2DeleteCmd(Fb2TextPage &page, Fb2TextElement &element, QUndoCommand *parent = 0);
+    virtual void undo();
+    virtual void redo();
+private:
+    Fb2TextElement m_element;
+    Fb2TextElement m_parent;
+    Fb2TextPage & m_page;
+    QString m_position;
+    bool m_inner;
+};
+
 #endif // FB2HTML_H

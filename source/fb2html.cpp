@@ -75,3 +75,36 @@ void Fb2SubtitleCmd::undo()
     m_page.update();
 }
 
+//---------------------------------------------------------------------------
+//  Fb2DeleteCmd
+//---------------------------------------------------------------------------
+
+Fb2DeleteCmd::Fb2DeleteCmd(Fb2TextPage &page, Fb2TextElement &element, QUndoCommand *parent)
+    : QUndoCommand(parent)
+    , m_element(element)
+    , m_page(page)
+    , m_inner(false)
+{
+    m_parent = element.previousSibling();
+    if (m_parent.isNull()) {
+        m_parent = element.parent();
+        m_inner = true;
+    }
+}
+
+void Fb2DeleteCmd::redo()
+{
+    m_element.takeFromDocument();
+    m_page.update();
+}
+
+void Fb2DeleteCmd::undo()
+{
+    if (m_inner) {
+        m_parent.prependInside(m_element);
+    } else {
+        m_parent.appendOutside(m_element);
+    }
+    m_page.update();
+}
+
