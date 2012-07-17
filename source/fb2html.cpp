@@ -79,7 +79,7 @@ void Fb2SubtitleCmd::undo()
 //  Fb2DeleteCmd
 //---------------------------------------------------------------------------
 
-Fb2DeleteCmd::Fb2DeleteCmd(Fb2TextPage &page, Fb2TextElement &element, QUndoCommand *parent)
+Fb2DeleteCmd::Fb2DeleteCmd(Fb2TextPage &page, const Fb2TextElement &element, QUndoCommand *parent)
     : QUndoCommand(parent)
     , m_element(element)
     , m_page(page)

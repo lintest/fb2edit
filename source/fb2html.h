@@ -47,7 +47,7 @@ private:
 class Fb2DeleteCmd : public QUndoCommand
 {
 public:
-    explicit Fb2DeleteCmd(Fb2TextPage &page, Fb2TextElement &element, QUndoCommand *parent = 0);
+    explicit Fb2DeleteCmd(Fb2TextPage &page, const Fb2TextElement &element, QUndoCommand *parent = 0);
     virtual void undo();
     virtual void redo();
 private:

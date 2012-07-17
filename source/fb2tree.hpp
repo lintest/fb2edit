@@ -30,6 +30,11 @@ public:
 
     Fb2TreeItem * item(int row) const;
 
+    Fb2TreeItem & operator=(const QWebElement &element) {
+        m_element = element;
+        return *this;
+    }
+
     int index(Fb2TreeItem * child) const {
         return m_list.indexOf(child);
     }
@@ -69,9 +74,11 @@ public:
 
     Fb2TreeItem * content(const Fb2TreeModel &model, int number, QModelIndex &index) const;
 
+    void init();
+
 private:
-    QString static title(const QWebElement &element);
     void addChildren(QWebElement &parent, bool direct = true, bool header = false);
+    QString title();
 
 private:
     QList<Fb2TreeItem*> m_list;
@@ -90,12 +97,14 @@ class Fb2TreeModel: public QAbstractItemModel
 public:
     explicit Fb2TreeModel(Fb2TextEdit &view, QObject *parent = 0);
     virtual ~Fb2TreeModel();
+    QModelIndex index(Fb2TreeItem *item, int column = 0) const;
     QModelIndex index(const QString &location) const;
     Fb2TextEdit & view() { return m_view; }
     void selectText(const QModelIndex &index);
     QModelIndex move(const QModelIndex &index, int dx, int dy);
     QModelIndex append(const QModelIndex &parent);
     Fb2TreeItem * item(const QModelIndex &index) const;
+    void update();
 
 public:
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
@@ -104,6 +113,11 @@ public:
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     virtual bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
+
+private:
+    typedef QList<QWebElement> Fb2ElementList;
+    void children(QWebElement parent, Fb2ElementList &list);
+    void update(Fb2TreeItem &item);
 
 private:
     Fb2TextEdit & m_view;

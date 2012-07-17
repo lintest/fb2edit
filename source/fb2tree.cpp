@@ -24,23 +24,7 @@ Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent, int number)
     , m_parent(parent)
     , m_number(number)
 {
-    m_name = element.tagName().toLower();
-    QString style = element.attribute("class").toLower();
-    if (m_name == "div") {
-        if (style == "title") {
-            m_text = title(element);
-            if (m_parent) m_parent->m_text += m_text += " ";
-        } else if (style == "subtitle") {
-            m_text = title(element);
-        } else if (style == "body") {
-            m_body = element.attribute("fb2_name");
-        }
-        if (!style.isEmpty()) m_name = style;
-    } else if (m_name == "img") {
-        m_name = "image";
-        QUrl url = element.attribute("src");
-        m_text = url.fragment();
-    }
+    init();
     addChildren(element);
 }
 
@@ -51,9 +35,31 @@ Fb2TreeItem::~Fb2TreeItem()
     }
 }
 
-QString Fb2TreeItem::title(const QWebElement &element)
+void Fb2TreeItem::init()
 {
-    return element.toPlainText().left(255).simplified();
+    m_text = QString();
+    m_name = m_element.tagName().toLower();
+    QString style = m_element.attribute("class").toLower();
+    if (m_name == "div") {
+        if (style == "title") {
+            m_text = title();
+            if (m_parent) m_parent->m_text += m_text += " ";
+        } else if (style == "subtitle") {
+            m_text = title();
+        } else if (style == "body") {
+            m_body = m_element.attribute("fb2_name");
+        }
+        if (!style.isEmpty()) m_name = style;
+    } else if (m_name == "img") {
+        m_name = "image";
+        QUrl url = m_element.attribute("src");
+        m_text = url.fragment();
+    }
+}
+
+QString Fb2TreeItem::title()
+{
+    return m_element.toPlainText().left(255).simplified();
 }
 
 void Fb2TreeItem::addChildren(QWebElement &parent, bool direct, bool header)
@@ -173,6 +179,12 @@ int Fb2TreeModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return 1;
+}
+
+QModelIndex Fb2TreeModel::index(Fb2TreeItem *item, int column) const
+{
+    Fb2TreeItem *parent = item->parent();
+    return parent ? createIndex(parent->index(item), column, (void*)item) : QModelIndex();
 }
 
 QModelIndex Fb2TreeModel::index(int row, int column, const QModelIndex &parent) const
@@ -316,7 +328,6 @@ bool Fb2TreeModel::removeRows(int row, int count, const QModelIndex &parent)
     beginRemoveRows(parent, row, last);
     for (int i = last; i >= row; i--) {
         if (Fb2TreeItem * child = owner->takeAt(i)) {
-//            child->element().removeFromDocument();
             Fb2TextPage & page = *m_view.page();
             page.undoStack()->beginMacro("Delete element");
             page.undoStack()->push(new Fb2DeleteCmd(page, child->element()));
@@ -326,6 +337,79 @@ bool Fb2TreeModel::removeRows(int row, int count, const QModelIndex &parent)
     }
     endRemoveRows();
     return true;
+}
+
+void Fb2TreeModel::children(QWebElement parent, Fb2ElementList &list)
+{
+    QWebElement child = parent.firstChild();
+    while (!child.isNull()) {
+        QString tag = child.tagName().toLower();
+        if (tag == "div") {
+            list << child;
+        } else if (tag == "img") {
+            list << child;
+        } else {
+            children(child, list);
+        }
+        child = child.nextSibling();
+    }
+}
+
+
+void Fb2TreeModel::update(Fb2TreeItem &owner)
+{
+    owner.init();
+    Fb2ElementList list;
+    children(owner.element(), list);
+
+    int pos = 0;
+    QModelIndex index = this->index(&owner);
+    for (QList<QWebElement>::iterator it = list.begin(); it != list.end(); it++) {
+        Fb2TreeItem * child = 0;
+        QWebElement element = *it;
+        int count = owner.count();
+        for (int i = pos; i < count; i++) {
+            if (owner.item(i)->element() == element) {
+                child = owner.item(i);
+                if (i > pos) {
+                    beginMoveRows(index, i, i, index, pos);
+                    owner.insert(owner.takeAt(i), pos);
+                    endMoveRows();
+                    break;
+                }
+            }
+        }
+        if (child) {
+            QString old = child->text();
+            update(*child);
+            if (old != child->text()) {
+                QModelIndex i = this->index(child);
+                emit dataChanged(i, i);
+            }
+        } else {
+            Fb2TreeItem * child = new Fb2TreeItem(element);
+            beginInsertRows(index, pos, pos);
+            owner.insert(child, pos);
+            endInsertRows();
+        }
+        pos++;
+    }
+
+    int last = owner.count() - 1;
+    if (pos <= last) {
+        beginRemoveRows(index, pos, last);
+        for (int i = last; i >= pos; i--) delete owner.takeAt(i);
+        endRemoveRows();
+    }
+}
+
+void Fb2TreeModel::update()
+{
+    if (!m_root) return;
+    QWebElement doc = m_view.page()->mainFrame()->documentElement();
+    QWebElement body = doc.findFirst("body");
+    if (m_root->element() != body) *m_root = body;
+    update(*m_root);
 }
 
 //---------------------------------------------------------------------------
@@ -478,8 +562,12 @@ void Fb2TreeView::selectTree()
 
 void Fb2TreeView::updateTree()
 {
-    Fb2TreeModel * model = new Fb2TreeModel(m_view, this);
-    setModel(model);
+    if (Fb2TreeModel * m = model()) {
+        m->update();
+    } else {
+        m = new Fb2TreeModel(m_view, this);
+        setModel(m);
+    }
     selectTree();
 }
 
