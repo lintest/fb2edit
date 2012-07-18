@@ -579,12 +579,19 @@ void Fb2TreeView::deleteNode()
 {
     if (Fb2TreeModel * m = model()) {
         QModelIndex index = currentIndex();
-        QModelIndex result = m->parent(index);
-        setCurrentIndex(result);
+        QModelIndex parent = m->parent(index);
+
+        QModelIndex result = parent;
+        int row = index.row();
+        int last = m->rowCount(result) - 1;
+        if (last > 0)  {
+            if (row >= last) row = last;
+            result = m->index(row, 0, parent);
+        }
         emit currentChanged(result, index);
         emit QTreeView::activated(result);
-        m->removeRow(index.row(), result);
-        scrollTo(result);
+        setCurrentIndex(result);
+        m->removeRow(row, parent);
     }
 }
 
