@@ -117,6 +117,21 @@ void Fb2TextPage::update()
     emit selectionChanged();
 }
 
+void Fb2TextPage::insertTitle()
+{
+    Fb2TextElement element = current();
+    while (!element.isNull()) {
+        Fb2TextElement parent = element.parent();
+        if (parent.isSection() && !parent.hasTitle()) {
+            undoStack()->beginMacro("Insert title");
+            undoStack()->push(new Fb2TitleCmd(*this, parent));
+            undoStack()->endMacro();
+            break;
+        }
+        element = parent;
+    }
+}
+
 void Fb2TextPage::insertSubtitle()
 {
     Fb2TextElement element = current();
@@ -414,14 +429,6 @@ void Fb2TextEdit::loadFinished()
     Fb2TextElement element = body().findFirst("div.body");
     if (element.isNull()) element = body();
     element.select();
-}
-
-void Fb2TextEdit::insertTitle()
-{
-    page()->undoStack()->beginMacro("Insert title");
-    static const QString javascript = FB2::read(":/js/insert_title.js");
-    page()->mainFrame()->evaluateJavaScript(javascript);
-    page()->undoStack()->endMacro();
 }
 
 //---------------------------------------------------------------------------

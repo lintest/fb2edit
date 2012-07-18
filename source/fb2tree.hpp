@@ -105,7 +105,7 @@ public:
     Fb2TextEdit & view() { return m_view; }
     void selectText(const QModelIndex &index);
     QModelIndex move(const QModelIndex &index, int dx, int dy);
-    QModelIndex append(const QModelIndex &parent);
+    QModelIndex append(const QModelIndex &parent, Fb2TextElement element);
     Fb2TreeItem * item(const QModelIndex &index) const;
     void update();
 

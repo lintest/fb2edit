@@ -532,13 +532,11 @@ void Fb2TreeView::updateTree()
     selectTree();
 }
 
-QModelIndex Fb2TreeModel::append(const QModelIndex &parent)
+QModelIndex Fb2TreeModel::append(const QModelIndex &parent, Fb2TextElement element)
 {
     Fb2TreeItem * owner = item(parent);
     if (!owner || owner == m_root) return QModelIndex();
     int row = owner->count();
-    owner->element().appendInside("<div class=section><div class=title><p><br/></p></div><p><br/></p></div>");
-    QWebElement element = owner->element().lastChild();
     Fb2TreeItem * child = new Fb2TreeItem(element);
     beginInsertRows(parent, row, row);
     owner->insert(child, row);
@@ -553,20 +551,27 @@ void Fb2TreeView::insertNode()
         Fb2TreeItem * item = m->item(index);
         if (!item) return;
 
-        QString n = item->name();
-        if (n != "section" && n != "body") {
-            index = m->parent(index);
-            item = item->parent();
-            n = item->name();
-            if (n != "section" && n != "body") return;
-        }
+        Fb2TextElement element = item->element();
+        while (!element.isNull()) {
+            if (element.isSection() || element.isBody())
+            {
+                QUndoStack * undoStack = m_view.page()->undoStack();
+                undoStack->beginMacro("Insert section");
+                undoStack->push(new Fb2SectionCmd(*m_view.page(), element));
+                undoStack->endMacro();
 
-        QModelIndex result = m->append(index);
-        if (!result.isValid()) return;
-        setCurrentIndex(result);
-        emit QTreeView::currentChanged(result, index);
-        emit QTreeView::activated(result);
-        scrollTo(result);
+                QModelIndex result = m->append(index, element.lastChild());
+                if (!result.isValid()) return;
+                setCurrentIndex(result);
+                emit QTreeView::currentChanged(result, index);
+                emit QTreeView::activated(result);
+                scrollTo(result);
+
+                break;
+            }
+            element = element.parent();
+            index = m->parent(index);
+        }
     }
 }
 

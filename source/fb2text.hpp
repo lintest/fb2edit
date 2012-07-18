@@ -67,6 +67,7 @@ public:
 
 public slots:
     void insertBody();
+    void insertTitle();
     void insertSubtitle();
 
 protected:
@@ -108,7 +109,6 @@ public slots:
     void insertImage();
     void insertNote();
     void insertLink();
-    void insertTitle();
     void zoomIn();
     void zoomOut();
     void zoomReset();

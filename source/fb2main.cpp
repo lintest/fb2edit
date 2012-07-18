@@ -695,7 +695,7 @@ void Fb2MainWindow::viewText()
     connect(actionImage, SIGNAL(triggered()), textEdit, SLOT(insertImage()));
     connect(actionNote, SIGNAL(triggered()), textEdit, SLOT(insertNote()));
     connect(actionLink, SIGNAL(triggered()), textEdit, SLOT(insertLink()));
-    connect(actionTitle, SIGNAL(triggered()), textEdit, SLOT(insertTitle()));
+    connect(actionTitle, SIGNAL(triggered()), textEdit->page(), SLOT(insertTitle()));
     connect(actionSubtitle, SIGNAL(triggered()), textEdit->page(), SLOT(insertSubtitle()));
     connect(actionBody, SIGNAL(triggered()), textEdit->page(), SLOT(insertBody()));
 
