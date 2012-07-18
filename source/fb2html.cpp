@@ -7,6 +7,22 @@
 //  Fb2TextElement
 //---------------------------------------------------------------------------
 
+void Fb2TextElement::getChildren(Fb2ElementList &list)
+{
+    Fb2TextElement child = firstChild();
+    while (!child.isNull()) {
+        QString tag = child.tagName().toLower();
+        if (tag == "div") {
+            if (child.hasAttribute("class")) list << child;
+        } else if (tag == "img") {
+            list << child;
+        } else {
+            child.getChildren(list);
+        }
+        child = child.nextSibling();
+    }
+}
+
 QString Fb2TextElement::location()
 {
     static const QString javascript = FB2::read(":/js/get_location.js").prepend("var element=this;");

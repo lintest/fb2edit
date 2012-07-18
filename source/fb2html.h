@@ -6,12 +6,17 @@
 
 class Fb2TextPage;
 
+class Fb2TextElement;
+
+typedef QList<Fb2TextElement> Fb2ElementList;
+
 class Fb2TextElement : public QWebElement
 {
 public:
     Fb2TextElement() {}
     Fb2TextElement(const QWebElement &x) : QWebElement(x) {}
     Fb2TextElement &operator=(const QWebElement &x) { QWebElement::operator=(x); return *this; }
+    void getChildren(Fb2ElementList &list);
     QString location();
     bool isSection() const;
     bool isTitle() const;

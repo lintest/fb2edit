@@ -25,7 +25,6 @@ Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent, int number)
     , m_number(number)
 {
     init();
-    addChildren(element);
 }
 
 Fb2TreeItem::~Fb2TreeItem()
@@ -60,33 +59,6 @@ void Fb2TreeItem::init()
 QString Fb2TreeItem::title()
 {
     return m_element.toPlainText().left(255).simplified();
-}
-
-void Fb2TreeItem::addChildren(QWebElement &parent, bool direct, bool header)
-{
-    int number = 0;
-    QWebElement child = parent.firstChild();
-    while (!child.isNull()) {
-        QString tag = child.tagName().toLower();
-        if (tag == "div") {
-            bool h = header;
-            QString style = child.attribute("class").toLower();
-            h = h || style == "description" || style == "stylesheet";
-            if (!h || style == "annotation" || style == "history") {
-                m_list << new Fb2TreeItem(child, this, direct ? number : -1);
-            } else {
-                addChildren(child, false, h);
-            }
-        } else if (header) {
-            // skip
-        } else if (tag == "img") {
-            m_list << new Fb2TreeItem(child, this, direct ? number : -1);
-        } else {
-            addChildren(child, false, header);
-        }
-        child = child.nextSibling();
-        number++;
-    }
 }
 
 Fb2TreeItem * Fb2TreeItem::item(const QModelIndex &index) const
@@ -132,16 +104,13 @@ QString Fb2TreeItem::selector() const
     return selector.prepend("$('html')");
 }
 
-Fb2TreeItem * Fb2TreeItem::content(const Fb2TreeModel &model, int number, QModelIndex &index) const
+Fb2TreeItem * Fb2TreeItem::content(const Fb2TreeModel &model, int number) const
 {
-    int row = 0;
-    QList<Fb2TreeItem*>::const_iterator i;
-    for (i = m_list.constBegin(); i != m_list.constEnd(); ++i) {
-        if ((*i)->m_number == number) {
-            index = model.index(row, 0, index);
-            return *i;
-        }
-        row++;
+    Fb2TextElement element = m_element.firstChild();
+    while (number-- > 0) element = element.nextSibling();
+    Fb2TreeList::const_iterator it;
+    for (it = m_list.constBegin(); it != m_list.constEnd(); it++) {
+        if ((*it)->element() == element) return *it;
     }
     return 0;
 }
@@ -233,7 +202,7 @@ void Fb2TreeModel::selectText(const QModelIndex &index)
 
 QModelIndex Fb2TreeModel::index(const QString &location) const
 {
-    QModelIndex index;
+    QModelIndex result;
     Fb2TreeItem * parent = m_root;
     QStringList list = location.split(",");
     QStringListIterator iterator(list);
@@ -241,10 +210,11 @@ QModelIndex Fb2TreeModel::index(const QString &location) const
         QString str = iterator.next();
         if (str.left(5) == "HTML=") continue;
         int key = str.mid(str.indexOf("=")+1).toInt();
-        Fb2TreeItem * child = parent->content(*this, key, index);
+        Fb2TreeItem * child = parent->content(*this, key);
+        if (child) result = index(child);
         parent = child;
     }
-    return index;
+    return result;
 }
 
 QModelIndex Fb2TreeModel::move(const QModelIndex &index, int dx, int dy)
@@ -339,32 +309,15 @@ bool Fb2TreeModel::removeRows(int row, int count, const QModelIndex &parent)
     return true;
 }
 
-void Fb2TreeModel::children(QWebElement parent, Fb2ElementList &list)
-{
-    QWebElement child = parent.firstChild();
-    while (!child.isNull()) {
-        QString tag = child.tagName().toLower();
-        if (tag == "div") {
-            list << child;
-        } else if (tag == "img") {
-            list << child;
-        } else {
-            children(child, list);
-        }
-        child = child.nextSibling();
-    }
-}
-
-
 void Fb2TreeModel::update(Fb2TreeItem &owner)
 {
     owner.init();
     Fb2ElementList list;
-    children(owner.element(), list);
+    owner.element().getChildren(list);
 
     int pos = 0;
     QModelIndex index = this->index(&owner);
-    for (QList<QWebElement>::iterator it = list.begin(); it != list.end(); it++) {
+    for (Fb2ElementList::iterator it = list.begin(); it != list.end(); it++) {
         Fb2TreeItem * child = 0;
         QWebElement element = *it;
         int count = owner.count();
@@ -391,6 +344,7 @@ void Fb2TreeModel::update(Fb2TreeItem &owner)
             beginInsertRows(index, pos, pos);
             owner.insert(child, pos);
             endInsertRows();
+            update(*child);
         }
         pos++;
     }
@@ -405,11 +359,17 @@ void Fb2TreeModel::update(Fb2TreeItem &owner)
 
 void Fb2TreeModel::update()
 {
-    if (!m_root) return;
     QWebElement doc = m_view.page()->mainFrame()->documentElement();
     QWebElement body = doc.findFirst("body");
-    if (m_root->element() != body) *m_root = body;
-    update(*m_root);
+    if (m_root) {
+        if (m_root->element() != body) *m_root = body;
+        update(*m_root);
+    } else {
+        if (!body.isNull()) {
+            m_root = new Fb2TreeItem(body);
+            update(*m_root);
+        }
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -566,6 +526,7 @@ void Fb2TreeView::updateTree()
         m->update();
     } else {
         m = new Fb2TreeModel(m_view, this);
+        m->update();
         setModel(m);
     }
     selectTree();

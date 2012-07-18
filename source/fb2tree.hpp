@@ -15,7 +15,11 @@ QT_END_NAMESPACE
 
 class Fb2TextEdit;
 
+class Fb2TreeItem;
+
 class Fb2TreeModel;
+
+typedef QList<Fb2TreeItem*> Fb2TreeList;
 
 class Fb2TreeItem: public QObject
 {
@@ -60,8 +64,6 @@ public:
         return m_parent;
     }
 
-    QString text() const;
-
     const QString & name() const {
         return m_name;
     }
@@ -70,18 +72,19 @@ public:
         return m_element.geometry().topLeft();
     }
 
+    Fb2TreeItem * content(const Fb2TreeModel &model, int number) const;
+
     QString selector() const;
 
-    Fb2TreeItem * content(const Fb2TreeModel &model, int number, QModelIndex &index) const;
+    QString text() const;
 
     void init();
 
 private:
-    void addChildren(QWebElement &parent, bool direct = true, bool header = false);
     QString title();
 
 private:
-    QList<Fb2TreeItem*> m_list;
+    Fb2TreeList m_list;
     QWebElement m_element;
     QString m_name;
     QString m_text;
@@ -115,8 +118,6 @@ public:
     virtual bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
 
 private:
-    typedef QList<QWebElement> Fb2ElementList;
-    void children(QWebElement parent, Fb2ElementList &list);
     void update(Fb2TreeItem &item);
 
 private:
