@@ -114,7 +114,7 @@ Fb2NoteDlg::Fb2NoteDlg(Fb2TextEdit &view)
     frameLayout->setSpacing(0);
     frameLayout->setMargin(0);
 
-    m_text = new QWebView(frame);
+    m_text = new Fb2TextBase(frame);
     m_text->setObjectName(QString::fromUtf8("m_text"));
     m_text->setUrl(QUrl(QString::fromUtf8("about:blank")));
     frameLayout->addWidget(m_text);
@@ -139,7 +139,7 @@ Fb2NoteDlg::Fb2NoteDlg(Fb2TextEdit &view)
     m_text->setPage(page);
     m_text->setHtml("<body><p><br></p></body>");
 
-    FB2::addTools(m_toolbar, m_text);
+    m_text->addTools(m_toolbar);
 }
 
 void Fb2NoteDlg::loadFinished()

@@ -14,6 +14,7 @@
 #include <QNetworkRequest>
 #include <QStyle>
 #include <QStyleOptionFrame>
+#include <QToolBar>
 #include <QToolTip>
 #include <QUndoCommand>
 #include <QUndoStack>
@@ -181,6 +182,82 @@ QString Fb2TextPage::status()
 {
     static const QString javascript = FB2::read(":/js/get_status.js");
     return mainFrame()->evaluateJavaScript(javascript).toString();
+}
+
+//---------------------------------------------------------------------------
+//  Fb2TextBase
+//---------------------------------------------------------------------------
+
+void Fb2TextBase::addTools(QToolBar *tool)
+{
+    QAction *act;
+
+    act = pageAction(QWebPage::Undo);
+    act->setIcon(FB2::icon("edit-undo"));
+    act->setText(QObject::tr("&Undo"));
+    act->setPriority(QAction::LowPriority);
+    act->setShortcut(QKeySequence::Undo);
+    tool->addAction(act);
+
+    act = pageAction(QWebPage::Redo);
+    act->setIcon(FB2::icon("edit-redo"));
+    act->setText(QObject::tr("&Redo"));
+    act->setPriority(QAction::LowPriority);
+    act->setShortcut(QKeySequence::Redo);
+    tool->addAction(act);
+
+    tool->addSeparator();
+
+    act = pageAction(QWebPage::Cut);
+    act->setIcon(FB2::icon("edit-cut"));
+    act->setText(QObject::tr("Cu&t"));
+    act->setPriority(QAction::LowPriority);
+    act->setShortcuts(QKeySequence::Cut);
+    act->setStatusTip(QObject::tr("Cut the current selection's contents to the clipboard"));
+    tool->addAction(act);
+
+    act = pageAction(QWebPage::Copy);
+    act->setIcon(FB2::icon("edit-copy"));
+    act->setText(QObject::tr("&Copy"));
+    act->setPriority(QAction::LowPriority);
+    act->setShortcuts(QKeySequence::Copy);
+    act->setStatusTip(QObject::tr("Copy the current selection's contents to the clipboard"));
+    tool->addAction(act);
+
+    act = pageAction(QWebPage::Paste);
+    act->setIcon(FB2::icon("edit-paste"));
+    act->setText(QObject::tr("&Paste"));
+    act->setPriority(QAction::LowPriority);
+    act->setShortcuts(QKeySequence::Paste);
+    act->setStatusTip(QObject::tr("Paste the clipboard's contents into the current selection"));
+    tool->addAction(act);
+
+    tool->addSeparator();
+
+    act = pageAction(QWebPage::ToggleBold);
+    act->setIcon(FB2::icon("format-text-bold"));
+    act->setText(QObject::tr("&Bold"));
+    tool->addAction(act);
+
+    act = pageAction(QWebPage::ToggleItalic);
+    act->setIcon(FB2::icon("format-text-italic"));
+    act->setText(QObject::tr("&Italic"));
+    tool->addAction(act);
+
+    act = pageAction(QWebPage::ToggleStrikethrough);
+    act->setIcon(FB2::icon("format-text-strikethrough"));
+    act->setText(QObject::tr("&Strikethrough"));
+    tool->addAction(act);
+
+    act = pageAction(QWebPage::ToggleSuperscript);
+    act->setIcon(FB2::icon("format-text-superscript"));
+    act->setText(QObject::tr("Su&perscript"));
+    tool->addAction(act);
+
+    act = pageAction(QWebPage::ToggleSubscript);
+    act->setIcon(FB2::icon("format-text-subscript"));
+    act->setText(QObject::tr("Su&bscript"));
+    tool->addAction(act);
 }
 
 //---------------------------------------------------------------------------

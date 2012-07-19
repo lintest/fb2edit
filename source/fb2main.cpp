@@ -689,7 +689,7 @@ void Fb2MainWindow::viewText()
     connect(actionTextSub, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::ToggleSubscript), SIGNAL(triggered()));
     connect(actionTextSup, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::ToggleSuperscript), SIGNAL(triggered()));
 
-    QWebView * textEdit = &(textFrame->view);
+    Fb2TextEdit * textEdit = &(textFrame->view);
 
     connect(actionFind, SIGNAL(triggered()), textEdit, SLOT(find()));
     connect(actionImage, SIGNAL(triggered()), textEdit, SLOT(insertImage()));
@@ -711,7 +711,7 @@ void Fb2MainWindow::viewText()
     tool->setMovable(false);
     tool->addSeparator();
 
-    FB2::addTools(tool, textEdit);
+    textEdit->addTools(tool);
 
     tool->addSeparator();
 

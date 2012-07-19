@@ -4,6 +4,7 @@
 #include <QDialog>
 
 class Fb2CodeEdit;
+class Fb2TextBase;
 class Fb2TextEdit;
 
 QT_BEGIN_NAMESPACE
@@ -61,7 +62,7 @@ private slots:
 
 private:
     QComboBox *m_key;
-    QWebView *m_text;
+    Fb2TextBase *m_text;
     QLineEdit *m_title;
     QToolBar *m_toolbar;
 };

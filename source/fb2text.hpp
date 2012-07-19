@@ -11,8 +11,9 @@
 #include "fb2temp.hpp"
 
 QT_BEGIN_NAMESPACE
-class QWebInspector;
 class QDockWidget;
+class QToolBar;
+class QWebInspector;
 QT_END_NAMESPACE
 
 class Fb2NoteView;
@@ -30,6 +31,8 @@ public:
           m_timer.setSingleShot(true);
           connect(&m_timer, SIGNAL(timeout()), SLOT(doResize()));
     }
+
+    void addTools(QToolBar *tool);
 
 protected slots:
     void doResize() {

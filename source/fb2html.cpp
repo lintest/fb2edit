@@ -152,9 +152,9 @@ void Fb2TitleCmd::undo()
 
 void Fb2SubtitleCmd::redo()
 {
-    QString html = "<div class=subtitle><p><br/></p></div>";
     Fb2TextElement element = m_page.element(m_location);
     if (m_element.isNull()) {
+        QString html = div("subtitle", p());
         element.appendOutside(html);
     } else {
         element.appendOutside(m_element);
