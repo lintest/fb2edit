@@ -175,6 +175,31 @@ void Fb2SubtitleCmd::undo()
 }
 
 //---------------------------------------------------------------------------
+//  Fb2MoveUpCmd
+//---------------------------------------------------------------------------
+
+Fb2MoveUpCmd::Fb2MoveUpCmd(Fb2TextPage &page, const Fb2TextElement &element, Fb2UndoCommand *parent)
+    : Fb2UndoCommand(parent)
+    , m_page(page)
+    , m_element(element)
+{
+}
+
+void Fb2MoveUpCmd::redo()
+{
+    Fb2TextElement subling = m_element.previousSibling();
+    subling.prependOutside(m_element.takeFromDocument());
+    m_page.update();
+}
+
+void Fb2MoveUpCmd::undo()
+{
+    Fb2TextElement subling = m_element.nextSibling();
+    subling.appendOutside(m_element.takeFromDocument());
+    m_page.update();
+}
+
+//---------------------------------------------------------------------------
 //  Fb2DeleteCmd
 //---------------------------------------------------------------------------
 

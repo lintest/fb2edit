@@ -281,9 +281,12 @@ QModelIndex Fb2TreeModel::move(const QModelIndex &index, int dx, int dy)
             beginMoveRows(parent, from, from, parent, to);
             brother = owner->takeAt(from);
             owner->insert(brother, to);
-            QWebElement element = child->element().takeFromDocument();
-            brother->element().appendOutside(element);
             endMoveRows();
+
+            Fb2TextPage & page = *m_view.page();
+            page.undoStack()->beginMacro("Move element");
+            page.undoStack()->push(new Fb2MoveUpCmd(page, brother->element()));
+            page.undoStack()->endMacro();
         } break;
     }
     return result;

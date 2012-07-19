@@ -96,6 +96,17 @@ private:
     QString m_position;
 };
 
+class Fb2MoveUpCmd : public Fb2UndoCommand
+{
+public:
+    explicit Fb2MoveUpCmd(Fb2TextPage &page, const Fb2TextElement &element, Fb2UndoCommand *parent = 0);
+    virtual void undo();
+    virtual void redo();
+private:
+    Fb2TextPage & m_page;
+    Fb2TextElement m_element;
+};
+
 class Fb2DeleteCmd : public Fb2UndoCommand
 {
 public:
