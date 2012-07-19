@@ -690,14 +690,16 @@ void Fb2MainWindow::viewText()
     connect(actionTextSup, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::ToggleSuperscript), SIGNAL(triggered()));
 
     Fb2TextEdit * textEdit = &(textFrame->view);
-
     connect(actionFind, SIGNAL(triggered()), textEdit, SLOT(find()));
     connect(actionImage, SIGNAL(triggered()), textEdit, SLOT(insertImage()));
     connect(actionNote, SIGNAL(triggered()), textEdit, SLOT(insertNote()));
     connect(actionLink, SIGNAL(triggered()), textEdit, SLOT(insertLink()));
-    connect(actionTitle, SIGNAL(triggered()), textEdit->page(), SLOT(insertTitle()));
-    connect(actionSubtitle, SIGNAL(triggered()), textEdit->page(), SLOT(insertSubtitle()));
-    connect(actionBody, SIGNAL(triggered()), textEdit->page(), SLOT(insertBody()));
+
+    Fb2TextPage * textPage = textEdit->page();
+    connect(actionTitle, SIGNAL(triggered()), textPage, SLOT(insertTitle()));
+    connect(actionSubtitle, SIGNAL(triggered()), textPage, SLOT(insertSubtitle()));
+    connect(actionSection, SIGNAL(triggered()), textPage, SLOT(insertSection()));
+    connect(actionBody, SIGNAL(triggered()), textPage, SLOT(insertBody()));
 
     connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));

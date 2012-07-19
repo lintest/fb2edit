@@ -56,160 +56,46 @@ bool Fb2TextElement::isTitle() const
 }
 
 //---------------------------------------------------------------------------
-//  Fb2UndoCommand
+//  Fb2InsertCmd
 //---------------------------------------------------------------------------
 
-QString Fb2UndoCommand::div(const QString &style, const QString &text)
-{
-    return QString("<div class=%1>%2</div>").arg(style).arg(text);
-}
-
-QString Fb2UndoCommand::p(const QString &text)
-{
-    return QString("<p>%1</p>").arg(text);
-}
-
-//---------------------------------------------------------------------------
-//  Fb2AddBodyCmd
-//---------------------------------------------------------------------------
-
-void Fb2AddBodyCmd::undo()
-{
-    m_body.takeFromDocument();
-    m_page.update();
-}
-
-void Fb2AddBodyCmd::redo()
-{
-    Fb2TextElement parent = m_page.body();
-    if (m_body.isNull()) {
-        QString html = div("body", div("title", p()) + div("section", div("title", p()) + p()));
-        parent.appendInside(html);
-        m_body = parent.lastChild();
-    } else {
-        parent.appendInside(m_body);
-    }
-    m_body.select();
-    m_page.update();
-}
-
-//---------------------------------------------------------------------------
-//  Fb2SectionCmd
-//---------------------------------------------------------------------------
-
-void Fb2SectionCmd::redo()
-{
-    if (m_child.isNull()) {
-        QString html = div("section", div("title", p()) + p());
-        m_parent.appendInside(html);
-        m_child = m_parent.lastChild();
-    } else {
-        m_parent.appendInside(m_child);
-    }
-    m_child.select();
-    m_page.update();
-}
-
-void Fb2SectionCmd::undo()
-{
-    m_child.takeFromDocument();
-    Fb2TextElement last = m_parent.lastChild();
-    if (last.isNull()) {
-        m_parent.select();
-    } else {
-        last.select();
-    }
-    m_page.update();
-}
-
-//---------------------------------------------------------------------------
-//  Fb2TitleCmd
-//---------------------------------------------------------------------------
-
-void Fb2TitleCmd::redo()
-{
-    if (m_title.isNull()) {
-        QString html = div("title", p());
-        m_section.prependInside(html);
-        m_title = m_section.firstChild();
-    } else {
-        m_section.prependInside(m_title);
-    }
-    m_section.select();
-    m_page.update();
-}
-
-void Fb2TitleCmd::undo()
-{
-    m_title.takeFromDocument();
-    m_section.select();
-    m_page.update();
-}
-
-//---------------------------------------------------------------------------
-//  Fb2SubtitleCmd
-//---------------------------------------------------------------------------
-
-void Fb2SubtitleCmd::redo()
-{
-    Fb2TextElement element = m_page.element(m_location);
-    if (m_element.isNull()) {
-        QString html = div("subtitle", p());
-        element.appendOutside(html);
-    } else {
-        element.appendOutside(m_element);
-    }
-    element = element.nextSibling();
-    m_position = element.location();
-    element.select();
-    m_page.update();
-}
-
-void Fb2SubtitleCmd::undo()
-{
-    Fb2TextElement element = m_page.element(m_position);
-    Fb2TextElement parent = element.parent();
-    m_element = element.takeFromDocument();
-    parent.select();
-    m_page.update();
-}
-
-//---------------------------------------------------------------------------
-//  Fb2MoveUpCmd
-//---------------------------------------------------------------------------
-
-Fb2MoveUpCmd::Fb2MoveUpCmd(Fb2TextPage &page, const Fb2TextElement &element, Fb2UndoCommand *parent)
-    : Fb2UndoCommand(parent)
-    , m_page(page)
+Fb2InsertCmd::Fb2InsertCmd(const Fb2TextElement &element)
+    : QUndoCommand()
     , m_element(element)
+    , m_parent(element.previousSibling())
+    , m_inner(false)
 {
+    if (m_parent.isNull()) {
+        m_parent = m_element.parent();
+        m_inner = true;
+    }
 }
 
-void Fb2MoveUpCmd::redo()
+void Fb2InsertCmd::redo()
 {
-    Fb2TextElement subling = m_element.previousSibling();
-    subling.prependOutside(m_element.takeFromDocument());
-    m_page.update();
+    if (m_inner) {
+        m_parent.prependInside(m_element);
+    } else {
+        m_parent.appendOutside(m_element);
+    }
+    m_element.select();
 }
 
-void Fb2MoveUpCmd::undo()
+void Fb2InsertCmd::undo()
 {
-    Fb2TextElement subling = m_element.nextSibling();
-    subling.appendOutside(m_element.takeFromDocument());
-    m_page.update();
+    m_element.takeFromDocument();
 }
 
 //---------------------------------------------------------------------------
 //  Fb2DeleteCmd
 //---------------------------------------------------------------------------
 
-Fb2DeleteCmd::Fb2DeleteCmd(Fb2TextPage &page, const Fb2TextElement &element, Fb2UndoCommand *parent)
-    : Fb2UndoCommand(parent)
+Fb2DeleteCmd::Fb2DeleteCmd(const Fb2TextElement &element)
+    : QUndoCommand()
     , m_element(element)
-    , m_page(page)
+    , m_parent(element.previousSibling())
     , m_inner(false)
 {
-    m_parent = element.previousSibling();
     if (m_parent.isNull()) {
         m_parent = element.parent();
         m_inner = true;
@@ -219,7 +105,6 @@ Fb2DeleteCmd::Fb2DeleteCmd(Fb2TextPage &page, const Fb2TextElement &element, Fb2
 void Fb2DeleteCmd::redo()
 {
     m_element.takeFromDocument();
-    m_page.update();
 }
 
 void Fb2DeleteCmd::undo()
@@ -229,6 +114,28 @@ void Fb2DeleteCmd::undo()
     } else {
         m_parent.appendOutside(m_element);
     }
-    m_page.update();
+    m_element.select();
+}
+
+//---------------------------------------------------------------------------
+//  Fb2MoveUpCmd
+//---------------------------------------------------------------------------
+
+Fb2MoveUpCmd::Fb2MoveUpCmd(const Fb2TextElement &element)
+    : QUndoCommand()
+    , m_element(element)
+{
+}
+
+void Fb2MoveUpCmd::redo()
+{
+    Fb2TextElement subling = m_element.previousSibling();
+    subling.prependOutside(m_element.takeFromDocument());
+}
+
+void Fb2MoveUpCmd::undo()
+{
+    Fb2TextElement subling = m_element.nextSibling();
+    subling.appendOutside(m_element.takeFromDocument());
 }
 

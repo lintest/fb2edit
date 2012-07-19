@@ -95,6 +95,16 @@ bool Fb2TextPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkReques
     return QWebPage::acceptNavigationRequest(frame, request, type);
 }
 
+QString Fb2TextPage::div(const QString &style, const QString &text)
+{
+    return QString("<div class=%1>%2</div>").arg(style).arg(text);
+}
+
+QString Fb2TextPage::p(const QString &text)
+{
+    return QString("<p>%1</p>").arg(text);
+}
+
 Fb2TextElement Fb2TextPage::body()
 {
     return doc().findFirst("body");
@@ -105,10 +115,10 @@ Fb2TextElement Fb2TextPage::doc()
     return mainFrame()->documentElement();
 }
 
-void Fb2TextPage::insertBody()
+void Fb2TextPage::push(QUndoCommand * command, const QString &text)
 {
-    undoStack()->beginMacro("Append body");
-    undoStack()->push(new Fb2AddBodyCmd(*this));
+    undoStack()->beginMacro(text);
+    undoStack()->push(command);
     undoStack()->endMacro();
 }
 
@@ -118,15 +128,49 @@ void Fb2TextPage::update()
     emit selectionChanged();
 }
 
+void Fb2TextPage::appendSection(const Fb2TextElement &parent)
+{
+    QString html = div("section", div("title", p()) + p());
+    Fb2TextElement element = parent;
+    element.appendInside(html);
+    element = parent.lastChild();
+    QUndoCommand * command = new Fb2InsertCmd(element);
+    push(command, tr("Append section"));
+}
+
+void Fb2TextPage::insertBody()
+{
+    QString html = div("body", div("title", p()) + div("section", div("title", p()) + p()));
+    Fb2TextElement element = body();
+    element.appendInside(html);
+    element = element.lastChild();
+    QUndoCommand * command = new Fb2InsertCmd(element);
+    push(command, tr("Append body"));
+}
+
+void Fb2TextPage::insertSection()
+{
+    Fb2TextElement element = current();
+    while (!element.isNull()) {
+        if (element.isSection() || element.isBody()) {
+            appendSection(element);
+            break;
+        }
+        element = element.parent();
+    }
+}
+
 void Fb2TextPage::insertTitle()
 {
     Fb2TextElement element = current();
     while (!element.isNull()) {
         Fb2TextElement parent = element.parent();
-        if (parent.isSection() && !parent.hasTitle()) {
-            undoStack()->beginMacro("Insert title");
-            undoStack()->push(new Fb2TitleCmd(*this, parent));
-            undoStack()->endMacro();
+        if ((parent.isSection() || parent.isBody()) && !parent.hasTitle()) {
+            QString html = div("title", p());
+            parent.prependInside(html);
+            element = parent.firstChild();
+            QUndoCommand * command = new Fb2InsertCmd(element);
+            push(command, tr("Insert title"));
             break;
         }
         element = parent;
@@ -139,11 +183,11 @@ void Fb2TextPage::insertSubtitle()
     while (!element.isNull()) {
         Fb2TextElement parent = element.parent();
         if (parent.isSection()) {
-            Fb2TextElement previous = element.previousSibling();
-            if (!previous.isNull()) element = previous;
-            undoStack()->beginMacro("Insert subtitle");
-            undoStack()->push(new Fb2SubtitleCmd(*this, element.location()));
-            undoStack()->endMacro();
+            QString html = div("subtitle", p());
+            element.prependOutside(html);
+            element = element.previousSibling();
+            QUndoCommand * command = new Fb2InsertCmd(element);
+            push(command, tr("Insert subtitle"));
             break;
         }
         element = parent;

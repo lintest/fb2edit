@@ -13,6 +13,7 @@
 QT_BEGIN_NAMESPACE
 class QDockWidget;
 class QToolBar;
+class QUndoCommand;
 class QWebInspector;
 QT_END_NAMESPACE
 
@@ -59,7 +60,7 @@ class Fb2TextPage : public QWebPage
 public:
     explicit Fb2TextPage(QObject *parent = 0);
 
-    void update();
+    void push(QUndoCommand * command, const QString &text = QString());
     Fb2TextElement element(const QString &location);
     Fb2TextElement current();
     QString location();
@@ -68,13 +69,21 @@ public:
     Fb2TextElement body();
     Fb2TextElement doc();
 
+    void appendSection(const Fb2TextElement &parent);
+
 public slots:
     void insertBody();
     void insertTitle();
     void insertSubtitle();
+    void insertSection();
 
 protected:
     virtual bool acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type);
+
+protected:
+    static QString div(const QString &style, const QString &text);
+    static QString p(const QString &text = "<br/>");
+    void update();
 };
 
 class Fb2TextEdit : public Fb2TextBase
@@ -123,6 +132,7 @@ private slots:
 
 private:
     void execCommand(const QString &cmd, const QString &arg);
+    void exec(QUndoCommand *command);
     Fb2TemporaryFile * file(const QString &name);
     Fb2NoteView & noteView();
     QWebElement body();

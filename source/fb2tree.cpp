@@ -5,6 +5,7 @@
 #include <QApplication>
 #include <QCursor>
 #include <QVBoxLayout>
+#include <QUndoStack>
 #include <QWebFrame>
 #include <QWebPage>
 #include <QTreeView>
@@ -283,10 +284,8 @@ QModelIndex Fb2TreeModel::move(const QModelIndex &index, int dx, int dy)
             owner->insert(brother, to);
             endMoveRows();
 
-            Fb2TextPage & page = *m_view.page();
-            page.undoStack()->beginMacro("Move element");
-            page.undoStack()->push(new Fb2MoveUpCmd(page, brother->element()));
-            page.undoStack()->endMacro();
+            QUndoCommand * command = new Fb2MoveUpCmd(brother->element());
+            m_view.page()->push(command, tr("Move section"));
         } break;
     }
     return result;
@@ -301,10 +300,8 @@ bool Fb2TreeModel::removeRows(int row, int count, const QModelIndex &parent)
     beginRemoveRows(parent, row, last);
     for (int i = last; i >= row; i--) {
         if (Fb2TreeItem * child = owner->takeAt(i)) {
-            Fb2TextPage & page = *m_view.page();
-            page.undoStack()->beginMacro("Delete element");
-            page.undoStack()->push(new Fb2DeleteCmd(page, child->element()));
-            page.undoStack()->endMacro();
+            QUndoCommand * command = new Fb2DeleteCmd(child->element());
+            m_view.page()->push(command, "Delete element");
             delete child;
         }
     }
@@ -390,6 +387,7 @@ Fb2TreeView::Fb2TreeView(Fb2TextEdit &view, QWidget *parent)
     connect(m_view.page(), SIGNAL(loadFinished(bool)), SLOT(updateTree()));
     connect(m_view.page(), SIGNAL(contentsChanged()), SLOT(contentsChanged()));
     connect(m_view.page(), SIGNAL(selectionChanged()), SLOT(selectionChanged()));
+    connect(m_view.page()->undoStack(), SIGNAL(indexChanged(int)), SLOT(contentsChanged()));
     connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(contextMenu(QPoint)));
 
     m_timerSelect.setInterval(1000);
@@ -556,20 +554,14 @@ void Fb2TreeView::insertNode()
 
         Fb2TextElement element = item->element();
         while (!element.isNull()) {
-            if (element.isSection() || element.isBody())
-            {
-                QUndoStack * undoStack = m_view.page()->undoStack();
-                undoStack->beginMacro("Insert section");
-                undoStack->push(new Fb2SectionCmd(*m_view.page(), element));
-                undoStack->endMacro();
-
+            if (element.isSection() || element.isBody()) {
+                m_view.page()->appendSection(element);
                 QModelIndex result = m->append(index, element.lastChild());
                 if (!result.isValid()) return;
                 setCurrentIndex(result);
                 emit QTreeView::currentChanged(result, index);
                 emit QTreeView::activated(result);
                 scrollTo(result);
-
                 break;
             }
             element = element.parent();

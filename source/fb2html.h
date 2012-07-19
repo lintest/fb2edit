@@ -36,89 +36,38 @@ public:
     void select();
 };
 
-class Fb2UndoCommand : public QUndoCommand
+class Fb2InsertCmd : public QUndoCommand
 {
 public:
-    explicit Fb2UndoCommand(QUndoCommand *parent = 0) : QUndoCommand(parent) {}
-protected:
-    static QString div(const QString &style, const QString &text);
-    static QString p(const QString &text = "<br/>");
-};
-
-class Fb2AddBodyCmd : public Fb2UndoCommand
-{
-public:
-    explicit Fb2AddBodyCmd(Fb2TextPage &page, Fb2UndoCommand *parent = 0) : Fb2UndoCommand(parent), m_page(page) {}
+    explicit Fb2InsertCmd(const Fb2TextElement &element);
     virtual void undo();
     virtual void redo();
 private:
-    Fb2TextPage & m_page;
-    Fb2TextElement m_body;
-};
-
-class Fb2SectionCmd : public Fb2UndoCommand
-{
-public:
-    explicit Fb2SectionCmd(Fb2TextPage &page, const Fb2TextElement &element, Fb2UndoCommand *parent = 0)
-        : Fb2UndoCommand(parent), m_page(page), m_parent(element) {}
-    virtual void undo();
-    virtual void redo();
-private:
-    Fb2TextPage & m_page;
     Fb2TextElement m_parent;
-    Fb2TextElement m_child;
-};
-
-class Fb2TitleCmd : public Fb2UndoCommand
-{
-public:
-    explicit Fb2TitleCmd(Fb2TextPage &page, const Fb2TextElement &element, Fb2UndoCommand *parent = 0)
-        : Fb2UndoCommand(parent), m_page(page), m_section(element) {}
-    virtual void undo();
-    virtual void redo();
-private:
-    Fb2TextPage & m_page;
-    Fb2TextElement m_section;
-    Fb2TextElement m_title;
-};
-
-class Fb2SubtitleCmd : public Fb2UndoCommand
-{
-public:
-    explicit Fb2SubtitleCmd(Fb2TextPage &page, const QString &location, Fb2UndoCommand *parent = 0)
-        : Fb2UndoCommand(parent), m_page(page), m_location(location) {}
-    virtual void undo();
-    virtual void redo();
-private:
     Fb2TextElement m_element;
-    Fb2TextPage & m_page;
-    QString m_location;
-    QString m_position;
-};
-
-class Fb2MoveUpCmd : public Fb2UndoCommand
-{
-public:
-    explicit Fb2MoveUpCmd(Fb2TextPage &page, const Fb2TextElement &element, Fb2UndoCommand *parent = 0);
-    virtual void undo();
-    virtual void redo();
-private:
-    Fb2TextPage & m_page;
-    Fb2TextElement m_element;
-};
-
-class Fb2DeleteCmd : public Fb2UndoCommand
-{
-public:
-    explicit Fb2DeleteCmd(Fb2TextPage &page, const Fb2TextElement &element, Fb2UndoCommand *parent = 0);
-    virtual void undo();
-    virtual void redo();
-private:
-    Fb2TextElement m_element;
-    Fb2TextElement m_parent;
-    Fb2TextPage & m_page;
-    QString m_position;
     bool m_inner;
+};
+
+class Fb2DeleteCmd : public QUndoCommand
+{
+public:
+    explicit Fb2DeleteCmd(const Fb2TextElement &element);
+    virtual void undo();
+    virtual void redo();
+private:
+    Fb2TextElement m_element;
+    Fb2TextElement m_parent;
+    bool m_inner;
+};
+
+class Fb2MoveUpCmd : public QUndoCommand
+{
+public:
+    explicit Fb2MoveUpCmd(const Fb2TextElement &element);
+    virtual void undo();
+    virtual void redo();
+private:
+    Fb2TextElement m_element;
 };
 
 #endif // FB2HTML_H
