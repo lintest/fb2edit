@@ -432,7 +432,7 @@ void FbTextEdit::data(QString name, QByteArray data)
     m_files.set(name, data);
 }
 
-void FbTextEdit::html(QString name, QString html)
+void FbTextEdit::html(QString html)
 {
     static int number = 0;
     setHtml(html, QUrl(QString("fb2:/%1/").arg(number++)));

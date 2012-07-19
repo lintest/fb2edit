@@ -72,7 +72,7 @@ public:
         return m_element.geometry().topLeft();
     }
 
-    FbTreeItem * content(const FbTreeModel &model, int number) const;
+    FbTreeItem * content(int number) const;
 
     QString selector() const;
 

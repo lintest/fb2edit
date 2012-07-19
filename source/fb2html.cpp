@@ -139,3 +139,51 @@ void FbMoveUpCmd::undo()
     subling.appendOutside(m_element.takeFromDocument());
 }
 
+
+//---------------------------------------------------------------------------
+//  FbMoveLeftCmd
+//---------------------------------------------------------------------------
+
+FbMoveLeftCmd::FbMoveLeftCmd(const FbTextElement &element)
+    : QUndoCommand()
+    , m_element(element)
+    , m_subling(element.previousSibling())
+    , m_parent(element.parent())
+{
+}
+
+void FbMoveLeftCmd::redo()
+{
+    m_parent.appendOutside(m_element.takeFromDocument());
+}
+
+void FbMoveLeftCmd::undo()
+{
+    if (m_subling.isNull()) {
+        m_parent.prependInside(m_element.takeFromDocument());
+    } else {
+        m_subling.appendOutside(m_element.takeFromDocument());
+    }
+}
+
+//---------------------------------------------------------------------------
+//  FbMoveRightCmd
+//---------------------------------------------------------------------------
+
+FbMoveRightCmd::FbMoveRightCmd(const FbTextElement &element)
+    : QUndoCommand()
+    , m_element(element)
+    , m_subling(element.previousSibling())
+{
+}
+
+void FbMoveRightCmd::redo()
+{
+    m_subling.appendInside(m_element.takeFromDocument());
+}
+
+void FbMoveRightCmd::undo()
+{
+    m_subling.appendOutside(m_element.takeFromDocument());
+}
+

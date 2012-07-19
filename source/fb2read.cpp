@@ -14,7 +14,7 @@ FbReadThread::FbReadThread(QObject *parent, const QString &filename, const QStri
     , m_xml(xml)
     , m_abort(false)
 {
-    connect(this, SIGNAL(html(QString, QString)), parent, SLOT(html(QString, QString)));
+    connect(this, SIGNAL(html(QString)), parent, SLOT(html(QString)));
 }
 
 FbReadThread::~FbReadThread()
@@ -32,7 +32,7 @@ void FbReadThread::stop()
 
 void FbReadThread::run()
 {
-    if (parse()) emit html(m_filename, m_html);
+    if (parse()) emit html(m_html);
 }
 
 #ifdef FB2_USE_LIBXML2

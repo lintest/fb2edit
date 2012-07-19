@@ -70,4 +70,27 @@ private:
     FbTextElement m_element;
 };
 
+class FbMoveLeftCmd : public QUndoCommand
+{
+public:
+    explicit FbMoveLeftCmd(const FbTextElement &element);
+    virtual void undo();
+    virtual void redo();
+private:
+    FbTextElement m_element;
+    FbTextElement m_subling;
+    FbTextElement m_parent;
+};
+
+class FbMoveRightCmd : public QUndoCommand
+{
+public:
+    explicit FbMoveRightCmd(const FbTextElement &element);
+    virtual void undo();
+    virtual void redo();
+private:
+    FbTextElement m_element;
+    FbTextElement m_subling;
+};
+
 #endif // FB2HTML_H

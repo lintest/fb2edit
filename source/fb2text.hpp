@@ -116,7 +116,7 @@ protected:
 
 public slots:
     void data(QString name, QByteArray data);
-    void html(QString name, QString html);
+    void html(QString html);
     void linkHovered(const QString &link, const QString &title, const QString &textContent);
     void insertImage();
     void insertNote();

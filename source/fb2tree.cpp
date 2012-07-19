@@ -3,7 +3,6 @@
 #include <QtDebug>
 #include <QAction>
 #include <QApplication>
-#include <QCursor>
 #include <QVBoxLayout>
 #include <QUndoStack>
 #include <QWebFrame>
@@ -105,7 +104,7 @@ QString FbTreeItem::selector() const
     return selector.prepend("$('html')");
 }
 
-FbTreeItem * FbTreeItem::content(const FbTreeModel &model, int number) const
+FbTreeItem * FbTreeItem::content(int number) const
 {
     FbTextElement element = m_element.firstChild();
     while (number-- > 0) element = element.nextSibling();
@@ -211,7 +210,7 @@ QModelIndex FbTreeModel::index(const QString &location) const
         QString str = iterator.next();
         if (str.left(5) == "HTML=") continue;
         int key = str.mid(str.indexOf("=")+1).toInt();
-        FbTreeItem * child = parent->content(*this, key);
+        FbTreeItem * child = parent->content(key);
         if (child) result = index(child);
         parent = child;
     }
@@ -233,33 +232,39 @@ QModelIndex FbTreeModel::move(const QModelIndex &index, int dx, int dy)
     switch (dx) {
         case -1: {
             if (!owner || owner == m_root) return QModelIndex();
-            if (child->name() != "section") return QModelIndex();
-            if (owner->name() != "section") return QModelIndex();
+            if (!child->element().isSection()) return QModelIndex();
+            if (!owner->element().isSection()) return QModelIndex();
+
             QModelIndex target = this->parent(parent);
             int to = parent.row() + 1;
             result = createIndex(to, 0, (void*)child);
+
             beginMoveRows(parent, from, from, target, to);
-            QWebElement element = child->element().takeFromDocument();
-            owner->element().appendOutside(element);
             owner->takeAt(from);
             owner->parent()->insert(child, to);
             endMoveRows();
+
+            QUndoCommand * command = new FbMoveLeftCmd(child->element());
+            m_view.page()->push(command, tr("Move section"));
         } break;
 
         case +1: {
             if (from == 0) return QModelIndex();
             FbTreeItem * brother = owner->item(from - 1);
-            if (child->name() != "section") return QModelIndex();
-            if (brother->name() != "section") return QModelIndex();
+            if (!child->element().isSection()) return QModelIndex();
+            if (!brother->element().isSection()) return QModelIndex();
+
             QModelIndex target = createIndex(from - 1, 0, (void*)brother);
             int to = rowCount(target);
             result = createIndex(to, 0, (void*)child);
+
             beginMoveRows(parent, from, from, target, to);
-            QWebElement element = child->element().takeFromDocument();
-            brother->element().appendInside(element);
             owner->takeAt(from);
             brother->insert(child, to);
             endMoveRows();
+
+            QUndoCommand * command = new FbMoveRightCmd(child->element());
+            m_view.page()->push(command, tr("Move section"));
         } break;
 
         default: {
@@ -477,18 +482,28 @@ void FbTreeView::initActions(QToolBar *toolbar)
 
 void FbTreeView::keyPressEvent(QKeyEvent *event)
 {
-    if (event->modifiers() == Qt::NoModifier) {
+    switch (event->modifiers()) {
+        case Qt::NoModifier:
+            switch (event->key()) {
+                case Qt::Key_Insert: insertNode(); return;
+                case Qt::Key_Delete: deleteNode(); return;
+            }
+            break;
+    case Qt::ControlModifier:
         switch (event->key()) {
-            case Qt::Key_Insert: insertNode(); return;
-            case Qt::Key_Delete: deleteNode(); return;
+            case Qt::Key_Left  : moveCurrent(-1, 0); return;
+            case Qt::Key_Right : moveCurrent(+1, 0); return;
+            case Qt::Key_Up    : moveCurrent(0, -1); return;
+            case Qt::Key_Down  : moveCurrent(0, +1); return;
         }
+        break;
     }
     QTreeView::keyPressEvent(event);
 }
 
 void FbTreeView::contextMenu(const QPoint &pos)
 {
-    m_menu.exec(QCursor::pos());
+    m_menu.exec(mapToGlobal(pos));
 }
 
 void FbTreeView::selectionChanged()

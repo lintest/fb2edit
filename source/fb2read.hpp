@@ -17,7 +17,7 @@ public:
     QString * data() { return &m_html; }
 
 signals:
-    void html(QString name, QString html);
+    void html(QString name);
 
 public slots:
     void stop();
