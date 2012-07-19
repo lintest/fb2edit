@@ -17,15 +17,15 @@ class QUndoCommand;
 class QWebInspector;
 QT_END_NAMESPACE
 
-class Fb2NoteView;
-class Fb2TextElement;
+class FbNoteView;
+class FbTextElement;
 
-class Fb2TextBase : public QWebView
+class FbTextBase : public QWebView
 {
     Q_OBJECT
 
 public:
-    Fb2TextBase(QWidget* parent = 0)
+    FbTextBase(QWidget* parent = 0)
         : QWebView(parent)
     {
           m_timer.setInterval(100);
@@ -53,23 +53,23 @@ private:
     QSize m_size;
 };
 
-class Fb2TextPage : public QWebPage
+class FbTextPage : public QWebPage
 {
     Q_OBJECT
 
 public:
-    explicit Fb2TextPage(QObject *parent = 0);
+    explicit FbTextPage(QObject *parent = 0);
 
     void push(QUndoCommand * command, const QString &text = QString());
-    Fb2TextElement element(const QString &location);
-    Fb2TextElement current();
+    FbTextElement element(const QString &location);
+    FbTextElement current();
     QString location();
     QString status();
 
-    Fb2TextElement body();
-    Fb2TextElement doc();
+    FbTextElement body();
+    FbTextElement doc();
 
-    void appendSection(const Fb2TextElement &parent);
+    void appendSection(const FbTextElement &parent);
 
 public slots:
     void insertBody();
@@ -86,16 +86,16 @@ protected:
     void update();
 };
 
-class Fb2TextEdit : public Fb2TextBase
+class FbTextEdit : public FbTextBase
 {
     Q_OBJECT
 
 public:
-    explicit Fb2TextEdit(QWidget *parent = 0);
-    virtual ~Fb2TextEdit();
+    explicit FbTextEdit(QWidget *parent = 0);
+    virtual ~FbTextEdit();
 
-    Fb2TextPage * page();
-    Fb2TemporaryList & files() { return m_files; }
+    FbTextPage * page();
+    FbTemporaryList & files() { return m_files; }
     void load(const QString &filename, const QString &xml = QString());
     bool save(QIODevice *device, const QString &codec = QString());
     bool save(QByteArray *array);
@@ -133,27 +133,27 @@ private slots:
 private:
     void execCommand(const QString &cmd, const QString &arg);
     void exec(QUndoCommand *command);
-    Fb2TemporaryFile * file(const QString &name);
-    Fb2NoteView & noteView();
+    FbTemporaryFile * file(const QString &name);
+    FbNoteView & noteView();
     QWebElement body();
     QWebElement doc();
 
 private:
-    Fb2TemporaryList m_files;
-    Fb2NoteView *m_noteView;
+    FbTemporaryList m_files;
+    FbNoteView *m_noteView;
     QThread *m_thread;
     QPoint m_point;
 };
 
-class Fb2TextFrame : public QFrame
+class FbTextFrame : public QFrame
 {
     Q_OBJECT
 
 public:
-    explicit Fb2TextFrame(QWidget* parent = 0);
-    ~Fb2TextFrame();
+    explicit FbTextFrame(QWidget* parent = 0);
+    ~FbTextFrame();
     void hideInspector();
-    Fb2TextEdit view;
+    FbTextEdit view;
 
 public slots:
     void showInspector();

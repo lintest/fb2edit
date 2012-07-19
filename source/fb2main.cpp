@@ -12,7 +12,7 @@
 #include "fb2head.hpp"
 #include "fb2utils.h"
 
-Fb2MainWindow::Fb2MainWindow()
+FbMainWindow::FbMainWindow()
 {
     init();
     setCurrentFile();
@@ -20,7 +20,7 @@ Fb2MainWindow::Fb2MainWindow()
     textFrame->view.load(":blank.fb2");
 }
 
-Fb2MainWindow::Fb2MainWindow(const QString &filename, ViewMode mode)
+FbMainWindow::FbMainWindow(const QString &filename, ViewMode mode)
 {
     init();
     setCurrentFile(filename);
@@ -33,7 +33,7 @@ Fb2MainWindow::Fb2MainWindow(const QString &filename, ViewMode mode)
     }
 }
 
-void Fb2MainWindow::init()
+void FbMainWindow::init()
 {
     connect(qApp, SIGNAL(logMessage(QString)), SLOT(logMessage(QString)));
 
@@ -58,7 +58,7 @@ void Fb2MainWindow::init()
     setUnifiedTitleAndToolBarOnMac(true);
 }
 
-void Fb2MainWindow::logMessage(const QString &message)
+void FbMainWindow::logMessage(const QString &message)
 {
     if (!messageEdit) {
         messageEdit = new QTextEdit(this);
@@ -73,22 +73,22 @@ void Fb2MainWindow::logMessage(const QString &message)
     messageEdit->append(message);
 }
 
-void Fb2MainWindow::logShowed()
+void FbMainWindow::logShowed()
 {
     messageEdit->setMaximumHeight(QWIDGETSIZE_MAX);
 }
 
-void Fb2MainWindow::logDestroyed()
+void FbMainWindow::logDestroyed()
 {
     messageEdit = NULL;
 }
 
-void Fb2MainWindow::treeDestroyed()
+void FbMainWindow::treeDestroyed()
 {
     dockTree = NULL;
 }
 
-bool Fb2MainWindow::loadXML(const QString &filename)
+bool FbMainWindow::loadXML(const QString &filename)
 {
     if (!filename.isEmpty()) {
         QFile file(filename);
@@ -100,7 +100,7 @@ bool Fb2MainWindow::loadXML(const QString &filename)
     return false;
 }
 
-void Fb2MainWindow::closeEvent(QCloseEvent *event)
+void FbMainWindow::closeEvent(QCloseEvent *event)
 {
     if (maybeSave()) {
         writeSettings();
@@ -110,19 +110,19 @@ void Fb2MainWindow::closeEvent(QCloseEvent *event)
     }
 }
 
-void Fb2MainWindow::fileNew()
+void FbMainWindow::fileNew()
 {
-    Fb2MainWindow *other = new Fb2MainWindow;
+    FbMainWindow *other = new FbMainWindow;
     other->move(x() + 40, y() + 40);
     other->show();
 }
 
-void Fb2MainWindow::fileOpen()
+void FbMainWindow::fileOpen()
 {
     QString filename = QFileDialog::getOpenFileName(this, tr("Open file"), QString(), "Fiction book files (*.fb2)");
     if (filename.isEmpty()) return;
 
-    Fb2MainWindow * existing = findFb2MainWindow(filename);
+    FbMainWindow * existing = findFbMainWindow(filename);
     if (existing) {
         existing->show();
         existing->raise();
@@ -135,7 +135,7 @@ void Fb2MainWindow::fileOpen()
             setCurrentFile(filename);
             textFrame->view.load(filename);
         } else {
-            Fb2MainWindow * other = new Fb2MainWindow(filename, FB2);
+            FbMainWindow * other = new FbMainWindow(filename, FB2);
             other->move(x() + 40, y() + 40);
             other->show();
         }
@@ -144,14 +144,14 @@ void Fb2MainWindow::fileOpen()
             setCurrentFile(filename);
             loadXML(filename);
         } else {
-            Fb2MainWindow * other = new Fb2MainWindow(filename, XML);
+            FbMainWindow * other = new FbMainWindow(filename, XML);
             other->move(x() + 40, y() + 40);
             other->show();
         }
     }
 }
 
-bool Fb2MainWindow::fileSave()
+bool FbMainWindow::fileSave()
 {
     if (isUntitled) {
         return fileSaveAs();
@@ -160,9 +160,9 @@ bool Fb2MainWindow::fileSave()
     }
 }
 
-bool Fb2MainWindow::fileSaveAs()
+bool FbMainWindow::fileSaveAs()
 {
-    Fb2SaveDialog dlg(this, tr("Save As..."));
+    FbSaveDialog dlg(this, tr("Save As..."));
     dlg.selectFile(curFile);
     if (!dlg.exec()) return false;
     QString fileName = dlg.fileName();
@@ -170,13 +170,13 @@ bool Fb2MainWindow::fileSaveAs()
     return saveFile(fileName, dlg.codec());
 }
 
-void Fb2MainWindow::about()
+void FbMainWindow::about()
 {
     QMessageBox::about(this, tr("About fb2edit"),
         tr("The <b>fb2edit</b> is application for editing FB2-files."));
 }
 
-void Fb2MainWindow::documentWasModified()
+void FbMainWindow::documentWasModified()
 {
     bool modified = false;
     if (codeEdit) modified = codeEdit->isModified();
@@ -188,7 +188,7 @@ void Fb2MainWindow::documentWasModified()
     setWindowModified(modified);
 }
 
-void Fb2MainWindow::cleanChanged(bool clean)
+void FbMainWindow::cleanChanged(bool clean)
 {
     QFileInfo info = windowFilePath();
     QString title = info.fileName();
@@ -198,7 +198,7 @@ void Fb2MainWindow::cleanChanged(bool clean)
     setWindowModified(!clean);
 }
 
-void Fb2MainWindow::createActions()
+void FbMainWindow::createActions()
 {
     QAction * act;
     QMenu * menu;
@@ -209,7 +209,7 @@ void Fb2MainWindow::createActions()
     tool = addToolBar(tr("File"));
     tool->setMovable(false);
 
-    act = new QAction(Fb2Icon("document-new"), tr("&New"), this);
+    act = new QAction(FbIcon("document-new"), tr("&New"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::New);
     act->setStatusTip(tr("Create a new file"));
@@ -217,21 +217,21 @@ void Fb2MainWindow::createActions()
     menu->addAction(act);
     tool->addAction(act);
 
-    act = new QAction(Fb2Icon("document-open"), tr("&Open..."), this);
+    act = new QAction(FbIcon("document-open"), tr("&Open..."), this);
     act->setShortcuts(QKeySequence::Open);
     act->setStatusTip(tr("Open an existing file"));
     connect(act, SIGNAL(triggered()), this, SLOT(fileOpen()));
     menu->addAction(act);
     tool->addAction(act);
 
-    act = new QAction(Fb2Icon("document-save"), tr("&Save"), this);
+    act = new QAction(FbIcon("document-save"), tr("&Save"), this);
     act->setShortcuts(QKeySequence::Save);
     act->setStatusTip(tr("Save the document to disk"));
     connect(act, SIGNAL(triggered()), this, SLOT(fileSave()));
     menu->addAction(act);
     tool->addAction(act);
 
-    act = new QAction(Fb2Icon("document-save-as"), tr("Save &As..."), this);
+    act = new QAction(FbIcon("document-save-as"), tr("Save &As..."), this);
     act->setShortcuts(QKeySequence::SaveAs);
     act->setStatusTip(tr("Save the document under a new name"));
     connect(act, SIGNAL(triggered()), this, SLOT(fileSaveAs()));
@@ -239,13 +239,13 @@ void Fb2MainWindow::createActions()
 
     menu->addSeparator();
 
-    act = new QAction(Fb2Icon("window-close"), tr("&Close"), this);
+    act = new QAction(FbIcon("window-close"), tr("&Close"), this);
     act->setShortcuts(QKeySequence::Close);
     act->setStatusTip(tr("Close this window"));
     connect(act, SIGNAL(triggered()), this, SLOT(close()));
     menu->addAction(act);
 
-    act = new QAction(Fb2Icon("application-exit"), tr("E&xit"), this);
+    act = new QAction(FbIcon("application-exit"), tr("E&xit"), this);
     act->setShortcuts(QKeySequence::Quit);
     act->setStatusTip(tr("Exit the application"));
     connect(act, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
@@ -255,13 +255,13 @@ void Fb2MainWindow::createActions()
 
     connect(QApplication::clipboard(), SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
 
-    actionUndo = act = new QAction(Fb2Icon("edit-undo"), tr("&Undo"), this);
+    actionUndo = act = new QAction(FbIcon("edit-undo"), tr("&Undo"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcut(QKeySequence::Undo);
     act->setEnabled(false);
     menu->addAction(act);
 
-    actionRedo = act = new QAction(Fb2Icon("edit-redo"), tr("&Redo"), this);
+    actionRedo = act = new QAction(FbIcon("edit-redo"), tr("&Redo"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcut(QKeySequence::Redo);
     act->setEnabled(false);
@@ -269,7 +269,7 @@ void Fb2MainWindow::createActions()
 
     menu->addSeparator();
 
-    actionCut = act = new QAction(Fb2Icon("edit-cut"), tr("Cu&t"), this);
+    actionCut = act = new QAction(FbIcon("edit-cut"), tr("Cu&t"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Cut);
@@ -277,7 +277,7 @@ void Fb2MainWindow::createActions()
     act->setEnabled(false);
     menu->addAction(act);
 
-    actionCopy = act = new QAction(Fb2Icon("edit-copy"), tr("&Copy"), this);
+    actionCopy = act = new QAction(FbIcon("edit-copy"), tr("&Copy"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Copy);
@@ -285,7 +285,7 @@ void Fb2MainWindow::createActions()
     act->setEnabled(false);
     menu->addAction(act);
 
-    actionPaste = act = new QAction(Fb2Icon("edit-paste"), tr("&Paste"), this);
+    actionPaste = act = new QAction(FbIcon("edit-paste"), tr("&Paste"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Paste);
@@ -295,16 +295,16 @@ void Fb2MainWindow::createActions()
 
     menu->addSeparator();
 
-    actionFind = act = new QAction(Fb2Icon("edit-find"), tr("&Find..."), this);
+    actionFind = act = new QAction(FbIcon("edit-find"), tr("&Find..."), this);
     act->setShortcuts(QKeySequence::Find);
     menu->addAction(act);
 
-    actionReplace = act = new QAction(Fb2Icon("edit-find-replace"), tr("&Replace..."), this);
+    actionReplace = act = new QAction(FbIcon("edit-find-replace"), tr("&Replace..."), this);
     menu->addAction(act);
 
     menu->addSeparator();
 
-    act = new QAction(Fb2Icon("preferences-desktop"), tr("&Settings"), this);
+    act = new QAction(FbIcon("preferences-desktop"), tr("&Settings"), this);
     act->setShortcuts(QKeySequence::Preferences);
     act->setStatusTip(tr("Application settings"));
     connect(act, SIGNAL(triggered()), SLOT(openSettings()));
@@ -312,18 +312,18 @@ void Fb2MainWindow::createActions()
 
     menu = menuBar()->addMenu(tr("&Insert", "Main menu"));
 
-    actionImage = act = new QAction(Fb2Icon("insert-image"), tr("&Image"), this);
+    actionImage = act = new QAction(FbIcon("insert-image"), tr("&Image"), this);
     menu->addAction(act);
 
-    actionNote = act = new QAction(Fb2Icon("insert-text"), tr("&Footnote"), this);
+    actionNote = act = new QAction(FbIcon("insert-text"), tr("&Footnote"), this);
     menu->addAction(act);
 
-    actionLink = act = new QAction(Fb2Icon("insert-link"), tr("&Hiperlink"), this);
+    actionLink = act = new QAction(FbIcon("insert-link"), tr("&Hiperlink"), this);
     menu->addAction(act);
 
     menu->addSeparator();
 
-    actionSection = act = new QAction(Fb2Icon("insert-object"), tr("&Section"), this);
+    actionSection = act = new QAction(FbIcon("insert-object"), tr("&Section"), this);
     menu->addAction(act);
 
     actionTitle = act = new QAction(tr("&Title"), this);
@@ -352,25 +352,25 @@ void Fb2MainWindow::createActions()
 
     menuText = menu = menuBar()->addMenu(tr("Fo&rmat"));
 
-    actionTextBold = act = new QAction(Fb2Icon("format-text-bold"), tr("&Bold"), this);
+    actionTextBold = act = new QAction(FbIcon("format-text-bold"), tr("&Bold"), this);
     act->setShortcuts(QKeySequence::Bold);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextItalic = act = new QAction(Fb2Icon("format-text-italic"), tr("&Italic"), this);
+    actionTextItalic = act = new QAction(FbIcon("format-text-italic"), tr("&Italic"), this);
     act->setShortcuts(QKeySequence::Italic);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextStrike = act = new QAction(Fb2Icon("format-text-strikethrough"), tr("&Strikethrough"), this);
+    actionTextStrike = act = new QAction(FbIcon("format-text-strikethrough"), tr("&Strikethrough"), this);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextSup = act = new QAction(Fb2Icon("format-text-superscript"), tr("Su&perscript"), this);
+    actionTextSup = act = new QAction(FbIcon("format-text-superscript"), tr("Su&perscript"), this);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextSub = act = new QAction(Fb2Icon("format-text-subscript"), tr("Su&bscript"), this);
+    actionTextSub = act = new QAction(FbIcon("format-text-subscript"), tr("Su&bscript"), this);
     act->setCheckable(true);
     menu->addAction(act);
 
@@ -404,15 +404,15 @@ void Fb2MainWindow::createActions()
 
     menu->addSeparator();
 
-    actionZoomIn = act = new QAction(Fb2Icon("zoom-in"), tr("Zoom in"), this);
+    actionZoomIn = act = new QAction(FbIcon("zoom-in"), tr("Zoom in"), this);
     act->setShortcuts(QKeySequence::ZoomIn);
     menu->addAction(act);
 
-    actionZoomOut = act = new QAction(Fb2Icon("zoom-out"), tr("Zoom out"), this);
+    actionZoomOut = act = new QAction(FbIcon("zoom-out"), tr("Zoom out"), this);
     act->setShortcuts(QKeySequence::ZoomOut);
     menu->addAction(act);
 
-    actionZoomReset = act = new QAction(Fb2Icon("zoom-original"), tr("Zoom original"), this);
+    actionZoomReset = act = new QAction(FbIcon("zoom-original"), tr("Zoom original"), this);
     menu->addAction(act);
 
     menu->addSeparator();
@@ -427,7 +427,7 @@ void Fb2MainWindow::createActions()
     menuBar()->addSeparator();
     menu = menuBar()->addMenu(tr("&Help"));
 
-    act = new QAction(Fb2Icon("help-about"), tr("&About"), this);
+    act = new QAction(FbIcon("help-about"), tr("&About"), this);
     act->setStatusTip(tr("Show the application's About box"));
     connect(act, SIGNAL(triggered()), this, SLOT(about()));
     menu->addAction(act);
@@ -438,25 +438,25 @@ void Fb2MainWindow::createActions()
     menu->addAction(act);
 }
 
-void Fb2MainWindow::openSettings()
+void FbMainWindow::openSettings()
 {
     QMessageBox::about(this, tr("Settings"),
         tr("The <b>fb2edit</b> is application for editing FB2-files."));
 }
 
-void Fb2MainWindow::createTree()
+void FbMainWindow::createTree()
 {
     if (textFrame && centralWidget() == textFrame) {
         dockTree = new QDockWidget(tr("Contents"), this);
         dockTree->setAttribute(Qt::WA_DeleteOnClose);
         dockTree->setFeatures(QDockWidget::AllDockWidgetFeatures);
-        dockTree->setWidget(new Fb2TreeWidget(textFrame->view, this));
+        dockTree->setWidget(new FbTreeWidget(textFrame->view, this));
         connect(dockTree, SIGNAL(destroyed()), SLOT(treeDestroyed()));
         addDockWidget(Qt::LeftDockWidgetArea, dockTree);
     }
 }
 
-void Fb2MainWindow::selectionChanged()
+void FbMainWindow::selectionChanged()
 {
     actionCut->setEnabled(textFrame->view.CutEnabled());
     actionCopy->setEnabled(textFrame->view.CopyEnabled());
@@ -470,32 +470,32 @@ void Fb2MainWindow::selectionChanged()
     statusBar()->showMessage(textFrame->view.page()->status());
 }
 
-void Fb2MainWindow::canUndoChanged(bool canUndo)
+void FbMainWindow::canUndoChanged(bool canUndo)
 {
     actionUndo->setEnabled(canUndo);
 }
 
-void Fb2MainWindow::canRedoChanged(bool canRedo)
+void FbMainWindow::canRedoChanged(bool canRedo)
 {
     actionRedo->setEnabled(canRedo);
 }
 
-void Fb2MainWindow::undoChanged()
+void FbMainWindow::undoChanged()
 {
     actionUndo->setEnabled(textFrame->view.UndoEnabled());
 }
 
-void Fb2MainWindow::redoChanged()
+void FbMainWindow::redoChanged()
 {
     actionRedo->setEnabled(textFrame->view.RedoEnabled());
 }
 
-void Fb2MainWindow::createStatusBar()
+void FbMainWindow::createStatusBar()
 {
     statusBar()->showMessage(tr("Ready"));
 }
 
-void Fb2MainWindow::readSettings()
+void FbMainWindow::readSettings()
 {
     QSettings settings;
     QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
@@ -504,14 +504,14 @@ void Fb2MainWindow::readSettings()
     resize(size);
 }
 
-void Fb2MainWindow::writeSettings()
+void FbMainWindow::writeSettings()
 {
     QSettings settings;
     settings.setValue("pos", pos());
     settings.setValue("size", size());
 }
 
-bool Fb2MainWindow::maybeSave()
+bool FbMainWindow::maybeSave()
 {
     if (textFrame && textFrame->view.isModified()) {
         QMessageBox::StandardButton ret;
@@ -527,7 +527,7 @@ bool Fb2MainWindow::maybeSave()
     return true;
 }
 
-bool Fb2MainWindow::saveFile(const QString &fileName, const QString &codec)
+bool FbMainWindow::saveFile(const QString &fileName, const QString &codec)
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
@@ -552,7 +552,7 @@ bool Fb2MainWindow::saveFile(const QString &fileName, const QString &codec)
 */
 }
 
-void Fb2MainWindow::setCurrentFile(const QString &filename)
+void FbMainWindow::setCurrentFile(const QString &filename)
 {
     static int sequenceNumber = 1;
 
@@ -573,31 +573,31 @@ void Fb2MainWindow::setCurrentFile(const QString &filename)
     setWindowTitle(title);
 }
 
-QString Fb2MainWindow::appTitle() const
+QString FbMainWindow::appTitle() const
 {
     return QString(" - ") += qApp->applicationName() += QString(" ") += qApp->applicationVersion();
 }
 
-Fb2MainWindow *Fb2MainWindow::findFb2MainWindow(const QString &fileName)
+FbMainWindow *FbMainWindow::findFbMainWindow(const QString &fileName)
 {
     QString canonicalFilePath = QFileInfo(fileName).canonicalFilePath();
 
     foreach (QWidget *widget, qApp->topLevelWidgets()) {
-        Fb2MainWindow *mainWin = qobject_cast<Fb2MainWindow *>(widget);
+        FbMainWindow *mainWin = qobject_cast<FbMainWindow *>(widget);
         if (mainWin && mainWin->curFile == canonicalFilePath)
             return mainWin;
     }
     return 0;
 }
 
-void Fb2MainWindow::checkScintillaUndo()
+void FbMainWindow::checkScintillaUndo()
 {
     if (!codeEdit) return;
     actionUndo->setEnabled(codeEdit->isUndoAvailable());
     actionRedo->setEnabled(codeEdit->isRedoAvailable());
 }
 
-void Fb2MainWindow::viewCode()
+void FbMainWindow::viewCode()
 {
     if (codeEdit && centralWidget() == codeEdit) return;
 
@@ -614,7 +614,7 @@ void Fb2MainWindow::viewCode()
     FB2DELETE(headTree);
 
     if (!codeEdit) {
-        codeEdit = new Fb2CodeEdit;
+        codeEdit = new FbCodeEdit;
     }
     if (load) codeEdit->load(xml, folds);
     setCentralWidget(codeEdit);
@@ -655,7 +655,7 @@ void Fb2MainWindow::viewCode()
     connect(actionZoomReset, SIGNAL(triggered()), codeEdit, SLOT(zoomReset()));
 }
 
-void Fb2MainWindow::viewText()
+void FbMainWindow::viewText()
 {
     if (textFrame && centralWidget() == textFrame) return;
     QString xml;
@@ -663,7 +663,7 @@ void Fb2MainWindow::viewText()
     FB2DELETE(codeEdit);
     FB2DELETE(headTree);
     if (!textFrame) {
-        textFrame = new Fb2TextFrame(this);
+        textFrame = new FbTextFrame(this);
     }
     setCentralWidget(textFrame);
     textFrame->view.setFocus();
@@ -689,13 +689,13 @@ void Fb2MainWindow::viewText()
     connect(actionTextSub, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::ToggleSubscript), SIGNAL(triggered()));
     connect(actionTextSup, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::ToggleSuperscript), SIGNAL(triggered()));
 
-    Fb2TextEdit * textEdit = &(textFrame->view);
+    FbTextEdit * textEdit = &(textFrame->view);
     connect(actionFind, SIGNAL(triggered()), textEdit, SLOT(find()));
     connect(actionImage, SIGNAL(triggered()), textEdit, SLOT(insertImage()));
     connect(actionNote, SIGNAL(triggered()), textEdit, SLOT(insertNote()));
     connect(actionLink, SIGNAL(triggered()), textEdit, SLOT(insertLink()));
 
-    Fb2TextPage * textPage = textEdit->page();
+    FbTextPage * textPage = textEdit->page();
     connect(actionTitle, SIGNAL(triggered()), textPage, SLOT(insertTitle()));
     connect(actionSubtitle, SIGNAL(triggered()), textPage, SLOT(insertSubtitle()));
     connect(actionSection, SIGNAL(triggered()), textPage, SLOT(insertSection()));
@@ -729,7 +729,7 @@ void Fb2MainWindow::viewText()
     tool->addAction(actionZoomReset);
 }
 
-void Fb2MainWindow::viewHead()
+void FbMainWindow::viewHead()
 {
     if (headTree && centralWidget() == headTree) return;
 
@@ -743,11 +743,11 @@ void Fb2MainWindow::viewHead()
     FB2DELETE(toolEdit);
 
     if (!textFrame) {
-        textFrame = new Fb2TextFrame(this);
+        textFrame = new FbTextFrame(this);
     }
 
     if (!headTree) {
-        headTree = new Fb2HeadView(textFrame->view, this);
+        headTree = new FbHeadView(textFrame->view, this);
         connect(headTree, SIGNAL(status(QString)), this, SLOT(status(QString)));
     }
 
@@ -783,19 +783,19 @@ void Fb2MainWindow::viewHead()
     toolEdit->setMovable(false);
 }
 
-void Fb2MainWindow::viewTree()
+void FbMainWindow::viewTree()
 {
     if (dockTree) dockTree->deleteLater(); else createTree();
 }
 
-void Fb2MainWindow::clipboardDataChanged()
+void FbMainWindow::clipboardDataChanged()
 {
     if (const QMimeData *md = QApplication::clipboard()->mimeData()) {
         actionPaste->setEnabled(md->hasText());
     }
 }
 
-void Fb2MainWindow::status(const QString &text)
+void FbMainWindow::status(const QString &text)
 {
     statusBar()->showMessage(text);
 }

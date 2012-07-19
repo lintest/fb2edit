@@ -14,20 +14,20 @@ class QTreeView;
 class QWebInspector;
 QT_END_NAMESPACE
 
-class Fb2CodeEdit;
-class Fb2TreeView;
-class Fb2HeadView;
-class Fb2TextFrame;
-class Fb2TextEdit;
+class FbCodeEdit;
+class FbTreeView;
+class FbHeadView;
+class FbTextFrame;
+class FbTextEdit;
 
-class Fb2MainWindow : public QMainWindow
+class FbMainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
     enum ViewMode { FB2, XML };
-    explicit Fb2MainWindow();
-    explicit Fb2MainWindow(const QString &filename, ViewMode mode = FB2);
+    explicit FbMainWindow();
+    explicit FbMainWindow(const QString &filename, ViewMode mode = FB2);
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -77,15 +77,15 @@ private:
     bool maybeSave();
     bool saveFile(const QString &fileName, const QString &codec = QString());
     void setCurrentFile(const QString &fileName = QString());
-    Fb2MainWindow *findFb2MainWindow(const QString &fileName);
+    FbMainWindow *findFbMainWindow(const QString &fileName);
 
-    Fb2TextFrame *textFrame;
+    FbTextFrame *textFrame;
     QWebInspector *inspector;
-    Fb2HeadView *headTree;
+    FbHeadView *headTree;
     QTextEdit *noteEdit;
     QTextEdit *messageEdit;
     QDockWidget *dockTree;
-    Fb2CodeEdit *codeEdit;
+    FbCodeEdit *codeEdit;
     QString curFile;
     bool isUntitled;
 

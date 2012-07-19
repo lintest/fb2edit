@@ -25,11 +25,11 @@ x::KeywordHash::KeywordHash() {
 
 #define FB2_KEY(key,str) insert(str,key);
 
-class Fb2XmlHandler : public QXmlDefaultHandler
+class FbXmlHandler : public QXmlDefaultHandler
 {
 public:
-    explicit Fb2XmlHandler();
-    virtual ~Fb2XmlHandler();
+    explicit FbXmlHandler();
+    virtual ~FbXmlHandler();
     bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &attributes);
     bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName);
     bool characters(const QString &str);

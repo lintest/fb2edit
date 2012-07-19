@@ -8,12 +8,12 @@
 #include <QThread>
 #include <QXmlDefaultHandler>
 
-class Fb2ReadThread : public QThread
+class FbReadThread : public QThread
 {
     Q_OBJECT
 public:
-    Fb2ReadThread(QObject *parent, const QString &filename, const QString &xml = QString());
-    ~Fb2ReadThread();
+    FbReadThread(QObject *parent, const QString &filename, const QString &xml = QString());
+    ~FbReadThread();
     QString * data() { return &m_html; }
 
 signals:
@@ -36,26 +36,26 @@ private:
     QMutex mutex;
 };
 
-class Fb2ReadHandler : public Fb2XmlHandler
+class FbReadHandler : public FbXmlHandler
 {
 public:
-    explicit Fb2ReadHandler(Fb2ReadThread &thread, QXmlStreamWriter &writer);
-    virtual ~Fb2ReadHandler();
+    explicit FbReadHandler(FbReadThread &thread, QXmlStreamWriter &writer);
+    virtual ~FbReadHandler();
     virtual bool comment(const QString& ch);
-    Fb2ReadThread & thread() { return m_thread; }
+    FbReadThread & thread() { return m_thread; }
     QXmlStreamWriter & writer() { return m_writer; }
 
 private:
     class BaseHandler : public NodeHandler
     {
     public:
-        explicit BaseHandler(Fb2ReadHandler &owner, const QString &name)
+        explicit BaseHandler(FbReadHandler &owner, const QString &name)
             : NodeHandler(name), m_owner(owner) {}
     protected:
         QXmlStreamWriter & writer() { return m_owner.writer(); }
         void writeAttributes(const QXmlAttributes &atts);
     protected:
-        Fb2ReadHandler &m_owner;
+        FbReadHandler &m_owner;
     };
 
     class RootHandler : public BaseHandler
@@ -67,7 +67,7 @@ private:
             Binary,
         FB2_END_KEYLIST
     public:
-        explicit RootHandler(Fb2ReadHandler &owner, const QString &name);
+        explicit RootHandler(FbReadHandler &owner, const QString &name);
     protected:
         virtual NodeHandler * NewTag(const QString & name, const QXmlAttributes &atts);
         virtual void EndTag(const QString &name);
@@ -76,7 +76,7 @@ private:
     class StyleHandler : public BaseHandler
     {
     public:
-        explicit StyleHandler(Fb2ReadHandler &owner, const QString &name, const QXmlAttributes &atts);
+        explicit StyleHandler(FbReadHandler &owner, const QString &name, const QXmlAttributes &atts);
     protected:
         virtual void TxtTag(const QString &text);
         virtual void EndTag(const QString &name);
@@ -90,7 +90,7 @@ private:
             Image,
         FB2_END_KEYLIST
     public:
-        explicit HeadHandler(Fb2ReadHandler &owner, const QString &name, const QXmlAttributes &atts);
+        explicit HeadHandler(FbReadHandler &owner, const QString &name, const QXmlAttributes &atts);
     protected:
         virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
         virtual void TxtTag(const QString &text);
@@ -108,7 +108,7 @@ private:
             Custom,
         FB2_END_KEYLIST
     public:
-        explicit DescrHandler(Fb2ReadHandler &owner, const QString &name, const QXmlAttributes &atts)
+        explicit DescrHandler(FbReadHandler &owner, const QString &name, const QXmlAttributes &atts)
             : HeadHandler(owner, name, atts) {}
     protected:
         virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
@@ -117,7 +117,7 @@ private:
     class TitleHandler : public HeadHandler
     {
     public:
-        explicit TitleHandler(Fb2ReadHandler &owner, const QString &name, const QXmlAttributes &atts)
+        explicit TitleHandler(FbReadHandler &owner, const QString &name, const QXmlAttributes &atts)
             : HeadHandler(owner, name, atts) {}
     protected:
         virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
@@ -140,7 +140,7 @@ private:
             Code,
        FB2_END_KEYLIST
     public:
-        explicit TextHandler(Fb2ReadHandler &owner, const QString &name, const QXmlAttributes &atts, const QString &tag, const QString &style = QString());
+        explicit TextHandler(FbReadHandler &owner, const QString &name, const QXmlAttributes &atts, const QString &tag, const QString &style = QString());
         explicit TextHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts, const QString &tag, const QString &style = QString());
     protected:
         virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
@@ -170,13 +170,13 @@ private:
     class ImageHandler : public TextHandler
     {
     public:
-        explicit ImageHandler(Fb2ReadHandler &owner, const QString &name, const QXmlAttributes &atts);
+        explicit ImageHandler(FbReadHandler &owner, const QString &name, const QXmlAttributes &atts);
     };
 
     class BinaryHandler : public BaseHandler
     {
     public:
-        explicit BinaryHandler(Fb2ReadHandler &owner, const QString &name, const QXmlAttributes &atts);
+        explicit BinaryHandler(FbReadHandler &owner, const QString &name, const QXmlAttributes &atts);
     protected:
         virtual void TxtTag(const QString &text);
         virtual void EndTag(const QString &name);
@@ -194,7 +194,7 @@ private:
 
 private:
     typedef QHash<QString, QString> StringHash;
-    Fb2ReadThread &m_thread;
+    FbReadThread &m_thread;
     QXmlStreamWriter &m_writer;
     StringHash m_hash;
 };

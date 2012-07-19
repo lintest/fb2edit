@@ -16,16 +16,16 @@ QT_END_NAMESPACE
 
 #include "fb2temp.hpp"
 
-class Fb2TextEdit;
+class FbTextEdit;
 
-class Fb2SaveDialog : public QFileDialog
+class FbSaveDialog : public QFileDialog
 {
     Q_OBJECT
 
 public:
-    explicit Fb2SaveDialog(QWidget *parent, Qt::WindowFlags f);
+    explicit FbSaveDialog(QWidget *parent, Qt::WindowFlags f);
 
-    explicit Fb2SaveDialog(QWidget *parent = 0,
+    explicit FbSaveDialog(QWidget *parent = 0,
                          const QString &caption = QString(),
                          const QString &directory = QString(),
                          const QString &filter = QString());
@@ -42,12 +42,12 @@ private:
     QLabel * label;
 };
 
-class Fb2HtmlHandler : public QObject, public Fb2XmlHandler
+class FbHtmlHandler : public QObject, public FbXmlHandler
 {
     Q_OBJECT
 
 public:
-    explicit Fb2HtmlHandler() {}
+    explicit FbHtmlHandler() {}
 
 public slots:
     void onAttr(const QString &name, const QString &value);
@@ -63,13 +63,13 @@ private:
     QXmlAttributes m_atts;
 };
 
-class Fb2SaveWriter : public QXmlStreamWriter
+class FbSaveWriter : public QXmlStreamWriter
 {
 public:
-    explicit Fb2SaveWriter(Fb2TextEdit &view, QByteArray *array);
-    explicit Fb2SaveWriter(Fb2TextEdit &view, QIODevice *device);
-    explicit Fb2SaveWriter(Fb2TextEdit &view, QString *string);
-    Fb2TextEdit & view() { return m_view; }
+    explicit FbSaveWriter(FbTextEdit &view, QByteArray *array);
+    explicit FbSaveWriter(FbTextEdit &view, QIODevice *device);
+    explicit FbSaveWriter(FbTextEdit &view, QString *string);
+    FbTextEdit & view() { return m_view; }
     QString getFileName(const QString &src);
     void writeStartElement(const QString &name, int level);
     void writeEndElement(int level);
@@ -80,14 +80,14 @@ private:
     QByteArray downloadFile(const QUrl &url);
     void writeContentType(const QString &name, QByteArray &data);
 private:
-    Fb2TextEdit &m_view;
+    FbTextEdit &m_view;
     QStringList m_names;
 };
 
-class Fb2SaveHandler : public Fb2HtmlHandler
+class FbSaveHandler : public FbHtmlHandler
 {
 public:
-    explicit Fb2SaveHandler(Fb2SaveWriter &writer);
+    explicit FbSaveHandler(FbSaveWriter &writer);
     virtual bool comment(const QString& ch);
     bool save();
 
@@ -109,7 +109,7 @@ private:
             Code,
        FB2_END_KEYLIST
     public:
-        explicit TextHandler(Fb2SaveWriter &writer, const QString &name, const QXmlAttributes &atts, const QString &tag);
+        explicit TextHandler(FbSaveWriter &writer, const QString &name, const QXmlAttributes &atts, const QString &tag);
         explicit TextHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts, const QString &tag);
         const QString & tag() { return m_tag; }
     protected:
@@ -120,7 +120,7 @@ private:
         void Init(const QXmlAttributes &atts);
         virtual int nextLevel() const;
     protected:
-        Fb2SaveWriter &m_writer;
+        FbSaveWriter &m_writer;
         const QString m_tag;
         const int m_level;
     private:
@@ -130,17 +130,17 @@ private:
     class RootHandler : public NodeHandler
     {
     public:
-        explicit RootHandler(Fb2SaveWriter &writer, const QString &name);
+        explicit RootHandler(FbSaveWriter &writer, const QString &name);
     protected:
         virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
     protected:
-        Fb2SaveWriter &m_writer;
+        FbSaveWriter &m_writer;
     };
 
     class BodyHandler : public TextHandler
     {
     public:
-        explicit BodyHandler(Fb2SaveWriter &writer, const QString &name, const QXmlAttributes &atts);
+        explicit BodyHandler(FbSaveWriter &writer, const QString &name, const QXmlAttributes &atts);
     protected:
         virtual void EndTag(const QString &name);
     };
@@ -185,7 +185,7 @@ protected:
     virtual NodeHandler * CreateRoot(const QString &name, const QXmlAttributes &atts);
 
 private:
-    Fb2SaveWriter & m_writer;
+    FbSaveWriter & m_writer;
 };
 
 #endif // FB2SAVE_H

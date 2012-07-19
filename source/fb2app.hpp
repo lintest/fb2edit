@@ -3,12 +3,12 @@
 
 #include <QtGui>
 
-class Fb2Application : public QApplication
+class FbApplication : public QApplication
 {
     Q_OBJECT
 
 public:
-    Fb2Application(int &argc, char **argv, int = QT_VERSION)
+    FbApplication(int &argc, char **argv, int = QT_VERSION)
         : QApplication(argc, argv, QT_VERSION) {}
 
     void handleMessage(QtMsgType type, const char *msg);

@@ -3,9 +3,9 @@
 
 #include <QDialog>
 
-class Fb2CodeEdit;
-class Fb2TextBase;
-class Fb2TextEdit;
+class FbCodeEdit;
+class FbTextBase;
+class FbTextEdit;
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -15,54 +15,54 @@ class QWebView;
 QT_END_NAMESPACE
 
 namespace Ui {
-class Fb2Find;
+class FbFind;
 }
 
-class Fb2CodeFindDlg : public QDialog
+class FbCodeFindDlg : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit Fb2CodeFindDlg(Fb2CodeEdit &edit);
-    virtual ~Fb2CodeFindDlg();
+    explicit FbCodeFindDlg(FbCodeEdit &edit);
+    virtual ~FbCodeFindDlg();
 
 private slots:
     void find();
 
 private:
-    Ui::Fb2Find * ui;
-    Fb2CodeEdit & m_edit;
+    Ui::FbFind * ui;
+    FbCodeEdit & m_edit;
 };
 
-class Fb2TextFindDlg : public QDialog
+class FbTextFindDlg : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit Fb2TextFindDlg(Fb2TextEdit &edit);
-    virtual ~Fb2TextFindDlg();
+    explicit FbTextFindDlg(FbTextEdit &edit);
+    virtual ~FbTextFindDlg();
 
 private slots:
     void find();
 
 private:
-    Ui::Fb2Find * ui;
-    Fb2TextEdit & m_edit;
+    Ui::FbFind * ui;
+    FbTextEdit & m_edit;
 };
 
-class Fb2NoteDlg : public QDialog
+class FbNoteDlg : public QDialog
 {
     Q_OBJECT
     
 public:
-    explicit Fb2NoteDlg(Fb2TextEdit &view);
+    explicit FbNoteDlg(FbTextEdit &view);
 
 private slots:
     void loadFinished();
 
 private:
     QComboBox *m_key;
-    Fb2TextBase *m_text;
+    FbTextBase *m_text;
     QLineEdit *m_title;
     QToolBar *m_toolbar;
 };

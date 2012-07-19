@@ -9,16 +9,16 @@
 #include "fb2text.hpp"
 
 //---------------------------------------------------------------------------
-//  Fb2TemporaryFile
+//  FbTemporaryFile
 //---------------------------------------------------------------------------
 
-Fb2TemporaryFile::Fb2TemporaryFile(const QString &name)
+FbTemporaryFile::FbTemporaryFile(const QString &name)
     : QTemporaryFile()
     , m_name(name)
 {
 }
 
-qint64 Fb2TemporaryFile::write(const QByteArray &data)
+qint64 FbTemporaryFile::write(const QByteArray &data)
 {
     open();
     if (m_hash.isEmpty()) m_hash = md5(data);
@@ -28,12 +28,12 @@ qint64 Fb2TemporaryFile::write(const QByteArray &data)
     return size;
 }
 
-QString Fb2TemporaryFile::md5(const QByteArray &data)
+QString FbTemporaryFile::md5(const QByteArray &data)
 {
     return QCryptographicHash::hash(data, QCryptographicHash::Md5).toBase64();
 }
 
-QByteArray Fb2TemporaryFile::data()
+QByteArray FbTemporaryFile::data()
 {
     open();
     QByteArray data = readAll();
@@ -42,26 +42,26 @@ QByteArray Fb2TemporaryFile::data()
 }
 
 //---------------------------------------------------------------------------
-//  Fb2TemporaryList
+//  FbTemporaryList
 //---------------------------------------------------------------------------
 
-Fb2TemporaryList::Fb2TemporaryList()
+FbTemporaryList::FbTemporaryList()
 {
 }
 
-Fb2TemporaryList::~Fb2TemporaryList()
+FbTemporaryList::~FbTemporaryList()
 {
-    Fb2TemporaryIterator it(*this);
+    FbTemporaryIterator it(*this);
     while (it.hasNext()) delete it.next();
 }
 
-QString Fb2TemporaryList::add(const QString &path, const QByteArray &data)
+QString FbTemporaryList::add(const QString &path, const QByteArray &data)
 {
-    QString hash = Fb2TemporaryFile::md5(data);
+    QString hash = FbTemporaryFile::md5(data);
     QString name = this->name(hash);
     if (name.isEmpty()) {
         name = newName(path);
-        Fb2TemporaryFile * temp = new Fb2TemporaryFile(name);
+        FbTemporaryFile * temp = new FbTemporaryFile(name);
         temp->setHash(hash);
         temp->write(data);
         append(temp);
@@ -69,7 +69,7 @@ QString Fb2TemporaryList::add(const QString &path, const QByteArray &data)
     return name;
 }
 
-QString Fb2TemporaryList::newName(const QString &path)
+QString FbTemporaryList::newName(const QString &path)
 {
     QFileInfo info(path);
     QString name = info.fileName();
@@ -83,50 +83,50 @@ QString Fb2TemporaryList::newName(const QString &path)
     }
 }
 
-Fb2TemporaryFile * Fb2TemporaryList::get(const QString &name) const
+FbTemporaryFile * FbTemporaryList::get(const QString &name) const
 {
-    Fb2TemporaryIterator it(*this);
+    FbTemporaryIterator it(*this);
     while (it.hasNext()) {
-        Fb2TemporaryFile * file = it.next();
+        FbTemporaryFile * file = it.next();
         if (file->name() == name) return file;
     }
     return NULL;
 }
 
-QByteArray Fb2TemporaryList::data(const QString &name) const
+QByteArray FbTemporaryList::data(const QString &name) const
 {
-    Fb2TemporaryIterator it(*this);
+    FbTemporaryIterator it(*this);
     while (it.hasNext()) {
-        Fb2TemporaryFile *file = it.next();
+        FbTemporaryFile *file = it.next();
         if (file->name() == name) return file->data();
     }
     return QByteArray();
 }
 
-const QString & Fb2TemporaryList::set(const QString &name, const QByteArray &data, const QString &hash)
+const QString & FbTemporaryList::set(const QString &name, const QByteArray &data, const QString &hash)
 {
-    Fb2TemporaryFile * file = get(name);
-    if (!file) append(file = new Fb2TemporaryFile(name));
+    FbTemporaryFile * file = get(name);
+    if (!file) append(file = new FbTemporaryFile(name));
     file->setHash(hash);
     file->write(data);
     return file->hash();
 }
 
-QString Fb2TemporaryList::name(const QString &hash) const
+QString FbTemporaryList::name(const QString &hash) const
 {
-    Fb2TemporaryIterator it(*this);
+    FbTemporaryIterator it(*this);
     while (it.hasNext()) {
-        Fb2TemporaryFile *file = it.next();
+        FbTemporaryFile *file = it.next();
         if (file->hash() == hash) return file->name();
     }
     return QString();
 }
 
-bool Fb2TemporaryList::exists(const QString &name) const
+bool FbTemporaryList::exists(const QString &name) const
 {
-    Fb2TemporaryIterator it(*this);
+    FbTemporaryIterator it(*this);
     while (it.hasNext()) {
-        Fb2TemporaryFile *file = it.next();
+        FbTemporaryFile *file = it.next();
         if (file->name() == name) return true;
     }
     return false;
@@ -135,16 +135,16 @@ bool Fb2TemporaryList::exists(const QString &name) const
 #if 0
 
 //---------------------------------------------------------------------------
-//  Fb2NetworkDiskCache
+//  FbNetworkDiskCache
 //---------------------------------------------------------------------------
 
-QNetworkCacheMetaData Fb2NetworkDiskCache::metaData(const QUrl &url)
+QNetworkCacheMetaData FbNetworkDiskCache::metaData(const QUrl &url)
 {
     qCritical() << url.toString();
     return QNetworkDiskCache::metaData(url);
 }
 
-QIODevice * Fb2NetworkDiskCache::data(const QUrl &url)
+QIODevice * FbNetworkDiskCache::data(const QUrl &url)
 {
     qCritical() << url.toString();
     return QNetworkDiskCache::data(url);
@@ -153,10 +153,10 @@ QIODevice * Fb2NetworkDiskCache::data(const QUrl &url)
 #endif
 
 //---------------------------------------------------------------------------
-//  Fb2ImageReply
+//  FbImageReply
 //---------------------------------------------------------------------------
 
-Fb2ImageReply::Fb2ImageReply(QNetworkAccessManager::Operation op, const QNetworkRequest &request, const QByteArray &data)
+FbImageReply::FbImageReply(QNetworkAccessManager::Operation op, const QNetworkRequest &request, const QByteArray &data)
     : QNetworkReply()
     , content(data)
     , offset(0)
@@ -171,7 +171,7 @@ Fb2ImageReply::Fb2ImageReply(QNetworkAccessManager::Operation op, const QNetwork
     QMetaObject::invokeMethod(this, "finished", Qt::QueuedConnection);
 }
 
-qint64 Fb2ImageReply::readData(char *data, qint64 maxSize)
+qint64 FbImageReply::readData(char *data, qint64 maxSize)
 {
     if (offset >= content.size()) return -1;
     QMetaObject::invokeMethod(this, "readyRead", Qt::QueuedConnection);
@@ -182,26 +182,26 @@ qint64 Fb2ImageReply::readData(char *data, qint64 maxSize)
 }
 
 //---------------------------------------------------------------------------
-//  Fb2NetworkAccessManager
+//  FbNetworkAccessManager
 //
 //    http://doc.trolltech.com/qq/32/qq32-webkit-protocols.html
 //---------------------------------------------------------------------------
 
-Fb2NetworkAccessManager::Fb2NetworkAccessManager(Fb2TextEdit &view)
+FbNetworkAccessManager::FbNetworkAccessManager(FbTextEdit &view)
     : QNetworkAccessManager(&view)
     , m_view(view)
 {
 }
 
-QNetworkReply * Fb2NetworkAccessManager::createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData)
+QNetworkReply * FbNetworkAccessManager::createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData)
 {
     if (request.url().scheme() == "fb2" && request.url().path() == m_view.url().path()) return imageRequest(op, request);
     return QNetworkAccessManager::createRequest(op, request, outgoingData);
 }
 
-QNetworkReply * Fb2NetworkAccessManager::imageRequest(Operation op, const QNetworkRequest &request)
+QNetworkReply * FbNetworkAccessManager::imageRequest(Operation op, const QNetworkRequest &request)
 {
     QString name = request.url().fragment();
     QByteArray data = m_view.files().data(name);
-    return new Fb2ImageReply(op, request, data);
+    return new FbImageReply(op, request, data);
 }

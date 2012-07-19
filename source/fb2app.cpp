@@ -10,7 +10,7 @@
     #define PACKAGE_VERSION "0.XX.XX"
 #endif  // PACKAGE_VERSION
 
-void Fb2Application::handleMessage(QtMsgType type, const char *msg)
+void FbApplication::handleMessage(QtMsgType type, const char *msg)
 {
     /*
     switch (type) {
@@ -33,14 +33,14 @@ void Fb2Application::handleMessage(QtMsgType type, const char *msg)
 
 static void fb2MessageHandler(QtMsgType type, const char *msg)
 {
-    ((Fb2Application*)qApp)->handleMessage(type, msg);
+    ((FbApplication*)qApp)->handleMessage(type, msg);
 }
 
 int main(int argc, char *argv[])
 {
     Q_INIT_RESOURCE(fb2edit);
 
-    Fb2Application app(argc, argv);
+    FbApplication app(argc, argv);
     app.setApplicationName(QString(PACKAGE_NAME));
     app.setOrganizationName(QString(PACKAGE_VENDOR));
     app.setApplicationVersion(QString(PACKAGE_VERSION));
@@ -52,9 +52,9 @@ int main(int argc, char *argv[])
     int count = app.arguments().count();
     for (int i = 1; i < count; i++) {
         QString arg = app.arguments().at(i);
-        (new Fb2MainWindow(arg))->show();
+        (new FbMainWindow(arg))->show();
     }
-    if (count == 1) (new Fb2MainWindow)->show();
+    if (count == 1) (new FbMainWindow)->show();
 
     qInstallMsgHandler(fb2MessageHandler);
 

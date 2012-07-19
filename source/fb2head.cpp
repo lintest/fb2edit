@@ -16,35 +16,35 @@
 #include "fb2utils.h"
 
 //---------------------------------------------------------------------------
-//  Fb2Scheme::Fb2
+//  FbScheme::Fb
 //---------------------------------------------------------------------------
 
-Fb2Scheme::Fb2::Fb2()
+FbScheme::Fb::Fb()
 {
     QFile file(":/fb2/FictionBook2.1.xsd");
     if (file.open(QIODevice::ReadOnly)) setContent(&file);
 }
 
 //---------------------------------------------------------------------------
-//  Fb2Scheme
+//  FbScheme
 //---------------------------------------------------------------------------
 
-const QDomDocument & Fb2Scheme::fb2()
+const QDomDocument & FbScheme::fb2()
 {
-    static const Fb2 doc;
+    static const Fb doc;
     return doc;
 }
 
-FB2_BEGIN_KEYHASH(Fb2Scheme)
+FB2_BEGIN_KEYHASH(FbScheme)
     FB2_KEY( XsElement     , "xs:element"     );
     FB2_KEY( XsChoice      , "xs:choice"      );
     FB2_KEY( XsComplexType , "xs:complexType" );
     FB2_KEY( XsSequence    , "xs:sequence"    );
 FB2_END_KEYHASH
 
-void Fb2Scheme::items(QStringList &list) const
+void FbScheme::items(QStringList &list) const
 {
-    Fb2Scheme child = typeScheme().firstChildElement();
+    FbScheme child = typeScheme().firstChildElement();
     while (!child.isNull()) {
         switch (toKeyword(child.tagName())) {
             case XsElement: {
@@ -62,12 +62,12 @@ void Fb2Scheme::items(QStringList &list) const
     }
 }
 
-Fb2Scheme Fb2Scheme::typeScheme() const
+FbScheme FbScheme::typeScheme() const
 {
     QString typeName = type();
     if (typeName.isEmpty()) return *this;
 
-    Fb2Scheme child = fb2().firstChildElement("xs:schema").firstChildElement();
+    FbScheme child = fb2().firstChildElement("xs:schema").firstChildElement();
     while (!child.isNull()) {
         if (child.tagName() == "xs:complexType") {
             if (child.attribute("name") == typeName) return child.element(typeName);
@@ -75,10 +75,10 @@ Fb2Scheme Fb2Scheme::typeScheme() const
         child = child.nextSiblingElement();
     }
 
-    return Fb2Scheme();
+    return FbScheme();
 }
 
-QString Fb2Scheme::info() const
+QString FbScheme::info() const
 {
     QDomElement element = *this;
     if (element.isNull()) return QString();
@@ -92,26 +92,26 @@ QString Fb2Scheme::info() const
     return element.text();
 }
 
-QString Fb2Scheme::type() const
+QString FbScheme::type() const
 {
     if (isNull()) return QString();
     QString result = attribute("type");
     if (!result.isEmpty()) return result;
-    Fb2Scheme child = firstChildElement("xs:complexType");
+    FbScheme child = firstChildElement("xs:complexType");
     child = child.firstChildElement("xs:complexContent");
     child = child.firstChildElement("xs:extension");
     return child.attribute("base");
 }
 
-Fb2Scheme Fb2Scheme::element(const QString &name) const
+FbScheme FbScheme::element(const QString &name) const
 {
-    Fb2Scheme parent = *this;
+    FbScheme parent = *this;
     if (parent.isNull()) {
         parent = fb2().documentElement();
         parent = parent.element("FictionBook");
     }
 
-    Fb2Scheme child = parent.firstChildElement();
+    FbScheme child = parent.firstChildElement();
     while (!child.isNull()) {
         switch (toKeyword(child.tagName())) {
             case XsElement: {
@@ -120,7 +120,7 @@ Fb2Scheme Fb2Scheme::element(const QString &name) const
             case XsChoice:
             case XsComplexType:
             case XsSequence: {
-                    Fb2Scheme result = child.element(name);
+                    FbScheme result = child.element(name);
                     if (!result.isNull()) return result;
                 } break;
             default: ;
@@ -139,14 +139,14 @@ Fb2Scheme Fb2Scheme::element(const QString &name) const
         child = child.nextSiblingElement();
     }
 
-    return Fb2Scheme();
+    return FbScheme();
 }
 
 //---------------------------------------------------------------------------
-//  Fb2HeadItem
+//  FbHeadItem
 //---------------------------------------------------------------------------
 
-Fb2HeadItem::HintHash::HintHash()
+FbHeadItem::HintHash::HintHash()
 {
     insert( "title-info"    , tr( "Book"        ));
     insert( "document-info" , tr( "File"        ));
@@ -167,14 +167,14 @@ Fb2HeadItem::HintHash::HintHash()
     insert( "history"       , tr( "History"     ));
 }
 
-FB2_BEGIN_KEYHASH(Fb2HeadItem)
+FB2_BEGIN_KEYHASH(FbHeadItem)
     FB2_KEY( Auth   , "author"    );
     FB2_KEY( Cover  , "coverpage" );
     FB2_KEY( Image  , "image"       );
     FB2_KEY( Seqn   , "sequence"  );
 FB2_END_KEYHASH
 
-Fb2HeadItem::Fb2HeadItem(QWebElement &element, Fb2HeadItem *parent)
+FbHeadItem::FbHeadItem(QWebElement &element, FbHeadItem *parent)
     : QObject(parent)
     , m_element(element)
     , m_parent(parent)
@@ -193,14 +193,14 @@ Fb2HeadItem::Fb2HeadItem(QWebElement &element, Fb2HeadItem *parent)
     addChildren(element);
 }
 
-Fb2HeadItem::~Fb2HeadItem()
+FbHeadItem::~FbHeadItem()
 {
-    foreach (Fb2HeadItem * item, m_list) {
+    foreach (FbHeadItem * item, m_list) {
         delete item;
     }
 }
 
-Fb2HeadItem * Fb2HeadItem::append(const QString name)
+FbHeadItem * FbHeadItem::append(const QString name)
 {
     m_element.appendInside("<div></div>");
     QWebElement element = m_element.lastChild();
@@ -208,20 +208,20 @@ Fb2HeadItem * Fb2HeadItem::append(const QString name)
     if (name == "annotation" || name == "history") {
         element.appendInside("<p><br></p>");
     }
-    Fb2HeadItem * child = new Fb2HeadItem(element, this);
+    FbHeadItem * child = new FbHeadItem(element, this);
     m_list << child;
     return child;
 }
 
-void Fb2HeadItem::addChildren(QWebElement &parent)
+void FbHeadItem::addChildren(QWebElement &parent)
 {
     QWebElement child = parent.firstChild();
     while (!child.isNull()) {
         QString tag = child.tagName().toLower();
         if (tag == "div") {
-            m_list << new Fb2HeadItem(child, this);
+            m_list << new FbHeadItem(child, this);
         } else if (tag == "img") {
-            m_list << new Fb2HeadItem(child, this);
+            m_list << new FbHeadItem(child, this);
         } else {
             addChildren(child);
         }
@@ -229,20 +229,20 @@ void Fb2HeadItem::addChildren(QWebElement &parent)
     }
 }
 
-Fb2HeadItem * Fb2HeadItem::item(const QModelIndex &index) const
+FbHeadItem * FbHeadItem::item(const QModelIndex &index) const
 {
     int row = index.row();
     if (row < 0 || row >= m_list.size()) return NULL;
     return m_list[row];
 }
 
-Fb2HeadItem * Fb2HeadItem::item(int row) const
+FbHeadItem * FbHeadItem::item(int row) const
 {
     if (row < 0 || row >= m_list.size()) return NULL;
     return m_list[row];
 }
 
-QString Fb2HeadItem::text(int col) const
+QString FbHeadItem::text(int col) const
 {
     switch (col) {
         case 0: return QString("<%1> %2").arg(m_name).arg(hint());
@@ -255,7 +255,7 @@ QString Fb2HeadItem::text(int col) const
     return QString();
 }
 
-QString Fb2HeadItem::hint() const
+QString FbHeadItem::hint() const
 {
     static HintHash hints;
     HintHash::const_iterator it = hints.find(m_name);
@@ -263,7 +263,7 @@ QString Fb2HeadItem::hint() const
     return it.value();
 }
 
-QString Fb2HeadItem::value() const
+QString FbHeadItem::value() const
 {
     switch (toKeyword(m_name)) {
         case Auth : {
@@ -274,7 +274,7 @@ QString Fb2HeadItem::value() const
         } break;
         case Cover : {
             QString text;
-            foreach (Fb2HeadItem * item, m_list) {
+            foreach (FbHeadItem * item, m_list) {
                 if (item->m_name == "image") {
                     if (!text.isEmpty()) text += ", ";
                     text += item->value();
@@ -297,21 +297,21 @@ QString Fb2HeadItem::value() const
     return m_element.toPlainText().simplified();
 }
 
-QString Fb2HeadItem::sub(const QString &key) const
+QString FbHeadItem::sub(const QString &key) const
 {
-    foreach (Fb2HeadItem * item, m_list) {
+    foreach (FbHeadItem * item, m_list) {
         if (item->m_name == key) return item->value();
     }
     return QString();
 }
 
-Fb2Scheme Fb2HeadItem::scheme() const
+FbScheme FbHeadItem::scheme() const
 {
-    Fb2Scheme parent = m_parent ? m_parent->scheme() : Fb2Scheme();
+    FbScheme parent = m_parent ? m_parent->scheme() : FbScheme();
     return parent.element(m_name);
 }
 
-void Fb2HeadItem::remove(int row)
+void FbHeadItem::remove(int row)
 {
     if (row < 0 || row >= count()) return;
     m_list[row]->m_element.removeFromDocument();
@@ -319,10 +319,10 @@ void Fb2HeadItem::remove(int row)
 }
 
 //---------------------------------------------------------------------------
-//  Fb2HeadModel
+//  FbHeadModel
 //---------------------------------------------------------------------------
 
-Fb2HeadModel::Fb2HeadModel(QWebView &view, QObject *parent)
+FbHeadModel::FbHeadModel(QWebView &view, QObject *parent)
     : QAbstractItemModel(parent)
     , m_view(view)
     , m_root(NULL)
@@ -330,48 +330,48 @@ Fb2HeadModel::Fb2HeadModel(QWebView &view, QObject *parent)
     QWebElement doc = view.page()->mainFrame()->documentElement();
     QWebElement head = doc.findFirst("div.description");
     if (head.isNull()) return;
-    m_root = new Fb2HeadItem(head);
+    m_root = new FbHeadItem(head);
 }
 
-Fb2HeadModel::~Fb2HeadModel()
+FbHeadModel::~FbHeadModel()
 {
     if (m_root) delete m_root;
 }
 
-void Fb2HeadModel::expand(QTreeView *view)
+void FbHeadModel::expand(QTreeView *view)
 {
     QModelIndex parent = QModelIndex();
     int count = rowCount(parent);
     for (int i = 0; i < count; i++) {
         QModelIndex child = index(i, 0, parent);
-        Fb2HeadItem *node = item(child);
+        FbHeadItem *node = item(child);
         if (!node) continue;
         view->expand(child);
         int count = rowCount(child);
         for (int j = 0; j < count; j++) {
             QModelIndex ch = index(j, 0, child);
-            Fb2HeadItem *node = item(ch);
+            FbHeadItem *node = item(ch);
             if (node) view->expand(ch);
         }
     }
 }
 
-Fb2HeadItem * Fb2HeadModel::item(const QModelIndex &index) const
+FbHeadItem * FbHeadModel::item(const QModelIndex &index) const
 {
     if (index.isValid()) {
-        return static_cast<Fb2HeadItem*>(index.internalPointer());
+        return static_cast<FbHeadItem*>(index.internalPointer());
     } else {
         return 0;
     }
 }
 
-int Fb2HeadModel::columnCount(const QModelIndex &parent) const
+int FbHeadModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return 6;
 }
 
-QModelIndex Fb2HeadModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex FbHeadModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!m_root || row < 0 || column < 0) return QModelIndex();
 
@@ -379,8 +379,8 @@ QModelIndex Fb2HeadModel::index(int row, int column, const QModelIndex &parent) 
         return createIndex(row, column, (void*)m_root);
     }
 
-    if (Fb2HeadItem *owner = item(parent)) {
-        if (Fb2HeadItem *child = owner->item(row)) {
+    if (FbHeadItem *owner = item(parent)) {
+        if (FbHeadItem *child = owner->item(row)) {
             return createIndex(row, column, (void*)child);
         }
     }
@@ -388,11 +388,11 @@ QModelIndex Fb2HeadModel::index(int row, int column, const QModelIndex &parent) 
     return QModelIndex();
 }
 
-QModelIndex Fb2HeadModel::parent(const QModelIndex &child) const
+QModelIndex FbHeadModel::parent(const QModelIndex &child) const
 {
-    if (Fb2HeadItem * node = static_cast<Fb2HeadItem*>(child.internalPointer())) {
-        if (Fb2HeadItem * parent = node->parent()) {
-            if (Fb2HeadItem * owner = parent->parent()) {
+    if (FbHeadItem * node = static_cast<FbHeadItem*>(child.internalPointer())) {
+        if (FbHeadItem * parent = node->parent()) {
+            if (FbHeadItem * owner = parent->parent()) {
                 return createIndex(owner->index(parent), 0, (void*)parent);
             } else {
                 return createIndex(0, 0, (void*)parent);
@@ -402,22 +402,22 @@ QModelIndex Fb2HeadModel::parent(const QModelIndex &child) const
     return QModelIndex();
 }
 
-int Fb2HeadModel::rowCount(const QModelIndex &parent) const
+int FbHeadModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.column() > 0) return 0;
     if (!parent.isValid()) return m_root ? 1 : 0;
-    Fb2HeadItem *owner = item(parent);
+    FbHeadItem *owner = item(parent);
     return owner ? owner->count() : 0;
 }
 
-QVariant Fb2HeadModel::data(const QModelIndex &index, int role) const
+QVariant FbHeadModel::data(const QModelIndex &index, int role) const
 {
     if (role != Qt::DisplayRole && role != Qt::EditRole) return QVariant();
-    Fb2HeadItem * i = item(index);
+    FbHeadItem * i = item(index);
     return i ? i->text(index.column()) : QVariant();
 }
 
-QVariant Fb2HeadModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant FbHeadModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
@@ -428,22 +428,22 @@ QVariant Fb2HeadModel::headerData(int section, Qt::Orientation orientation, int 
     return QVariant();
 }
 
-void Fb2HeadItem::setText(const QString &text)
+void FbHeadItem::setText(const QString &text)
 {
     m_text = text;
 }
 
-bool Fb2HeadModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool FbHeadModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (role != Qt::EditRole) return false;
-    Fb2HeadItem * i = item(index);
+    FbHeadItem * i = item(index);
     if (!i) return false;
     i->setText(value.toString());
     emit dataChanged(index, index);
     return true;
 }
 
-Qt::ItemFlags Fb2HeadModel::flags(const QModelIndex &index) const
+Qt::ItemFlags FbHeadModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid()) return 0;
     Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
@@ -452,10 +452,10 @@ Qt::ItemFlags Fb2HeadModel::flags(const QModelIndex &index) const
 }
 
 //---------------------------------------------------------------------------
-//  Fb2TreeView
+//  FbTreeView
 //---------------------------------------------------------------------------
 
-Fb2HeadView::Fb2HeadView(Fb2TextEdit &view, QWidget *parent)
+FbHeadView::FbHeadView(FbTextEdit &view, QWidget *parent)
     : QTreeView(parent)
     , m_view(view)
 {
@@ -463,17 +463,17 @@ Fb2HeadView::Fb2HeadView(Fb2TextEdit &view, QWidget *parent)
 
     setContextMenuPolicy(Qt::ActionsContextMenu);
 
-    actionInsert = act = new QAction(Fb2Icon("list-add"), tr("&Append"), this);
+    actionInsert = act = new QAction(FbIcon("list-add"), tr("&Append"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(Qt::Key_Insert);
     act->setPriority(QAction::LowPriority);
     connect(act, SIGNAL(triggered()), SLOT(appendNode()));
     addAction(act);
 
-    actionModify = act = new QAction(Fb2Icon("list-add"), tr("&Modify"), this);
+    actionModify = act = new QAction(FbIcon("list-add"), tr("&Modify"), this);
     act->setPriority(QAction::LowPriority);
 
-    actionDelete = act = new QAction(Fb2Icon("list-remove"), tr("&Delete"), this);
+    actionDelete = act = new QAction(FbIcon("list-remove"), tr("&Delete"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(Qt::Key_Delete);
     act->setPriority(QAction::LowPriority);
@@ -492,21 +492,21 @@ Fb2HeadView::Fb2HeadView(Fb2TextEdit &view, QWidget *parent)
     connect(actionModify, SIGNAL(triggered()), SLOT(editCurrent()));
 }
 
-void Fb2HeadView::initToolbar(QToolBar &toolbar)
+void FbHeadView::initToolbar(QToolBar &toolbar)
 {
     toolbar.addSeparator();
     toolbar.addAction(actionInsert);
     toolbar.addAction(actionDelete);
 }
 
-void Fb2HeadView::updateTree()
+void FbHeadView::updateTree()
 {
-    Fb2HeadModel * model = new Fb2HeadModel(m_view, this);
+    FbHeadModel * model = new FbHeadModel(m_view, this);
     setModel(model);
     model->expand(this);
 }
 
-void Fb2HeadView::editCurrent()
+void FbHeadView::editCurrent()
 {
     if (!model()) return;
     QModelIndex current = currentIndex();
@@ -517,19 +517,19 @@ void Fb2HeadView::editCurrent()
     edit(index);
 }
 
-void Fb2HeadView::activated(const QModelIndex &index)
+void FbHeadView::activated(const QModelIndex &index)
 {
     if (index.isValid() && index.column() == 1) edit(index);
     showStatus(index);
 }
 
-void Fb2HeadView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
+void FbHeadView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     QTreeView::currentChanged(current, previous);
     showStatus(current);
 }
 
-void Fb2HeadView::showStatus(const QModelIndex &current)
+void FbHeadView::showStatus(const QModelIndex &current)
 {
     if (!model()) return;
     if (!current.isValid()) return;
@@ -538,20 +538,20 @@ void Fb2HeadView::showStatus(const QModelIndex &current)
     emit status(model()->data(index).toString());
 }
 
-void Fb2HeadView::collapsed(const QModelIndex &index)
+void FbHeadView::collapsed(const QModelIndex &index)
 {
     if (model() && !model()->parent(index).isValid()) {
         expand(index);
     }
 }
 
-void Fb2HeadView::appendNode()
+void FbHeadView::appendNode()
 {
-    Fb2HeadModel * m = qobject_cast<Fb2HeadModel*>(model());
+    FbHeadModel * m = qobject_cast<FbHeadModel*>(model());
     if (!m) return;
 
     QModelIndex current = currentIndex();
-    Fb2HeadItem * item = m->item(current);
+    FbHeadItem * item = m->item(current);
     if (!item) return;
 
     QString name = item->name().toLower();
@@ -569,45 +569,45 @@ void Fb2HeadView::appendNode()
         item->scheme().items(list);
     }
 
-    Fb2NodeDlg dlg(this, item->scheme(), list);
+    FbNodeDlg dlg(this, item->scheme(), list);
     if (dlg.exec()) {
         current = m->append(current, dlg.value());
         if (current.isValid()) setCurrentIndex(current);
     }
 }
 
-void Fb2HeadView::removeNode()
+void FbHeadView::removeNode()
 {
-    Fb2HeadModel * m = qobject_cast<Fb2HeadModel*>(model());
+    FbHeadModel * m = qobject_cast<FbHeadModel*>(model());
     if (m) m->remove(currentIndex());
 }
 
-QModelIndex Fb2HeadModel::append(const QModelIndex &parent, const QString &name)
+QModelIndex FbHeadModel::append(const QModelIndex &parent, const QString &name)
 {
-    Fb2HeadItem * owner = item(parent);
+    FbHeadItem * owner = item(parent);
     if (!owner) return QModelIndex();
     int row = owner->count();
     beginInsertRows(parent, row, row);
-    Fb2HeadItem * item = owner->append(name);
+    FbHeadItem * item = owner->append(name);
     endInsertRows();
     return createIndex(row, 0, (void*)item);
 }
 
-void Fb2HeadModel::remove(const QModelIndex &index)
+void FbHeadModel::remove(const QModelIndex &index)
 {
     int r = index.row();
     QModelIndex p = parent(index);
     beginRemoveRows(p, r, r + 1);
-    Fb2HeadItem * i = item(p);
+    FbHeadItem * i = item(p);
     if (i) i->remove(r);
     endRemoveRows();
 }
 
 //---------------------------------------------------------------------------
-//  Fb2NodeDlg
+//  FbNodeDlg
 //---------------------------------------------------------------------------
 
-Fb2NodeDlg::Fb2NodeDlg(QWidget *parent, Fb2Scheme scheme, QStringList &list)
+FbNodeDlg::FbNodeDlg(QWidget *parent, FbScheme scheme, QStringList &list)
     : QDialog(parent)
     , m_scheme(scheme)
 {
@@ -649,12 +649,12 @@ Fb2NodeDlg::Fb2NodeDlg(QWidget *parent, Fb2Scheme scheme, QStringList &list)
     }
 }
 
-void Fb2NodeDlg::comboChanged(const QString &text)
+void FbNodeDlg::comboChanged(const QString &text)
 {
     m_text->setText(m_scheme.element(text).info());
 }
 
-QString Fb2NodeDlg::value() const
+QString FbNodeDlg::value() const
 {
     return m_combo->currentText();
 }

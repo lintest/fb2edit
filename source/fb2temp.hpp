@@ -8,15 +8,15 @@
 #include <QTemporaryFile>
 #include <QNetworkAccessManager>
 
-class Fb2TextEdit;
+class FbTextEdit;
 
-class Fb2TemporaryFile : public QTemporaryFile
+class FbTemporaryFile : public QTemporaryFile
 {
     Q_OBJECT
 public:
     static QString md5(const QByteArray &data);
 public:
-    explicit Fb2TemporaryFile(const QString &name);
+    explicit FbTemporaryFile(const QString &name);
     inline qint64 write(const QByteArray &data);
     void setHash(const QString &hash) { m_hash = hash; }
     const QString & hash() const { return m_hash; }
@@ -27,15 +27,15 @@ private:
     QString m_hash;
 };
 
-class Fb2TemporaryList : public QList<Fb2TemporaryFile*>
+class FbTemporaryList : public QList<FbTemporaryFile*>
 {
 public:
-    explicit Fb2TemporaryList();
-    virtual ~Fb2TemporaryList();
+    explicit FbTemporaryList();
+    virtual ~FbTemporaryList();
 
     QString add(const QString &path, const QByteArray &data);
     bool exists(const QString &name) const;
-    Fb2TemporaryFile * get(const QString &name) const;
+    FbTemporaryFile * get(const QString &name) const;
     const QString & set(const QString &name, const QByteArray &data, const QString &hash = QString());
     QString name(const QString &hash) const;
     QByteArray data(const QString &name) const;
@@ -43,25 +43,25 @@ private:
     QString newName(const QString &path);
 };
 
-typedef QListIterator<Fb2TemporaryFile*> Fb2TemporaryIterator;
+typedef QListIterator<FbTemporaryFile*> FbTemporaryIterator;
 
 #if 0
 
-class Fb2NetworkDiskCache : public QNetworkDiskCache
+class FbNetworkDiskCache : public QNetworkDiskCache
 {
 public:
-    explicit Fb2NetworkDiskCache(QObject *parent = 0) : QNetworkDiskCache(parent) {}
+    explicit FbNetworkDiskCache(QObject *parent = 0) : QNetworkDiskCache(parent) {}
     QNetworkCacheMetaData metaData(const QUrl &url);
     QIODevice *data(const QUrl &url);
 };
 
 #endif
 
-class Fb2ImageReply : public QNetworkReply
+class FbImageReply : public QNetworkReply
 {
     Q_OBJECT
 public:
-    explicit Fb2ImageReply(QNetworkAccessManager::Operation op, const QNetworkRequest &request, const QByteArray &data);
+    explicit FbImageReply(QNetworkAccessManager::Operation op, const QNetworkRequest &request, const QByteArray &data);
     qint64 bytesAvailable() const { return content.size(); }
     bool isSequential() const { return true; }
     void abort() { close(); }
@@ -74,11 +74,11 @@ private:
     qint64 offset;
 };
 
-class Fb2NetworkAccessManager : public QNetworkAccessManager
+class FbNetworkAccessManager : public QNetworkAccessManager
 {
     Q_OBJECT
 public:
-    explicit Fb2NetworkAccessManager(Fb2TextEdit &view);
+    explicit FbNetworkAccessManager(FbTextEdit &view);
 
 protected:
     virtual QNetworkReply *createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData = 0);
@@ -87,7 +87,7 @@ private:
     QNetworkReply *imageRequest(Operation op, const QNetworkRequest &request);
 
 private:
-    Fb2TextEdit & m_view;
+    FbTextEdit & m_view;
     QString m_path;
 };
 

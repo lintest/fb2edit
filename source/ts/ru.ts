@@ -2,14 +2,14 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU">
 <context>
-    <name>Fb2CodeFindDlg</name>
+    <name>FbCodeFindDlg</name>
     <message>
         <source>Complete words</source>
         <translation>Слова полностью</translation>
     </message>
 </context>
 <context>
-    <name>Fb2Find</name>
+    <name>FbFind</name>
     <message>
         <source>Find</source>
         <translation>Поиск</translation>
@@ -56,7 +56,7 @@
     </message>
 </context>
 <context>
-    <name>Fb2HeadItem</name>
+    <name>FbHeadItem</name>
     <message>
         <source>#</source>
         <translation>№</translation>
@@ -131,7 +131,7 @@
     </message>
 </context>
 <context>
-    <name>Fb2HeadModel</name>
+    <name>FbHeadModel</name>
     <message>
         <source>Key</source>
         <translation>Ключ</translation>
@@ -142,7 +142,7 @@
     </message>
 </context>
 <context>
-    <name>Fb2HeadView</name>
+    <name>FbHeadView</name>
     <message>
         <source>&amp;Append</source>
         <translation type="unfinished">&amp;Добавить</translation>
@@ -157,7 +157,7 @@
     </message>
 </context>
 <context>
-    <name>Fb2MainWindow</name>
+    <name>FbMainWindow</name>
     <message>
         <source>&amp;New</source>
         <translation>&amp;Новый</translation>
@@ -455,9 +455,13 @@
         <source>&amp;Subtitle</source>
         <translation>По&amp;дзаголовок &lt;subtitle&gt;</translation>
     </message>
+    <message>
+        <source>&amp;Epigraph</source>
+        <translation>&amp;Эпиграф &lt;epigraph&gt;</translation>
+    </message>
 </context>
 <context>
-    <name>Fb2NodeDlg</name>
+    <name>FbNodeDlg</name>
     <message>
         <source>Insert tag</source>
         <translation type="unfinished"></translation>
@@ -468,30 +472,22 @@
     </message>
 </context>
 <context>
-    <name>Fb2Note</name>
+    <name>FbNote</name>
     <message>
         <source>Insert footnote</source>
-        <translation>Вставить сноску</translation>
-    </message>
-    <message>
-        <source>about:blank</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Вставить сноску</translation>
     </message>
     <message>
         <source>Identifier:</source>
-        <translation>Идентификатор:</translation>
+        <translation type="obsolete">Идентификатор:</translation>
     </message>
     <message>
         <source>Title:</source>
-        <translation>Заголовок:</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Заголовок:</translation>
     </message>
 </context>
 <context>
-    <name>Fb2NoteDlg</name>
+    <name>FbNoteDlg</name>
     <message>
         <source>&lt;create new&gt;</source>
         <translation>&lt;создать новый&gt;</translation>
@@ -510,7 +506,7 @@
     </message>
 </context>
 <context>
-    <name>Fb2SaveDialog</name>
+    <name>FbSaveDialog</name>
     <message>
         <source>Fiction book files (*.fb2)</source>
         <translation type="unfinished"></translation>
@@ -525,7 +521,67 @@
     </message>
 </context>
 <context>
-    <name>Fb2TreeView</name>
+    <name>FbTextEdit</name>
+    <message>
+        <source>Common Graphics (*.png *.jpg *.jpeg *.gif);;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Portable Network Graphics (PNG) (*.png);;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JPEG (*.jpg *.jpeg);;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Graphics Interchange Format (*.gif);;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All Files (*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert image...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FbTextFrame</name>
+    <message>
+        <source>Web inspector</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FbTextPage</name>
+    <message>
+        <source>Append section</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Append body</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert title</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert subtitle</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FbTreeModel</name>
+    <message>
+        <source>Move section</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FbTreeView</name>
     <message>
         <source>&amp;Insert</source>
         <translation>&amp;Вставка</translation>
@@ -561,33 +617,6 @@
     <message>
         <source>&amp;Paste</source>
         <translation>&amp;Вставить</translation>
-    </message>
-</context>
-<context>
-    <name>Fb2WebView</name>
-    <message>
-        <source>Common Graphics (*.png *.jpg *.jpeg *.gif);;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Portable Network Graphics (PNG) (*.png);;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>JPEG (*.jpg *.jpeg);;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Graphics Interchange Format (*.gif);;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All Files (*)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Insert image...</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

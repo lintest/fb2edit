@@ -11,13 +11,13 @@
 #include <QColor>
 #include <QTextEdit>
 
-class Fb2Highlighter : public QSyntaxHighlighter
+class FbHighlighter : public QSyntaxHighlighter
 {
 public:
-    Fb2Highlighter(QObject* parent);
-    Fb2Highlighter(QTextDocument* parent);
-    Fb2Highlighter(QTextEdit* parent);
-    ~Fb2Highlighter();
+    FbHighlighter(QObject* parent);
+    FbHighlighter(QTextDocument* parent);
+    FbHighlighter(QTextEdit* parent);
+    ~FbHighlighter();
 
     enum HighlightType
     {
@@ -75,12 +75,12 @@ class QSize;
 class QWidget;
 QT_END_NAMESPACE
 
-class Fb2CodeEdit : public QPlainTextEdit
+class FbCodeEdit : public QPlainTextEdit
 {
     Q_OBJECT
 
 public:
-    Fb2CodeEdit(QWidget *parent = 0);
+    FbCodeEdit(QWidget *parent = 0);
 
     QString text() const { return toPlainText(); }
 
@@ -117,12 +117,12 @@ private:
     class LineNumberArea : public QWidget
     {
     public:
-        LineNumberArea(Fb2CodeEdit *parent) : QWidget(parent) { editor = parent; }
+        LineNumberArea(FbCodeEdit *parent) : QWidget(parent) { editor = parent; }
         QSize sizeHint() const { return QSize(editor->lineNumberAreaWidth(), 0); }
     protected:
         void paintEvent(QPaintEvent *event) { editor->lineNumberAreaPaintEvent(event); }
     private:
-        Fb2CodeEdit *editor;
+        FbCodeEdit *editor;
     };
 
 private:
@@ -131,13 +131,13 @@ private:
     void setZoomRatio(qreal ratio);
 
 private:
-    Fb2Highlighter * highlighter;
+    FbHighlighter * highlighter;
     QWidget *lineNumberArea;
     qreal zoomRatio;
     static qreal baseFontSize;
     static qreal zoomRatioMin;
     static qreal zoomRatioMax;
-    friend class Fb2CodeEdit::LineNumberArea;
+    friend class FbCodeEdit::LineNumberArea;
 };
 
 #endif // FB2CODE_H

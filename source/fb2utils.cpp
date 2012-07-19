@@ -11,7 +11,7 @@ static QIcon loadIcon(const QString &name)
     return icon;
 }
 
-Fb2Icon::Fb2Icon(const QString &name)
+FbIcon::FbIcon(const QString &name)
     : QIcon(fromTheme(name, loadIcon(name)))
 {
 }

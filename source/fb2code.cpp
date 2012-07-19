@@ -20,29 +20,29 @@ static const QString EXPR_COMMENT_END		= "[^-]*-([^-][^-]*-)*->";
 static const QString EXPR_ATTRIBUTE_VALUE	= "\"[^<\"]*\"|'[^<']*'";
 static const QString EXPR_NAME				= "([A-Za-z_:]|[^\\x00-\\x7F])([A-Za-z0-9_:.-]|[^\\x00-\\x7F])*";
 
-Fb2Highlighter::Fb2Highlighter(QObject* parent)
+FbHighlighter::FbHighlighter(QObject* parent)
 : QSyntaxHighlighter(parent)
 {
     init();
 }
 
-Fb2Highlighter::Fb2Highlighter(QTextDocument* parent)
+FbHighlighter::FbHighlighter(QTextDocument* parent)
 : QSyntaxHighlighter(parent)
 {
     init();
 }
 
-Fb2Highlighter::Fb2Highlighter(QTextEdit* parent)
+FbHighlighter::FbHighlighter(QTextEdit* parent)
 : QSyntaxHighlighter(parent)
 {
     init();
 }
 
-Fb2Highlighter::~Fb2Highlighter()
+FbHighlighter::~FbHighlighter()
 {
 }
 
-void Fb2Highlighter::init()
+void FbHighlighter::init()
 {
     fmtSyntaxChar.setForeground(DEFAULT_SYNTAX_CHAR);
     fmtElementName.setForeground(DEFAULT_ELEMENT_NAME);
@@ -53,7 +53,7 @@ void Fb2Highlighter::init()
     fmtOther.setForeground(DEFAULT_OTHER);
 }
 
-void Fb2Highlighter::setHighlightColor(HighlightType type, QColor color, bool foreground)
+void FbHighlighter::setHighlightColor(HighlightType type, QColor color, bool foreground)
 {
     QTextCharFormat format;
     if (foreground)
@@ -63,7 +63,7 @@ void Fb2Highlighter::setHighlightColor(HighlightType type, QColor color, bool fo
     setHighlightFormat(type, format);
 }
 
-void Fb2Highlighter::setHighlightFormat(HighlightType type, QTextCharFormat format)
+void FbHighlighter::setHighlightFormat(HighlightType type, QTextCharFormat format)
 {
     switch (type)
     {
@@ -92,7 +92,7 @@ void Fb2Highlighter::setHighlightFormat(HighlightType type, QTextCharFormat form
     rehighlight();
 }
 
-void Fb2Highlighter::highlightBlock(const QString& text)
+void FbHighlighter::highlightBlock(const QString& text)
 {
     int i = 0;
     int pos = 0;
@@ -275,7 +275,7 @@ void Fb2Highlighter::highlightBlock(const QString& text)
     }
 }
 
-int Fb2Highlighter::processDefaultText(int i, const QString& text)
+int FbHighlighter::processDefaultText(int i, const QString& text)
 {
     // length of matched text
     int iLength = 0;
@@ -330,14 +330,14 @@ int Fb2Highlighter::processDefaultText(int i, const QString& text)
     return iLength;
 }
 
-qreal Fb2CodeEdit::baseFontSize = 10;
-qreal Fb2CodeEdit::zoomRatioMin = 0.2;
-qreal Fb2CodeEdit::zoomRatioMax = 5.0;
+qreal FbCodeEdit::baseFontSize = 10;
+qreal FbCodeEdit::zoomRatioMin = 0.2;
+qreal FbCodeEdit::zoomRatioMax = 5.0;
 
-Fb2CodeEdit::Fb2CodeEdit(QWidget *parent) : QPlainTextEdit(parent)
+FbCodeEdit::FbCodeEdit(QWidget *parent) : QPlainTextEdit(parent)
 {
     lineNumberArea = new LineNumberArea(this);
-    highlighter = new Fb2Highlighter(this);
+    highlighter = new FbHighlighter(this);
     highlighter->setDocument( document() );
 
     connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(updateLineNumberAreaWidth(int)));
@@ -356,7 +356,7 @@ Fb2CodeEdit::Fb2CodeEdit(QWidget *parent) : QPlainTextEdit(parent)
     highlightCurrentLine();
 }
 
-bool Fb2CodeEdit::read(QIODevice *device)
+bool FbCodeEdit::read(QIODevice *device)
 {
     QByteArray data = device->readAll();
     QXmlInputSource source;
@@ -365,7 +365,7 @@ bool Fb2CodeEdit::read(QIODevice *device)
     return true;
 }
 
-int Fb2CodeEdit::lineNumberAreaWidth()
+int FbCodeEdit::lineNumberAreaWidth()
 {
     int digits = 1;
     int max = qMax(1, blockCount());
@@ -379,12 +379,12 @@ int Fb2CodeEdit::lineNumberAreaWidth()
     return space;
 }
 
-void Fb2CodeEdit::updateLineNumberAreaWidth(int /* newBlockCount */)
+void FbCodeEdit::updateLineNumberAreaWidth(int /* newBlockCount */)
 {
     setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);
 }
 
-void Fb2CodeEdit::updateLineNumberArea(const QRect &rect, int dy)
+void FbCodeEdit::updateLineNumberArea(const QRect &rect, int dy)
 {
     if (dy)
         lineNumberArea->scroll(0, dy);
@@ -395,7 +395,7 @@ void Fb2CodeEdit::updateLineNumberArea(const QRect &rect, int dy)
         updateLineNumberAreaWidth(0);
 }
 
-void Fb2CodeEdit::resizeEvent(QResizeEvent *e)
+void FbCodeEdit::resizeEvent(QResizeEvent *e)
 {
     QPlainTextEdit::resizeEvent(e);
 
@@ -403,7 +403,7 @@ void Fb2CodeEdit::resizeEvent(QResizeEvent *e)
     lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
 }
 
-void Fb2CodeEdit::highlightCurrentLine()
+void FbCodeEdit::highlightCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
 
@@ -422,7 +422,7 @@ void Fb2CodeEdit::highlightCurrentLine()
     setExtraSelections(extraSelections);
 }
 
-void Fb2CodeEdit::lineNumberAreaPaintEvent(QPaintEvent *event)
+void FbCodeEdit::lineNumberAreaPaintEvent(QPaintEvent *event)
 {
     QPainter painter(lineNumberArea);
     painter.fillRect(event->rect(), Qt::lightGray);
@@ -447,37 +447,37 @@ void Fb2CodeEdit::lineNumberAreaPaintEvent(QPaintEvent *event)
     }
 }
 
-bool Fb2CodeEdit::findText(const QString &exp, QTextDocument::FindFlags options)
+bool FbCodeEdit::findText(const QString &exp, QTextDocument::FindFlags options)
 {
     return QPlainTextEdit::find(exp, options);
 }
 
-void Fb2CodeEdit::find()
+void FbCodeEdit::find()
 {
-    Fb2CodeFindDlg dlg(*this);
+    FbCodeFindDlg dlg(*this);
     dlg.exec();
 }
 
-void Fb2CodeEdit::zoomIn()
+void FbCodeEdit::zoomIn()
 {
     qreal ratio = zoomRatio * 1.1;
     ratio = qMin(ratio, zoomRatioMax);
     setZoomRatio(ratio);
 }
 
-void Fb2CodeEdit::zoomOut()
+void FbCodeEdit::zoomOut()
 {
     qreal ratio = zoomRatio / 1.1;
     ratio = qMax(ratio, zoomRatioMin);
     setZoomRatio(ratio);
 }
 
-void Fb2CodeEdit::zoomReset()
+void FbCodeEdit::zoomReset()
 {
     setZoomRatio(1.0);
 }
 
-void Fb2CodeEdit::setZoomRatio(qreal ratio)
+void FbCodeEdit::setZoomRatio(qreal ratio)
 {
     if (!qFuzzyCompare(1 + zoomRatio, 1 + ratio)) {
         zoomRatio = ratio;

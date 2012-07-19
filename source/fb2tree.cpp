@@ -16,10 +16,10 @@
 #include "fb2utils.h"
 
 //---------------------------------------------------------------------------
-//  Fb2TreeItem
+//  FbTreeItem
 //---------------------------------------------------------------------------
 
-Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent, int number)
+FbTreeItem::FbTreeItem(QWebElement &element, FbTreeItem *parent, int number)
     : QObject(parent)
     , m_element(element)
     , m_parent(parent)
@@ -28,14 +28,14 @@ Fb2TreeItem::Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent, int number)
     init();
 }
 
-Fb2TreeItem::~Fb2TreeItem()
+FbTreeItem::~FbTreeItem()
 {
-    foreach (Fb2TreeItem * item, m_list) {
+    foreach (FbTreeItem * item, m_list) {
         delete item;
     }
 }
 
-void Fb2TreeItem::init()
+void FbTreeItem::init()
 {
     m_text = QString();
     m_name = m_element.tagName().toLower();
@@ -57,32 +57,32 @@ void Fb2TreeItem::init()
     }
 }
 
-QString Fb2TreeItem::title()
+QString FbTreeItem::title()
 {
     return m_element.toPlainText().left(255).simplified();
 }
 
-Fb2TreeItem * Fb2TreeItem::item(const QModelIndex &index) const
+FbTreeItem * FbTreeItem::item(const QModelIndex &index) const
 {
     int row = index.row();
     if (row < 0 || row >= m_list.size()) return NULL;
     return m_list[row];
 }
 
-Fb2TreeItem * Fb2TreeItem::item(int row) const
+FbTreeItem * FbTreeItem::item(int row) const
 {
     if (row < 0 || row >= m_list.size()) return NULL;
     return m_list[row];
 }
 
-QString Fb2TreeItem::text() const
+QString FbTreeItem::text() const
 {
     QString name = m_name;
     if (!m_body.isEmpty()) name += " name=" + m_body;
     return QString("<%1> %2").arg(name).arg(m_text);
 }
 
-QString Fb2TreeItem::selector() const
+QString FbTreeItem::selector() const
 {
     QString text = "";
     QString selector = ".get(0)";
@@ -105,11 +105,11 @@ QString Fb2TreeItem::selector() const
     return selector.prepend("$('html')");
 }
 
-Fb2TreeItem * Fb2TreeItem::content(const Fb2TreeModel &model, int number) const
+FbTreeItem * FbTreeItem::content(const FbTreeModel &model, int number) const
 {
-    Fb2TextElement element = m_element.firstChild();
+    FbTextElement element = m_element.firstChild();
     while (number-- > 0) element = element.nextSibling();
-    Fb2TreeList::const_iterator it;
+    FbTreeList::const_iterator it;
     for (it = m_list.constBegin(); it != m_list.constEnd(); it++) {
         if ((*it)->element() == element) return *it;
     }
@@ -117,10 +117,10 @@ Fb2TreeItem * Fb2TreeItem::content(const Fb2TreeModel &model, int number) const
 }
 
 //---------------------------------------------------------------------------
-//  Fb2TreeModel
+//  FbTreeModel
 //---------------------------------------------------------------------------
 
-Fb2TreeModel::Fb2TreeModel(Fb2TextEdit &view, QObject *parent)
+FbTreeModel::FbTreeModel(FbTextEdit &view, QObject *parent)
     : QAbstractItemModel(parent)
     , m_view(view)
     , m_root(NULL)
@@ -128,51 +128,51 @@ Fb2TreeModel::Fb2TreeModel(Fb2TextEdit &view, QObject *parent)
     QWebElement doc = view.page()->mainFrame()->documentElement();
     QWebElement body = doc.findFirst("body");
     if (body.isNull()) return;
-    m_root = new Fb2TreeItem(body);
+    m_root = new FbTreeItem(body);
 }
 
-Fb2TreeModel::~Fb2TreeModel()
+FbTreeModel::~FbTreeModel()
 {
     if (m_root) delete m_root;
 }
 
-Fb2TreeItem * Fb2TreeModel::item(const QModelIndex &index) const
+FbTreeItem * FbTreeModel::item(const QModelIndex &index) const
 {
     if (index.isValid()) {
-        return static_cast<Fb2TreeItem*>(index.internalPointer());
+        return static_cast<FbTreeItem*>(index.internalPointer());
     } else {
         return m_root;
     }
 }
 
-int Fb2TreeModel::columnCount(const QModelIndex &parent) const
+int FbTreeModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return 1;
 }
 
-QModelIndex Fb2TreeModel::index(Fb2TreeItem *item, int column) const
+QModelIndex FbTreeModel::index(FbTreeItem *item, int column) const
 {
-    Fb2TreeItem *parent = item->parent();
+    FbTreeItem *parent = item->parent();
     return parent ? createIndex(parent->index(item), column, (void*)item) : QModelIndex();
 }
 
-QModelIndex Fb2TreeModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex FbTreeModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!m_root || row < 0 || column < 0) return QModelIndex();
-    if (Fb2TreeItem *owner = item(parent)) {
-        if (Fb2TreeItem *child = owner->item(row)) {
+    if (FbTreeItem *owner = item(parent)) {
+        if (FbTreeItem *child = owner->item(row)) {
             return createIndex(row, column, (void*)child);
         }
     }
     return QModelIndex();
 }
 
-QModelIndex Fb2TreeModel::parent(const QModelIndex &child) const
+QModelIndex FbTreeModel::parent(const QModelIndex &child) const
 {
-    if (Fb2TreeItem * node = static_cast<Fb2TreeItem*>(child.internalPointer())) {
-        if (Fb2TreeItem * parent = node->parent()) {
-            if (Fb2TreeItem * owner = parent->parent()) {
+    if (FbTreeItem * node = static_cast<FbTreeItem*>(child.internalPointer())) {
+        if (FbTreeItem * parent = node->parent()) {
+            if (FbTreeItem * owner = parent->parent()) {
                 return createIndex(owner->index(parent), 0, (void*)parent);
             }
         }
@@ -180,50 +180,50 @@ QModelIndex Fb2TreeModel::parent(const QModelIndex &child) const
     return QModelIndex();
 }
 
-int Fb2TreeModel::rowCount(const QModelIndex &parent) const
+int FbTreeModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.column() > 0) return 0;
-    Fb2TreeItem *owner = item(parent);
+    FbTreeItem *owner = item(parent);
     return owner ? owner->count() : 0;
 }
 
-QVariant Fb2TreeModel::data(const QModelIndex &index, int role) const
+QVariant FbTreeModel::data(const QModelIndex &index, int role) const
 {
     if (role != Qt::DisplayRole) return QVariant();
-    Fb2TreeItem * i = item(index);
+    FbTreeItem * i = item(index);
     return i ? i->text() : QVariant();
 }
 
-void Fb2TreeModel::selectText(const QModelIndex &index)
+void FbTreeModel::selectText(const QModelIndex &index)
 {
-    if (Fb2TreeItem *node = item(index)) {
+    if (FbTreeItem *node = item(index)) {
         node->element().select();
     }
 }
 
-QModelIndex Fb2TreeModel::index(const QString &location) const
+QModelIndex FbTreeModel::index(const QString &location) const
 {
     QModelIndex result;
-    Fb2TreeItem * parent = m_root;
+    FbTreeItem * parent = m_root;
     QStringList list = location.split(",");
     QStringListIterator iterator(list);
     while (parent && iterator.hasNext()) {
         QString str = iterator.next();
         if (str.left(5) == "HTML=") continue;
         int key = str.mid(str.indexOf("=")+1).toInt();
-        Fb2TreeItem * child = parent->content(*this, key);
+        FbTreeItem * child = parent->content(*this, key);
         if (child) result = index(child);
         parent = child;
     }
     return result;
 }
 
-QModelIndex Fb2TreeModel::move(const QModelIndex &index, int dx, int dy)
+QModelIndex FbTreeModel::move(const QModelIndex &index, int dx, int dy)
 {
-    Fb2TreeItem *child = item(index);
+    FbTreeItem *child = item(index);
     if (!child) return QModelIndex();
 
-    Fb2TreeItem *owner = child->parent();
+    FbTreeItem *owner = child->parent();
     if (!owner) return QModelIndex();
 
     int from = index.row();
@@ -248,7 +248,7 @@ QModelIndex Fb2TreeModel::move(const QModelIndex &index, int dx, int dy)
 
         case +1: {
             if (from == 0) return QModelIndex();
-            Fb2TreeItem * brother = owner->item(from - 1);
+            FbTreeItem * brother = owner->item(from - 1);
             if (child->name() != "section") return QModelIndex();
             if (brother->name() != "section") return QModelIndex();
             QModelIndex target = createIndex(from - 1, 0, (void*)brother);
@@ -272,8 +272,8 @@ QModelIndex Fb2TreeModel::move(const QModelIndex &index, int dx, int dy)
                 from = to + dy;
             }
 
-            Fb2TreeItem * child = owner->item(to);
-            Fb2TreeItem * brother = owner->item(from);
+            FbTreeItem * child = owner->item(to);
+            FbTreeItem * brother = owner->item(from);
 
             QString n = child->name();
             bool ok = (n == "body" || n == "section") && n == brother->name();
@@ -284,23 +284,23 @@ QModelIndex Fb2TreeModel::move(const QModelIndex &index, int dx, int dy)
             owner->insert(brother, to);
             endMoveRows();
 
-            QUndoCommand * command = new Fb2MoveUpCmd(brother->element());
+            QUndoCommand * command = new FbMoveUpCmd(brother->element());
             m_view.page()->push(command, tr("Move section"));
         } break;
     }
     return result;
 }
 
-bool Fb2TreeModel::removeRows(int row, int count, const QModelIndex &parent)
+bool FbTreeModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     if (row < 0 || count <= 0 || row + count > rowCount(parent)) return false;
-    Fb2TreeItem * owner = item(parent);
+    FbTreeItem * owner = item(parent);
     if (!owner) return false;
     int last = row + count - 1;
     beginRemoveRows(parent, row, last);
     for (int i = last; i >= row; i--) {
-        if (Fb2TreeItem * child = owner->takeAt(i)) {
-            QUndoCommand * command = new Fb2DeleteCmd(child->element());
+        if (FbTreeItem * child = owner->takeAt(i)) {
+            QUndoCommand * command = new FbDeleteCmd(child->element());
             m_view.page()->push(command, "Delete element");
             delete child;
         }
@@ -309,16 +309,16 @@ bool Fb2TreeModel::removeRows(int row, int count, const QModelIndex &parent)
     return true;
 }
 
-void Fb2TreeModel::update(Fb2TreeItem &owner)
+void FbTreeModel::update(FbTreeItem &owner)
 {
     owner.init();
-    Fb2ElementList list;
+    FbElementList list;
     owner.element().getChildren(list);
 
     int pos = 0;
     QModelIndex index = this->index(&owner);
-    for (Fb2ElementList::iterator it = list.begin(); it != list.end(); it++) {
-        Fb2TreeItem * child = 0;
+    for (FbElementList::iterator it = list.begin(); it != list.end(); it++) {
+        FbTreeItem * child = 0;
         QWebElement element = *it;
         int count = owner.count();
         for (int i = pos; i < count; i++) {
@@ -340,7 +340,7 @@ void Fb2TreeModel::update(Fb2TreeItem &owner)
                 emit dataChanged(i, i);
             }
         } else {
-            Fb2TreeItem * child = new Fb2TreeItem(element);
+            FbTreeItem * child = new FbTreeItem(element);
             beginInsertRows(index, pos, pos);
             owner.insert(child, pos);
             endInsertRows();
@@ -357,7 +357,7 @@ void Fb2TreeModel::update(Fb2TreeItem &owner)
     }
 }
 
-void Fb2TreeModel::update()
+void FbTreeModel::update()
 {
     QWebElement doc = m_view.page()->mainFrame()->documentElement();
     QWebElement body = doc.findFirst("body");
@@ -366,17 +366,17 @@ void Fb2TreeModel::update()
         update(*m_root);
     } else {
         if (!body.isNull()) {
-            m_root = new Fb2TreeItem(body);
+            m_root = new FbTreeItem(body);
             update(*m_root);
         }
     }
 }
 
 //---------------------------------------------------------------------------
-//  Fb2TreeView
+//  FbTreeView
 //---------------------------------------------------------------------------
 
-Fb2TreeView::Fb2TreeView(Fb2TextEdit &view, QWidget *parent)
+FbTreeView::FbTreeView(FbTextEdit &view, QWidget *parent)
     : QTreeView(parent)
     , m_view(view)
 {
@@ -401,11 +401,11 @@ Fb2TreeView::Fb2TreeView(Fb2TextEdit &view, QWidget *parent)
     QMetaObject::invokeMethod(this, "updateTree", Qt::QueuedConnection);
 }
 
-void Fb2TreeView::initActions(QToolBar *toolbar)
+void FbTreeView::initActions(QToolBar *toolbar)
 {
     QAction * act;
 
-    act = new QAction(Fb2Icon("list-add"), tr("&Insert"), this);
+    act = new QAction(FbIcon("list-add"), tr("&Insert"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(Qt::Key_Insert);
     act->setPriority(QAction::LowPriority);
@@ -413,7 +413,7 @@ void Fb2TreeView::initActions(QToolBar *toolbar)
     toolbar->addAction(act);
     m_menu.addAction(act);
 
-    act = new QAction(Fb2Icon("list-remove"), tr("&Delete"), this);
+    act = new QAction(FbIcon("list-remove"), tr("&Delete"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(Qt::Key_Delete);
     act->setPriority(QAction::LowPriority);
@@ -423,21 +423,21 @@ void Fb2TreeView::initActions(QToolBar *toolbar)
 
     m_menu.addSeparator();
 
-    actionCut = act = new QAction(Fb2Icon("edit-cut"), tr("Cu&t"), this);
+    actionCut = act = new QAction(FbIcon("edit-cut"), tr("Cu&t"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Cut);
     act->setEnabled(false);
     m_menu.addAction(act);
 
-    actionCopy = act = new QAction(Fb2Icon("edit-copy"), tr("&Copy"), this);
+    actionCopy = act = new QAction(FbIcon("edit-copy"), tr("&Copy"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Copy);
     act->setEnabled(false);
     m_menu.addAction(act);
 
-    actionPaste = act = new QAction(Fb2Icon("edit-paste"), tr("&Paste"), this);
+    actionPaste = act = new QAction(FbIcon("edit-paste"), tr("&Paste"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Paste);
@@ -446,28 +446,28 @@ void Fb2TreeView::initActions(QToolBar *toolbar)
     toolbar->addSeparator();
     m_menu.addSeparator();
 
-    act = new QAction(Fb2Icon("go-up"), tr("&Up"), this);
+    act = new QAction(FbIcon("go-up"), tr("&Up"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Up));
     connect(act, SIGNAL(triggered()), SLOT(moveUp()));
     toolbar->addAction(act);
     m_menu.addAction(act);
 
-    act = new QAction(Fb2Icon("go-down"), tr("&Down"), this);
+    act = new QAction(FbIcon("go-down"), tr("&Down"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Down));
     connect(act, SIGNAL(triggered()), SLOT(moveDown()));
     toolbar->addAction(act);
     m_menu.addAction(act);
 
-    act = new QAction(Fb2Icon("go-previous"), tr("&Left"), this);
+    act = new QAction(FbIcon("go-previous"), tr("&Left"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Left));
     connect(act, SIGNAL(triggered()), SLOT(moveLeft()));
     toolbar->addAction(act);
     m_menu.addAction(act);
 
-    act = new QAction(Fb2Icon("go-next"), tr("&Right"), this);
+    act = new QAction(FbIcon("go-next"), tr("&Right"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
     connect(act, SIGNAL(triggered()), SLOT(moveRight()));
@@ -475,7 +475,7 @@ void Fb2TreeView::initActions(QToolBar *toolbar)
     m_menu.addAction(act);
 }
 
-void Fb2TreeView::keyPressEvent(QKeyEvent *event)
+void FbTreeView::keyPressEvent(QKeyEvent *event)
 {
     if (event->modifiers() == Qt::NoModifier) {
         switch (event->key()) {
@@ -486,33 +486,33 @@ void Fb2TreeView::keyPressEvent(QKeyEvent *event)
     QTreeView::keyPressEvent(event);
 }
 
-void Fb2TreeView::contextMenu(const QPoint &pos)
+void FbTreeView::contextMenu(const QPoint &pos)
 {
     m_menu.exec(QCursor::pos());
 }
 
-void Fb2TreeView::selectionChanged()
+void FbTreeView::selectionChanged()
 {
     m_timerSelect.start();
 }
 
-void Fb2TreeView::contentsChanged()
+void FbTreeView::contentsChanged()
 {
     m_timerUpdate.start();
 }
 
-void Fb2TreeView::activated(const QModelIndex &index)
+void FbTreeView::activated(const QModelIndex &index)
 {
     if (qApp->focusWidget() == &m_view) return;
-    if (Fb2TreeModel * m = model()) {
+    if (FbTreeModel * m = model()) {
         m->selectText(index);
     }
 }
 
-void Fb2TreeView::selectTree()
+void FbTreeView::selectTree()
 {
     if (qApp->focusWidget() == this) return;
-    if (Fb2TreeModel * m = model()) {
+    if (FbTreeModel * m = model()) {
         QString location = m->view().page()->location();
         QModelIndex index = m->index(location);
         if (!index.isValid()) return;
@@ -521,38 +521,38 @@ void Fb2TreeView::selectTree()
     }
 }
 
-void Fb2TreeView::updateTree()
+void FbTreeView::updateTree()
 {
-    if (Fb2TreeModel * m = model()) {
+    if (FbTreeModel * m = model()) {
         m->update();
     } else {
-        m = new Fb2TreeModel(m_view, this);
+        m = new FbTreeModel(m_view, this);
         m->update();
         setModel(m);
     }
     selectTree();
 }
 
-QModelIndex Fb2TreeModel::append(const QModelIndex &parent, Fb2TextElement element)
+QModelIndex FbTreeModel::append(const QModelIndex &parent, FbTextElement element)
 {
-    Fb2TreeItem * owner = item(parent);
+    FbTreeItem * owner = item(parent);
     if (!owner || owner == m_root) return QModelIndex();
     int row = owner->count();
-    Fb2TreeItem * child = new Fb2TreeItem(element);
+    FbTreeItem * child = new FbTreeItem(element);
     beginInsertRows(parent, row, row);
     owner->insert(child, row);
     endInsertRows();
     return createIndex(row, 0, (void*)child);
 }
 
-void Fb2TreeView::insertNode()
+void FbTreeView::insertNode()
 {
-    if (Fb2TreeModel * m = model()) {
+    if (FbTreeModel * m = model()) {
         QModelIndex index = currentIndex();
-        Fb2TreeItem * item = m->item(index);
+        FbTreeItem * item = m->item(index);
         if (!item) return;
 
-        Fb2TextElement element = item->element();
+        FbTextElement element = item->element();
         while (!element.isNull()) {
             if (element.isSection() || element.isBody()) {
                 m_view.page()->appendSection(element);
@@ -570,9 +570,9 @@ void Fb2TreeView::insertNode()
     }
 }
 
-void Fb2TreeView::deleteNode()
+void FbTreeView::deleteNode()
 {
-    if (Fb2TreeModel * m = model()) {
+    if (FbTreeModel * m = model()) {
         QModelIndex index = currentIndex();
         QModelIndex parent = m->parent(index);
 
@@ -590,14 +590,14 @@ void Fb2TreeView::deleteNode()
     }
 }
 
-Fb2TreeModel * Fb2TreeView::model()
+FbTreeModel * FbTreeView::model()
 {
-    return qobject_cast<Fb2TreeModel*>(QTreeView::model());
+    return qobject_cast<FbTreeModel*>(QTreeView::model());
 }
 
-void Fb2TreeView::moveCurrent(int dx, int dy)
+void FbTreeView::moveCurrent(int dx, int dy)
 {
-    if (Fb2TreeModel * m = model()) {
+    if (FbTreeModel * m = model()) {
         QModelIndex index = currentIndex();
         QModelIndex result = m->move(index, dx, dy);
         if (result.isValid()) {
@@ -609,31 +609,31 @@ void Fb2TreeView::moveCurrent(int dx, int dy)
     }
 }
 
-void Fb2TreeView::moveUp()
+void FbTreeView::moveUp()
 {
     moveCurrent(0, -1);
 }
 
-void Fb2TreeView::moveDown()
+void FbTreeView::moveDown()
 {
     moveCurrent(0, +1);
 }
 
-void Fb2TreeView::moveLeft()
+void FbTreeView::moveLeft()
 {
     moveCurrent(-1, 0);
 }
 
-void Fb2TreeView::moveRight()
+void FbTreeView::moveRight()
 {
     moveCurrent(+1, 0);
 }
 
 //---------------------------------------------------------------------------
-//  Fb2TreeWidget
+//  FbTreeWidget
 //---------------------------------------------------------------------------
 
-Fb2TreeWidget::Fb2TreeWidget(Fb2TextEdit &view, QWidget* parent)
+FbTreeWidget::FbTreeWidget(FbTextEdit &view, QWidget* parent)
     : QWidget(parent)
 {
     QVBoxLayout * layout = new QVBoxLayout(this);
@@ -641,7 +641,7 @@ Fb2TreeWidget::Fb2TreeWidget(Fb2TextEdit &view, QWidget* parent)
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setObjectName(QString::fromUtf8("verticalLayout"));
 
-    m_tree = new Fb2TreeView(view, this);
+    m_tree = new FbTreeView(view, this);
     layout->addWidget(m_tree);
 
     m_tool = new QToolBar(this);

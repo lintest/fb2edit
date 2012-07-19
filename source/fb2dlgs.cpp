@@ -13,12 +13,12 @@
 #include <QWebPage>
 
 //---------------------------------------------------------------------------
-//  Fb2CodeFindDlg
+//  FbCodeFindDlg
 //---------------------------------------------------------------------------
 
-Fb2CodeFindDlg::Fb2CodeFindDlg(Fb2CodeEdit &edit)
+FbCodeFindDlg::FbCodeFindDlg(FbCodeEdit &edit)
     : QDialog(&edit)
-    , ui(new Ui::Fb2Find)
+    , ui(new Ui::FbFind)
     , m_edit(edit)
 {
     ui->setupUi(this);
@@ -26,12 +26,12 @@ Fb2CodeFindDlg::Fb2CodeFindDlg(Fb2CodeEdit &edit)
     connect(ui->btnFind, SIGNAL(clicked()), this, SLOT(find()));
 }
 
-Fb2CodeFindDlg::~Fb2CodeFindDlg()
+FbCodeFindDlg::~FbCodeFindDlg()
 {
     delete ui;
 }
 
-void Fb2CodeFindDlg::find()
+void FbCodeFindDlg::find()
 {
     QString text = ui->editText->text();
     if (text.isEmpty()) return;
@@ -44,25 +44,25 @@ void Fb2CodeFindDlg::find()
 }
 
 //---------------------------------------------------------------------------
-//  Fb2TextFindDlg
+//  FbTextFindDlg
 //---------------------------------------------------------------------------
 
-Fb2TextFindDlg::Fb2TextFindDlg(Fb2TextEdit &edit)
+FbTextFindDlg::FbTextFindDlg(FbTextEdit &edit)
     : QDialog(&edit)
-    , ui(new Ui::Fb2Find)
+    , ui(new Ui::FbFind)
     , m_edit(edit)
 {
     ui->setupUi(this);
     connect(ui->btnFind, SIGNAL(clicked()), this, SLOT(find()));
 }
 
-Fb2TextFindDlg::~Fb2TextFindDlg()
+FbTextFindDlg::~FbTextFindDlg()
 {
     m_edit.findText(QString(), QWebPage::HighlightAllOccurrences);
     delete ui;
 }
 
-void Fb2TextFindDlg::find()
+void FbTextFindDlg::find()
 {
     QString text = ui->editText->text();
     if (text.isEmpty()) return;
@@ -75,10 +75,10 @@ void Fb2TextFindDlg::find()
 }
 
 //---------------------------------------------------------------------------
-//  Fb2NoteDlg
+//  FbNoteDlg
 //---------------------------------------------------------------------------
 
-Fb2NoteDlg::Fb2NoteDlg(Fb2TextEdit &view)
+FbNoteDlg::FbNoteDlg(FbTextEdit &view)
     : QDialog(&view)
 {
     setWindowTitle(tr("Insert footnote"));
@@ -114,7 +114,7 @@ Fb2NoteDlg::Fb2NoteDlg(Fb2TextEdit &view)
     frameLayout->setSpacing(0);
     frameLayout->setMargin(0);
 
-    m_text = new Fb2TextBase(frame);
+    m_text = new FbTextBase(frame);
     m_text->setObjectName(QString::fromUtf8("m_text"));
     m_text->setUrl(QUrl(QString::fromUtf8("about:blank")));
     frameLayout->addWidget(m_text);
@@ -132,7 +132,7 @@ Fb2NoteDlg::Fb2NoteDlg(Fb2TextEdit &view)
     m_key->setCurrentIndex(0);
     m_title->setFocus();
 
-    Fb2TextPage *page = new Fb2TextPage(this);
+    FbTextPage *page = new FbTextPage(this);
     connect(m_text, SIGNAL(loadFinished(bool)), SLOT(loadFinished()));
     page->setNetworkAccessManager(view.page()->networkAccessManager());
     page->setContentEditable(true);
@@ -142,8 +142,8 @@ Fb2NoteDlg::Fb2NoteDlg(Fb2TextEdit &view)
     m_text->addTools(m_toolbar);
 }
 
-void Fb2NoteDlg::loadFinished()
+void FbNoteDlg::loadFinished()
 {
-    Fb2TextElement body = m_text->page()->mainFrame()->documentElement().findFirst("body");
+    FbTextElement body = m_text->page()->mainFrame()->documentElement().findFirst("body");
     body.select();
 }

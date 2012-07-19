@@ -4,12 +4,12 @@
 #include "fb2text.hpp"
 
 //---------------------------------------------------------------------------
-//  Fb2TextElement
+//  FbTextElement
 //---------------------------------------------------------------------------
 
-void Fb2TextElement::getChildren(Fb2ElementList &list)
+void FbTextElement::getChildren(FbElementList &list)
 {
-    Fb2TextElement child = firstChild();
+    FbTextElement child = firstChild();
     while (!child.isNull()) {
         QString tag = child.tagName().toLower();
         if (tag == "div") {
@@ -23,43 +23,43 @@ void Fb2TextElement::getChildren(Fb2ElementList &list)
     }
 }
 
-QString Fb2TextElement::location()
+QString FbTextElement::location()
 {
     static const QString javascript = FB2::read(":/js/get_location.js").prepend("var element=this;");
     return evaluateJavaScript(javascript).toString();
 }
 
-void Fb2TextElement::select()
+void FbTextElement::select()
 {
     static const QString javascript = FB2::read(":/js/set_cursor.js");
     evaluateJavaScript(javascript);
 }
 
-bool Fb2TextElement::isBody() const
+bool FbTextElement::isBody() const
 {
     return tagName() == "DIV" && attribute("class").toLower() == "body";
 }
 
-bool Fb2TextElement::isSection() const
+bool FbTextElement::isSection() const
 {
     return tagName() == "DIV" && attribute("class").toLower() == "section";
 }
 
-bool Fb2TextElement::hasTitle() const
+bool FbTextElement::hasTitle() const
 {
-    return Fb2TextElement(firstChild()).isTitle();
+    return FbTextElement(firstChild()).isTitle();
 }
 
-bool Fb2TextElement::isTitle() const
+bool FbTextElement::isTitle() const
 {
     return tagName() == "DIV" && attribute("class").toLower() == "title";
 }
 
 //---------------------------------------------------------------------------
-//  Fb2InsertCmd
+//  FbInsertCmd
 //---------------------------------------------------------------------------
 
-Fb2InsertCmd::Fb2InsertCmd(const Fb2TextElement &element)
+FbInsertCmd::FbInsertCmd(const FbTextElement &element)
     : QUndoCommand()
     , m_element(element)
     , m_parent(element.previousSibling())
@@ -71,7 +71,7 @@ Fb2InsertCmd::Fb2InsertCmd(const Fb2TextElement &element)
     }
 }
 
-void Fb2InsertCmd::redo()
+void FbInsertCmd::redo()
 {
     if (m_inner) {
         m_parent.prependInside(m_element);
@@ -81,16 +81,16 @@ void Fb2InsertCmd::redo()
     m_element.select();
 }
 
-void Fb2InsertCmd::undo()
+void FbInsertCmd::undo()
 {
     m_element.takeFromDocument();
 }
 
 //---------------------------------------------------------------------------
-//  Fb2DeleteCmd
+//  FbDeleteCmd
 //---------------------------------------------------------------------------
 
-Fb2DeleteCmd::Fb2DeleteCmd(const Fb2TextElement &element)
+FbDeleteCmd::FbDeleteCmd(const FbTextElement &element)
     : QUndoCommand()
     , m_element(element)
     , m_parent(element.previousSibling())
@@ -102,12 +102,12 @@ Fb2DeleteCmd::Fb2DeleteCmd(const Fb2TextElement &element)
     }
 }
 
-void Fb2DeleteCmd::redo()
+void FbDeleteCmd::redo()
 {
     m_element.takeFromDocument();
 }
 
-void Fb2DeleteCmd::undo()
+void FbDeleteCmd::undo()
 {
     if (m_inner) {
         m_parent.prependInside(m_element);
@@ -118,24 +118,24 @@ void Fb2DeleteCmd::undo()
 }
 
 //---------------------------------------------------------------------------
-//  Fb2MoveUpCmd
+//  FbMoveUpCmd
 //---------------------------------------------------------------------------
 
-Fb2MoveUpCmd::Fb2MoveUpCmd(const Fb2TextElement &element)
+FbMoveUpCmd::FbMoveUpCmd(const FbTextElement &element)
     : QUndoCommand()
     , m_element(element)
 {
 }
 
-void Fb2MoveUpCmd::redo()
+void FbMoveUpCmd::redo()
 {
-    Fb2TextElement subling = m_element.previousSibling();
+    FbTextElement subling = m_element.previousSibling();
     subling.prependOutside(m_element.takeFromDocument());
 }
 
-void Fb2MoveUpCmd::undo()
+void FbMoveUpCmd::undo()
 {
-    Fb2TextElement subling = m_element.nextSibling();
+    FbTextElement subling = m_element.nextSibling();
     subling.appendOutside(m_element.takeFromDocument());
 }
 

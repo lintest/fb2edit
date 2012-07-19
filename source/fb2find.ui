@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Fb2Find</class>
- <widget class="QDialog" name="Fb2Find">
+ <class>FbFind</class>
+ <widget class="QDialog" name="FbFind">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -162,7 +162,7 @@
   <connection>
    <sender>btnClose</sender>
    <signal>clicked()</signal>
-   <receiver>Fb2Find</receiver>
+   <receiver>FbFind</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">

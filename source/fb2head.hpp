@@ -19,9 +19,9 @@ QT_END_NAMESPACE
 
 #include "fb2xml.h"
 
-class Fb2TextEdit;
+class FbTextEdit;
 
-class Fb2Scheme : public QDomElement
+class FbScheme : public QDomElement
 {
     FB2_BEGIN_KEYLIST
         XsElement,
@@ -31,25 +31,25 @@ class Fb2Scheme : public QDomElement
     FB2_END_KEYLIST
 
 private:
-    class Fb2 : public QDomDocument { public: Fb2(); };
+    class Fb : public QDomDocument { public: Fb(); };
 
 public:
-    Fb2Scheme() {}
-    Fb2Scheme(const Fb2Scheme &x) : QDomElement(x) {}
-    Fb2Scheme(const QDomElement &x) : QDomElement(x) {}
-    Fb2Scheme& operator=(const Fb2Scheme &x) { QDomElement::operator=(x); return *this; }
+    FbScheme() {}
+    FbScheme(const FbScheme &x) : QDomElement(x) {}
+    FbScheme(const QDomElement &x) : QDomElement(x) {}
+    FbScheme& operator=(const FbScheme &x) { QDomElement::operator=(x); return *this; }
 
     static const QDomDocument & fb2();
-    Fb2Scheme element(const QString &name) const;
+    FbScheme element(const QString &name) const;
     void items(QStringList &list) const;
     QString info() const;
     QString type() const;
 
 private:
-    Fb2Scheme typeScheme() const;
+    FbScheme typeScheme() const;
 };
 
-class Fb2HeadItem: public QObject
+class FbHeadItem: public QObject
 {
     Q_OBJECT
 
@@ -61,19 +61,19 @@ class Fb2HeadItem: public QObject
     FB2_END_KEYLIST
 
 public:
-    explicit Fb2HeadItem(QWebElement &element, Fb2HeadItem *parent = 0);
+    explicit FbHeadItem(QWebElement &element, FbHeadItem *parent = 0);
 
-    virtual ~Fb2HeadItem();
+    virtual ~FbHeadItem();
 
-    Fb2HeadItem * append(const QString name);
+    FbHeadItem * append(const QString name);
 
     void remove(int row);
 
-    Fb2HeadItem * item(const QModelIndex &index) const;
+    FbHeadItem * item(const QModelIndex &index) const;
 
-    Fb2HeadItem * item(int row) const;
+    FbHeadItem * item(int row) const;
 
-    int index(Fb2HeadItem * child) const {
+    int index(FbHeadItem * child) const {
         return m_list.indexOf(child);
     }
 
@@ -81,7 +81,7 @@ public:
         return m_list.size();
     }
 
-    Fb2HeadItem * parent() const {
+    FbHeadItem * parent() const {
         return m_parent;
     }
 
@@ -99,7 +99,7 @@ public:
 
     QString sub(const QString &key) const;
 
-    Fb2Scheme scheme() const;
+    FbScheme scheme() const;
 
 private:
     class HintHash : public QHash<QString, QString>
@@ -114,23 +114,23 @@ private:
     QString hint() const;
 
 private:
-    QList<Fb2HeadItem*> m_list;
+    QList<FbHeadItem*> m_list;
     QWebElement m_element;
-    Fb2HeadItem * m_parent;
+    FbHeadItem * m_parent;
     QString m_name;
     QString m_text;
     QString m_id;
 };
 
-class Fb2HeadModel: public QAbstractItemModel
+class FbHeadModel: public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
-    explicit Fb2HeadModel(QWebView &view, QObject *parent = 0);
-    virtual ~Fb2HeadModel();
+    explicit FbHeadModel(QWebView &view, QObject *parent = 0);
+    virtual ~FbHeadModel();
     void expand(QTreeView *view);
-    Fb2HeadItem * item(const QModelIndex &index) const;
+    FbHeadItem * item(const QModelIndex &index) const;
     QModelIndex append(const QModelIndex &parent, const QString &name);
     void remove(const QModelIndex &index);
 
@@ -146,15 +146,15 @@ public:
 
 private:
     QWebView & m_view;
-    Fb2HeadItem * m_root;
+    FbHeadItem * m_root;
 };
 
-class Fb2HeadView : public QTreeView
+class FbHeadView : public QTreeView
 {
     Q_OBJECT
 
 public:
-    explicit Fb2HeadView(Fb2TextEdit &view, QWidget *parent = 0);
+    explicit FbHeadView(FbTextEdit &view, QWidget *parent = 0);
     void initToolbar(QToolBar &toolbar);
 
 signals:
@@ -177,25 +177,25 @@ private:
     void showStatus(const QModelIndex &current);
 
 private:
-    Fb2TextEdit & m_view;
+    FbTextEdit & m_view;
     QAction * actionInsert;
     QAction * actionModify;
     QAction * actionDelete;
 };
 
-class Fb2NodeDlg : public QDialog
+class FbNodeDlg : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit Fb2NodeDlg(QWidget *parent, Fb2Scheme scheme, QStringList &list);
+    explicit FbNodeDlg(QWidget *parent, FbScheme scheme, QStringList &list);
     QString value() const;
 
 private slots:
     void comboChanged(const QString &text);
 
 private:
-    const Fb2Scheme m_scheme;
+    const FbScheme m_scheme;
     QComboBox * m_combo;
     QLabel * m_text;
 };

@@ -13,42 +13,42 @@ QT_BEGIN_NAMESPACE
 class QAction;
 QT_END_NAMESPACE
 
-class Fb2TextEdit;
+class FbTextEdit;
 
-class Fb2TreeItem;
+class FbTreeItem;
 
-class Fb2TreeModel;
+class FbTreeModel;
 
-typedef QList<Fb2TreeItem*> Fb2TreeList;
+typedef QList<FbTreeItem*> FbTreeList;
 
-class Fb2TreeItem: public QObject
+class FbTreeItem: public QObject
 {
     Q_OBJECT
 
 public:
-    explicit Fb2TreeItem(QWebElement &element, Fb2TreeItem *parent = 0, int index = 0);
+    explicit FbTreeItem(QWebElement &element, FbTreeItem *parent = 0, int index = 0);
 
-    virtual ~Fb2TreeItem();
+    virtual ~FbTreeItem();
 
-    Fb2TreeItem * item(const QModelIndex &index) const;
+    FbTreeItem * item(const QModelIndex &index) const;
 
-    Fb2TreeItem * item(int row) const;
+    FbTreeItem * item(int row) const;
 
-    Fb2TreeItem & operator=(const QWebElement &element) {
+    FbTreeItem & operator=(const QWebElement &element) {
         m_element = element;
         return *this;
     }
 
-    int index(Fb2TreeItem * child) const {
+    int index(FbTreeItem * child) const {
         return m_list.indexOf(child);
     }
 
-    void insert(Fb2TreeItem * child, int row) {
+    void insert(FbTreeItem * child, int row) {
         m_list.insert(row, child);
         child->m_parent = this;
     }
 
-    Fb2TreeItem * takeAt(int row) {
+    FbTreeItem * takeAt(int row) {
         return m_list.takeAt(row);
     }
 
@@ -56,11 +56,11 @@ public:
         return m_list.size();
     }
 
-    Fb2TextElement element() const {
+    FbTextElement element() const {
         return m_element;
     }
 
-    Fb2TreeItem * parent() const {
+    FbTreeItem * parent() const {
         return m_parent;
     }
 
@@ -72,7 +72,7 @@ public:
         return m_element.geometry().topLeft();
     }
 
-    Fb2TreeItem * content(const Fb2TreeModel &model, int number) const;
+    FbTreeItem * content(const FbTreeModel &model, int number) const;
 
     QString selector() const;
 
@@ -84,29 +84,29 @@ private:
     QString title();
 
 private:
-    Fb2TreeList m_list;
+    FbTreeList m_list;
     QWebElement m_element;
     QString m_name;
     QString m_text;
     QString m_body;
-    Fb2TreeItem * m_parent;
+    FbTreeItem * m_parent;
     int m_number;
 };
 
-class Fb2TreeModel: public QAbstractItemModel
+class FbTreeModel: public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
-    explicit Fb2TreeModel(Fb2TextEdit &view, QObject *parent = 0);
-    virtual ~Fb2TreeModel();
-    QModelIndex index(Fb2TreeItem *item, int column = 0) const;
+    explicit FbTreeModel(FbTextEdit &view, QObject *parent = 0);
+    virtual ~FbTreeModel();
+    QModelIndex index(FbTreeItem *item, int column = 0) const;
     QModelIndex index(const QString &location) const;
-    Fb2TextEdit & view() { return m_view; }
+    FbTextEdit & view() { return m_view; }
     void selectText(const QModelIndex &index);
     QModelIndex move(const QModelIndex &index, int dx, int dy);
-    QModelIndex append(const QModelIndex &parent, Fb2TextElement element);
-    Fb2TreeItem * item(const QModelIndex &index) const;
+    QModelIndex append(const QModelIndex &parent, FbTextElement element);
+    FbTreeItem * item(const QModelIndex &index) const;
     void update();
 
 public:
@@ -118,19 +118,19 @@ public:
     virtual bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
 
 private:
-    void update(Fb2TreeItem &item);
+    void update(FbTreeItem &item);
 
 private:
-    Fb2TextEdit & m_view;
-    Fb2TreeItem * m_root;
+    FbTextEdit & m_view;
+    FbTreeItem * m_root;
 };
 
-class Fb2TreeView : public QTreeView
+class FbTreeView : public QTreeView
 {
     Q_OBJECT
 
 public:
-    explicit Fb2TreeView(Fb2TextEdit &view, QWidget *parent = 0);
+    explicit FbTreeView(FbTextEdit &view, QWidget *parent = 0);
     void initActions(QToolBar *toolbar);
 
 public slots:
@@ -156,10 +156,10 @@ protected:
 
 private:
     void moveCurrent(int dx, int dy);
-    Fb2TreeModel * model();
+    FbTreeModel * model();
 
 private:
-    Fb2TextEdit & m_view;
+    FbTextEdit & m_view;
     QTimer m_timerSelect;
     QTimer m_timerUpdate;
     QMenu m_menu;
@@ -169,16 +169,16 @@ private:
         *actionPaste;
 };
 
-class Fb2TreeWidget : public QWidget
+class FbTreeWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit Fb2TreeWidget(Fb2TextEdit &view, QWidget* parent = 0);
+    explicit FbTreeWidget(FbTextEdit &view, QWidget* parent = 0);
 
 protected:
     QToolBar * m_tool;
-    Fb2TreeView * m_tree;
+    FbTreeView * m_tree;
 };
 
 #endif // FB2TREE_H
