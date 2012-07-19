@@ -8,11 +8,11 @@ HEADERS = \
     source/fb2read.hpp \
     source/fb2temp.hpp \
     source/fb2tree.hpp \
-    source/fb2utils.h \
     source/fb2save.hpp \
     source/fb2dlgs.hpp \
     source/fb2html.h \
-    source/fb2text.hpp
+    source/fb2text.hpp \
+    source/fb2utils.h
 
 SOURCES = \
     source/fb2app.cpp \

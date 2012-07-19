@@ -463,17 +463,17 @@ Fb2HeadView::Fb2HeadView(Fb2TextEdit &view, QWidget *parent)
 
     setContextMenuPolicy(Qt::ActionsContextMenu);
 
-    actionInsert = act = new QAction(FB2::icon("list-add"), tr("&Append"), this);
+    actionInsert = act = new QAction(Fb2Icon("list-add"), tr("&Append"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(Qt::Key_Insert);
     act->setPriority(QAction::LowPriority);
     connect(act, SIGNAL(triggered()), SLOT(appendNode()));
     addAction(act);
 
-    actionModify = act = new QAction(FB2::icon("list-add"), tr("&Modify"), this);
+    actionModify = act = new QAction(Fb2Icon("list-add"), tr("&Modify"), this);
     act->setPriority(QAction::LowPriority);
 
-    actionDelete = act = new QAction(FB2::icon("list-remove"), tr("&Delete"), this);
+    actionDelete = act = new QAction(Fb2Icon("list-remove"), tr("&Delete"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(Qt::Key_Delete);
     act->setPriority(QAction::LowPriority);

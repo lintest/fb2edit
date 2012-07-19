@@ -3,15 +3,20 @@
 #include <QFile>
 #include <QTextStream>
 
-namespace FB2 {
-
-QIcon icon(const QString &name)
+static QIcon loadIcon(const QString &name)
 {
     QIcon icon;
     icon.addFile(QString(":/24x24/%1.png").arg(name), QSize(24,24));
     icon.addFile(QString(":/16x24/%1.png").arg(name), QSize(16,16));
-    return QIcon::fromTheme(name, icon);
+    return icon;
 }
+
+Fb2Icon::Fb2Icon(const QString &name)
+    : QIcon(fromTheme(name, loadIcon(name)))
+{
+}
+
+namespace FB2 {
 
 QString read(const QString &filename)
 {

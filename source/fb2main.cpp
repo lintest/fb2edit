@@ -209,7 +209,7 @@ void Fb2MainWindow::createActions()
     tool = addToolBar(tr("File"));
     tool->setMovable(false);
 
-    act = new QAction(FB2::icon("document-new"), tr("&New"), this);
+    act = new QAction(Fb2Icon("document-new"), tr("&New"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::New);
     act->setStatusTip(tr("Create a new file"));
@@ -217,21 +217,21 @@ void Fb2MainWindow::createActions()
     menu->addAction(act);
     tool->addAction(act);
 
-    act = new QAction(FB2::icon("document-open"), tr("&Open..."), this);
+    act = new QAction(Fb2Icon("document-open"), tr("&Open..."), this);
     act->setShortcuts(QKeySequence::Open);
     act->setStatusTip(tr("Open an existing file"));
     connect(act, SIGNAL(triggered()), this, SLOT(fileOpen()));
     menu->addAction(act);
     tool->addAction(act);
 
-    act = new QAction(FB2::icon("document-save"), tr("&Save"), this);
+    act = new QAction(Fb2Icon("document-save"), tr("&Save"), this);
     act->setShortcuts(QKeySequence::Save);
     act->setStatusTip(tr("Save the document to disk"));
     connect(act, SIGNAL(triggered()), this, SLOT(fileSave()));
     menu->addAction(act);
     tool->addAction(act);
 
-    act = new QAction(FB2::icon("document-save-as"), tr("Save &As..."), this);
+    act = new QAction(Fb2Icon("document-save-as"), tr("Save &As..."), this);
     act->setShortcuts(QKeySequence::SaveAs);
     act->setStatusTip(tr("Save the document under a new name"));
     connect(act, SIGNAL(triggered()), this, SLOT(fileSaveAs()));
@@ -239,13 +239,13 @@ void Fb2MainWindow::createActions()
 
     menu->addSeparator();
 
-    act = new QAction(FB2::icon("window-close"), tr("&Close"), this);
+    act = new QAction(Fb2Icon("window-close"), tr("&Close"), this);
     act->setShortcuts(QKeySequence::Close);
     act->setStatusTip(tr("Close this window"));
     connect(act, SIGNAL(triggered()), this, SLOT(close()));
     menu->addAction(act);
 
-    act = new QAction(FB2::icon("application-exit"), tr("E&xit"), this);
+    act = new QAction(Fb2Icon("application-exit"), tr("E&xit"), this);
     act->setShortcuts(QKeySequence::Quit);
     act->setStatusTip(tr("Exit the application"));
     connect(act, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
@@ -255,13 +255,13 @@ void Fb2MainWindow::createActions()
 
     connect(QApplication::clipboard(), SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
 
-    actionUndo = act = new QAction(FB2::icon("edit-undo"), tr("&Undo"), this);
+    actionUndo = act = new QAction(Fb2Icon("edit-undo"), tr("&Undo"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcut(QKeySequence::Undo);
     act->setEnabled(false);
     menu->addAction(act);
 
-    actionRedo = act = new QAction(FB2::icon("edit-redo"), tr("&Redo"), this);
+    actionRedo = act = new QAction(Fb2Icon("edit-redo"), tr("&Redo"), this);
     act->setPriority(QAction::LowPriority);
     act->setShortcut(QKeySequence::Redo);
     act->setEnabled(false);
@@ -269,7 +269,7 @@ void Fb2MainWindow::createActions()
 
     menu->addSeparator();
 
-    actionCut = act = new QAction(FB2::icon("edit-cut"), tr("Cu&t"), this);
+    actionCut = act = new QAction(Fb2Icon("edit-cut"), tr("Cu&t"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Cut);
@@ -277,7 +277,7 @@ void Fb2MainWindow::createActions()
     act->setEnabled(false);
     menu->addAction(act);
 
-    actionCopy = act = new QAction(FB2::icon("edit-copy"), tr("&Copy"), this);
+    actionCopy = act = new QAction(Fb2Icon("edit-copy"), tr("&Copy"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Copy);
@@ -285,7 +285,7 @@ void Fb2MainWindow::createActions()
     act->setEnabled(false);
     menu->addAction(act);
 
-    actionPaste = act = new QAction(FB2::icon("edit-paste"), tr("&Paste"), this);
+    actionPaste = act = new QAction(Fb2Icon("edit-paste"), tr("&Paste"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Paste);
@@ -295,16 +295,16 @@ void Fb2MainWindow::createActions()
 
     menu->addSeparator();
 
-    actionFind = act = new QAction(FB2::icon("edit-find"), tr("&Find..."), this);
+    actionFind = act = new QAction(Fb2Icon("edit-find"), tr("&Find..."), this);
     act->setShortcuts(QKeySequence::Find);
     menu->addAction(act);
 
-    actionReplace = act = new QAction(FB2::icon("edit-find-replace"), tr("&Replace..."), this);
+    actionReplace = act = new QAction(Fb2Icon("edit-find-replace"), tr("&Replace..."), this);
     menu->addAction(act);
 
     menu->addSeparator();
 
-    act = new QAction(FB2::icon("preferences-desktop"), tr("&Settings"), this);
+    act = new QAction(Fb2Icon("preferences-desktop"), tr("&Settings"), this);
     act->setShortcuts(QKeySequence::Preferences);
     act->setStatusTip(tr("Application settings"));
     connect(act, SIGNAL(triggered()), SLOT(openSettings()));
@@ -312,18 +312,18 @@ void Fb2MainWindow::createActions()
 
     menu = menuBar()->addMenu(tr("&Insert", "Main menu"));
 
-    actionImage = act = new QAction(FB2::icon("insert-image"), tr("&Image"), this);
+    actionImage = act = new QAction(Fb2Icon("insert-image"), tr("&Image"), this);
     menu->addAction(act);
 
-    actionNote = act = new QAction(FB2::icon("insert-text"), tr("&Footnote"), this);
+    actionNote = act = new QAction(Fb2Icon("insert-text"), tr("&Footnote"), this);
     menu->addAction(act);
 
-    actionLink = act = new QAction(FB2::icon("insert-link"), tr("&Hiperlink"), this);
+    actionLink = act = new QAction(Fb2Icon("insert-link"), tr("&Hiperlink"), this);
     menu->addAction(act);
 
     menu->addSeparator();
 
-    actionSection = act = new QAction(FB2::icon("insert-object"), tr("&Section"), this);
+    actionSection = act = new QAction(Fb2Icon("insert-object"), tr("&Section"), this);
     menu->addAction(act);
 
     actionTitle = act = new QAction(tr("&Title"), this);
@@ -352,25 +352,25 @@ void Fb2MainWindow::createActions()
 
     menuText = menu = menuBar()->addMenu(tr("Fo&rmat"));
 
-    actionTextBold = act = new QAction(FB2::icon("format-text-bold"), tr("&Bold"), this);
+    actionTextBold = act = new QAction(Fb2Icon("format-text-bold"), tr("&Bold"), this);
     act->setShortcuts(QKeySequence::Bold);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextItalic = act = new QAction(FB2::icon("format-text-italic"), tr("&Italic"), this);
+    actionTextItalic = act = new QAction(Fb2Icon("format-text-italic"), tr("&Italic"), this);
     act->setShortcuts(QKeySequence::Italic);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextStrike = act = new QAction(FB2::icon("format-text-strikethrough"), tr("&Strikethrough"), this);
+    actionTextStrike = act = new QAction(Fb2Icon("format-text-strikethrough"), tr("&Strikethrough"), this);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextSup = act = new QAction(FB2::icon("format-text-superscript"), tr("Su&perscript"), this);
+    actionTextSup = act = new QAction(Fb2Icon("format-text-superscript"), tr("Su&perscript"), this);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextSub = act = new QAction(FB2::icon("format-text-subscript"), tr("Su&bscript"), this);
+    actionTextSub = act = new QAction(Fb2Icon("format-text-subscript"), tr("Su&bscript"), this);
     act->setCheckable(true);
     menu->addAction(act);
 
@@ -404,15 +404,15 @@ void Fb2MainWindow::createActions()
 
     menu->addSeparator();
 
-    actionZoomIn = act = new QAction(FB2::icon("zoom-in"), tr("Zoom in"), this);
+    actionZoomIn = act = new QAction(Fb2Icon("zoom-in"), tr("Zoom in"), this);
     act->setShortcuts(QKeySequence::ZoomIn);
     menu->addAction(act);
 
-    actionZoomOut = act = new QAction(FB2::icon("zoom-out"), tr("Zoom out"), this);
+    actionZoomOut = act = new QAction(Fb2Icon("zoom-out"), tr("Zoom out"), this);
     act->setShortcuts(QKeySequence::ZoomOut);
     menu->addAction(act);
 
-    actionZoomReset = act = new QAction(FB2::icon("zoom-original"), tr("Zoom original"), this);
+    actionZoomReset = act = new QAction(Fb2Icon("zoom-original"), tr("Zoom original"), this);
     menu->addAction(act);
 
     menu->addSeparator();
@@ -427,7 +427,7 @@ void Fb2MainWindow::createActions()
     menuBar()->addSeparator();
     menu = menuBar()->addMenu(tr("&Help"));
 
-    act = new QAction(FB2::icon("help-about"), tr("&About"), this);
+    act = new QAction(Fb2Icon("help-about"), tr("&About"), this);
     act->setStatusTip(tr("Show the application's About box"));
     connect(act, SIGNAL(triggered()), this, SLOT(about()));
     menu->addAction(act);

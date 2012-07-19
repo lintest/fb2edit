@@ -404,7 +404,7 @@ void Fb2TreeView::initActions(QToolBar *toolbar)
 {
     QAction * act;
 
-    act = new QAction(FB2::icon("list-add"), tr("&Insert"), this);
+    act = new QAction(Fb2Icon("list-add"), tr("&Insert"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(Qt::Key_Insert);
     act->setPriority(QAction::LowPriority);
@@ -412,7 +412,7 @@ void Fb2TreeView::initActions(QToolBar *toolbar)
     toolbar->addAction(act);
     m_menu.addAction(act);
 
-    act = new QAction(FB2::icon("list-remove"), tr("&Delete"), this);
+    act = new QAction(Fb2Icon("list-remove"), tr("&Delete"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(Qt::Key_Delete);
     act->setPriority(QAction::LowPriority);
@@ -422,21 +422,21 @@ void Fb2TreeView::initActions(QToolBar *toolbar)
 
     m_menu.addSeparator();
 
-    actionCut = act = new QAction(FB2::icon("edit-cut"), tr("Cu&t"), this);
+    actionCut = act = new QAction(Fb2Icon("edit-cut"), tr("Cu&t"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Cut);
     act->setEnabled(false);
     m_menu.addAction(act);
 
-    actionCopy = act = new QAction(FB2::icon("edit-copy"), tr("&Copy"), this);
+    actionCopy = act = new QAction(Fb2Icon("edit-copy"), tr("&Copy"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Copy);
     act->setEnabled(false);
     m_menu.addAction(act);
 
-    actionPaste = act = new QAction(FB2::icon("edit-paste"), tr("&Paste"), this);
+    actionPaste = act = new QAction(Fb2Icon("edit-paste"), tr("&Paste"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Paste);
@@ -445,28 +445,28 @@ void Fb2TreeView::initActions(QToolBar *toolbar)
     toolbar->addSeparator();
     m_menu.addSeparator();
 
-    act = new QAction(FB2::icon("go-up"), tr("&Up"), this);
+    act = new QAction(Fb2Icon("go-up"), tr("&Up"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Up));
     connect(act, SIGNAL(triggered()), SLOT(moveUp()));
     toolbar->addAction(act);
     m_menu.addAction(act);
 
-    act = new QAction(FB2::icon("go-down"), tr("&Down"), this);
+    act = new QAction(Fb2Icon("go-down"), tr("&Down"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Down));
     connect(act, SIGNAL(triggered()), SLOT(moveDown()));
     toolbar->addAction(act);
     m_menu.addAction(act);
 
-    act = new QAction(FB2::icon("go-previous"), tr("&Left"), this);
+    act = new QAction(Fb2Icon("go-previous"), tr("&Left"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Left));
     connect(act, SIGNAL(triggered()), SLOT(moveLeft()));
     toolbar->addAction(act);
     m_menu.addAction(act);
 
-    act = new QAction(FB2::icon("go-next"), tr("&Right"), this);
+    act = new QAction(Fb2Icon("go-next"), tr("&Right"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
     connect(act, SIGNAL(triggered()), SLOT(moveRight()));

@@ -193,14 +193,14 @@ void Fb2TextBase::addTools(QToolBar *tool)
     QAction *act;
 
     act = pageAction(QWebPage::Undo);
-    act->setIcon(FB2::icon("edit-undo"));
+    act->setIcon(Fb2Icon("edit-undo"));
     act->setText(QObject::tr("&Undo"));
     act->setPriority(QAction::LowPriority);
     act->setShortcut(QKeySequence::Undo);
     tool->addAction(act);
 
     act = pageAction(QWebPage::Redo);
-    act->setIcon(FB2::icon("edit-redo"));
+    act->setIcon(Fb2Icon("edit-redo"));
     act->setText(QObject::tr("&Redo"));
     act->setPriority(QAction::LowPriority);
     act->setShortcut(QKeySequence::Redo);
@@ -209,7 +209,7 @@ void Fb2TextBase::addTools(QToolBar *tool)
     tool->addSeparator();
 
     act = pageAction(QWebPage::Cut);
-    act->setIcon(FB2::icon("edit-cut"));
+    act->setIcon(Fb2Icon("edit-cut"));
     act->setText(QObject::tr("Cu&t"));
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Cut);
@@ -217,7 +217,7 @@ void Fb2TextBase::addTools(QToolBar *tool)
     tool->addAction(act);
 
     act = pageAction(QWebPage::Copy);
-    act->setIcon(FB2::icon("edit-copy"));
+    act->setIcon(Fb2Icon("edit-copy"));
     act->setText(QObject::tr("&Copy"));
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Copy);
@@ -225,7 +225,7 @@ void Fb2TextBase::addTools(QToolBar *tool)
     tool->addAction(act);
 
     act = pageAction(QWebPage::Paste);
-    act->setIcon(FB2::icon("edit-paste"));
+    act->setIcon(Fb2Icon("edit-paste"));
     act->setText(QObject::tr("&Paste"));
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Paste);
@@ -235,27 +235,27 @@ void Fb2TextBase::addTools(QToolBar *tool)
     tool->addSeparator();
 
     act = pageAction(QWebPage::ToggleBold);
-    act->setIcon(FB2::icon("format-text-bold"));
+    act->setIcon(Fb2Icon("format-text-bold"));
     act->setText(QObject::tr("&Bold"));
     tool->addAction(act);
 
     act = pageAction(QWebPage::ToggleItalic);
-    act->setIcon(FB2::icon("format-text-italic"));
+    act->setIcon(Fb2Icon("format-text-italic"));
     act->setText(QObject::tr("&Italic"));
     tool->addAction(act);
 
     act = pageAction(QWebPage::ToggleStrikethrough);
-    act->setIcon(FB2::icon("format-text-strikethrough"));
+    act->setIcon(Fb2Icon("format-text-strikethrough"));
     act->setText(QObject::tr("&Strikethrough"));
     tool->addAction(act);
 
     act = pageAction(QWebPage::ToggleSuperscript);
-    act->setIcon(FB2::icon("format-text-superscript"));
+    act->setIcon(Fb2Icon("format-text-superscript"));
     act->setText(QObject::tr("Su&perscript"));
     tool->addAction(act);
 
     act = pageAction(QWebPage::ToggleSubscript);
-    act->setIcon(FB2::icon("format-text-subscript"));
+    act->setIcon(Fb2Icon("format-text-subscript"));
     act->setText(QObject::tr("Su&bscript"));
     tool->addAction(act);
 }
@@ -279,7 +279,7 @@ Fb2TextEdit::Fb2TextEdit(QWidget *parent)
 
 Fb2TextEdit::~Fb2TextEdit()
 {
-    FB2DELETE(m_noteView);
+    if (m_noteView) delete m_noteView;
 }
 
 Fb2TextPage * Fb2TextEdit::page()
