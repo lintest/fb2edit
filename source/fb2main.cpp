@@ -320,6 +320,7 @@ void FbMainWindow::createActions()
 
     actionLink = act = new QAction(FbIcon("insert-link"), tr("&Hiperlink"), this);
     menu->addAction(act);
+    act->setEnabled(false);
 
     menu->addSeparator();
 
@@ -331,15 +332,18 @@ void FbMainWindow::createActions()
 
     actionEpigraph = act = new QAction(tr("&Epigraph"), this);
     menu->addAction(act);
+    act->setEnabled(false);
 
     actionDescr = act = new QAction(tr("&Annotation"), this);
     menu->addAction(act);
+    act->setEnabled(false);
 
     actionSubtitle = act = new QAction(tr("&Subtitle"), this);
     menu->addAction(act);
 
     actionAuthor = act = new QAction(tr("&Author"), this);
     menu->addAction(act);
+    act->setEnabled(false);
 
     actionPoem = act = new QAction(tr("&Poem"), this);
     menu->addAction(act);
@@ -373,6 +377,15 @@ void FbMainWindow::createActions()
     actionTextSub = act = new QAction(FbIcon("format-text-subscript"), tr("Su&bscript"), this);
     act->setCheckable(true);
     menu->addAction(act);
+
+    actionTextSub = act = new QAction(FbIcon("format-text-subscript"), tr("Su&bscript"), this);
+    act->setCheckable(true);
+    menu->addAction(act);
+
+    actionTextCode = act = new QAction(tr("&Code"), this);
+    act->setCheckable(true);
+    menu->addAction(act);
+    act->setEnabled(false);
 
     menuView = menu = menuBar()->addMenu(tr("&View"));
 
@@ -698,6 +711,8 @@ void FbMainWindow::viewText()
     connect(actionTitle, SIGNAL(triggered()), textPage, SLOT(insertTitle()));
     connect(actionSubtitle, SIGNAL(triggered()), textPage, SLOT(insertSubtitle()));
     connect(actionSection, SIGNAL(triggered()), textPage, SLOT(insertSection()));
+    connect(actionStanza, SIGNAL(triggered()), textPage, SLOT(insertStanza()));
+    connect(actionPoem, SIGNAL(triggered()), textPage, SLOT(insertPoem()));
     connect(actionBody, SIGNAL(triggered()), textPage, SLOT(insertBody()));
 
     connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));

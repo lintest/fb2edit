@@ -184,13 +184,56 @@ void FbTextPage::insertSubtitle()
         FbTextElement parent = element.parent();
         if (parent.isSection()) {
             QString html = div("subtitle", p());
-            element.prependOutside(html);
-            element = element.previousSibling();
+            if (element.isTitle()) {
+                element.appendOutside(html);
+                element = element.nextSibling();
+            } else {
+                element.prependOutside(html);
+                element = element.previousSibling();
+            }
             QUndoCommand * command = new FbInsertCmd(element);
             push(command, tr("Insert subtitle"));
             break;
         }
         element = parent;
+    }
+}
+
+void FbTextPage::insertPoem()
+{
+    FbTextElement element = current();
+    while (!element.isNull()) {
+        FbTextElement parent = element.parent();
+        if (parent.isSection()) {
+            QString html = div("poem", div("stanza", p()));
+            if (element.isTitle()) {
+                element.appendOutside(html);
+                element = element.nextSibling();
+            } else {
+                element.prependOutside(html);
+                element = element.previousSibling();
+            }
+            QUndoCommand * command = new FbInsertCmd(element);
+            push(command, tr("Insert poem"));
+            break;
+        }
+        element = parent;
+    }
+}
+
+void FbTextPage::insertStanza()
+{
+    FbTextElement element = current();
+    while (!element.isNull()) {
+        if (element.isStanza()) {
+            QString html = div("stanza", p());
+            element.appendOutside(html);
+            element = element.nextSibling();
+            QUndoCommand * command = new FbInsertCmd(element);
+            push(command, tr("Append stanza"));
+            break;
+        }
+        element = element.parent();
     }
 }
 

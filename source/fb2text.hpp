@@ -76,6 +76,8 @@ public slots:
     void insertTitle();
     void insertSubtitle();
     void insertSection();
+    void insertPoem();
+    void insertStanza();
 
 protected:
     virtual bool acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type);

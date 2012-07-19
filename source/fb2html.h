@@ -18,10 +18,14 @@ public:
     FbTextElement &operator=(const QWebElement &x) { QWebElement::operator=(x); return *this; }
     void getChildren(FbElementList &list);
     QString location();
-    bool hasTitle() const;
+
+public:
+    bool isDiv(const QString &style) const;
     bool isBody() const;
     bool isSection() const;
     bool isTitle() const;
+    bool isStanza() const;
+    bool hasTitle() const;
 
 public:
     FbTextElement findFirst(const QString &selectorQuery) const { return QWebElement::findFirst(selectorQuery); }
@@ -34,6 +38,7 @@ public:
 
 public:
     void select();
+
 };
 
 class FbInsertCmd : public QUndoCommand

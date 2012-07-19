@@ -35,24 +35,34 @@ void FbTextElement::select()
     evaluateJavaScript(javascript);
 }
 
+bool FbTextElement::isDiv(const QString &style) const
+{
+    return tagName() == "DIV" && attribute("class").toLower() == style;
+}
+
 bool FbTextElement::isBody() const
 {
-    return tagName() == "DIV" && attribute("class").toLower() == "body";
+    return isDiv("body");
 }
 
 bool FbTextElement::isSection() const
 {
-    return tagName() == "DIV" && attribute("class").toLower() == "section";
+    return isDiv("section");
+}
+
+bool FbTextElement::isTitle() const
+{
+    return isDiv("title");
+}
+
+bool FbTextElement::isStanza() const
+{
+    return isDiv("stanza");
 }
 
 bool FbTextElement::hasTitle() const
 {
     return FbTextElement(firstChild()).isTitle();
-}
-
-bool FbTextElement::isTitle() const
-{
-    return tagName() == "DIV" && attribute("class").toLower() == "title";
 }
 
 //---------------------------------------------------------------------------

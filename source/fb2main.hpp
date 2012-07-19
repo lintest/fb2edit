@@ -122,6 +122,7 @@ private:
         *actionTextBold,
         *actionTextItalic,
         *actionTextStrike,
+        *actionTextCode,
         *actionTextSub,
         *actionTextSup,
         *actionInspect,
