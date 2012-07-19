@@ -43,8 +43,8 @@ public:
     virtual void undo();
     virtual void redo();
 private:
-    FbTextElement m_parent;
     FbTextElement m_element;
+    FbTextElement m_parent;
     bool m_inner;
 };
 

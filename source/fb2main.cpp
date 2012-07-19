@@ -603,7 +603,6 @@ void FbMainWindow::viewCode()
 
     bool load = false;
     QByteArray xml;
-    QList<int> folds;
     if (textFrame) {
         textFrame->view.save(&xml);
         load = true;
@@ -616,7 +615,7 @@ void FbMainWindow::viewCode()
     if (!codeEdit) {
         codeEdit = new FbCodeEdit;
     }
-    if (load) codeEdit->load(xml, folds);
+    if (load) codeEdit->load(xml);
     setCentralWidget(codeEdit);
     codeEdit->setFocus();
 

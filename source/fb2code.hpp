@@ -86,14 +86,14 @@ public:
 
     bool read(QIODevice *device);
 
-    void load(const QByteArray data, const QList<int> folds)
+    void load(const QByteArray data)
         { setPlainText(QString::fromUtf8(data.data())); }
 
     bool isUndoAvailable() { return false; }
 
     bool isRedoAvailable() { return false; }
 
-    void zoomTo ( int size ) {}
+    void zoomTo ( int ) {}
 
     bool findText(const QString &exp, QTextDocument::FindFlags options = 0);
 
