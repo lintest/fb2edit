@@ -52,6 +52,10 @@ public:
         return m_list.takeAt(row);
     }
 
+    bool hasChildren() {
+        return m_list.size();
+    }
+
     int count() const {
         return m_list.size();
     }
@@ -110,6 +114,7 @@ public:
     void update();
 
 public:
+    virtual bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     virtual QModelIndex parent(const QModelIndex &child) const;
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;

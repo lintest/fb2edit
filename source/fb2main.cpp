@@ -345,6 +345,10 @@ void FbMainWindow::createActions()
     menu->addAction(act);
     act->setEnabled(false);
 
+    actionAuthor = act = new QAction(tr("&Cite"), this);
+    menu->addAction(act);
+    act->setEnabled(false);
+
     actionPoem = act = new QAction(tr("&Poem"), this);
     menu->addAction(act);
 
@@ -681,33 +685,34 @@ void FbMainWindow::viewText()
     textFrame->view.setFocus();
     viewTree();
 
-    connect(textFrame->view.page()->undoStack(), SIGNAL(cleanChanged(bool)), SLOT(cleanChanged(bool)));
-    connect(textFrame->view.page()->undoStack(), SIGNAL(canUndoChanged(bool)), SLOT(canUndoChanged(bool)));
-    connect(textFrame->view.page()->undoStack(), SIGNAL(canRedoChanged(bool)), SLOT(canRedoChanged(bool)));
-    connect(textFrame->view.page(), SIGNAL(selectionChanged()), SLOT(selectionChanged()));
+    FbTextEdit * textEdit = &textFrame->view;
+    FbTextPage * textPage = textEdit->page();
 
-    connect(textFrame->view.pageAction(QWebPage::Undo), SIGNAL(changed()), SLOT(undoChanged()));
-    connect(textFrame->view.pageAction(QWebPage::Redo), SIGNAL(changed()), SLOT(redoChanged()));
-    connect(actionUndo, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::Undo), SIGNAL(triggered()));
-    connect(actionRedo, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::Redo), SIGNAL(triggered()));
+    connect(textPage->undoStack(), SIGNAL(cleanChanged(bool)), SLOT(cleanChanged(bool)));
+    connect(textPage->undoStack(), SIGNAL(canUndoChanged(bool)), SLOT(canUndoChanged(bool)));
+    connect(textPage->undoStack(), SIGNAL(canRedoChanged(bool)), SLOT(canRedoChanged(bool)));
+    connect(textPage, SIGNAL(selectionChanged()), SLOT(selectionChanged()));
 
-    connect(actionCut, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::Cut), SIGNAL(triggered()));
-    connect(actionCopy, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::Copy), SIGNAL(triggered()));
-    connect(actionPaste, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::Paste), SIGNAL(triggered()));
+    connect(textEdit->pageAction(QWebPage::Undo), SIGNAL(changed()), SLOT(undoChanged()));
+    connect(textEdit->pageAction(QWebPage::Redo), SIGNAL(changed()), SLOT(redoChanged()));
+    connect(actionUndo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Undo), SIGNAL(triggered()));
+    connect(actionRedo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Redo), SIGNAL(triggered()));
 
-    connect(actionTextBold, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::ToggleBold), SIGNAL(triggered()));
-    connect(actionTextItalic, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::ToggleItalic), SIGNAL(triggered()));
-    connect(actionTextStrike, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::ToggleStrikethrough), SIGNAL(triggered()));
-    connect(actionTextSub, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::ToggleSubscript), SIGNAL(triggered()));
-    connect(actionTextSup, SIGNAL(triggered()), textFrame->view.pageAction(QWebPage::ToggleSuperscript), SIGNAL(triggered()));
+    connect(actionCut, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Cut), SIGNAL(triggered()));
+    connect(actionCopy, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Copy), SIGNAL(triggered()));
+    connect(actionPaste, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Paste), SIGNAL(triggered()));
 
-    FbTextEdit * textEdit = &(textFrame->view);
+    connect(actionTextBold, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleBold), SIGNAL(triggered()));
+    connect(actionTextItalic, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleItalic), SIGNAL(triggered()));
+    connect(actionTextStrike, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleStrikethrough), SIGNAL(triggered()));
+    connect(actionTextSub, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSubscript), SIGNAL(triggered()));
+    connect(actionTextSup, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSuperscript), SIGNAL(triggered()));
+
     connect(actionFind, SIGNAL(triggered()), textEdit, SLOT(find()));
     connect(actionImage, SIGNAL(triggered()), textEdit, SLOT(insertImage()));
     connect(actionNote, SIGNAL(triggered()), textEdit, SLOT(insertNote()));
     connect(actionLink, SIGNAL(triggered()), textEdit, SLOT(insertLink()));
 
-    FbTextPage * textPage = textEdit->page();
     connect(actionTitle, SIGNAL(triggered()), textPage, SLOT(insertTitle()));
     connect(actionSubtitle, SIGNAL(triggered()), textPage, SLOT(insertSubtitle()));
     connect(actionSection, SIGNAL(triggered()), textPage, SLOT(insertSection()));
