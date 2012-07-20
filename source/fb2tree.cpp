@@ -156,6 +156,12 @@ QModelIndex FbTreeModel::index(FbTreeItem *item, int column) const
     return parent ? createIndex(parent->index(item), column, (void*)item) : QModelIndex();
 }
 
+bool FbTreeModel::hasChildren(const QModelIndex &parent) const
+{
+    FbTreeItem *owner = item(parent);
+    return owner ? owner->hasChildren() : false;
+}
+
 QModelIndex FbTreeModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!m_root || row < 0 || column < 0) return QModelIndex();
