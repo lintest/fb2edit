@@ -20,6 +20,7 @@ public:
     QString location();
 
 public:
+    bool hasChild(const QString &style) const;
     bool isDiv(const QString &style) const;
     bool isBody() const;
     bool isSection() const;

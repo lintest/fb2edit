@@ -416,74 +416,83 @@ void FbTreeView::initActions(QToolBar *toolbar)
 {
     QAction * act;
 
-    act = new QAction(FbIcon("list-add"), tr("&Insert"), this);
+    actionSection = act = new QAction(FbIcon("list-add"), tr("&Add section"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(Qt::Key_Insert);
     act->setPriority(QAction::LowPriority);
-    connect(act, SIGNAL(triggered()), SLOT(insertNode()));
+    connect(act, SIGNAL(triggered()), SLOT(insertSection()));
     toolbar->addAction(act);
-    m_menu.addAction(act);
 
-    act = new QAction(FbIcon("list-remove"), tr("&Delete"), this);
+    actionTitle = act = new QAction(tr("+ Title"), this);
+    connect(act, SIGNAL(triggered()), SLOT(insertTitle()));
+
+    actionEpigraph = act = new QAction(tr("+ Epigraph"), this);
+    connect(act, SIGNAL(triggered()), SLOT(insertEpigraph()));
+
+    actionImage = act = new QAction(tr("+ Image"), this);
+    connect(act, SIGNAL(triggered()), SLOT(insertImage()));
+
+    actionAnnot = act = new QAction(tr("+ Annotation"), this);
+    connect(act, SIGNAL(triggered()), SLOT(insertAnnot()));
+
+    actionStanza = act = new QAction(tr("+ Stanza"), this);
+    connect(act, SIGNAL(triggered()), SLOT(insertStanza()));
+
+    actionAuthor = act = new QAction(tr("+ Author"), this);
+    connect(act, SIGNAL(triggered()), SLOT(insertAuthor()));
+
+    actionDate = act = new QAction(tr("+ Date"), this);
+    connect(act, SIGNAL(triggered()), SLOT(insertDate()));
+
+    actionDelete = act = new QAction(FbIcon("list-remove"), tr("&Delete"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(Qt::Key_Delete);
     act->setPriority(QAction::LowPriority);
     connect(act, SIGNAL(triggered()), SLOT(deleteNode()));
     toolbar->addAction(act);
-    m_menu.addAction(act);
-
-    m_menu.addSeparator();
 
     actionCut = act = new QAction(FbIcon("edit-cut"), tr("Cu&t"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Cut);
     act->setEnabled(false);
-    m_menu.addAction(act);
 
     actionCopy = act = new QAction(FbIcon("edit-copy"), tr("&Copy"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Copy);
     act->setEnabled(false);
-    m_menu.addAction(act);
 
     actionPaste = act = new QAction(FbIcon("edit-paste"), tr("&Paste"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Paste);
-    m_menu.addAction(act);
 
     toolbar->addSeparator();
-    m_menu.addSeparator();
 
-    act = new QAction(FbIcon("go-up"), tr("&Up"), this);
+    actionMoveUp = act = new QAction(FbIcon("go-up"), tr("&Up"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Up));
     connect(act, SIGNAL(triggered()), SLOT(moveUp()));
     toolbar->addAction(act);
-    m_menu.addAction(act);
 
-    act = new QAction(FbIcon("go-down"), tr("&Down"), this);
+    actionMoveDown = act = new QAction(FbIcon("go-down"), tr("&Down"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Down));
     connect(act, SIGNAL(triggered()), SLOT(moveDown()));
     toolbar->addAction(act);
-    m_menu.addAction(act);
 
-    act = new QAction(FbIcon("go-previous"), tr("&Left"), this);
+    actionMoveLeft = act = new QAction(FbIcon("go-previous"), tr("&Left"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Left));
     connect(act, SIGNAL(triggered()), SLOT(moveLeft()));
     toolbar->addAction(act);
-    m_menu.addAction(act);
 
-    act = new QAction(FbIcon("go-next"), tr("&Right"), this);
+    actionMoveRight = act = new QAction(FbIcon("go-next"), tr("&Right"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
     connect(act, SIGNAL(triggered()), SLOT(moveRight()));
     toolbar->addAction(act);
-    m_menu.addAction(act);
 }
 
 void FbTreeView::keyPressEvent(QKeyEvent *event)
@@ -491,7 +500,7 @@ void FbTreeView::keyPressEvent(QKeyEvent *event)
     switch (event->modifiers()) {
         case Qt::NoModifier:
             switch (event->key()) {
-                case Qt::Key_Insert: insertNode(); return;
+                case Qt::Key_Insert: insertSection(); return;
                 case Qt::Key_Delete: deleteNode(); return;
             }
             break;
@@ -509,7 +518,55 @@ void FbTreeView::keyPressEvent(QKeyEvent *event)
 
 void FbTreeView::contextMenu(const QPoint &pos)
 {
-    m_menu.exec(mapToGlobal(pos));
+    FbTreeModel * m = model();
+    if (!m) return;
+
+    FbTreeItem * i = m->item(currentIndex());
+    if (!i) return;
+
+    FbTextElement e = i->element();
+    if (e.isTitle()) e = e.parent();
+    if (e.isNull()) return;
+
+    QMenu menu;
+    menu.addAction(actionSection);
+
+    if (e.isBody()) {
+        if (!e.hasChild("image")) menu.addAction(actionImage);
+        if (!e.hasChild("title")) menu.addAction(actionTitle);
+        menu.addAction(actionEpigraph);
+    }
+
+    if (e.isSection()) {
+        if (!e.hasChild("title")) menu.addAction(actionTitle);
+        menu.addAction(actionEpigraph);
+        if (!e.hasChild("image")) menu.addAction(actionImage);
+        if (!e.hasChild("annotetion")) menu.addAction(actionAnnot);
+    }
+
+    if (e.isDiv("poem")) {
+        if (!e.hasChild("title")) menu.addAction(actionTitle);
+        menu.addAction(actionEpigraph);
+        menu.addAction(actionStanza);
+        menu.addAction(actionAuthor);
+        if (!e.hasChild("date")) menu.addAction(actionDate);
+    }
+
+    if (e.isDiv("cite")) {
+        menu.addAction(actionAuthor);
+    }
+
+    menu.addAction(actionDelete);
+    menu.addSeparator();
+    menu.addAction(actionCut);
+    menu.addAction(actionCopy);
+    menu.addAction(actionPaste);
+    menu.addSeparator();
+    menu.addAction(actionMoveUp);
+    menu.addAction(actionMoveDown);
+    menu.addAction(actionMoveLeft);
+    menu.addAction(actionMoveRight);
+    menu.exec(mapToGlobal(pos));
 }
 
 void FbTreeView::selectionChanged()
@@ -566,7 +623,7 @@ QModelIndex FbTreeModel::append(const QModelIndex &parent, FbTextElement element
     return createIndex(row, 0, (void*)child);
 }
 
-void FbTreeView::insertNode()
+void FbTreeView::insertSection()
 {
     if (FbTreeModel * m = model()) {
         QModelIndex index = currentIndex();
@@ -589,6 +646,34 @@ void FbTreeView::insertNode()
             index = m->parent(index);
         }
     }
+}
+
+void FbTreeView::insertTitle()
+{
+}
+
+void FbTreeView::insertAuthor()
+{
+}
+
+void FbTreeView::insertEpigraph()
+{
+}
+
+void FbTreeView::insertImage()
+{
+}
+
+void FbTreeView::insertAnnot()
+{
+}
+
+void FbTreeView::insertStanza()
+{
+}
+
+void FbTreeView::insertDate()
+{
 }
 
 void FbTreeView::deleteNode()

@@ -1,6 +1,5 @@
 #include "fb2html.h"
 #include "fb2utils.h"
-
 #include "fb2text.hpp"
 
 //---------------------------------------------------------------------------
@@ -33,6 +32,16 @@ void FbTextElement::select()
 {
     static const QString javascript = FB2::read(":/js/set_cursor.js");
     evaluateJavaScript(javascript);
+}
+
+bool FbTextElement::hasChild(const QString &style) const
+{
+    FbTextElement child = firstChild();
+    while (!child.isNull()) {
+        if (child.tagName() == "DIV" && child.attribute("class").toLower() == style) return true;
+        child = child.nextSibling();
+    }
+    return false;
 }
 
 bool FbTextElement::isDiv(const QString &style) const

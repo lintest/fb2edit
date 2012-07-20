@@ -459,6 +459,14 @@
         <source>&amp;Epigraph</source>
         <translation>&amp;Эпиграф &lt;epigraph&gt;</translation>
     </message>
+    <message>
+        <source>&amp;Cite</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Code</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FbNodeDlg</name>
@@ -572,6 +580,14 @@
         <source>Insert subtitle</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Insert poem</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Append stanza</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FbTreeModel</name>
@@ -584,7 +600,7 @@
     <name>FbTreeView</name>
     <message>
         <source>&amp;Insert</source>
-        <translation>&amp;Вставка</translation>
+        <translation type="obsolete">&amp;Вставка</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
@@ -617,6 +633,38 @@
     <message>
         <source>&amp;Paste</source>
         <translation>&amp;Вставить</translation>
+    </message>
+    <message>
+        <source>&amp;Add section</source>
+        <translation>Добавить &amp;секцию</translation>
+    </message>
+    <message>
+        <source>+ Title</source>
+        <translation>+ Заголовок</translation>
+    </message>
+    <message>
+        <source>+ Epigraph</source>
+        <translation>+ Эпиграф</translation>
+    </message>
+    <message>
+        <source>+ Image</source>
+        <translation>+ Изображение</translation>
+    </message>
+    <message>
+        <source>+ Annotation</source>
+        <translation>+ Аннотация</translation>
+    </message>
+    <message>
+        <source>+ Stanza</source>
+        <translation>+ Строфа</translation>
+    </message>
+    <message>
+        <source>+ Author</source>
+        <translation>+ Автор</translation>
+    </message>
+    <message>
+        <source>+ Date</source>
+        <translation>+ Дата</translation>
     </message>
 </context>
 <context>

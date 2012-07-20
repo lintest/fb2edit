@@ -148,7 +148,14 @@ private slots:
     void selectionChanged();
     void selectTree();
 
-    void insertNode();
+    void insertSection();
+    void insertTitle();
+    void insertAuthor();
+    void insertEpigraph();
+    void insertImage();
+    void insertAnnot();
+    void insertStanza();
+    void insertDate();
     void deleteNode();
 
     void moveUp();
@@ -167,11 +174,23 @@ private:
     FbTextEdit & m_view;
     QTimer m_timerSelect;
     QTimer m_timerUpdate;
-    QMenu m_menu;
     QAction
+        *actionSection,
+        *actionDelete,
+        *actionTitle,
+        *actionAuthor,
+        *actionEpigraph,
+        *actionStanza,
+        *actionImage,
+        *actionAnnot,
+        *actionDate,
         *actionCut,
         *actionCopy,
-        *actionPaste;
+        *actionPaste,
+        *actionMoveUp,
+        *actionMoveDown,
+        *actionMoveLeft,
+        *actionMoveRight;
 };
 
 class FbTreeWidget : public QWidget
