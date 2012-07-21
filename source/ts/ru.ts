@@ -381,7 +381,7 @@
     </message>
     <message>
         <source>&amp;Image</source>
-        <translation>&amp;Изображение</translation>
+        <translation>&amp;Иллюстрация</translation>
     </message>
     <message>
         <source>&amp;Head</source>
@@ -421,7 +421,7 @@
     </message>
     <message>
         <source>&amp;Body</source>
-        <translation>Тело &lt;body&gt;</translation>
+        <translation>&amp;Тело</translation>
     </message>
     <message>
         <source>Zoom original</source>
@@ -429,43 +429,43 @@
     </message>
     <message>
         <source>&amp;Section</source>
-        <translation>&amp;Секция &lt;section&gt;</translation>
+        <translation>&amp;Секция</translation>
     </message>
     <message>
         <source>&amp;Title</source>
-        <translation>&amp;Заголовок &lt;title&gt;</translation>
+        <translation>&amp;Заголовок</translation>
     </message>
     <message>
         <source>&amp;Author</source>
-        <translation>&amp;Автор &lt;author&gt;</translation>
+        <translation>&amp;Автор</translation>
     </message>
     <message>
         <source>&amp;Annotation</source>
-        <translation>А&amp;ннотация &lt;annotation&gt;</translation>
+        <translation>А&amp;ннотация</translation>
     </message>
     <message>
         <source>&amp;Poem</source>
-        <translation>&amp;Поэма  &lt;poem&gt;</translation>
+        <translation>&amp;Поэма</translation>
     </message>
     <message>
         <source>&amp;Stanza</source>
-        <translation>С&amp;трофа &lt;stanza&gt;</translation>
+        <translation>С&amp;трофа</translation>
     </message>
     <message>
         <source>&amp;Subtitle</source>
-        <translation>По&amp;дзаголовок &lt;subtitle&gt;</translation>
+        <translation>По&amp;дзаголовок</translation>
     </message>
     <message>
         <source>&amp;Epigraph</source>
-        <translation>&amp;Эпиграф &lt;epigraph&gt;</translation>
+        <translation>&amp;Эпиграф</translation>
     </message>
     <message>
         <source>&amp;Cite</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Цитата</translation>
     </message>
     <message>
         <source>&amp;Code</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Код</translation>
     </message>
 </context>
 <context>
@@ -648,7 +648,7 @@
     </message>
     <message>
         <source>+ Image</source>
-        <translation>+ Изображение</translation>
+        <translation>+ Иллюстрация</translation>
     </message>
     <message>
         <source>+ Annotation</source>
