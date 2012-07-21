@@ -2,9 +2,13 @@
 
 #include <QtDebug>
 #include <QAction>
+#include <QComboBox>
 #include <QDialogButtonBox>
+#include <QFormLayout>
 #include <QGridLayout>
 #include <QHeaderView>
+#include <QLabel>
+#include <QLineEdit>
 #include <QToolBar>
 #include <QWebFrame>
 #include <QWebPage>
@@ -657,4 +661,43 @@ void FbNodeDlg::comboChanged(const QString &text)
 QString FbNodeDlg::value() const
 {
     return m_combo->currentText();
+}
+
+//---------------------------------------------------------------------------
+//  FbAuthorDlg
+//---------------------------------------------------------------------------
+
+FbAuthorDlg::FbAuthorDlg(QWidget *parent)
+    : QDialog(parent)
+{
+    setWindowTitle(tr("Author"));
+
+    QFormLayout * layout = new QFormLayout(this);
+
+    add(layout, "last-name", tr("Last name"));
+    add(layout, "first-name", tr("First name"));
+    add(layout, "moddle-name", tr("Middle name"));
+    add(layout, "nickname", tr("Nic name"));
+    add(layout, "home-page", tr("Home page"));
+    add(layout, "email", tr("E-mail"));
+
+    QDialogButtonBox * buttonBox = new QDialogButtonBox(this);
+    buttonBox->setOrientation(Qt::Horizontal);
+    buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+    layout->addRow(buttonBox);
+
+    QObject::connect(buttonBox, SIGNAL(accepted()), SLOT(accept()));
+    QObject::connect(buttonBox, SIGNAL(rejected()), SLOT(reject()));
+}
+
+void FbAuthorDlg::add(QFormLayout *layout, const QString &key, const QString &text)
+{
+    QLabel * label = new QLabel(this);
+    label->setText(text);
+
+    QLineEdit * field = new QLineEdit(this);
+    field->setMinimumWidth(200);
+    m_fields[key] = field;
+
+    layout->addRow(label, field);
 }

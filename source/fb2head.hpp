@@ -3,18 +3,20 @@
 
 #include <QAbstractItemModel>
 #include <QDialog>
-#include <QComboBox>
-#include <QLabel>
 #include <QDomDocument>
 #include <QDomElement>
-#include <QStringList>
+#include <QMap>
 #include <QTreeView>
 #include <QWebElement>
 #include <QWebView>
 
 QT_BEGIN_NAMESPACE
 class QAction;
+class QComboBox;
+class QFormLayout;
+class QLabel;
 class QToolBar;
+class QLineEdit;
 QT_END_NAMESPACE
 
 #include "fb2xml.h"
@@ -198,6 +200,20 @@ private:
     const FbScheme m_scheme;
     QComboBox * m_combo;
     QLabel * m_text;
+};
+
+class FbAuthorDlg : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit FbAuthorDlg(QWidget *parent);
+
+private:
+    void add(QFormLayout *layout, const QString &key, const QString &text);
+
+private:
+    QMap<QString, QLineEdit*> m_fields;
 };
 
 #endif // FB2HEAD_H

@@ -2,6 +2,37 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU">
 <context>
+    <name>FbAuthorDlg</name>
+    <message>
+        <source>Author</source>
+        <translation>Автор</translation>
+    </message>
+    <message>
+        <source>Last name</source>
+        <translation>Фамилия</translation>
+    </message>
+    <message>
+        <source>First name</source>
+        <translation>Имя</translation>
+    </message>
+    <message>
+        <source>Middle name</source>
+        <translation>Отчество</translation>
+    </message>
+    <message>
+        <source>Nic name</source>
+        <translation>Псевдоним</translation>
+    </message>
+    <message>
+        <source>Home page</source>
+        <translation>Сайт</translation>
+    </message>
+    <message>
+        <source>E-mail</source>
+        <translation>Эл. почта</translation>
+    </message>
+</context>
+<context>
     <name>FbCodeFindDlg</name>
     <message>
         <source>Complete words</source>
