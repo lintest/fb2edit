@@ -3,6 +3,53 @@
 #include "fb2text.hpp"
 
 //---------------------------------------------------------------------------
+//  FbTextScheme
+//---------------------------------------------------------------------------
+
+FbTextScheme::FbTextScheme()
+{
+    m_types["body"]
+            << Type("image")
+            << Type("title")
+            << Type("epigraph", 0, 0)
+            << Type()
+    ;
+
+    m_types["section"]
+            << Type("title")
+            << Type("epigraph", 0, 0)
+            << Type("image")
+            << Type("annotation")
+            << Type()
+    ;
+
+    m_types["poem"]
+            << Type("title")
+            << Type("epigraph", 0, 0)
+            << Type("stanza", 1, 0)
+            << Type()
+            << Type("text-author", 0, 0)
+            << Type("date")
+    ;
+
+    m_types["stanza"]
+            << Type("title")
+            << Type("subtitle")
+            << Type()
+    ;
+
+    m_types["epigraph"]
+            << Type()
+            << Type("text-author", 0, 0)
+    ;
+
+    m_types["cite"]
+            << Type()
+            << Type("text-author", 0, 0)
+    ;
+}
+
+//---------------------------------------------------------------------------
 //  FbTextElement
 //---------------------------------------------------------------------------
 
