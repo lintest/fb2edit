@@ -10,11 +10,9 @@ class FbTextElement;
 
 typedef QList<FbTextElement> FbElementList;
 
-class FbTextScheme
+class FbTextElement : public QWebElement
 {
-public:
-    explicit FbTextScheme();
-
+private:
     class Type
     {
     public:
@@ -33,16 +31,32 @@ public:
 
     typedef QMap<QString, TypeList> TypeMap;
 
-private:
-    TypeMap m_types;
-};
+    class Scheme
+    {
+    public:
+        explicit Scheme();
+        const TypeList * operator[](const QString &name) const;
+    private:
+        TypeMap m_types;
+    };
 
-class FbTextElement : public QWebElement
-{
+    class Sublist
+    {
+    public:
+        Sublist(const TypeList &list, const QString &name);
+        operator bool() const;
+        bool operator !() const;
+        bool operator <(const QWebElement &element) const;
+    private:
+        const TypeList &m_list;
+        TypeList::const_iterator m_pos;
+    };
+
 public:
     FbTextElement() {}
     FbTextElement(const QWebElement &x) : QWebElement(x) {}
     FbTextElement &operator=(const QWebElement &x) { QWebElement::operator=(x); return *this; }
+    FbTextElement insertInside(const QString &style, const QString &html);
     void getChildren(FbElementList &list);
     QString location();
 
@@ -67,6 +81,9 @@ public:
 public:
     void select();
 
+private:
+    const TypeList *subtypes() const;
+    TypeList::const_iterator subtype(const TypeList &list, const QString &style);
 };
 
 class FbInsertCmd : public QUndoCommand
