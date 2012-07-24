@@ -3,50 +3,90 @@
 #include "fb2text.hpp"
 
 //---------------------------------------------------------------------------
-//  FbTextScheme
+//  FbTextElement::Scheme
 //---------------------------------------------------------------------------
 
-FbTextScheme::FbTextScheme()
+FbTextElement::Scheme::Scheme()
 {
     m_types["body"]
-            << Type("image")
-            << Type("title")
-            << Type("epigraph", 0, 0)
-            << Type()
+        << Type("image")
+        << Type("title")
+        << Type("epigraph", 0, 0)
+        << Type()
     ;
 
     m_types["section"]
-            << Type("title")
-            << Type("epigraph", 0, 0)
-            << Type("image")
-            << Type("annotation")
-            << Type()
+        << Type("title")
+        << Type("epigraph", 0, 0)
+        << Type("image")
+        << Type("annotation")
+        << Type()
     ;
 
     m_types["poem"]
-            << Type("title")
-            << Type("epigraph", 0, 0)
-            << Type("stanza", 1, 0)
-            << Type()
-            << Type("text-author", 0, 0)
-            << Type("date")
+        << Type("title")
+        << Type("epigraph", 0, 0)
+        << Type("stanza", 1, 0)
+        << Type()
+        << Type("text-author", 0, 0)
+        << Type("date")
     ;
 
     m_types["stanza"]
-            << Type("title")
-            << Type("subtitle")
-            << Type()
+        << Type("title")
+        << Type("subtitle")
+        << Type()
     ;
 
     m_types["epigraph"]
-            << Type()
-            << Type("text-author", 0, 0)
+        << Type()
+        << Type("text-author", 0, 0)
     ;
 
     m_types["cite"]
-            << Type()
-            << Type("text-author", 0, 0)
+        << Type()
+        << Type("text-author", 0, 0)
     ;
+}
+
+const FbTextElement::TypeList * FbTextElement::Scheme::operator[](const QString &name) const
+{
+    TypeMap::const_iterator it = m_types.find(name);
+    if (it != m_types.end()) return &it.value();
+    return 0;
+}
+
+//---------------------------------------------------------------------------
+//  FbTextElement::Sublist
+//---------------------------------------------------------------------------
+
+FbTextElement::Sublist::Sublist(const TypeList &list, const QString &name)
+    : m_list(list)
+    , m_pos(list.begin())
+{
+    while (m_pos != list.end()) {
+        if (m_pos->name() == name) break;
+        m_pos++;
+    }
+}
+
+FbTextElement::Sublist::operator bool() const
+{
+    return m_pos != m_list.end();
+}
+
+bool FbTextElement::Sublist::operator!() const
+{
+    return m_pos == m_list.end();
+}
+
+bool FbTextElement::Sublist::operator <(const QWebElement &element) const
+{
+    const QString name = element.attribute("class");
+    for (TypeList::const_iterator it = m_list.begin(); it != m_list.end(); it++) {
+        if (it->name() == name) return it < m_pos || element.isNull();
+    }
+    return false;
 }
 
 //---------------------------------------------------------------------------
@@ -66,6 +106,35 @@ void FbTextElement::getChildren(FbElementList &list)
             child.getChildren(list);
         }
         child = child.nextSibling();
+    }
+}
+
+const FbTextElement::TypeList * FbTextElement::subtypes() const
+{
+    static Scheme scheme;
+    return scheme[tagName().toLower()];
+}
+
+FbTextElement::TypeList::const_iterator FbTextElement::subtype(const TypeList &list, const QString &style)
+{
+    for (TypeList::const_iterator item = list.begin(); item != list.end(); item++) {
+        if (item->name() == style) return item;
+    }
+    return list.end();
+}
+
+FbTextElement FbTextElement::insertInside(const QString &style, const QString &html)
+{
+    const TypeList * types = subtypes();
+    if (!types) return FbTextElement();
+
+    Sublist sublist(*types, style);
+    if (!sublist) return FbTextElement();
+
+    FbTextElement child = firstChild();
+    if (sublist < child) {
+        prependInside(html);
+        return firstChild();
     }
 }
 
