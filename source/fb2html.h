@@ -10,6 +10,33 @@ class FbTextElement;
 
 typedef QList<FbTextElement> FbElementList;
 
+class FbTextScheme
+{
+public:
+    explicit FbTextScheme();
+
+    class Type
+    {
+    public:
+        Type(const QString &name = QString(), int min=0, int max=1): m_name(name), m_min(min), m_max(max) {}
+        Type(const Type &t): m_name(t.m_name), m_min(t.m_min), m_max(t.m_max) {}
+        const QString & name() const { return m_name; }
+        int min() { return m_min; }
+        int max() { return m_max; }
+    private:
+        const QString m_name;
+        const int m_min;
+        const int m_max;
+    };
+
+    typedef QList<Type> TypeList;
+
+    typedef QMap<QString, TypeList> TypeMap;
+
+private:
+    TypeMap m_types;
+};
+
 class FbTextElement : public QWebElement
 {
 public:
