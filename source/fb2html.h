@@ -59,6 +59,7 @@ public:
     FbTextElement &operator=(const QWebElement &x) { QWebElement::operator=(x); return *this; }
     FbTextElement insertInside(const QString &style, const QString &html);
     void getChildren(FbElementList &list);
+    bool hasScheme() const;
     QString location();
 
 public:
