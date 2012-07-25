@@ -121,6 +121,11 @@ void FbTextElement::getChildren(FbElementList &list)
     }
 }
 
+bool FbTextElement::hasScheme() const
+{
+    return subtypes();
+}
+
 const FbTextElement::TypeList * FbTextElement::subtypes() const
 {
     static Scheme scheme;
