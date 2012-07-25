@@ -47,6 +47,7 @@ private:
         operator bool() const;
         bool operator !() const;
         bool operator <(const QWebElement &element) const;
+        bool operator >=(const QWebElement &element) const;
     private:
         const TypeList &m_list;
         TypeList::const_iterator m_pos;
