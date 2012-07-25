@@ -64,10 +64,13 @@ FbTextElement::Sublist::Sublist(const TypeList &list, const QString &name)
     : m_list(list)
     , m_pos(list.begin())
 {
+    TypeList::const_iterator empty = list.end();
     while (m_pos != list.end()) {
         if (m_pos->name() == name) break;
+        if (m_pos->name().isEmpty()) empty = m_pos;
         m_pos++;
     }
+    if (m_pos == list.end()) m_pos = empty;
 }
 
 FbTextElement::Sublist::operator bool() const
@@ -85,6 +88,15 @@ bool FbTextElement::Sublist::operator <(const QWebElement &element) const
     const QString name = element.attribute("class");
     for (TypeList::const_iterator it = m_list.begin(); it != m_list.end(); it++) {
         if (it->name() == name) return it < m_pos || element.isNull();
+    }
+    return false;
+}
+
+bool FbTextElement::Sublist::operator >=(const QWebElement &element) const
+{
+    const QString name = element.attribute("class");
+    for (TypeList::const_iterator it = m_list.begin(); it != m_list.end(); it++) {
+        if (it->name() == name) return it >= m_pos || element.isNull();
     }
     return false;
 }
@@ -112,7 +124,7 @@ void FbTextElement::getChildren(FbElementList &list)
 const FbTextElement::TypeList * FbTextElement::subtypes() const
 {
     static Scheme scheme;
-    return scheme[tagName().toLower()];
+    return scheme[attribute("class").toLower()];
 }
 
 FbTextElement::TypeList::const_iterator FbTextElement::subtype(const TypeList &list, const QString &style)
@@ -136,6 +148,17 @@ FbTextElement FbTextElement::insertInside(const QString &style, const QString &h
         prependInside(html);
         return firstChild();
     }
+
+    while (!child.isNull()) {
+        FbTextElement subling = child.nextSibling();
+        if (sublist >= child && sublist < subling) {
+            child.appendOutside(html);
+            return child.nextSibling();
+        }
+        child = subling;
+    }
+
+    return FbTextElement();
 }
 
 QString FbTextElement::location()
