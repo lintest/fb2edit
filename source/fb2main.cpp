@@ -323,6 +323,9 @@ void FbMainWindow::createActions()
 
     menu->addSeparator();
 
+    actionBody = act = new QAction(tr("&Body"), this);
+    menu->addAction(act);
+
     actionSection = act = new QAction(FbIcon("insert-object"), tr("&Section"), this);
     menu->addAction(act);
 
@@ -332,13 +335,10 @@ void FbMainWindow::createActions()
     actionEpigraph = act = new QAction(tr("&Epigraph"), this);
     menu->addAction(act);
 
-    actionDescr = act = new QAction(tr("&Annotation"), this);
+    actionAnnot = act = new QAction(tr("&Annotation"), this);
     menu->addAction(act);
 
     actionSubtitle = act = new QAction(tr("&Subtitle"), this);
-    menu->addAction(act);
-
-    actionAuthor = act = new QAction(tr("&Author"), this);
     menu->addAction(act);
 
     actionAuthor = act = new QAction(tr("&Cite"), this);
@@ -350,7 +350,10 @@ void FbMainWindow::createActions()
     actionStanza = act = new QAction(tr("&Stanza"), this);
     menu->addAction(act);
 
-    actionBody = act = new QAction(tr("&Body"), this);
+    actionAuthor = act = new QAction(tr("&Author"), this);
+    menu->addAction(act);
+
+    actionDate = act = new QAction(tr("&Date"), this);
     menu->addAction(act);
 
     menuText = menu = menuBar()->addMenu(tr("Fo&rmat"));
@@ -709,10 +712,14 @@ void FbMainWindow::viewText()
     connect(actionLink, SIGNAL(triggered()), textEdit, SLOT(insertLink()));
 
     connect(actionTitle, SIGNAL(triggered()), textPage, SLOT(insertTitle()));
+    connect(actionAnnot, SIGNAL(triggered()), textPage, SLOT(insertAnnot()));
+    connect(actionAuthor, SIGNAL(triggered()), textPage, SLOT(insertAuthor()));
+    connect(actionEpigraph, SIGNAL(triggered()), textPage, SLOT(insertEpigraph()));
     connect(actionSubtitle, SIGNAL(triggered()), textPage, SLOT(insertSubtitle()));
     connect(actionSection, SIGNAL(triggered()), textPage, SLOT(insertSection()));
     connect(actionStanza, SIGNAL(triggered()), textPage, SLOT(insertStanza()));
     connect(actionPoem, SIGNAL(triggered()), textPage, SLOT(insertPoem()));
+    connect(actionDate, SIGNAL(triggered()), textPage, SLOT(insertDate()));
     connect(actionBody, SIGNAL(triggered()), textPage, SLOT(insertBody()));
 
     connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
