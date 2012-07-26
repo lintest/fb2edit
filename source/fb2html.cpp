@@ -87,7 +87,7 @@ bool FbTextElement::Sublist::operator <(const QWebElement &element) const
 {
     const QString name = element.attribute("class");
     for (TypeList::const_iterator it = m_list.begin(); it != m_list.end(); it++) {
-        if (it->name() == name) return it < m_pos || element.isNull();
+        if (it->name() == name) return m_pos < it  || element.isNull();
     }
     return false;
 }
@@ -96,9 +96,14 @@ bool FbTextElement::Sublist::operator >=(const QWebElement &element) const
 {
     const QString name = element.attribute("class");
     for (TypeList::const_iterator it = m_list.begin(); it != m_list.end(); it++) {
-        if (it->name() == name) return it >= m_pos || element.isNull();
+        if (it->name() == name) return m_pos >= it || element.isNull();
     }
     return false;
+}
+
+bool FbTextElement::Sublist::operator !=(const QWebElement &element) const
+{
+    return element.isNull() || m_pos->name() != element.attribute("class");
 }
 
 //---------------------------------------------------------------------------
@@ -132,6 +137,16 @@ const FbTextElement::TypeList * FbTextElement::subtypes() const
     return scheme[attribute("class").toLower()];
 }
 
+bool FbTextElement::hasSubtype(const QString &style) const
+{
+    if (const TypeList * list = subtypes()) {
+        for (TypeList::const_iterator item = list->begin(); item != list->end(); item++) {
+            if (item->name() == style) return true;
+        }
+    }
+    return false;
+}
+
 FbTextElement::TypeList::const_iterator FbTextElement::subtype(const TypeList &list, const QString &style)
 {
     for (TypeList::const_iterator item = list.begin(); item != list.end(); item++) {
@@ -156,7 +171,7 @@ FbTextElement FbTextElement::insertInside(const QString &style, const QString &h
 
     while (!child.isNull()) {
         FbTextElement subling = child.nextSibling();
-        if (sublist >= child && sublist < subling) {
+        if (sublist >= child && sublist != subling) {
             child.appendOutside(html);
             return child.nextSibling();
         }

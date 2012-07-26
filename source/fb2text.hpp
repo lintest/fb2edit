@@ -74,10 +74,14 @@ public:
 public slots:
     void insertBody();
     void insertTitle();
+    void insertAnnot();
+    void insertAuthor();
+    void insertEpigraph();
     void insertSubtitle();
     void insertSection();
     void insertPoem();
     void insertStanza();
+    void insertDate();
 
 protected:
     virtual bool acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type);

@@ -48,6 +48,7 @@ private:
         bool operator !() const;
         bool operator <(const QWebElement &element) const;
         bool operator >=(const QWebElement &element) const;
+        bool operator !=(const QWebElement &element) const;
     private:
         const TypeList &m_list;
         TypeList::const_iterator m_pos;
@@ -59,6 +60,7 @@ public:
     FbTextElement &operator=(const QWebElement &x) { QWebElement::operator=(x); return *this; }
     FbTextElement insertInside(const QString &style, const QString &html);
     void getChildren(FbElementList &list);
+    bool hasSubtype(const QString &style) const;
     bool hasScheme() const;
     QString location();
 

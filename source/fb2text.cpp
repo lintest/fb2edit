@@ -237,6 +237,34 @@ void FbTextPage::insertStanza()
     }
 }
 
+void FbTextPage::insertAnnot()
+{
+}
+
+void FbTextPage::insertAuthor()
+{
+}
+
+void FbTextPage::insertEpigraph()
+{
+    const QString type = "epigraph";
+    FbTextElement element = current();
+    while (!element.isNull()) {
+        if (element.hasSubtype(type)) {
+            QString html = div("epigraph", p());
+            element = element.insertInside(type, html);
+            QUndoCommand * command = new FbInsertCmd(element);
+            push(command, tr("Insert epigraph"));
+            break;
+        }
+        element = element.parent();
+    }
+}
+
+void FbTextPage::insertDate()
+{
+}
+
 FbTextElement FbTextPage::current()
 {
     return element(location());
@@ -576,7 +604,6 @@ void FbTextEdit::insertNote()
     FbNoteDlg dlg(*this);
     dlg.exec();
 }
-
 
 void FbTextEdit::insertLink()
 {
