@@ -48,6 +48,11 @@ protected:
           m_timer.start();
      }
 
+     void keyPressEvent(QKeyEvent *event) {
+         if (event->key() == Qt::Key_Escape) return;
+         QWebView::keyPressEvent(event);
+     }
+
 private:
     QTimer m_timer;
     QSize m_size;
