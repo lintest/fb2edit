@@ -12,50 +12,37 @@
 #include "fb2head.hpp"
 #include "fb2utils.h"
 
-FbMainWindow::FbMainWindow()
-{
-    init();
-    setCurrentFile();
-    viewText();
-    textFrame->view.load(":blank.fb2");
-}
-
 FbMainWindow::FbMainWindow(const QString &filename, ViewMode mode)
-{
-    init();
-    setCurrentFile(filename);
-    if (mode == FB2) {
-        viewText();
-        textFrame->view.load(filename);
-    } else {
-        viewCode();
-        loadXML(filename);
-    }
-}
-
-void FbMainWindow::init()
+    : QMainWindow()
+    , textFrame(0)
+    , codeEdit(0)
+    , headTree(0)
+    , noteEdit(0)
+    , toolEdit(0)
+    , dockTree(0)
+    , inspector(0)
+    , messageEdit(0)
+    , isSwitched(false)
+    , isUntitled(true)
 {
     connect(qApp, SIGNAL(logMessage(QString)), SLOT(logMessage(QString)));
 
+    setUnifiedTitleAndToolBarOnMac(true);
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowIcon(QIcon(":icon.ico"));
 
-    isUntitled = true;
-
     createActions();
     createStatusBar();
-
-    textFrame = NULL;
-    noteEdit = NULL;
-    codeEdit = NULL;
-    headTree = NULL;
-    toolEdit = NULL;
-    dockTree = NULL;
-    messageEdit = NULL;
-
     readSettings();
 
-    setUnifiedTitleAndToolBarOnMac(true);
+    setCurrentFile(filename);
+    if (mode == FB2) {
+        viewText();
+        textFrame->view.load(filename.isEmpty() ? ":blank.fb2" : filename);
+    } else {
+        viewCode();
+        if (!filename.isEmpty()) loadXML(filename);
+    }
 }
 
 void FbMainWindow::logMessage(const QString &message)
@@ -178,24 +165,22 @@ void FbMainWindow::about()
 
 void FbMainWindow::documentWasModified()
 {
-    bool modified = false;
-    if (codeEdit) modified = codeEdit->isModified();
+    setModified(isSwitched || codeEdit->isModified());
+}
+
+void FbMainWindow::cleanChanged(bool clean)
+{
+    setModified(isSwitched || !clean);
+}
+
+void FbMainWindow::setModified(bool modified)
+{
     QFileInfo info = windowFilePath();
     QString title = info.fileName();
     if (modified) title += QString("[*]");
     title += appTitle();
     setWindowTitle(title);
     setWindowModified(modified);
-}
-
-void FbMainWindow::cleanChanged(bool clean)
-{
-    QFileInfo info = windowFilePath();
-    QString title = info.fileName();
-    if (!clean) title += QString("[*]");
-    title += appTitle();
-    setWindowTitle(title);
-    setWindowModified(!clean);
 }
 
 void FbMainWindow::createActions()
@@ -551,41 +536,33 @@ bool FbMainWindow::saveFile(const QString &fileName, const QString &codec)
     }
 
     if (textFrame) {
+        isSwitched = false;
         textFrame->view.save(&file, codec);
         setCurrentFile(fileName);
+        return true;
     }
-    return true;
 
-/*
-    QTextStream out(&file);
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    out << textFrame->view.toPlainText();
-    QApplication::restoreOverrideCursor();
+    if (codeEdit) {
+        QTextStream out(&file);
+        out << codeEdit->toPlainText();
+        setCurrentFile(fileName);
+        return true;
+    }
 
-    setCurrentFile(fileName);
-    statusBar()->showMessage(tr("File saved"), 2000);
-*/
+    return false;
 }
 
 void FbMainWindow::setCurrentFile(const QString &filename)
 {
-    static int sequenceNumber = 1;
-
-    QString title;
-    isUntitled = filename.isEmpty();
-    if (isUntitled) {
+    if (filename.isEmpty()) {
+        static int sequenceNumber = 1;
         curFile = QString("book%1.fb2").arg(sequenceNumber++);
-        title = curFile;
     } else {
         QFileInfo info = filename;
         curFile = info.canonicalFilePath();
-        title = info.fileName();
     }
-    title += appTitle();
-
-    setWindowModified(false);
     setWindowFilePath(curFile);
-    setWindowTitle(title);
+    setModified(false);
 }
 
 QString FbMainWindow::appTitle() const
@@ -620,6 +597,7 @@ void FbMainWindow::viewCode()
     QByteArray xml;
     if (textFrame) {
         textFrame->view.save(&xml);
+        isSwitched = true;
         load = true;
     }
 
@@ -672,8 +650,15 @@ void FbMainWindow::viewCode()
 void FbMainWindow::viewText()
 {
     if (textFrame && centralWidget() == textFrame) return;
+
+    bool load = false;
     QString xml;
-    if (codeEdit) xml = codeEdit->text();
+    if (codeEdit) {
+        xml = codeEdit->text();
+        isSwitched = true;
+        load = true;
+    }
+
     FB2DELETE(codeEdit);
     FB2DELETE(headTree);
     if (!textFrame) {
@@ -727,7 +712,7 @@ void FbMainWindow::viewText()
     connect(actionZoomReset, SIGNAL(triggered()), textEdit, SLOT(zoomReset()));
     connect(actionInspect, SIGNAL(triggered()), textFrame, SLOT(showInspector()));
 
-    if (!xml.isEmpty()) textFrame->view.load(curFile, xml);
+    if (load) textFrame->view.load(curFile, xml);
 
     FB2DELETE(toolEdit);
     QToolBar *tool = toolEdit = addToolBar(tr("Edit"));
