@@ -10,6 +10,7 @@
 #include <QBoxLayout>
 #include <QDockWidget>
 #include <QFileDialog>
+#include <QInputDialog>
 #include <QMainWindow>
 #include <QNetworkRequest>
 #include <QStyle>
@@ -607,6 +608,9 @@ void FbTextEdit::insertNote()
 
 void FbTextEdit::insertLink()
 {
+    bool ok;
+    QString text = QInputDialog::getText(this, tr("Insert hyperlink"), tr("URL:"), QLineEdit::Normal, QString(), &ok);
+    if (ok && !text.isEmpty()) execCommand("CreateLink", text);
 }
 
 void FbTextEdit::execCommand(const QString &cmd, const QString &arg)
