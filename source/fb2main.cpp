@@ -382,10 +382,6 @@ void FbMainWindow::createActions()
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextSub = act = new QAction(FbIcon("format-text-subscript"), tr("Su&bscript"), this);
-    act->setCheckable(true);
-    menu->addAction(act);
-
     actionTextCode = act = new QAction(tr("&Code"), this);
     act->setCheckable(true);
     menu->addAction(act);
