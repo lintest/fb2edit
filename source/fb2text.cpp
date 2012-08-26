@@ -10,6 +10,7 @@
 #include <QBoxLayout>
 #include <QDockWidget>
 #include <QFileDialog>
+#include <QInputDialog>
 #include <QMainWindow>
 #include <QNetworkRequest>
 #include <QStyle>
@@ -235,6 +236,34 @@ void FbTextPage::insertStanza()
         }
         element = element.parent();
     }
+}
+
+void FbTextPage::insertAnnot()
+{
+}
+
+void FbTextPage::insertAuthor()
+{
+}
+
+void FbTextPage::insertEpigraph()
+{
+    const QString type = "epigraph";
+    FbTextElement element = current();
+    while (!element.isNull()) {
+        if (element.hasSubtype(type)) {
+            QString html = div("epigraph", p());
+            element = element.insertInside(type, html);
+            QUndoCommand * command = new FbInsertCmd(element);
+            push(command, tr("Insert epigraph"));
+            break;
+        }
+        element = element.parent();
+    }
+}
+
+void FbTextPage::insertDate()
+{
 }
 
 FbTextElement FbTextPage::current()
@@ -577,9 +606,11 @@ void FbTextEdit::insertNote()
     dlg.exec();
 }
 
-
 void FbTextEdit::insertLink()
 {
+    bool ok;
+    QString text = QInputDialog::getText(this, tr("Insert hyperlink"), tr("URL:"), QLineEdit::Normal, QString(), &ok);
+    if (ok && !text.isEmpty()) execCommand("CreateLink", text);
 }
 
 void FbTextEdit::execCommand(const QString &cmd, const QString &arg)

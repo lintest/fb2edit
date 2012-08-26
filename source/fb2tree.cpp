@@ -552,6 +552,14 @@ void FbTreeView::contextMenu(const QPoint &pos)
         if (!e.hasChild("date")) menu.addAction(actionDate);
     }
 
+    if (e.isDiv("stanza")) {
+        if (!e.hasChild("title")) menu.addAction(actionTitle);
+    }
+
+    if (e.isDiv("epigraph")) {
+        menu.addAction(actionAuthor);
+    }
+
     if (e.isDiv("cite")) {
         menu.addAction(actionAuthor);
     }

@@ -48,6 +48,11 @@ protected:
           m_timer.start();
      }
 
+     void keyPressEvent(QKeyEvent *event) {
+         if (event->key() == Qt::Key_Escape) return;
+         QWebView::keyPressEvent(event);
+     }
+
 private:
     QTimer m_timer;
     QSize m_size;
@@ -74,10 +79,14 @@ public:
 public slots:
     void insertBody();
     void insertTitle();
+    void insertAnnot();
+    void insertAuthor();
+    void insertEpigraph();
     void insertSubtitle();
     void insertSection();
     void insertPoem();
     void insertStanza();
+    void insertDate();
 
 protected:
     virtual bool acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type);

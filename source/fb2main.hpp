@@ -26,8 +26,7 @@ class FbMainWindow : public QMainWindow
 
 public:
     enum ViewMode { FB2, XML };
-    explicit FbMainWindow();
-    explicit FbMainWindow(const QString &filename, ViewMode mode = FB2);
+    explicit FbMainWindow(const QString &filename = QString(), ViewMode mode = FB2);
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -67,29 +66,29 @@ private:
     QString appTitle() const;
 
 private:
-    void init();
     void createHead();
     void createTree();
     void createActions();
     void createStatusBar();
     void readSettings();
     void writeSettings();
+    void setModified(bool modified);
     bool maybeSave();
     bool saveFile(const QString &fileName, const QString &codec = QString());
     void setCurrentFile(const QString &fileName = QString());
     FbMainWindow *findFbMainWindow(const QString &fileName);
 
     FbTextFrame *textFrame;
-    QWebInspector *inspector;
+    FbCodeEdit *codeEdit;
     FbHeadView *headTree;
     QTextEdit *noteEdit;
-    QTextEdit *messageEdit;
+    QToolBar *toolEdit;
     QDockWidget *dockTree;
-    FbCodeEdit *codeEdit;
+    QWebInspector *inspector;
+    QTextEdit *messageEdit;
     QString curFile;
     bool isUntitled;
-
-    QToolBar *toolEdit;
+    bool isSwitched;
 
     QMenu
         *menuEdit,
@@ -114,8 +113,9 @@ private:
         *actionTitle,
         *actionEpigraph,
         *actionSubtitle,
-        *actionDescr,
+        *actionAnnot,
         *actionPoem,
+        *actionDate,
         *actionStanza,
         *actionAuthor,
         *actionSection,

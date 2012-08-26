@@ -12,11 +12,56 @@ typedef QList<FbTextElement> FbElementList;
 
 class FbTextElement : public QWebElement
 {
+private:
+    class Type
+    {
+    public:
+        Type(const QString &name = QString(), int min=0, int max=1): m_name(name), m_min(min), m_max(max) {}
+        Type(const Type &t): m_name(t.m_name), m_min(t.m_min), m_max(t.m_max) {}
+        const QString & name() const { return m_name; }
+        int min() { return m_min; }
+        int max() { return m_max; }
+    private:
+        const QString m_name;
+        const int m_min;
+        const int m_max;
+    };
+
+    typedef QList<Type> TypeList;
+
+    typedef QMap<QString, TypeList> TypeMap;
+
+    class Scheme
+    {
+    public:
+        explicit Scheme();
+        const TypeList * operator[](const QString &name) const;
+    private:
+        TypeMap m_types;
+    };
+
+    class Sublist
+    {
+    public:
+        Sublist(const TypeList &list, const QString &name);
+        operator bool() const;
+        bool operator !() const;
+        bool operator <(const QWebElement &element) const;
+        bool operator >=(const QWebElement &element) const;
+        bool operator !=(const QWebElement &element) const;
+    private:
+        const TypeList &m_list;
+        TypeList::const_iterator m_pos;
+    };
+
 public:
     FbTextElement() {}
     FbTextElement(const QWebElement &x) : QWebElement(x) {}
     FbTextElement &operator=(const QWebElement &x) { QWebElement::operator=(x); return *this; }
+    FbTextElement insertInside(const QString &style, const QString &html);
     void getChildren(FbElementList &list);
+    bool hasSubtype(const QString &style) const;
+    bool hasScheme() const;
     QString location();
 
 public:
@@ -40,6 +85,9 @@ public:
 public:
     void select();
 
+private:
+    const TypeList *subtypes() const;
+    TypeList::const_iterator subtype(const TypeList &list, const QString &style);
 };
 
 class FbInsertCmd : public QUndoCommand
