@@ -87,8 +87,8 @@ private:
     QWebInspector *inspector;
     QTextEdit *messageEdit;
     QString curFile;
-    bool isUntitled;
     bool isSwitched;
+    bool isUntitled;
 
     QMenu
         *menuEdit,
