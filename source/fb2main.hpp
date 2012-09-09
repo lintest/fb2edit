@@ -2,10 +2,10 @@
 #define FB2MAIN_H
 
 #include <QMainWindow>
+#include <QDockWidget>
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QDockWidget;
 class QFile;
 class QMenu;
 class QModelIndex;
@@ -19,6 +19,13 @@ class FbTreeView;
 class FbHeadView;
 class FbTextFrame;
 class FbTextEdit;
+
+class FbDockWidget : public QDockWidget
+{
+    Q_OBJECT
+public:
+    explicit FbDockWidget(const QString &title, QWidget *parent = 0, Qt::WindowFlags flags = 0);
+};
 
 class FbMainWindow : public QMainWindow
 {
@@ -44,12 +51,14 @@ private slots:
     void documentWasModified();
     void checkScintillaUndo();
     void treeDestroyed();
+    void imgsDestroyed();
     void logDestroyed();
     void logShowed();
     void viewCode();
     void viewText();
     void viewHead();
     void viewTree();
+    void viewImgs();
 
     void cleanChanged(bool clean);
     void canUndoChanged(bool canUndo);
@@ -68,6 +77,7 @@ private:
 private:
     void createHead();
     void createTree();
+    void createImgs();
     void createActions();
     void createStatusBar();
     void readSettings();
@@ -84,6 +94,7 @@ private:
     QTextEdit *noteEdit;
     QToolBar *toolEdit;
     QDockWidget *dockTree;
+    QDockWidget *dockImgs;
     QWebInspector *inspector;
     QTextEdit *messageEdit;
     QString curFile;

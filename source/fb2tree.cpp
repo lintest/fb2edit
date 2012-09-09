@@ -753,7 +753,6 @@ FbTreeWidget::FbTreeWidget(FbTextEdit &view, QWidget* parent)
     QVBoxLayout * layout = new QVBoxLayout(this);
     layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->setObjectName(QString::fromUtf8("verticalLayout"));
 
     m_tree = new FbTreeView(view, this);
     layout->addWidget(m_tree);

@@ -2,11 +2,14 @@
 #define FB2TEMP_H
 
 #include <QByteArray>
+#include <QLabel>
 #include <QList>
+#include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QString>
 #include <QTemporaryFile>
-#include <QNetworkAccessManager>
+#include <QToolBar>
+#include <QListView>
 
 class FbTextEdit;
 
@@ -89,6 +92,19 @@ private:
 private:
     FbTextEdit & m_view;
     QString m_path;
+};
+
+class FbListWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit FbListWidget(FbTextEdit &view, QWidget* parent = 0);
+
+protected:
+    QToolBar * m_tool;
+    QListView * m_list;
+    QLabel * m_label;
 };
 
 #endif // FB2TEMP_H

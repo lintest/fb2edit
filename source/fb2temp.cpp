@@ -4,6 +4,7 @@
 #include <QFileInfo>
 #include <QImageReader>
 #include <QUrl>
+#include <QVBoxLayout>
 #include <QtDebug>
 
 #include "fb2text.hpp"
@@ -204,4 +205,21 @@ QNetworkReply * FbNetworkAccessManager::imageRequest(Operation op, const QNetwor
     QString name = request.url().fragment();
     QByteArray data = m_view.files().data(name);
     return new FbImageReply(op, request, data);
+}
+
+//---------------------------------------------------------------------------
+//  FbListWidget
+//---------------------------------------------------------------------------
+
+FbListWidget::FbListWidget(FbTextEdit &view, QWidget* parent)
+{
+    QVBoxLayout * layout = new QVBoxLayout(this);
+    layout->setSpacing(0);
+    layout->setContentsMargins(0, 0, 0, 0);
+
+    m_list = new QListView(this);
+    layout->addWidget(m_list);
+
+    m_tool = new QToolBar(this);
+    layout->addWidget(m_tool);
 }
