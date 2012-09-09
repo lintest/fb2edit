@@ -428,7 +428,7 @@
     </message>
     <message>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Настройки</translation>
     </message>
     <message>
         <source>&amp;Bold</source>
@@ -497,6 +497,18 @@
     <message>
         <source>&amp;Code</source>
         <translation>&amp;Код</translation>
+    </message>
+    <message>
+        <source>&amp;Date</source>
+        <translation>&amp;Дата</translation>
+    </message>
+    <message>
+        <source>&amp;Pictures</source>
+        <translation>&amp;Иллюстрации</translation>
+    </message>
+    <message>
+        <source>Pictures</source>
+        <translation>Иллюстрации</translation>
     </message>
 </context>
 <context>
@@ -585,6 +597,14 @@
         <source>Insert image...</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Insert hyperlink</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>URL:</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FbTextFrame</name>
@@ -617,6 +637,10 @@
     </message>
     <message>
         <source>Append stanza</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert epigraph</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

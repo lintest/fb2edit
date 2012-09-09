@@ -12,6 +12,21 @@
 #include "fb2head.hpp"
 #include "fb2utils.h"
 
+//---------------------------------------------------------------------------
+//  FbDockWidget
+//---------------------------------------------------------------------------
+
+FbDockWidget::FbDockWidget(const QString &title, QWidget *parent, Qt::WindowFlags flags)
+    : QDockWidget(title, parent, flags)
+{
+    setFeatures(QDockWidget::AllDockWidgetFeatures);
+    setAttribute(Qt::WA_DeleteOnClose);
+}
+
+//---------------------------------------------------------------------------
+//  FbMainWindow
+//---------------------------------------------------------------------------
+
 FbMainWindow::FbMainWindow(const QString &filename, ViewMode mode)
     : QMainWindow()
     , textFrame(0)
@@ -20,6 +35,7 @@ FbMainWindow::FbMainWindow(const QString &filename, ViewMode mode)
     , noteEdit(0)
     , toolEdit(0)
     , dockTree(0)
+    , dockImgs(0)
     , inspector(0)
     , messageEdit(0)
     , isSwitched(false)
@@ -73,6 +89,11 @@ void FbMainWindow::logDestroyed()
 void FbMainWindow::treeDestroyed()
 {
     dockTree = NULL;
+}
+
+void FbMainWindow::imgsDestroyed()
+{
+    dockImgs = NULL;
 }
 
 bool FbMainWindow::loadXML(const QString &filename)
@@ -417,6 +438,10 @@ void FbMainWindow::createActions()
     connect(act, SIGNAL(triggered()), this, SLOT(viewTree()));
     menu->addAction(act);
 
+    act = new QAction(tr("&Pictures"), this);
+    connect(act, SIGNAL(triggered()), this, SLOT(viewImgs()));
+    menu->addAction(act);
+
     actionInspect = act = new QAction(tr("&Web inspector"), this);
     menu->addAction(act);
 
@@ -443,12 +468,20 @@ void FbMainWindow::openSettings()
 void FbMainWindow::createTree()
 {
     if (textFrame && centralWidget() == textFrame) {
-        dockTree = new QDockWidget(tr("Contents"), this);
-        dockTree->setAttribute(Qt::WA_DeleteOnClose);
-        dockTree->setFeatures(QDockWidget::AllDockWidgetFeatures);
+        dockTree = new FbDockWidget(tr("Contents"), this);
         dockTree->setWidget(new FbTreeWidget(textFrame->view, this));
         connect(dockTree, SIGNAL(destroyed()), SLOT(treeDestroyed()));
         addDockWidget(Qt::LeftDockWidgetArea, dockTree);
+    }
+}
+
+void FbMainWindow::createImgs()
+{
+    if (textFrame && centralWidget() == textFrame) {
+        dockImgs = new FbDockWidget(tr("Pictures"), this);
+        dockImgs->setWidget(new FbListWidget(textFrame->view, this));
+        connect(dockImgs, SIGNAL(destroyed()), SLOT(imgsDestroyed()));
+        addDockWidget(Qt::RightDockWidgetArea, dockImgs);
     }
 }
 
@@ -788,6 +821,11 @@ void FbMainWindow::viewHead()
 void FbMainWindow::viewTree()
 {
     if (dockTree) dockTree->deleteLater(); else createTree();
+}
+
+void FbMainWindow::viewImgs()
+{
+    if (dockImgs) dockImgs->deleteLater(); else createImgs();
 }
 
 void FbMainWindow::clipboardDataChanged()
