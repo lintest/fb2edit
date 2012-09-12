@@ -106,7 +106,7 @@ public:
     virtual ~FbTextEdit();
 
     FbTextPage * page();
-    FbTemporaryList & files() { return m_files; }
+    FbNetworkAccessManager & files() { return m_files; }
     void load(const QString &filename, const QString &xml = QString());
     bool save(QIODevice *device, const QString &codec = QString());
     bool save(QByteArray *array);
@@ -126,8 +126,8 @@ protected:
     virtual void mouseMoveEvent(QMouseEvent *event);
 
 public slots:
-    void data(QString name, QByteArray data);
     void html(QString html);
+    void data(QString name, QByteArray data);
     void linkHovered(const QString &link, const QString &title, const QString &textContent);
     void insertImage();
     void insertNote();
@@ -150,7 +150,7 @@ private:
     QWebElement doc();
 
 private:
-    FbTemporaryList m_files;
+    FbNetworkAccessManager m_files;
     FbNoteView *m_noteView;
     QThread *m_thread;
     QPoint m_point;

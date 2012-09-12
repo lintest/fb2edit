@@ -382,11 +382,12 @@ void FbTextBase::addTools(QToolBar *tool)
 
 FbTextEdit::FbTextEdit(QWidget *parent)
     : FbTextBase(parent)
+    , m_files(*this)
     , m_noteView(0)
     , m_thread(0)
 {
     setPage(new FbTextPage(this));
-    page()->setNetworkAccessManager(new FbNetworkAccessManager(*this));
+    page()->setNetworkAccessManager(&m_files);
     page()->setContentEditable(true);
     connect(page(), SIGNAL(contentsChanged()), this, SLOT(fixContents()));
     connect(page(), SIGNAL(linkHovered(QString,QString,QString)), this, SLOT(linkHovered(QString,QString,QString)));
@@ -501,7 +502,7 @@ bool FbTextEdit::save(QString *string)
 
 void FbTextEdit::data(QString name, QByteArray data)
 {
-    m_files.set(name, data);
+    files().data(name, data);
 }
 
 void FbTextEdit::html(QString html)
@@ -596,7 +597,7 @@ void FbTextEdit::insertImage()
     if (!file.open(QIODevice::ReadOnly)) return;
 
     QByteArray data = file.readAll();
-    QString name = m_files.add(path, data);
+    QString name = files().add(path, data);
     execCommand("insertImage", name.prepend("#"));
 }
 

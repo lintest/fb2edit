@@ -632,6 +632,7 @@ void FbMainWindow::viewCode()
 
     FB2DELETE(textFrame);
     FB2DELETE(dockTree);
+    FB2DELETE(dockImgs);
     FB2DELETE(headTree);
 
     if (!codeEdit) {
@@ -774,6 +775,7 @@ void FbMainWindow::viewHead()
     if (codeEdit) xml = codeEdit->text();
 
     FB2DELETE(dockTree);
+    FB2DELETE(dockImgs);
     FB2DELETE(codeEdit);
     FB2DELETE(toolEdit);
 

@@ -1,5 +1,6 @@
 #include "fb2temp.hpp"
 
+#include <QAbstractListModel>
 #include <QCryptographicHash>
 #include <QFileInfo>
 #include <QImageReader>
@@ -192,6 +193,7 @@ FbNetworkAccessManager::FbNetworkAccessManager(FbTextEdit &view)
     : QNetworkAccessManager(&view)
     , m_view(view)
 {
+    QWebSettings::clearMemoryCaches();
 }
 
 QNetworkReply * FbNetworkAccessManager::createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData)
@@ -203,8 +205,84 @@ QNetworkReply * FbNetworkAccessManager::createRequest(Operation op, const QNetwo
 QNetworkReply * FbNetworkAccessManager::imageRequest(Operation op, const QNetworkRequest &request)
 {
     QString name = request.url().fragment();
-    QByteArray data = m_view.files().data(name);
+    QByteArray data = m_files.data(name);
     return new FbImageReply(op, request, data);
+}
+
+QString FbNetworkAccessManager::name(int index) const
+{
+    if (0 <= index && index < count()) {
+        return m_files[index]->name();
+    }
+    return QString();
+}
+
+QByteArray FbNetworkAccessManager::data(int index) const
+{
+    if (0 <= index && index < count()) {
+        return m_files[index]->data();
+    }
+    return QByteArray();
+}
+
+void FbNetworkAccessManager::data(QString name, QByteArray data)
+{
+    m_files.set(name, data);
+}
+
+//---------------------------------------------------------------------------
+//  FbListModel
+//---------------------------------------------------------------------------
+
+FbListModel::FbListModel(FbNetworkAccessManager &files, QObject *parent)
+    : QAbstractListModel(parent)
+    , m_files(files)
+{
+}
+
+int FbListModel::rowCount(const QModelIndex &parent) const
+{
+    if (parent.isValid()) return 0;
+    return m_files.count();
+}
+
+QVariant FbListModel::data(const QModelIndex &index, int role) const
+{
+    if (index.isValid()) {
+        switch (role) {
+            case Qt::DisplayRole: return m_files.name(index.row());
+        }
+    }
+    return QVariant();
+}
+
+//---------------------------------------------------------------------------
+//  FbListView
+//---------------------------------------------------------------------------
+
+#include <QSplitter>
+#include <QScrollArea>
+
+FbListView::FbListView(FbNetworkAccessManager &files, QWidget *parent)
+    : QListView(parent)
+    , m_files(files)
+{
+    m_label = new QLabel(this);
+    m_label->setScaledContents(true);
+}
+
+void FbListView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+    QListView::currentChanged(current, previous);
+
+    int row = current.row();
+    if (0 <= row && row < m_files.count()) {
+        QByteArray data = m_files.data(row);
+        QPixmap pixmap;
+        pixmap.loadFromData(data);
+        m_label->setPixmap(pixmap);
+        m_label->resize(pixmap.size());
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -212,14 +290,34 @@ QNetworkReply * FbNetworkAccessManager::imageRequest(Operation op, const QNetwor
 //---------------------------------------------------------------------------
 
 FbListWidget::FbListWidget(FbTextEdit &view, QWidget* parent)
+    : QWidget(parent)
+    , m_view(view)
 {
-    QVBoxLayout * layout = new QVBoxLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
 
-    m_list = new QListView(this);
-    layout->addWidget(m_list);
+    QSplitter *splitter = new QSplitter(Qt::Vertical, this);
 
-    m_tool = new QToolBar(this);
-    layout->addWidget(m_tool);
+    m_list = new FbListView(view.files(), splitter);
+    splitter->addWidget(m_list);
+
+    QScrollArea * scroll = new QScrollArea(splitter);
+    scroll->setWidget(m_list->label());
+    splitter->addWidget(scroll);
+
+    splitter->setSizes(QList<int>() << 1 << 1);
+    layout->addWidget(splitter);
+
+    connect(&m_view, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
+    loadFinished(true);
+
+//    m_tool = new QToolBar(this);
+//    layout->addWidget(m_tool);
+}
+
+void FbListWidget::loadFinished(bool ok)
+{
+    m_list->setModel(new FbListModel(m_view.files(), this));
+    m_list->reset();
 }

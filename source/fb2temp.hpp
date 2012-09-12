@@ -80,8 +80,21 @@ private:
 class FbNetworkAccessManager : public QNetworkAccessManager
 {
     Q_OBJECT
+
 public:
     explicit FbNetworkAccessManager(FbTextEdit &view);
+    FbTemporaryList & files() { return m_files; }
+
+public slots:
+    void data(QString name, QByteArray data);
+
+public:
+    QString add(const QString &path, const QByteArray &data) { return m_files.add(path, data); }
+    bool exists(const QString &name) const { return m_files.exists(name); }
+    FbTemporaryFile * get(const QString &name) const { return m_files.get(name); }
+    int count() const { return m_files.count(); }
+    QByteArray data(int index) const;
+    QString name(int index) const;
 
 protected:
     virtual QNetworkReply *createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData = 0);
@@ -90,8 +103,37 @@ private:
     QNetworkReply *imageRequest(Operation op, const QNetworkRequest &request);
 
 private:
-    FbTextEdit & m_view;
-    QString m_path;
+    FbTemporaryList m_files;
+    FbTextEdit &m_view;
+};
+
+class FbListModel : public QAbstractListModel
+{
+    Q_OBJECT
+
+public:
+    explicit FbListModel(FbNetworkAccessManager &files, QObject *parent = 0);
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+
+private:
+    FbNetworkAccessManager &m_files;
+};
+
+class FbListView : public QListView
+{
+    Q_OBJECT
+
+public:
+    explicit FbListView(FbNetworkAccessManager &files, QWidget *parent = 0);
+    QLabel *label() { return m_label; }
+
+protected:
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+
+private:
+    FbNetworkAccessManager &m_files;
+    QLabel *m_label;
 };
 
 class FbListWidget : public QWidget
@@ -101,10 +143,13 @@ class FbListWidget : public QWidget
 public:
     explicit FbListWidget(FbTextEdit &view, QWidget* parent = 0);
 
-protected:
-    QToolBar * m_tool;
-    QListView * m_list;
-    QLabel * m_label;
+private slots:
+    void loadFinished(bool ok);
+
+private:
+    FbTextEdit &m_view;
+    FbListView *m_list;
+    QToolBar *m_tool;
 };
 
 #endif // FB2TEMP_H
