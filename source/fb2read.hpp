@@ -9,7 +9,6 @@
 #include <QXmlDefaultHandler>
 
 class FbTextPage;
-class FbNetworkAccessManager;
 
 class FbReadThread : public QThread
 {
@@ -201,7 +200,6 @@ protected:
 
 private:
     void addFile(const QString &name, const QByteArray &data);
-    QString getFile(const QString &name);
 
 private:
     typedef QHash<QString, QString> StringHash;

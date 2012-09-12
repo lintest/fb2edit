@@ -394,12 +394,11 @@ FbTreeView::FbTreeView(FbTextEdit &view, QWidget *parent)
     setHeaderHidden(true);
     setContextMenuPolicy(Qt::CustomContextMenu);
 
+    connect(&m_view, SIGNAL(loadFinished(bool)), SLOT(updateTree()));
+    connect(&m_view, SIGNAL(loadFinished(bool)), SLOT(connectPage()));
     connect(this, SIGNAL(activated(QModelIndex)), SLOT(activated(QModelIndex)));
-    connect(m_view.page(), SIGNAL(loadFinished(bool)), SLOT(updateTree()));
-    connect(m_view.page(), SIGNAL(contentsChanged()), SLOT(contentsChanged()));
-    connect(m_view.page(), SIGNAL(selectionChanged()), SLOT(selectionChanged()));
-    connect(m_view.page()->undoStack(), SIGNAL(indexChanged(int)), SLOT(contentsChanged()));
     connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(contextMenu(QPoint)));
+    connectPage();
 
     m_timerSelect.setInterval(1000);
     m_timerSelect.setSingleShot(true);
@@ -410,6 +409,14 @@ FbTreeView::FbTreeView(FbTextEdit &view, QWidget *parent)
     connect(&m_timerUpdate, SIGNAL(timeout()), SLOT(updateTree()));
 
     QMetaObject::invokeMethod(this, "updateTree", Qt::QueuedConnection);
+}
+
+void FbTreeView::connectPage()
+{
+    QWebPage *page = m_view.page();
+    connect(page, SIGNAL(contentsChanged()), SLOT(contentsChanged()));
+    connect(page, SIGNAL(selectionChanged()), SLOT(selectionChanged()));
+    connect(page->undoStack(), SIGNAL(indexChanged(int)), SLOT(contentsChanged()));
 }
 
 void FbTreeView::initActions(QToolBar *toolbar)

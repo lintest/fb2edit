@@ -48,6 +48,7 @@ private slots:
     bool fileSaveAs();
 
     void about();
+    void loadFinished(bool);
     void documentWasModified();
     void checkScintillaUndo();
     void treeDestroyed();

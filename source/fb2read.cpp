@@ -10,7 +10,6 @@
 
 FbReadThread::FbReadThread(QObject *parent, const QString &filename, const QString &xml)
     : QThread(parent)
-    , m_page(0)
     , m_temp(0)
     , m_filename(filename)
     , m_xml(xml)
@@ -439,14 +438,7 @@ bool FbReadHandler::comment(const QString& ch)
     return true;
 }
 
-QString FbReadHandler::getFile(const QString &name)
-{
-    QString path;
-    QMetaObject::invokeMethod(m_thread.parent(), "temp", Qt::DirectConnection, Q_RETURN_ARG(QString, path), Q_ARG(QString, name));
-    return path;
-}
-
 void FbReadHandler::addFile(const QString &name, const QByteArray &data)
 {
-    QMetaObject::invokeMethod(m_thread.parent(), "data", Qt::QueuedConnection, Q_ARG(QString, name), Q_ARG(QByteArray, data));
+    QMetaObject::invokeMethod(m_temp, "data", Qt::QueuedConnection, Q_ARG(QString, name), Q_ARG(QByteArray, data));
 }

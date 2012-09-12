@@ -83,6 +83,16 @@ FbTextPage::FbTextPage(QObject *parent)
     s->setAttribute(QWebSettings::PluginsEnabled, false);
     s->setAttribute(QWebSettings::ZoomTextOnly, true);
     s->setUserStyleSheetUrl(QUrl::fromLocalFile(":style.css"));
+
+    setContentEditable(true);
+    setNetworkAccessManager(new FbNetworkAccessManager(this));
+    connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished()));
+    connect(this, SIGNAL(contentsChanged()), SLOT(fixContents()));
+}
+
+FbNetworkAccessManager *FbTextPage::temp()
+{
+    return qobject_cast<FbNetworkAccessManager*>(networkAccessManager());
 }
 
 bool FbTextPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type)
@@ -300,6 +310,20 @@ QString FbTextPage::status()
     return mainFrame()->evaluateJavaScript(javascript).toString();
 }
 
+void FbTextPage::loadFinished()
+{
+    FbTextElement element = body().findFirst("div.body");
+    if (element.isNull()) element = body();
+    element.select();
+}
+
+void FbTextPage::fixContents()
+{
+    foreach (QWebElement span, doc().findAll("span.apple-style-span[style]")) {
+        span.removeAttribute("style");
+    }
+}
+
 //---------------------------------------------------------------------------
 //  FbTextBase
 //---------------------------------------------------------------------------
@@ -382,16 +406,10 @@ void FbTextBase::addTools(QToolBar *tool)
 
 FbTextEdit::FbTextEdit(QWidget *parent)
     : FbTextBase(parent)
-    , m_files(this)
     , m_noteView(0)
     , m_thread(0)
 {
     setPage(new FbTextPage(this));
-    page()->setNetworkAccessManager(&m_files);
-    page()->setContentEditable(true);
-    connect(page(), SIGNAL(contentsChanged()), this, SLOT(fixContents()));
-    connect(page(), SIGNAL(linkHovered(QString,QString,QString)), this, SLOT(linkHovered(QString,QString,QString)));
-    connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished()));
 }
 
 FbTextEdit::~FbTextEdit()
@@ -399,9 +417,14 @@ FbTextEdit::~FbTextEdit()
     if (m_noteView) delete m_noteView;
 }
 
-FbTextPage * FbTextEdit::page()
+FbTextPage *FbTextEdit::page()
 {
     return qobject_cast<FbTextPage*>(FbTextBase::page());
+}
+
+FbNetworkAccessManager *FbTextEdit::files()
+{
+    return page()->temp();
 }
 
 FbNoteView & FbTextEdit::noteView()
@@ -423,13 +446,6 @@ QWebElement FbTextEdit::body()
 QWebElement FbTextEdit::doc()
 {
     return page()->mainFrame()->documentElement();
-}
-
-void FbTextEdit::fixContents()
-{
-    foreach (QWebElement span, doc().findAll("span.apple-style-span[style]")) {
-        span.removeAttribute("style");
-    }
 }
 
 void FbTextEdit::mouseMoveEvent(QMouseEvent *event)
@@ -473,11 +489,25 @@ void FbTextEdit::load(const QString &filename, const QString &xml)
     if (m_thread) return;
     m_thread = new FbReadThread(this, filename, xml);
     FbTextPage *page = new FbTextPage(m_thread);
-    FbNetworkAccessManager *temp = new FbNetworkAccessManager(page);
-    page->setNetworkAccessManager(temp);
     m_thread->setPage(page);
-    m_thread->setTemp(temp);
+    m_thread->setTemp(page->temp());
     m_thread->start();
+}
+
+void FbTextEdit::html(QString html)
+{
+    if (!m_thread) return;
+    static int number = 0;
+    QWebSettings::clearMemoryCaches();
+    QUrl url(QString("fb2:/%1/").arg(number++));
+    FbTextPage *page = m_thread->page();
+    setPage(page);
+    page->setParent(this);
+    page->temp()->setPath(url.path());
+    setHtml(html, url);
+    connect(page, SIGNAL(linkHovered(QString,QString,QString)), SLOT(linkHovered(QString,QString,QString)));
+    m_thread->deleteLater();
+    m_thread = 0;
 }
 
 bool FbTextEdit::save(QIODevice *device, const QString &codec)
@@ -507,15 +537,7 @@ bool FbTextEdit::save(QString *string)
 
 void FbTextEdit::data(QString name, QByteArray data)
 {
-    files().data(name, data);
-}
-
-void FbTextEdit::html(QString html)
-{
-    static int number = 0;
-    setHtml(html, QUrl(QString("fb2:/%1/").arg(number++)));
-    if (m_thread) m_thread->deleteLater();
-    m_thread = 0;
+    files()->data(name, data);
 }
 
 void FbTextEdit::zoomIn()
@@ -602,7 +624,7 @@ void FbTextEdit::insertImage()
     if (!file.open(QIODevice::ReadOnly)) return;
 
     QByteArray data = file.readAll();
-    QString name = files().add(path, data);
+    QString name = files()->add(path, data);
     execCommand("insertImage", name.prepend("#"));
 }
 
@@ -623,13 +645,6 @@ void FbTextEdit::execCommand(const QString &cmd, const QString &arg)
 {
     QString javascript = QString("document.execCommand(\"%1\",false,\"%2\")").arg(cmd).arg(arg);
     page()->mainFrame()->evaluateJavaScript(javascript);
-}
-
-void FbTextEdit::loadFinished()
-{
-    FbTextElement element = body().findFirst("div.body");
-    if (element.isNull()) element = body();
-    element.select();
 }
 
 //---------------------------------------------------------------------------

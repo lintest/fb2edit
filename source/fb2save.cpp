@@ -195,7 +195,7 @@ QString FbSaveWriter::getFileName(const QString &path)
 {
     if (path.left(1) == "#") {
         QString name = path.mid(1);
-        if (m_view.files().exists(name)) {
+        if (m_view.files()->exists(name)) {
             m_names.append(name);
             return name;
         }
@@ -204,7 +204,7 @@ QString FbSaveWriter::getFileName(const QString &path)
         QUrl url = path;
         QByteArray data = downloadFile(url);
         if (data.size() == 0) return QString();
-        QString name = m_view.files().add(url.path(), data);
+        QString name = m_view.files()->add(url.path(), data);
         m_names.append(name);
         return name;
     }
@@ -216,7 +216,7 @@ void FbSaveWriter::writeFiles()
     while (it.hasNext()) {
         QString name = it.next();
         if (name.isEmpty()) continue;
-        FbTemporaryFile * file = m_view.files().get(name);
+        FbTemporaryFile * file = m_view.files()->get(name);
         if (!file) continue;
         writeStartElement("binary", 2);
         writeAttribute("id", name);

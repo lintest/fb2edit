@@ -138,10 +138,9 @@ public:
     explicit FbTreeView(FbTextEdit &view, QWidget *parent = 0);
     void initActions(QToolBar *toolbar);
 
-public slots:
-    void updateTree();
-
 private slots:
+    void connectPage();
+    void updateTree();
     void activated(const QModelIndex &index);
     void contextMenu(const QPoint &pos);
     void contentsChanged();

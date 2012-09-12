@@ -198,7 +198,8 @@ FbNetworkAccessManager::FbNetworkAccessManager(QObject *parent)
 QNetworkReply * FbNetworkAccessManager::createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData)
 {
     const QUrl &url = request.url();
-    if (url.scheme() == "fb2" && url.path() == m_path) return imageRequest(op, request);
+    const QString path = url.path();
+    if (url.scheme() == "fb2" && path == m_path) return imageRequest(op, request);
     return QNetworkAccessManager::createRequest(op, request, outgoingData);
 }
 
@@ -299,7 +300,7 @@ FbListWidget::FbListWidget(FbTextEdit &view, QWidget* parent)
 
     QSplitter *splitter = new QSplitter(Qt::Vertical, this);
 
-    m_list = new FbListView(view.files(), splitter);
+    m_list = new FbListView(*view.files(), splitter);
     splitter->addWidget(m_list);
 
     QScrollArea * scroll = new QScrollArea(splitter);
@@ -318,6 +319,6 @@ FbListWidget::FbListWidget(FbTextEdit &view, QWidget* parent)
 
 void FbListWidget::loadFinished(bool ok)
 {
-    m_list->setModel(new FbListModel(m_view.files(), this));
+    m_list->setModel(new FbListModel(*m_view.files(), this));
     m_list->reset();
 }

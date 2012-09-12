@@ -699,6 +699,18 @@ void FbMainWindow::viewText()
     viewTree();
 
     FbTextEdit * textEdit = &textFrame->view;
+
+    connect(textEdit, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
+    connect(textEdit->pageAction(QWebPage::Undo), SIGNAL(changed()), SLOT(undoChanged()));
+    connect(textEdit->pageAction(QWebPage::Redo), SIGNAL(changed()), SLOT(redoChanged()));
+    connect(actionInspect, SIGNAL(triggered()), textFrame, SLOT(showInspector()));
+
+    if (load) textFrame->view.load(curFile, xml);
+}
+
+void FbMainWindow::loadFinished(bool)
+{
+    FbTextEdit * textEdit = &textFrame->view;
     FbTextPage * textPage = textEdit->page();
 
     connect(textPage->undoStack(), SIGNAL(cleanChanged(bool)), SLOT(cleanChanged(bool)));
@@ -706,8 +718,6 @@ void FbMainWindow::viewText()
     connect(textPage->undoStack(), SIGNAL(canRedoChanged(bool)), SLOT(canRedoChanged(bool)));
     connect(textPage, SIGNAL(selectionChanged()), SLOT(selectionChanged()));
 
-    connect(textEdit->pageAction(QWebPage::Undo), SIGNAL(changed()), SLOT(undoChanged()));
-    connect(textEdit->pageAction(QWebPage::Redo), SIGNAL(changed()), SLOT(redoChanged()));
     connect(actionUndo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Undo), SIGNAL(triggered()));
     connect(actionRedo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Redo), SIGNAL(triggered()));
 
@@ -740,9 +750,6 @@ void FbMainWindow::viewText()
     connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
     connect(actionZoomReset, SIGNAL(triggered()), textEdit, SLOT(zoomReset()));
-    connect(actionInspect, SIGNAL(triggered()), textFrame, SLOT(showInspector()));
-
-    if (load) textFrame->view.load(curFile, xml);
 
     FB2DELETE(toolEdit);
     QToolBar *tool = toolEdit = addToolBar(tr("Edit"));

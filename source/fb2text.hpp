@@ -66,6 +66,7 @@ class FbTextPage : public QWebPage
 public:
     explicit FbTextPage(QObject *parent = 0);
 
+    FbNetworkAccessManager *temp();
     void push(QUndoCommand * command, const QString &text = QString());
     FbTextElement element(const QString &location);
     FbTextElement current();
@@ -96,6 +97,10 @@ protected:
     static QString div(const QString &style, const QString &text);
     static QString p(const QString &text = "<br/>");
     void update();
+
+private slots:
+    void loadFinished();
+    void fixContents();
 };
 
 class FbTextEdit : public FbTextBase
@@ -106,8 +111,8 @@ public:
     explicit FbTextEdit(QWidget *parent = 0);
     virtual ~FbTextEdit();
 
-    FbTextPage * page();
-    FbNetworkAccessManager & files() { return m_files; }
+    FbTextPage *page();
+    FbNetworkAccessManager *files();
     void load(const QString &filename, const QString &xml = QString());
     bool save(QIODevice *device, const QString &codec = QString());
     bool save(QByteArray *array);
@@ -129,7 +134,6 @@ protected:
 public slots:
     void html(QString html);
     void data(QString name, QByteArray data);
-    void linkHovered(const QString &link, const QString &title, const QString &textContent);
     void insertImage();
     void insertNote();
     void insertLink();
@@ -139,8 +143,7 @@ public slots:
     void find();
 
 private slots:
-    void fixContents();
-    void loadFinished();
+    void linkHovered(const QString &link, const QString &title, const QString &textContent);
 
 private:
     void execCommand(const QString &cmd, const QString &arg);
@@ -151,7 +154,6 @@ private:
     QWebElement doc();
 
 private:
-    FbNetworkAccessManager m_files;
     FbNoteView *m_noteView;
     FbReadThread *m_thread;
     QPoint m_point;
