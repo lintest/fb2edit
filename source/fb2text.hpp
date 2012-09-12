@@ -18,6 +18,7 @@ class QWebInspector;
 QT_END_NAMESPACE
 
 class FbNoteView;
+class FbReadThread;
 class FbTextElement;
 
 class FbTextBase : public QWebView
@@ -152,7 +153,7 @@ private:
 private:
     FbNetworkAccessManager m_files;
     FbNoteView *m_noteView;
-    QThread *m_thread;
+    FbReadThread *m_thread;
     QPoint m_point;
 };
 

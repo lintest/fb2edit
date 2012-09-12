@@ -10,6 +10,8 @@
 
 FbReadThread::FbReadThread(QObject *parent, const QString &filename, const QString &xml)
     : QThread(parent)
+    , m_page(0)
+    , m_temp(0)
     , m_filename(filename)
     , m_xml(xml)
     , m_abort(false)
@@ -403,6 +405,7 @@ FbReadHandler::FbReadHandler(FbReadThread &thread, QXmlStreamWriter &writer)
     : FbXmlHandler()
     , m_thread(thread)
     , m_writer(writer)
+    , m_temp(thread.temp())
 {
     m_writer.setAutoFormatting(true);
     m_writer.setAutoFormattingIndent(2);

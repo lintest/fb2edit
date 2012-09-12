@@ -82,8 +82,9 @@ class FbNetworkAccessManager : public QNetworkAccessManager
     Q_OBJECT
 
 public:
-    explicit FbNetworkAccessManager(FbTextEdit &view);
+    explicit FbNetworkAccessManager(QObject *parent = 0);
     FbTemporaryList & files() { return m_files; }
+    void setPath(const QString &path) { m_path = path; }
 
 public slots:
     void data(QString name, QByteArray data);
@@ -104,7 +105,7 @@ private:
 
 private:
     FbTemporaryList m_files;
-    FbTextEdit &m_view;
+    QString m_path;
 };
 
 class FbListModel : public QAbstractListModel

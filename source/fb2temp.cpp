@@ -189,16 +189,16 @@ qint64 FbImageReply::readData(char *data, qint64 maxSize)
 //    http://doc.trolltech.com/qq/32/qq32-webkit-protocols.html
 //---------------------------------------------------------------------------
 
-FbNetworkAccessManager::FbNetworkAccessManager(FbTextEdit &view)
-    : QNetworkAccessManager(&view)
-    , m_view(view)
+FbNetworkAccessManager::FbNetworkAccessManager(QObject *parent)
+    : QNetworkAccessManager(parent)
 {
-    QWebSettings::clearMemoryCaches();
+//    QWebSettings::clearMemoryCaches();
 }
 
 QNetworkReply * FbNetworkAccessManager::createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData)
 {
-    if (request.url().scheme() == "fb2" && request.url().path() == m_view.url().path()) return imageRequest(op, request);
+    const QUrl &url = request.url();
+    if (url.scheme() == "fb2" && url.path() == m_path) return imageRequest(op, request);
     return QNetworkAccessManager::createRequest(op, request, outgoingData);
 }
 

@@ -8,12 +8,21 @@
 #include <QThread>
 #include <QXmlDefaultHandler>
 
+class FbTextPage;
+class FbNetworkAccessManager;
+
 class FbReadThread : public QThread
 {
     Q_OBJECT
 public:
     FbReadThread(QObject *parent, const QString &filename, const QString &xml = QString());
     ~FbReadThread();
+
+public:
+    void setPage(FbTextPage *page) { m_page = page; }
+    void setTemp(QObject *temp) { m_temp = temp; }
+    FbTextPage * page() const { return m_page; }
+    QObject * temp() const { return m_temp; }
     QString * data() { return &m_html; }
 
 signals:
@@ -29,6 +38,8 @@ private:
     bool parse();
 
 private:
+    FbTextPage *m_page;
+    QObject *m_temp;
     const QString m_filename;
     const QString m_xml;
     QString m_html;
@@ -196,6 +207,7 @@ private:
     typedef QHash<QString, QString> StringHash;
     FbReadThread &m_thread;
     QXmlStreamWriter &m_writer;
+    QObject *m_temp;
     StringHash m_hash;
 };
 

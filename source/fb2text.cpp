@@ -382,7 +382,7 @@ void FbTextBase::addTools(QToolBar *tool)
 
 FbTextEdit::FbTextEdit(QWidget *parent)
     : FbTextBase(parent)
-    , m_files(*this)
+    , m_files(this)
     , m_noteView(0)
     , m_thread(0)
 {
@@ -472,6 +472,11 @@ void FbTextEdit::load(const QString &filename, const QString &xml)
 {
     if (m_thread) return;
     m_thread = new FbReadThread(this, filename, xml);
+    FbTextPage *page = new FbTextPage(m_thread);
+    FbNetworkAccessManager *temp = new FbNetworkAccessManager(page);
+    page->setNetworkAccessManager(temp);
+    m_thread->setPage(page);
+    m_thread->setTemp(temp);
     m_thread->start();
 }
 
