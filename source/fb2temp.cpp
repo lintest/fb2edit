@@ -277,13 +277,17 @@ void FbListView::currentChanged(const QModelIndex &current, const QModelIndex &p
     QListView::currentChanged(current, previous);
 
     int row = current.row();
-    if (0 <= row && row < m_files.count()) {
-        QByteArray data = m_files.data(row);
+    if (0 <= row && row < model()->temp().count()) {
         QPixmap pixmap;
-        pixmap.loadFromData(data);
+        pixmap.loadFromData(model()->temp().data(row));
         m_label->setPixmap(pixmap);
         m_label->resize(pixmap.size());
     }
+}
+
+FbListModel * FbListView::model() const
+{
+    return qobject_cast<FbListModel*>(QListView::model());
 }
 
 //---------------------------------------------------------------------------

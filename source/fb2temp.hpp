@@ -116,6 +116,7 @@ public:
     explicit FbListModel(FbNetworkAccessManager &files, QObject *parent = 0);
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    FbNetworkAccessManager &temp() { return m_files; }
 
 private:
     FbNetworkAccessManager &m_files;
@@ -128,6 +129,7 @@ class FbListView : public QListView
 public:
     explicit FbListView(FbNetworkAccessManager &files, QWidget *parent = 0);
     QLabel *label() { return m_label; }
+    FbListModel *model() const;
 
 protected:
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);
