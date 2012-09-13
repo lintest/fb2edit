@@ -17,6 +17,7 @@
 FbTemporaryFile::FbTemporaryFile(const QString &name)
     : QTemporaryFile()
     , m_name(name)
+    , m_size(0)
 {
 }
 
@@ -24,10 +25,9 @@ qint64 FbTemporaryFile::write(const QByteArray &data)
 {
     open();
     if (m_hash.isEmpty()) m_hash = md5(data);
-    qint64 size = QTemporaryFile::write(data);
+    m_size = QTemporaryFile::write(data);
     close();
-
-    return size;
+    return m_size;
 }
 
 QString FbTemporaryFile::md5(const QByteArray &data)
@@ -218,6 +218,14 @@ QString FbNetworkAccessManager::name(int index) const
     return QString();
 }
 
+int FbNetworkAccessManager::size(int index) const
+{
+    if (0 <= index && index < count()) {
+        return m_files[index]->size();
+    }
+    return 0;
+}
+
 QByteArray FbNetworkAccessManager::data(int index) const
 {
     if (0 <= index && index < count()) {
@@ -241,17 +249,45 @@ FbListModel::FbListModel(FbNetworkAccessManager &files, QObject *parent)
 {
 }
 
+int FbListModel::columnCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent);
+    return 2;
+}
+
 int FbListModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid()) return 0;
     return m_files.count();
 }
 
+QVariant FbListModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+        switch (section) {
+            case 0: return tr("File name");
+            case 1: return tr("Size");
+        }
+    }
+    return QVariant();
+}
+
 QVariant FbListModel::data(const QModelIndex &index, int role) const
 {
     if (index.isValid()) {
         switch (role) {
-            case Qt::DisplayRole: return m_files.name(index.row());
+            case Qt::DisplayRole: {
+                switch (index.column()) {
+                    case 0: return m_files.name(index.row());
+                    case 1: return m_files.size(index.row());
+                }
+            } break;
+            case Qt::TextAlignmentRole: {
+                switch (index.column()) {
+                    case 0: return Qt::AlignLeft;
+                    case 1: return Qt::AlignRight;
+                }
+            }
         }
     }
     return QVariant();
@@ -265,7 +301,7 @@ QVariant FbListModel::data(const QModelIndex &index, int role) const
 #include <QScrollArea>
 
 FbListView::FbListView(FbNetworkAccessManager &files, QWidget *parent)
-    : QListView(parent)
+    : QTreeView(parent)
     , m_files(files)
 {
     m_label = new QLabel(this);
@@ -274,7 +310,7 @@ FbListView::FbListView(FbNetworkAccessManager &files, QWidget *parent)
 
 void FbListView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
-    QListView::currentChanged(current, previous);
+    QTreeView::currentChanged(current, previous);
 
     int row = current.row();
     if (0 <= row && row < model()->temp().count()) {
@@ -287,7 +323,7 @@ void FbListView::currentChanged(const QModelIndex &current, const QModelIndex &p
 
 FbListModel * FbListView::model() const
 {
-    return qobject_cast<FbListModel*>(QListView::model());
+    return qobject_cast<FbListModel*>(QTreeView::model());
 }
 
 //---------------------------------------------------------------------------

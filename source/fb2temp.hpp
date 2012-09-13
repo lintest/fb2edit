@@ -9,7 +9,7 @@
 #include <QString>
 #include <QTemporaryFile>
 #include <QToolBar>
-#include <QListView>
+#include <QTreeView>
 
 class FbTextEdit;
 
@@ -24,10 +24,12 @@ public:
     void setHash(const QString &hash) { m_hash = hash; }
     const QString & hash() const { return m_hash; }
     const QString & name() const { return m_name; }
+    qint64 size() const { return m_size; }
     QByteArray data();
 private:
     const QString m_name;
     QString m_hash;
+    qint64 m_size;
 };
 
 class FbTemporaryList : public QList<FbTemporaryFile*>
@@ -96,6 +98,7 @@ public:
     int count() const { return m_files.count(); }
     QByteArray data(int index) const;
     QString name(int index) const;
+    int size(int index) const;
 
 protected:
     virtual QNetworkReply *createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData = 0);
@@ -114,15 +117,21 @@ class FbListModel : public QAbstractListModel
 
 public:
     explicit FbListModel(FbNetworkAccessManager &files, QObject *parent = 0);
+
+public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+
+public:
     FbNetworkAccessManager &temp() { return m_files; }
 
 private:
     FbNetworkAccessManager &m_files;
 };
 
-class FbListView : public QListView
+class FbListView : public QTreeView
 {
     Q_OBJECT
 
