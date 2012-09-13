@@ -360,5 +360,6 @@ FbListWidget::FbListWidget(FbTextEdit &view, QWidget* parent)
 void FbListWidget::loadFinished(bool ok)
 {
     m_list->setModel(new FbListModel(*m_view.files(), this));
+    m_list->label()->clear();
     m_list->reset();
 }

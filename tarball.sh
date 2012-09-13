@@ -18,7 +18,7 @@ cp -f ../../LICENSE          .
 cp -f ../../README           .
 cp -f ../../ChangeLog        .
 cp -f ../../CMakeLists.txt   . 
-cp -f ../../fb2edit.pro      .
+cp -f ../../${PROJECT}.pro   .
 cp -f ../../windows.sh       .
 cp -rf ../../3rdparty        .
 cp -rf ../../desktop         .
