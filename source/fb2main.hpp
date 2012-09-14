@@ -38,6 +38,9 @@ public:
 protected:
     void closeEvent(QCloseEvent *event);
 
+signals:
+    void showInspectorChecked(bool);
+
 public slots:
     void logMessage(const QString &message);
 
@@ -48,7 +51,7 @@ private slots:
     bool fileSaveAs();
 
     void about();
-    void loadFinished(bool);
+    void createTextToolbar();
     void documentWasModified();
     void checkScintillaUndo();
     void treeDestroyed();
@@ -137,6 +140,8 @@ private:
         *actionTextCode,
         *actionTextSub,
         *actionTextSup,
+        *actionContents,
+        *actionPictures,
         *actionInspect,
         *actionZoomIn,
         *actionZoomOut,

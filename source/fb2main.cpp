@@ -88,11 +88,13 @@ void FbMainWindow::logDestroyed()
 
 void FbMainWindow::treeDestroyed()
 {
+    actionContents->setChecked(false);
     dockTree = NULL;
 }
 
 void FbMainWindow::imgsDestroyed()
 {
+    actionPictures->setChecked(false);
     dockImgs = NULL;
 }
 
@@ -434,15 +436,19 @@ void FbMainWindow::createActions()
 
     menu->addSeparator();
 
-    act = new QAction(tr("&Contents"), this);
+    actionContents = act = new QAction(tr("&Contents"), this);
+    act->setCheckable(true);
     connect(act, SIGNAL(triggered()), this, SLOT(viewTree()));
     menu->addAction(act);
 
-    act = new QAction(tr("&Pictures"), this);
+    actionPictures = act = new QAction(tr("&Pictures"), this);
+    act->setCheckable(true);
     connect(act, SIGNAL(triggered()), this, SLOT(viewImgs()));
     menu->addAction(act);
 
     actionInspect = act = new QAction(tr("&Web inspector"), this);
+    act->setCheckable(true);
+    connect(this, SIGNAL(showInspectorChecked(bool)), actionInspect, SLOT(setChecked(bool)));
     menu->addAction(act);
 
     menuBar()->addSeparator();
@@ -470,6 +476,7 @@ void FbMainWindow::createTree()
     if (textFrame && centralWidget() == textFrame) {
         dockTree = new FbDockWidget(tr("Contents"), this);
         dockTree->setWidget(new FbTreeWidget(textFrame->view(), this));
+        connect(dockTree, SIGNAL(visibilityChanged(bool)), actionContents, SLOT(setChecked(bool)));
         connect(dockTree, SIGNAL(destroyed()), SLOT(treeDestroyed()));
         addDockWidget(Qt::LeftDockWidgetArea, dockTree);
     }
@@ -480,6 +487,7 @@ void FbMainWindow::createImgs()
     if (textFrame && centralWidget() == textFrame) {
         dockImgs = new FbDockWidget(tr("Pictures"), this);
         dockImgs->setWidget(new FbListWidget(textFrame->view(), this));
+        connect(dockImgs, SIGNAL(visibilityChanged(bool)), actionPictures, SLOT(setChecked(bool)));
         connect(dockImgs, SIGNAL(destroyed()), SLOT(imgsDestroyed()));
         addDockWidget(Qt::RightDockWidgetArea, dockImgs);
     }
@@ -618,6 +626,161 @@ void FbMainWindow::checkScintillaUndo()
     actionRedo->setEnabled(codeEdit->isRedoAvailable());
 }
 
+void FbMainWindow::createTextToolbar()
+{
+    FbTextEdit * textEdit = textFrame->view();
+    FbTextPage * textPage = textEdit->page();
+
+    connect(textPage->undoStack(), SIGNAL(cleanChanged(bool)), SLOT(cleanChanged(bool)));
+    connect(textPage->undoStack(), SIGNAL(canUndoChanged(bool)), SLOT(canUndoChanged(bool)));
+    connect(textPage->undoStack(), SIGNAL(canRedoChanged(bool)), SLOT(canRedoChanged(bool)));
+    connect(textPage, SIGNAL(selectionChanged()), SLOT(selectionChanged()));
+
+    connect(actionUndo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Undo), SIGNAL(triggered()));
+    connect(actionRedo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Redo), SIGNAL(triggered()));
+
+    connect(actionCut, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Cut), SIGNAL(triggered()));
+    connect(actionCopy, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Copy), SIGNAL(triggered()));
+    connect(actionPaste, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Paste), SIGNAL(triggered()));
+
+    connect(actionTextBold, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleBold), SIGNAL(triggered()));
+    connect(actionTextItalic, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleItalic), SIGNAL(triggered()));
+    connect(actionTextStrike, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleStrikethrough), SIGNAL(triggered()));
+    connect(actionTextSub, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSubscript), SIGNAL(triggered()));
+    connect(actionTextSup, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSuperscript), SIGNAL(triggered()));
+
+    connect(actionFind, SIGNAL(triggered()), textEdit, SLOT(find()));
+    connect(actionImage, SIGNAL(triggered()), textEdit, SLOT(insertImage()));
+    connect(actionNote, SIGNAL(triggered()), textEdit, SLOT(insertNote()));
+    connect(actionLink, SIGNAL(triggered()), textEdit, SLOT(insertLink()));
+
+    connect(actionTitle, SIGNAL(triggered()), textPage, SLOT(insertTitle()));
+    connect(actionAnnot, SIGNAL(triggered()), textPage, SLOT(insertAnnot()));
+    connect(actionAuthor, SIGNAL(triggered()), textPage, SLOT(insertAuthor()));
+    connect(actionEpigraph, SIGNAL(triggered()), textPage, SLOT(insertEpigraph()));
+    connect(actionSubtitle, SIGNAL(triggered()), textPage, SLOT(insertSubtitle()));
+    connect(actionSection, SIGNAL(triggered()), textPage, SLOT(insertSection()));
+    connect(actionStanza, SIGNAL(triggered()), textPage, SLOT(insertStanza()));
+    connect(actionPoem, SIGNAL(triggered()), textPage, SLOT(insertPoem()));
+    connect(actionDate, SIGNAL(triggered()), textPage, SLOT(insertDate()));
+    connect(actionBody, SIGNAL(triggered()), textPage, SLOT(insertBody()));
+
+    connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
+    connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
+    connect(actionZoomReset, SIGNAL(triggered()), textEdit, SLOT(zoomReset()));
+
+    FB2DELETE(toolEdit);
+    QToolBar *tool = toolEdit = addToolBar(tr("Edit"));
+    tool->setMovable(false);
+    tool->addSeparator();
+
+    textEdit->addTools(tool);
+
+    tool->addSeparator();
+
+    tool->addAction(actionImage);
+    tool->addAction(actionNote);
+    tool->addAction(actionLink);
+    tool->addAction(actionSection);
+}
+
+void FbMainWindow::viewText()
+{
+    if (textFrame && centralWidget() == textFrame) return;
+
+    if (textFrame) textFrame->hideInspector();
+
+    bool load = false;
+    QString xml;
+    if (codeEdit) {
+        xml = codeEdit->text();
+        isSwitched = true;
+        load = true;
+    }
+
+    FB2DELETE(codeEdit);
+    FB2DELETE(headTree);
+    if (textFrame) {
+        createTextToolbar();
+    } else {
+        textFrame = new FbTextFrame(this, actionInspect);
+    }
+    setCentralWidget(textFrame);
+    textFrame->view()->setFocus();
+    viewTree();
+
+    FbTextEdit *textEdit = textFrame->view();
+
+    connect(textEdit, SIGNAL(loadFinished(bool)), SLOT(createTextToolbar()));
+    connect(textEdit->pageAction(QWebPage::Undo), SIGNAL(changed()), SLOT(undoChanged()));
+    connect(textEdit->pageAction(QWebPage::Redo), SIGNAL(changed()), SLOT(redoChanged()));
+
+    if (load) textFrame->view()->load(curFile, xml);
+
+    actionContents->setEnabled(true);
+    actionPictures->setEnabled(true);
+    actionInspect->setEnabled(true);
+}
+
+void FbMainWindow::viewHead()
+{
+    if (headTree && centralWidget() == headTree) return;
+
+    if (textFrame) textFrame->hideInspector();
+
+    QString xml;
+    if (codeEdit) xml = codeEdit->text();
+
+    FB2DELETE(dockTree);
+    FB2DELETE(dockImgs);
+    FB2DELETE(codeEdit);
+    FB2DELETE(toolEdit);
+
+    if (!textFrame) {
+        textFrame = new FbTextFrame(this, actionInspect);
+    }
+
+    if (!headTree) {
+        headTree = new FbHeadView(textFrame->view(), this);
+        connect(headTree, SIGNAL(status(QString)), this, SLOT(status(QString)));
+    }
+
+    this->setFocus();
+    textFrame->setParent(NULL);
+    setCentralWidget(headTree);
+    textFrame->setParent(this);
+    headTree->updateTree();
+
+    headTree->setFocus();
+
+    if (!xml.isEmpty()) textFrame->view()->load(curFile, xml);
+
+    if (textFrame) {
+        actionUndo->disconnect();
+        actionRedo->disconnect();
+
+        actionCut->disconnect();
+        actionCopy->disconnect();
+        actionPaste->disconnect();
+
+        actionTextBold->disconnect();
+        actionTextItalic->disconnect();
+        actionTextStrike->disconnect();
+        actionTextSub->disconnect();
+        actionTextSup->disconnect();
+    }
+
+    FB2DELETE(toolEdit);
+    toolEdit = addToolBar(tr("Edit"));
+    headTree->initToolbar(*toolEdit);
+    toolEdit->addSeparator();
+    toolEdit->setMovable(false);
+
+    actionContents->setEnabled(false);
+    actionPictures->setEnabled(false);
+    actionInspect->setEnabled(true);
+}
+
 void FbMainWindow::viewCode()
 {
     if (codeEdit && centralWidget() == codeEdit) return;
@@ -675,156 +838,10 @@ void FbMainWindow::viewCode()
     connect(actionZoomIn, SIGNAL(triggered()), codeEdit, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), codeEdit, SLOT(zoomOut()));
     connect(actionZoomReset, SIGNAL(triggered()), codeEdit, SLOT(zoomReset()));
-}
 
-void FbMainWindow::viewText()
-{
-    if (textFrame && centralWidget() == textFrame) return;
-
-    bool load = false;
-    QString xml;
-    if (codeEdit) {
-        xml = codeEdit->text();
-        isSwitched = true;
-        load = true;
-    }
-
-    FB2DELETE(codeEdit);
-    FB2DELETE(headTree);
-    if (!textFrame) {
-        textFrame = new FbTextFrame(this);
-    }
-    setCentralWidget(textFrame);
-    textFrame->view()->setFocus();
-    viewTree();
-
-    FbTextEdit *textEdit = textFrame->view();
-
-    connect(textEdit, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
-    connect(textEdit->pageAction(QWebPage::Undo), SIGNAL(changed()), SLOT(undoChanged()));
-    connect(textEdit->pageAction(QWebPage::Redo), SIGNAL(changed()), SLOT(redoChanged()));
-    connect(actionInspect, SIGNAL(triggered()), textFrame, SLOT(showInspector()));
-
-    if (load) textFrame->view()->load(curFile, xml);
-}
-
-void FbMainWindow::loadFinished(bool)
-{
-    FbTextEdit * textEdit = textFrame->view();
-    FbTextPage * textPage = textEdit->page();
-
-    connect(textPage->undoStack(), SIGNAL(cleanChanged(bool)), SLOT(cleanChanged(bool)));
-    connect(textPage->undoStack(), SIGNAL(canUndoChanged(bool)), SLOT(canUndoChanged(bool)));
-    connect(textPage->undoStack(), SIGNAL(canRedoChanged(bool)), SLOT(canRedoChanged(bool)));
-    connect(textPage, SIGNAL(selectionChanged()), SLOT(selectionChanged()));
-
-    connect(actionUndo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Undo), SIGNAL(triggered()));
-    connect(actionRedo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Redo), SIGNAL(triggered()));
-
-    connect(actionCut, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Cut), SIGNAL(triggered()));
-    connect(actionCopy, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Copy), SIGNAL(triggered()));
-    connect(actionPaste, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Paste), SIGNAL(triggered()));
-
-    connect(actionTextBold, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleBold), SIGNAL(triggered()));
-    connect(actionTextItalic, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleItalic), SIGNAL(triggered()));
-    connect(actionTextStrike, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleStrikethrough), SIGNAL(triggered()));
-    connect(actionTextSub, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSubscript), SIGNAL(triggered()));
-    connect(actionTextSup, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSuperscript), SIGNAL(triggered()));
-
-    connect(actionFind, SIGNAL(triggered()), textEdit, SLOT(find()));
-    connect(actionImage, SIGNAL(triggered()), textEdit, SLOT(insertImage()));
-    connect(actionNote, SIGNAL(triggered()), textEdit, SLOT(insertNote()));
-    connect(actionLink, SIGNAL(triggered()), textEdit, SLOT(insertLink()));
-
-    connect(actionTitle, SIGNAL(triggered()), textPage, SLOT(insertTitle()));
-    connect(actionAnnot, SIGNAL(triggered()), textPage, SLOT(insertAnnot()));
-    connect(actionAuthor, SIGNAL(triggered()), textPage, SLOT(insertAuthor()));
-    connect(actionEpigraph, SIGNAL(triggered()), textPage, SLOT(insertEpigraph()));
-    connect(actionSubtitle, SIGNAL(triggered()), textPage, SLOT(insertSubtitle()));
-    connect(actionSection, SIGNAL(triggered()), textPage, SLOT(insertSection()));
-    connect(actionStanza, SIGNAL(triggered()), textPage, SLOT(insertStanza()));
-    connect(actionPoem, SIGNAL(triggered()), textPage, SLOT(insertPoem()));
-    connect(actionDate, SIGNAL(triggered()), textPage, SLOT(insertDate()));
-    connect(actionBody, SIGNAL(triggered()), textPage, SLOT(insertBody()));
-
-    connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
-    connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
-    connect(actionZoomReset, SIGNAL(triggered()), textEdit, SLOT(zoomReset()));
-
-    FB2DELETE(toolEdit);
-    QToolBar *tool = toolEdit = addToolBar(tr("Edit"));
-    tool->setMovable(false);
-    tool->addSeparator();
-
-    textEdit->addTools(tool);
-
-    tool->addSeparator();
-
-    tool->addAction(actionImage);
-    tool->addAction(actionNote);
-    tool->addAction(actionLink);
-    tool->addAction(actionSection);
-
-    tool->addSeparator();
-
-    tool->addAction(actionZoomIn);
-    tool->addAction(actionZoomOut);
-    tool->addAction(actionZoomReset);
-}
-
-void FbMainWindow::viewHead()
-{
-    if (headTree && centralWidget() == headTree) return;
-
-    if (textFrame) textFrame->hideInspector();
-
-    QString xml;
-    if (codeEdit) xml = codeEdit->text();
-
-    FB2DELETE(dockTree);
-    FB2DELETE(dockImgs);
-    FB2DELETE(codeEdit);
-    FB2DELETE(toolEdit);
-
-    if (!textFrame) {
-        textFrame = new FbTextFrame(this);
-    }
-
-    if (!headTree) {
-        headTree = new FbHeadView(textFrame->view(), this);
-        connect(headTree, SIGNAL(status(QString)), this, SLOT(status(QString)));
-    }
-
-    this->setFocus();
-    textFrame->setParent(NULL);
-    setCentralWidget(headTree);
-    textFrame->setParent(this);
-    headTree->updateTree();
-
-    headTree->setFocus();
-
-    if (!xml.isEmpty()) textFrame->view()->load(curFile, xml);
-
-    if (textFrame) {
-        actionUndo->disconnect();
-        actionRedo->disconnect();
-
-        actionCut->disconnect();
-        actionCopy->disconnect();
-        actionPaste->disconnect();
-
-        actionTextBold->disconnect();
-        actionTextItalic->disconnect();
-        actionTextStrike->disconnect();
-        actionTextSub->disconnect();
-        actionTextSup->disconnect();
-    }
-
-    FB2DELETE(toolEdit);
-    toolEdit = addToolBar(tr("Edit"));
-    headTree->initToolbar(*toolEdit);
-    toolEdit->addSeparator();
-    toolEdit->setMovable(false);
+    actionContents->setEnabled(false);
+    actionPictures->setEnabled(false);
+    actionInspect->setEnabled(false);
 }
 
 void FbMainWindow::viewTree()

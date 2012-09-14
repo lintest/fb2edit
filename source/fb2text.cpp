@@ -651,7 +651,7 @@ void FbTextEdit::execCommand(const QString &cmd, const QString &arg)
 //  FbTextFrame
 //---------------------------------------------------------------------------
 
-FbTextFrame::FbTextFrame(QWidget* parent)
+FbTextFrame::FbTextFrame(QWidget *parent, QAction *action)
     : QFrame(parent)
     , m_view(this)
     , m_dock(0)
@@ -663,6 +663,8 @@ FbTextFrame::FbTextFrame(QWidget* parent)
     layout->setSpacing(0);
     layout->setMargin(0);
     layout->addWidget(&m_view);
+
+    connect(action, SIGNAL(triggered()), SLOT(showInspector()));
 }
 
 FbTextFrame::~FbTextFrame()
@@ -688,6 +690,7 @@ void FbTextFrame::showInspector()
     inspector->setPage(m_view.page());
     m_dock->setWidget(inspector);
 
+    connect(m_dock, SIGNAL(visibilityChanged(bool)), main, SIGNAL(showInspectorChecked(bool)));
     connect(m_dock, SIGNAL(destroyed()), SLOT(dockDestroyed()));
 }
 
