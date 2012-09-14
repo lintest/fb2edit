@@ -197,7 +197,7 @@ class FbTreeWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit FbTreeWidget(FbTextEdit &view, QWidget* parent = 0);
+    explicit FbTreeWidget(FbTextEdit *view, QWidget* parent = 0);
 
 protected:
     QToolBar * m_tool;

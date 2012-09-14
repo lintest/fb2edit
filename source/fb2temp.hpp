@@ -136,7 +136,7 @@ class FbListView : public QTreeView
     Q_OBJECT
 
 public:
-    explicit FbListView(FbNetworkAccessManager &files, QWidget *parent = 0);
+    explicit FbListView(FbNetworkAccessManager *files, QWidget *parent = 0);
     QLabel *label() { return m_label; }
     FbListModel *model() const;
 
@@ -153,7 +153,7 @@ class FbListWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit FbListWidget(FbTextEdit &view, QWidget* parent = 0);
+    explicit FbListWidget(FbTextEdit *view, QWidget* parent = 0);
 
 private slots:
     void loadFinished(bool ok);

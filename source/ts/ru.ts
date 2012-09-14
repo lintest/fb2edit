@@ -188,6 +188,17 @@
     </message>
 </context>
 <context>
+    <name>FbListModel</name>
+    <message>
+        <source>File name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>FbMainWindow</name>
     <message>
         <source>&amp;New</source>

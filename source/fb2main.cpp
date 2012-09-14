@@ -54,7 +54,7 @@ FbMainWindow::FbMainWindow(const QString &filename, ViewMode mode)
     setCurrentFile(filename);
     if (mode == FB2) {
         viewText();
-        textFrame->view.load(filename.isEmpty() ? ":blank.fb2" : filename);
+        textFrame->view()->load(filename.isEmpty() ? ":blank.fb2" : filename);
     } else {
         viewCode();
         if (!filename.isEmpty()) loadXML(filename);
@@ -141,7 +141,7 @@ void FbMainWindow::fileOpen()
     if (textFrame) {
         if (isUntitled && !isWindowModified()) {
             setCurrentFile(filename);
-            textFrame->view.load(filename);
+            textFrame->view()->load(filename);
         } else {
             FbMainWindow * other = new FbMainWindow(filename, FB2);
             other->move(x() + 40, y() + 40);
@@ -469,7 +469,7 @@ void FbMainWindow::createTree()
 {
     if (textFrame && centralWidget() == textFrame) {
         dockTree = new FbDockWidget(tr("Contents"), this);
-        dockTree->setWidget(new FbTreeWidget(textFrame->view, this));
+        dockTree->setWidget(new FbTreeWidget(textFrame->view(), this));
         connect(dockTree, SIGNAL(destroyed()), SLOT(treeDestroyed()));
         addDockWidget(Qt::LeftDockWidgetArea, dockTree);
     }
@@ -479,7 +479,7 @@ void FbMainWindow::createImgs()
 {
     if (textFrame && centralWidget() == textFrame) {
         dockImgs = new FbDockWidget(tr("Pictures"), this);
-        dockImgs->setWidget(new FbListWidget(textFrame->view, this));
+        dockImgs->setWidget(new FbListWidget(textFrame->view(), this));
         connect(dockImgs, SIGNAL(destroyed()), SLOT(imgsDestroyed()));
         addDockWidget(Qt::RightDockWidgetArea, dockImgs);
     }
@@ -487,16 +487,16 @@ void FbMainWindow::createImgs()
 
 void FbMainWindow::selectionChanged()
 {
-    actionCut->setEnabled(textFrame->view.CutEnabled());
-    actionCopy->setEnabled(textFrame->view.CopyEnabled());
+    actionCut->setEnabled(textFrame->view()->CutEnabled());
+    actionCopy->setEnabled(textFrame->view()->CopyEnabled());
 
-    actionTextBold->setChecked(textFrame->view.BoldChecked());
-    actionTextItalic->setChecked(textFrame->view.ItalicChecked());
-    actionTextStrike->setChecked(textFrame->view.StrikeChecked());
-    actionTextSub->setChecked(textFrame->view.SubChecked());
-    actionTextSup->setChecked(textFrame->view.SupChecked());
+    actionTextBold->setChecked(textFrame->view()->BoldChecked());
+    actionTextItalic->setChecked(textFrame->view()->ItalicChecked());
+    actionTextStrike->setChecked(textFrame->view()->StrikeChecked());
+    actionTextSub->setChecked(textFrame->view()->SubChecked());
+    actionTextSup->setChecked(textFrame->view()->SupChecked());
 
-    statusBar()->showMessage(textFrame->view.page()->status());
+    statusBar()->showMessage(textFrame->view()->page()->status());
 }
 
 void FbMainWindow::canUndoChanged(bool canUndo)
@@ -511,12 +511,12 @@ void FbMainWindow::canRedoChanged(bool canRedo)
 
 void FbMainWindow::undoChanged()
 {
-    actionUndo->setEnabled(textFrame->view.UndoEnabled());
+    actionUndo->setEnabled(textFrame->view()->UndoEnabled());
 }
 
 void FbMainWindow::redoChanged()
 {
-    actionRedo->setEnabled(textFrame->view.RedoEnabled());
+    actionRedo->setEnabled(textFrame->view()->RedoEnabled());
 }
 
 void FbMainWindow::createStatusBar()
@@ -542,7 +542,7 @@ void FbMainWindow::writeSettings()
 
 bool FbMainWindow::maybeSave()
 {
-    if (textFrame && textFrame->view.isModified()) {
+    if (textFrame && textFrame->view()->isModified()) {
         QMessageBox::StandardButton ret;
         ret = QMessageBox::warning(this, qApp->applicationName(),
                      tr("The document has been modified. Do you want to save your changes?"),
@@ -566,7 +566,7 @@ bool FbMainWindow::saveFile(const QString &fileName, const QString &codec)
 
     if (textFrame) {
         isSwitched = false;
-        textFrame->view.save(&file, codec);
+        textFrame->view()->save(&file, codec);
         setCurrentFile(fileName);
         return true;
     }
@@ -625,7 +625,7 @@ void FbMainWindow::viewCode()
     bool load = false;
     QByteArray xml;
     if (textFrame) {
-        textFrame->view.save(&xml);
+        textFrame->view()->save(&xml);
         isSwitched = true;
         load = true;
     }
@@ -695,22 +695,22 @@ void FbMainWindow::viewText()
         textFrame = new FbTextFrame(this);
     }
     setCentralWidget(textFrame);
-    textFrame->view.setFocus();
+    textFrame->view()->setFocus();
     viewTree();
 
-    FbTextEdit * textEdit = &textFrame->view;
+    FbTextEdit *textEdit = textFrame->view();
 
     connect(textEdit, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
     connect(textEdit->pageAction(QWebPage::Undo), SIGNAL(changed()), SLOT(undoChanged()));
     connect(textEdit->pageAction(QWebPage::Redo), SIGNAL(changed()), SLOT(redoChanged()));
     connect(actionInspect, SIGNAL(triggered()), textFrame, SLOT(showInspector()));
 
-    if (load) textFrame->view.load(curFile, xml);
+    if (load) textFrame->view()->load(curFile, xml);
 }
 
 void FbMainWindow::loadFinished(bool)
 {
-    FbTextEdit * textEdit = &textFrame->view;
+    FbTextEdit * textEdit = textFrame->view();
     FbTextPage * textPage = textEdit->page();
 
     connect(textPage->undoStack(), SIGNAL(cleanChanged(bool)), SLOT(cleanChanged(bool)));
@@ -791,7 +791,7 @@ void FbMainWindow::viewHead()
     }
 
     if (!headTree) {
-        headTree = new FbHeadView(textFrame->view, this);
+        headTree = new FbHeadView(textFrame->view(), this);
         connect(headTree, SIGNAL(status(QString)), this, SLOT(status(QString)));
     }
 
@@ -803,7 +803,7 @@ void FbMainWindow::viewHead()
 
     headTree->setFocus();
 
-    if (!xml.isEmpty()) textFrame->view.load(curFile, xml);
+    if (!xml.isEmpty()) textFrame->view()->load(curFile, xml);
 
     if (textFrame) {
         actionUndo->disconnect();

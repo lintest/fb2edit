@@ -166,14 +166,20 @@ class FbTextFrame : public QFrame
 public:
     explicit FbTextFrame(QWidget* parent = 0);
     ~FbTextFrame();
-    void hideInspector();
-    FbTextEdit view;
+
+public:
+    FbTextEdit *view() { return &m_view; }
 
 public slots:
     void showInspector();
+    void hideInspector();
+
+private slots:
+    void dockDestroyed();
 
 private:
-    QDockWidget * dock;
+    FbTextEdit m_view;
+    QDockWidget *m_dock;
 };
 
 #endif // FB2TEXT_H

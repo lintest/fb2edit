@@ -754,14 +754,14 @@ void FbTreeView::moveRight()
 //  FbTreeWidget
 //---------------------------------------------------------------------------
 
-FbTreeWidget::FbTreeWidget(FbTextEdit &view, QWidget* parent)
+FbTreeWidget::FbTreeWidget(FbTextEdit *view, QWidget* parent)
     : QWidget(parent)
 {
     QVBoxLayout * layout = new QVBoxLayout(this);
     layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
 
-    m_tree = new FbTreeView(view, this);
+    m_tree = new FbTreeView(*view, this);
     layout->addWidget(m_tree);
 
     m_tool = new QToolBar(this);

@@ -300,9 +300,9 @@ QVariant FbListModel::data(const QModelIndex &index, int role) const
 #include <QSplitter>
 #include <QScrollArea>
 
-FbListView::FbListView(FbNetworkAccessManager &files, QWidget *parent)
+FbListView::FbListView(FbNetworkAccessManager *files, QWidget *parent)
     : QTreeView(parent)
-    , m_files(files)
+    , m_files(*files)
 {
     m_label = new QLabel(this);
     m_label->setScaledContents(true);
@@ -330,9 +330,9 @@ FbListModel * FbListView::model() const
 //  FbListWidget
 //---------------------------------------------------------------------------
 
-FbListWidget::FbListWidget(FbTextEdit &view, QWidget* parent)
+FbListWidget::FbListWidget(FbTextEdit *view, QWidget* parent)
     : QWidget(parent)
-    , m_view(view)
+    , m_view(*view)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(0);
@@ -340,10 +340,10 @@ FbListWidget::FbListWidget(FbTextEdit &view, QWidget* parent)
 
     QSplitter *splitter = new QSplitter(Qt::Vertical, this);
 
-    m_list = new FbListView(*view.files(), splitter);
+    m_list = new FbListView(view->files(), splitter);
     splitter->addWidget(m_list);
 
-    QScrollArea * scroll = new QScrollArea(splitter);
+    QScrollArea *scroll = new QScrollArea(splitter);
     scroll->setWidget(m_list->label());
     splitter->addWidget(scroll);
 

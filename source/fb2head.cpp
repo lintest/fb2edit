@@ -459,9 +459,9 @@ Qt::ItemFlags FbHeadModel::flags(const QModelIndex &index) const
 //  FbTreeView
 //---------------------------------------------------------------------------
 
-FbHeadView::FbHeadView(FbTextEdit &view, QWidget *parent)
+FbHeadView::FbHeadView(FbTextEdit *view, QWidget *parent)
     : QTreeView(parent)
-    , m_view(view)
+    , m_view(*view)
 {
     QAction * act;
 

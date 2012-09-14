@@ -653,8 +653,8 @@ void FbTextEdit::execCommand(const QString &cmd, const QString &arg)
 
 FbTextFrame::FbTextFrame(QWidget* parent)
     : QFrame(parent)
-    , view(this)
-    , dock(0)
+    , m_view(this)
+    , m_dock(0)
 {
     setFrameShape(QFrame::StyledPanel);
     setFrameShadow(QFrame::Sunken);
@@ -662,34 +662,42 @@ FbTextFrame::FbTextFrame(QWidget* parent)
     QLayout * layout = new QBoxLayout(QBoxLayout::LeftToRight, this);
     layout->setSpacing(0);
     layout->setMargin(0);
-    layout->addWidget(&view);
+    layout->addWidget(&m_view);
 }
 
 FbTextFrame::~FbTextFrame()
 {
-    if (dock) dock->deleteLater();
+    if (m_dock) m_dock->deleteLater();
 }
 
 void FbTextFrame::showInspector()
 {
-    if (dock) {
-        dock->show();
+    if (m_dock) {
+        m_dock->setVisible(m_dock->isHidden());
         return;
     }
 
-    QMainWindow * main = qobject_cast<QMainWindow*>(parent());
+    QMainWindow *main = qobject_cast<QMainWindow*>(parent());
     if (!main) return;
 
-    dock = new QDockWidget(tr("Web inspector"), this);
-    dock->setFeatures(QDockWidget::AllDockWidgetFeatures);
-    main->addDockWidget(Qt::BottomDockWidgetArea, dock);
+    m_dock = new QDockWidget(tr("Web inspector"), this);
+    m_dock->setFeatures(QDockWidget::AllDockWidgetFeatures);
+    main->addDockWidget(Qt::BottomDockWidgetArea, m_dock);
 
-    QWebInspector * inspector = new QWebInspector(this);
-    inspector->setPage(view.page());
-    dock->setWidget(inspector);
+    QWebInspector *inspector = new QWebInspector(this);
+    inspector->setPage(m_view.page());
+    m_dock->setWidget(inspector);
+
+    connect(m_dock, SIGNAL(destroyed()), SLOT(dockDestroyed()));
 }
 
 void FbTextFrame::hideInspector()
 {
-    if (dock) dock->hide();
+    if (m_dock) m_dock->hide();
 }
+
+void FbTextFrame::dockDestroyed()
+{
+    m_dock = 0;
+}
+
