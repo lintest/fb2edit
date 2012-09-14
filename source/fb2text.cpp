@@ -12,6 +12,7 @@
 #include <QFileDialog>
 #include <QInputDialog>
 #include <QMainWindow>
+#include <QMenu>
 #include <QNetworkRequest>
 #include <QStyle>
 #include <QStyleOptionFrame>
@@ -409,6 +410,8 @@ FbTextEdit::FbTextEdit(QWidget *parent)
     , m_noteView(0)
     , m_thread(0)
 {
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(contextMenu(QPoint)));
     setPage(new FbTextPage(this));
 }
 
@@ -452,6 +455,27 @@ void FbTextEdit::mouseMoveEvent(QMouseEvent *event)
 {
     m_point = event->pos();
     QWebView::mouseMoveEvent(event);
+}
+
+void FbTextEdit::contextMenu(const QPoint &pos)
+{
+    QMenu menu, *submenu;
+
+    submenu = menu.addMenu(tr("Fo&rmat"));
+    submenu->addAction(pageAction(QWebPage::ToggleBold));
+    submenu->addAction(pageAction(QWebPage::ToggleItalic));
+    submenu->addAction(pageAction(QWebPage::ToggleStrikethrough));
+    submenu->addAction(pageAction(QWebPage::ToggleSuperscript));
+    submenu->addAction(pageAction(QWebPage::ToggleSubscript));
+
+    menu.addSeparator();
+
+    menu.addAction(pageAction(QWebPage::Cut));
+    menu.addAction(pageAction(QWebPage::Copy));
+    menu.addAction(pageAction(QWebPage::Paste));
+    menu.addAction(pageAction(QWebPage::PasteAndMatchStyle));
+
+    menu.exec(mapToGlobal(pos));
 }
 
 void FbTextEdit::linkHovered(const QString &link, const QString &title, const QString &textContent)

@@ -2,6 +2,25 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU">
 <context>
+    <name>Dialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tab 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tab 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>FbAuthorDlg</name>
     <message>
         <source>Author</source>
@@ -191,11 +210,11 @@
     <name>FbListModel</name>
     <message>
         <source>File name</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя файла</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Размер</translation>
     </message>
 </context>
 <context>
@@ -435,7 +454,7 @@
     </message>
     <message>
         <source>&amp;Web inspector</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Инспектор</translation>
     </message>
     <message>
         <source>Settings</source>
@@ -520,6 +539,18 @@
     <message>
         <source>Pictures</source>
         <translation>Иллюстрации</translation>
+    </message>
+    <message>
+        <source>Paragraph</source>
+        <translation>Новый абзац</translation>
+    </message>
+    <message>
+        <source>Line end</source>
+        <translation>Конец строки</translation>
+    </message>
+    <message>
+        <source>Clear format</source>
+        <translation>&amp;Очистить формат</translation>
     </message>
 </context>
 <context>
@@ -615,6 +646,10 @@
     <message>
         <source>URL:</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fo&amp;rmat</source>
+        <translation type="unfinished">Фо&amp;рмат</translation>
     </message>
 </context>
 <context>

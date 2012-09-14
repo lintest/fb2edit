@@ -144,6 +144,7 @@ public slots:
 
 private slots:
     void linkHovered(const QString &link, const QString &title, const QString &textContent);
+    void contextMenu(const QPoint &pos);
 
 private:
     void execCommand(const QString &cmd, const QString &arg);

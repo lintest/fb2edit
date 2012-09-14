@@ -299,6 +299,10 @@ void FbMainWindow::createActions()
     act->setShortcuts(QKeySequence::Paste);
     act->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
     menu->addAction(act);
+
+    actionPasteText = act = new QAction(tr("Paste (no style)"), this);
+    menu->addAction(act);
+
     clipboardDataChanged();
 
     menu->addSeparator();
@@ -364,7 +368,20 @@ void FbMainWindow::createActions()
     actionDate = act = new QAction(tr("&Date"), this);
     menu->addAction(act);
 
+    menu->addSeparator();
+
+    actionParaSeparator = act = new QAction(tr("Paragraph"), this);
+    menu->addAction(act);
+
+    actionLineSeparator = act = new QAction(tr("Line end"), this);
+    menu->addAction(act);
+
     menuText = menu = menuBar()->addMenu(tr("Fo&rmat"));
+
+    actionClearFormat = act = new QAction(tr("Clear format"), this);
+    menu->addAction(act);
+
+    menu->addSeparator();
 
     actionTextBold = act = new QAction(FbIcon("format-text-bold"), tr("&Bold"), this);
     act->setShortcuts(QKeySequence::Bold);
@@ -642,7 +659,9 @@ void FbMainWindow::createTextToolbar()
     connect(actionCut, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Cut), SIGNAL(triggered()));
     connect(actionCopy, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Copy), SIGNAL(triggered()));
     connect(actionPaste, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Paste), SIGNAL(triggered()));
+    connect(actionPasteText, SIGNAL(triggered()), textEdit->pageAction(QWebPage::PasteAndMatchStyle), SIGNAL(triggered()));
 
+    connect(actionClearFormat, SIGNAL(triggered()), textEdit->pageAction(QWebPage::RemoveFormat), SIGNAL(triggered()));
     connect(actionTextBold, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleBold), SIGNAL(triggered()));
     connect(actionTextItalic, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleItalic), SIGNAL(triggered()));
     connect(actionTextStrike, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleStrikethrough), SIGNAL(triggered()));
@@ -664,6 +683,9 @@ void FbMainWindow::createTextToolbar()
     connect(actionPoem, SIGNAL(triggered()), textPage, SLOT(insertPoem()));
     connect(actionDate, SIGNAL(triggered()), textPage, SLOT(insertDate()));
     connect(actionBody, SIGNAL(triggered()), textPage, SLOT(insertBody()));
+
+    connect(actionParaSeparator, SIGNAL(triggered()), textEdit->pageAction(QWebPage::InsertParagraphSeparator), SIGNAL(triggered()));
+    connect(actionLineSeparator, SIGNAL(triggered()), textEdit->pageAction(QWebPage::InsertLineSeparator), SIGNAL(triggered()));
 
     connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
@@ -858,6 +880,7 @@ void FbMainWindow::clipboardDataChanged()
 {
     if (const QMimeData *md = QApplication::clipboard()->mimeData()) {
         actionPaste->setEnabled(md->hasText());
+        actionPasteText->setEnabled(md->hasText());
     }
 }
 
