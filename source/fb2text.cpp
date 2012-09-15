@@ -375,6 +375,10 @@ void FbTextBase::addTools(QToolBar *tool)
 
     tool->addSeparator();
 
+    act = pageAction(QWebPage::RemoveFormat);
+    act->setText(QObject::tr("Clear format"));
+    act->setIcon(FbIcon("edit-clear"));
+
     act = pageAction(QWebPage::ToggleBold);
     act->setIcon(FbIcon("format-text-bold"));
     act->setText(QObject::tr("&Bold"));
@@ -462,6 +466,8 @@ void FbTextEdit::contextMenu(const QPoint &pos)
     QMenu menu, *submenu;
 
     submenu = menu.addMenu(tr("Fo&rmat"));
+    submenu->addAction(pageAction(QWebPage::RemoveFormat));
+    submenu->addSeparator();
     submenu->addAction(pageAction(QWebPage::ToggleBold));
     submenu->addAction(pageAction(QWebPage::ToggleItalic));
     submenu->addAction(pageAction(QWebPage::ToggleStrikethrough));
@@ -581,24 +587,16 @@ void FbTextEdit::zoomReset()
     setZoomFactor(1);
 }
 
-bool FbTextEdit::UndoEnabled()
+bool FbTextEdit::actionEnabled(QWebPage::WebAction action)
 {
-    return pageAction(QWebPage::Undo)->isEnabled();
+    QAction *act = pageAction(action);
+    return act ? act->isEnabled() : false;
 }
 
-bool FbTextEdit::RedoEnabled()
+bool FbTextEdit::actionChecked(QWebPage::WebAction action)
 {
-    return pageAction(QWebPage::Redo)->isEnabled();
-}
-
-bool FbTextEdit::CutEnabled()
-{
-    return pageAction(QWebPage::Cut)->isEnabled();
-}
-
-bool FbTextEdit::CopyEnabled()
-{
-    return pageAction(QWebPage::Copy)->isEnabled();
+    QAction *act = pageAction(action);
+    return act ? act->isChecked() : false;
 }
 
 bool FbTextEdit::BoldChecked()

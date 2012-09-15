@@ -378,7 +378,7 @@ void FbMainWindow::createActions()
 
     menuText = menu = menuBar()->addMenu(tr("Fo&rmat"));
 
-    actionClearFormat = act = new QAction(tr("Clear format"), this);
+    actionClearFormat = act = new QAction(FbIcon("edit-clear"), tr("Clear format"), this);
     menu->addAction(act);
 
     menu->addSeparator();
@@ -512,16 +512,21 @@ void FbMainWindow::createImgs()
 
 void FbMainWindow::selectionChanged()
 {
-    actionCut->setEnabled(textFrame->view()->CutEnabled());
-    actionCopy->setEnabled(textFrame->view()->CopyEnabled());
+    FbTextEdit *view = textFrame->view();
+    actionCut->setEnabled(view->actionEnabled(QWebPage::Cut));
+    actionCopy->setEnabled(view->actionEnabled(QWebPage::Copy));
+    statusBar()->showMessage(view->page()->status());
+}
 
-    actionTextBold->setChecked(textFrame->view()->BoldChecked());
-    actionTextItalic->setChecked(textFrame->view()->ItalicChecked());
-    actionTextStrike->setChecked(textFrame->view()->StrikeChecked());
-    actionTextSub->setChecked(textFrame->view()->SubChecked());
-    actionTextSup->setChecked(textFrame->view()->SupChecked());
-
-    statusBar()->showMessage(textFrame->view()->page()->status());
+void FbMainWindow::formatChanged()
+{
+    FbTextEdit *view = textFrame->view();
+    actionClearFormat->setEnabled(view->actionEnabled(QWebPage::RemoveFormat));
+    actionTextBold->setChecked(view->actionChecked(QWebPage::ToggleBold));
+    actionTextItalic->setChecked(view->actionChecked(QWebPage::ToggleItalic));
+    actionTextStrike->setChecked(view->actionChecked(QWebPage::ToggleStrikethrough));
+    actionTextSub->setChecked(view->actionChecked(QWebPage::ToggleSubscript));
+    actionTextSup->setChecked(view->actionChecked(QWebPage::ToggleSuperscript));
 }
 
 void FbMainWindow::canUndoChanged(bool canUndo)
@@ -536,12 +541,12 @@ void FbMainWindow::canRedoChanged(bool canRedo)
 
 void FbMainWindow::undoChanged()
 {
-    actionUndo->setEnabled(textFrame->view()->UndoEnabled());
+    actionUndo->setEnabled(textFrame->view()->actionEnabled(QWebPage::Undo));
 }
 
 void FbMainWindow::redoChanged()
 {
-    actionRedo->setEnabled(textFrame->view()->RedoEnabled());
+    actionRedo->setEnabled(textFrame->view()->actionEnabled(QWebPage::Redo));
 }
 
 void FbMainWindow::createStatusBar()
@@ -667,6 +672,13 @@ void FbMainWindow::createTextToolbar()
     connect(actionTextStrike, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleStrikethrough), SIGNAL(triggered()));
     connect(actionTextSub, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSubscript), SIGNAL(triggered()));
     connect(actionTextSup, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSuperscript), SIGNAL(triggered()));
+
+    connect(textEdit->pageAction(QWebPage::RemoveFormat), SIGNAL(changed()), SLOT(formatChanged()));
+    connect(textEdit->pageAction(QWebPage::ToggleBold), SIGNAL(changed()), SLOT(formatChanged()));
+    connect(textEdit->pageAction(QWebPage::ToggleItalic), SIGNAL(changed()), SLOT(formatChanged()));
+    connect(textEdit->pageAction(QWebPage::ToggleStrikethrough), SIGNAL(changed()), SLOT(formatChanged()));
+    connect(textEdit->pageAction(QWebPage::ToggleSubscript), SIGNAL(changed()), SLOT(formatChanged()));
+    connect(textEdit->pageAction(QWebPage::ToggleSuperscript), SIGNAL(changed()), SLOT(formatChanged()));
 
     connect(actionFind, SIGNAL(triggered()), textEdit, SLOT(find()));
     connect(actionImage, SIGNAL(triggered()), textEdit, SLOT(insertImage()));

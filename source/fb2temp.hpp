@@ -20,15 +20,17 @@ public:
     static QString md5(const QByteArray &data);
 public:
     explicit FbTemporaryFile(const QString &name);
-    inline qint64 write(const QByteArray &data);
+    inline qint64 write(QByteArray &data);
     void setHash(const QString &hash) { m_hash = hash; }
     const QString & hash() const { return m_hash; }
     const QString & name() const { return m_name; }
+    const QString & type() const { return m_type; }
     qint64 size() const { return m_size; }
     QByteArray data();
 private:
     const QString m_name;
     QString m_hash;
+    QString m_type;
     qint64 m_size;
 };
 
@@ -38,10 +40,10 @@ public:
     explicit FbTemporaryList();
     virtual ~FbTemporaryList();
 
-    QString add(const QString &path, const QByteArray &data);
+    QString add(const QString &path, QByteArray &data);
     bool exists(const QString &name) const;
     FbTemporaryFile * get(const QString &name) const;
-    const QString & set(const QString &name, const QByteArray &data, const QString &hash = QString());
+    const QString & set(const QString &name, QByteArray &data, const QString &hash = QString());
     QString name(const QString &hash) const;
     QByteArray data(const QString &name) const;
 private:
@@ -92,13 +94,12 @@ public slots:
     void data(QString name, QByteArray data);
 
 public:
-    QString add(const QString &path, const QByteArray &data) { return m_files.add(path, data); }
+    QString add(const QString &path, QByteArray &data) { return m_files.add(path, data); }
     bool exists(const QString &name) const { return m_files.exists(name); }
     FbTemporaryFile * get(const QString &name) const { return m_files.get(name); }
     int count() const { return m_files.count(); }
     QByteArray data(int index) const;
-    QString name(int index) const;
-    int size(int index) const;
+    QVariant info(int row, int col) const;
 
 protected:
     virtual QNetworkReply *createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData = 0);

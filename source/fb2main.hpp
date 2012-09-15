@@ -70,6 +70,7 @@ private slots:
     void status(const QString &text);
     void clipboardDataChanged();
     void selectionChanged();
+    void formatChanged();
     void undoChanged();
     void redoChanged();
     void openSettings();

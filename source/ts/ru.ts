@@ -216,6 +216,10 @@
         <source>Size</source>
         <translation>Размер</translation>
     </message>
+    <message>
+        <source>Type</source>
+        <translation>Тип</translation>
+    </message>
 </context>
 <context>
     <name>FbMainWindow</name>
@@ -551,6 +555,10 @@
     <message>
         <source>Clear format</source>
         <translation>&amp;Очистить формат</translation>
+    </message>
+    <message>
+        <source>Paste (no style)</source>
+        <translation>Вставить простой текст</translation>
     </message>
 </context>
 <context>

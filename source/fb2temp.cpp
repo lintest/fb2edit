@@ -1,6 +1,7 @@
 #include "fb2temp.hpp"
 
 #include <QAbstractListModel>
+#include <QBuffer>
 #include <QCryptographicHash>
 #include <QFileInfo>
 #include <QImageReader>
@@ -21,11 +22,14 @@ FbTemporaryFile::FbTemporaryFile(const QString &name)
 {
 }
 
-qint64 FbTemporaryFile::write(const QByteArray &data)
+qint64 FbTemporaryFile::write(QByteArray &data)
 {
     open();
     if (m_hash.isEmpty()) m_hash = md5(data);
     m_size = QTemporaryFile::write(data);
+    QBuffer buffer(&data);
+    buffer.open(QIODevice::ReadOnly);
+    m_type = QImageReader::imageFormat(&buffer);
     close();
     return m_size;
 }
@@ -57,7 +61,7 @@ FbTemporaryList::~FbTemporaryList()
     while (it.hasNext()) delete it.next();
 }
 
-QString FbTemporaryList::add(const QString &path, const QByteArray &data)
+QString FbTemporaryList::add(const QString &path, QByteArray &data)
 {
     QString hash = FbTemporaryFile::md5(data);
     QString name = this->name(hash);
@@ -105,7 +109,7 @@ QByteArray FbTemporaryList::data(const QString &name) const
     return QByteArray();
 }
 
-const QString & FbTemporaryList::set(const QString &name, const QByteArray &data, const QString &hash)
+const QString & FbTemporaryList::set(const QString &name, QByteArray &data, const QString &hash)
 {
     FbTemporaryFile * file = get(name);
     if (!file) append(file = new FbTemporaryFile(name));
@@ -210,20 +214,18 @@ QNetworkReply * FbNetworkAccessManager::imageRequest(Operation op, const QNetwor
     return new FbImageReply(op, request, data);
 }
 
-QString FbNetworkAccessManager::name(int index) const
+QVariant FbNetworkAccessManager::info(int row, int col) const
 {
-    if (0 <= index && index < count()) {
-        return m_files[index]->name();
+    if (0 <= row && row < count()) {
+        FbTemporaryFile *file = m_files[row];
+        switch (col) {
+            case 0: return file->name();
+            case 1: return file->type();
+            case 2: return file->size();
+        }
+        return m_files[row]->name();
     }
-    return QString();
-}
-
-int FbNetworkAccessManager::size(int index) const
-{
-    if (0 <= index && index < count()) {
-        return m_files[index]->size();
-    }
-    return 0;
+    return QVariant();
 }
 
 QByteArray FbNetworkAccessManager::data(int index) const
@@ -252,7 +254,7 @@ FbListModel::FbListModel(FbNetworkAccessManager &files, QObject *parent)
 int FbListModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return 2;
+    return 3;
 }
 
 int FbListModel::rowCount(const QModelIndex &parent) const
@@ -266,7 +268,8 @@ QVariant FbListModel::headerData(int section, Qt::Orientation orientation, int r
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
             case 0: return tr("File name");
-            case 1: return tr("Size");
+            case 1: return tr("Type");
+            case 2: return tr("Size");
         }
     }
     return QVariant();
@@ -277,15 +280,12 @@ QVariant FbListModel::data(const QModelIndex &index, int role) const
     if (index.isValid()) {
         switch (role) {
             case Qt::DisplayRole: {
-                switch (index.column()) {
-                    case 0: return m_files.name(index.row());
-                    case 1: return m_files.size(index.row());
-                }
+                return m_files.info(index.row(), index.column());
             } break;
             case Qt::TextAlignmentRole: {
                 switch (index.column()) {
-                    case 0: return Qt::AlignLeft;
-                    case 1: return Qt::AlignRight;
+                    case 2: return Qt::AlignRight;
+                    default: return Qt::AlignLeft;
                 }
             }
         }
@@ -362,4 +362,6 @@ void FbListWidget::loadFinished(bool ok)
     m_list->setModel(new FbListModel(*m_view.files(), this));
     m_list->label()->clear();
     m_list->reset();
+    m_list->resizeColumnToContents(1);
+    m_list->resizeColumnToContents(2);
 }

@@ -118,10 +118,9 @@ public:
     bool save(QByteArray *array);
     bool save(QString *string);
 
-    bool UndoEnabled();
-    bool RedoEnabled();
-    bool CutEnabled();
-    bool CopyEnabled();
+    bool actionEnabled(QWebPage::WebAction action);
+    bool actionChecked(QWebPage::WebAction action);
+
     bool BoldChecked();
     bool ItalicChecked();
     bool StrikeChecked();
