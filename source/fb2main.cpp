@@ -24,6 +24,21 @@ FbDockWidget::FbDockWidget(const QString &title, QWidget *parent, Qt::WindowFlag
 }
 
 //---------------------------------------------------------------------------
+//  FbTextAction
+//---------------------------------------------------------------------------
+
+QAction * FbTextAction::action(QWebPage::WebAction action)
+{
+    FbMainWindow * main = qobject_cast<FbMainWindow*>(parent());
+    if (!main) return 0;
+
+    FbTextPage * page = main->page();
+    if (!page) return 0;
+
+    return page->action(action);
+}
+
+//---------------------------------------------------------------------------
 //  FbMainWindow
 //---------------------------------------------------------------------------
 
@@ -59,6 +74,11 @@ FbMainWindow::FbMainWindow(const QString &filename, ViewMode mode)
         viewCode();
         if (!filename.isEmpty()) loadXML(filename);
     }
+}
+
+FbTextPage * FbMainWindow::page()
+{
+    return textFrame ? textFrame->view()->page() : 0;
 }
 
 void FbMainWindow::logMessage(const QString &message)
@@ -378,30 +398,30 @@ void FbMainWindow::createActions()
 
     menuText = menu = menuBar()->addMenu(tr("Fo&rmat"));
 
-    actionClearFormat = act = new QAction(FbIcon("edit-clear"), tr("Clear format"), this);
+    actionClearFormat = act = new FbTextAction(FbIcon("edit-clear"), tr("Clear format"), QWebPage::RemoveFormat, this);
     menu->addAction(act);
 
     menu->addSeparator();
 
-    actionTextBold = act = new QAction(FbIcon("format-text-bold"), tr("&Bold"), this);
+    actionTextBold = act = new FbTextAction(FbIcon("format-text-bold"), tr("&Bold"), QWebPage::ToggleBold, this);
     act->setShortcuts(QKeySequence::Bold);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextItalic = act = new QAction(FbIcon("format-text-italic"), tr("&Italic"), this);
+    actionTextItalic = act = new FbTextAction(FbIcon("format-text-italic"), tr("&Italic"), QWebPage::ToggleItalic, this);
     act->setShortcuts(QKeySequence::Italic);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextStrike = act = new QAction(FbIcon("format-text-strikethrough"), tr("&Strikethrough"), this);
+    actionTextStrike = act = new FbTextAction(FbIcon("format-text-strikethrough"), tr("&Strikethrough"), QWebPage::ToggleStrikethrough, this);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextSup = act = new QAction(FbIcon("format-text-superscript"), tr("Su&perscript"), this);
+    actionTextSup = act = new FbTextAction(FbIcon("format-text-superscript"), tr("Su&perscript"), QWebPage::ToggleSuperscript, this);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextSub = act = new QAction(FbIcon("format-text-subscript"), tr("Su&bscript"), this);
+    actionTextSub = act = new FbTextAction(FbIcon("format-text-subscript"), tr("Su&bscript"), QWebPage::ToggleSubscript, this);
     act->setCheckable(true);
     menu->addAction(act);
 
@@ -516,17 +536,6 @@ void FbMainWindow::selectionChanged()
     actionCut->setEnabled(view->actionEnabled(QWebPage::Cut));
     actionCopy->setEnabled(view->actionEnabled(QWebPage::Copy));
     statusBar()->showMessage(view->page()->status());
-}
-
-void FbMainWindow::formatChanged()
-{
-    FbTextEdit *view = textFrame->view();
-    actionClearFormat->setEnabled(view->actionEnabled(QWebPage::RemoveFormat));
-    actionTextBold->setChecked(view->actionChecked(QWebPage::ToggleBold));
-    actionTextItalic->setChecked(view->actionChecked(QWebPage::ToggleItalic));
-    actionTextStrike->setChecked(view->actionChecked(QWebPage::ToggleStrikethrough));
-    actionTextSub->setChecked(view->actionChecked(QWebPage::ToggleSubscript));
-    actionTextSup->setChecked(view->actionChecked(QWebPage::ToggleSuperscript));
 }
 
 void FbMainWindow::canUndoChanged(bool canUndo)
@@ -673,12 +682,12 @@ void FbMainWindow::createTextToolbar()
     connect(actionTextSub, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSubscript), SIGNAL(triggered()));
     connect(actionTextSup, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSuperscript), SIGNAL(triggered()));
 
-    connect(textEdit->pageAction(QWebPage::RemoveFormat), SIGNAL(changed()), SLOT(formatChanged()));
-    connect(textEdit->pageAction(QWebPage::ToggleBold), SIGNAL(changed()), SLOT(formatChanged()));
-    connect(textEdit->pageAction(QWebPage::ToggleItalic), SIGNAL(changed()), SLOT(formatChanged()));
-    connect(textEdit->pageAction(QWebPage::ToggleStrikethrough), SIGNAL(changed()), SLOT(formatChanged()));
-    connect(textEdit->pageAction(QWebPage::ToggleSubscript), SIGNAL(changed()), SLOT(formatChanged()));
-    connect(textEdit->pageAction(QWebPage::ToggleSuperscript), SIGNAL(changed()), SLOT(formatChanged()));
+    connect(textEdit->pageAction(QWebPage::RemoveFormat), SIGNAL(changed()), actionClearFormat, SLOT(updateEnabled()));
+    connect(textEdit->pageAction(QWebPage::ToggleBold), SIGNAL(changed()), actionTextBold, SLOT(updateChecked()));
+    connect(textEdit->pageAction(QWebPage::ToggleItalic), SIGNAL(changed()), actionTextItalic, SLOT(updateChecked()));
+    connect(textEdit->pageAction(QWebPage::ToggleStrikethrough), SIGNAL(changed()), actionTextStrike, SLOT(updateChecked()));
+    connect(textEdit->pageAction(QWebPage::ToggleSubscript), SIGNAL(changed()), actionTextSub, SLOT(updateChecked()));
+    connect(textEdit->pageAction(QWebPage::ToggleSuperscript), SIGNAL(changed()), actionTextSup, SLOT(updateChecked()));
 
     connect(actionFind, SIGNAL(triggered()), textEdit, SLOT(find()));
     connect(actionImage, SIGNAL(triggered()), textEdit, SLOT(insertImage()));

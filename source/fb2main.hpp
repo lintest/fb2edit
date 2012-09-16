@@ -17,8 +17,9 @@ QT_END_NAMESPACE
 class FbCodeEdit;
 class FbTreeView;
 class FbHeadView;
-class FbTextFrame;
 class FbTextEdit;
+class FbTextFrame;
+class FbTextPage;
 
 class FbDockWidget : public QDockWidget
 {
@@ -34,6 +35,9 @@ class FbMainWindow : public QMainWindow
 public:
     enum ViewMode { FB2, XML };
     explicit FbMainWindow(const QString &filename = QString(), ViewMode mode = FB2);
+
+public:
+    FbTextPage * page();
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -70,7 +74,6 @@ private slots:
     void status(const QString &text);
     void clipboardDataChanged();
     void selectionChanged();
-    void formatChanged();
     void undoChanged();
     void redoChanged();
     void openSettings();

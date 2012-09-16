@@ -726,3 +726,29 @@ void FbTextFrame::dockDestroyed()
     m_dock = 0;
 }
 
+//---------------------------------------------------------------------------
+//  FbTextAction
+//---------------------------------------------------------------------------
+
+FbTextAction::FbTextAction(const QString &text, QWebPage::WebAction action, QObject* parent)
+    : QAction(text, parent)
+    , m_action(action)
+{
+}
+
+FbTextAction::FbTextAction(const QIcon &icon, const QString &text, QWebPage::WebAction action, QObject* parent)
+    : QAction(icon, text, parent)
+    , m_action(action)
+{
+}
+
+void FbTextAction::updateChecked()
+{
+    if (QAction * act = action(m_action)) setChecked(act->isChecked());
+}
+
+void FbTextAction::updateEnabled()
+{
+    if (QAction * act = action(m_action)) setEnabled(act->isEnabled());
+}
+

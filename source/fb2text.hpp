@@ -1,6 +1,7 @@
 #ifndef FB2TEXT_H
 #define FB2TEXT_H
 
+#include <QAction>
 #include <QFrame>
 #include <QResizeEvent>
 #include <QTimer>
@@ -168,7 +169,7 @@ public:
     ~FbTextFrame();
 
 public:
-    FbTextEdit *view() { return &m_view; }
+    FbTextEdit * view() { return &m_view; }
 
 public slots:
     void showInspector();
@@ -180,6 +181,25 @@ private slots:
 private:
     FbTextEdit m_view;
     QDockWidget *m_dock;
+};
+
+class FbTextAction : public QAction
+{
+    Q_OBJECT
+
+public:
+    explicit FbTextAction(const QString &text, QWebPage::WebAction action, QObject* parent);
+    explicit FbTextAction(const QIcon &icon, const QString &text, QWebPage::WebAction action, QObject* parent);
+
+public slots:
+    void updateChecked();
+    void updateEnabled();
+
+private:
+    QAction * action(QWebPage::WebAction action);
+
+private:
+    QWebPage::WebAction m_action;
 };
 
 #endif // FB2TEXT_H
