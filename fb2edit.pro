@@ -54,7 +54,8 @@ OTHER_FILES += \
     source/js/get_status.js \
     source/js/get_location.js \
     source/js/insert_title.js \
-    CMakeLists.txt
+    CMakeLists.txt \
+    source/js/new_section.js
 
 if (unix) {
 
@@ -65,4 +66,5 @@ if (unix) {
 }
 
 FORMS += \
-    source/fb2find.ui
+    source/fb2find.ui \
+    source/fb2setup.ui

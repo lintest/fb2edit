@@ -139,6 +139,7 @@ private:
         *actionStanza,
         *actionAuthor,
         *actionSection,
+        *actionSectSeparator,
         *actionParaSeparator,
         *actionLineSeparator,
         *actionClearFormat,

@@ -4,6 +4,7 @@
 #include "fb2tree.hpp"
 #include "fb2utils.h"
 #include "ui_fb2find.h"
+#include "ui_fb2setup.h"
 
 #include <QComboBox>
 #include <QDialogButtonBox>
@@ -148,4 +149,15 @@ void FbNoteDlg::loadFinished()
 {
     FbTextElement body = m_text->page()->mainFrame()->documentElement().findFirst("body");
     body.select();
+}
+
+//---------------------------------------------------------------------------
+//  FbSetupDlg
+//---------------------------------------------------------------------------
+
+FbSetupDlg::FbSetupDlg(QWidget *parent, Qt::WindowFlags f)
+    : QDialog(parent, f)
+    , ui(new Ui::FbSetup)
+{
+    ui->setupUi(this);
 }

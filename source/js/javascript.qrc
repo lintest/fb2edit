@@ -6,5 +6,6 @@
         <file>get_location.js</file>
         <file>set_cursor.js</file>
         <file>insert_title.js</file>
+        <file>new_section.js</file>
     </qresource>
 </RCC>

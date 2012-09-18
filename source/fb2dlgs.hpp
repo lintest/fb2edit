@@ -16,6 +16,7 @@ QT_END_NAMESPACE
 
 namespace Ui {
 class FbFind;
+class FbSetup;
 }
 
 class FbCodeFindDlg : public QDialog
@@ -65,6 +66,17 @@ private:
     FbTextBase *m_text;
     QLineEdit *m_title;
     QToolBar *m_toolbar;
+};
+
+class FbSetupDlg : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit FbSetupDlg(QWidget *parent = 0, Qt::WindowFlags f = 0);
+
+private:
+    Ui::FbSetup * ui;
 };
 
 #endif // FB2DLGS_H

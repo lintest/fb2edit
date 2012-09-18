@@ -5,6 +5,7 @@
 
 #include "fb2main.hpp"
 #include "fb2code.hpp"
+#include "fb2dlgs.hpp"
 #include "fb2read.hpp"
 #include "fb2save.hpp"
 #include "fb2text.hpp"
@@ -390,6 +391,9 @@ void FbMainWindow::createActions()
 
     menu->addSeparator();
 
+    actionSectSeparator = act = new QAction(tr("Section break"), this);
+    menu->addAction(act);
+
     actionParaSeparator = act = new QAction(tr("Paragraph"), this);
     menu->addAction(act);
 
@@ -504,8 +508,8 @@ void FbMainWindow::createActions()
 
 void FbMainWindow::openSettings()
 {
-    QMessageBox::about(this, tr("Settings"),
-        tr("The <b>fb2edit</b> is application for editing FB2-files."));
+    FbSetupDlg dlg(this);
+    dlg.exec();
 }
 
 void FbMainWindow::createTree()
@@ -705,6 +709,7 @@ void FbMainWindow::createTextToolbar()
     connect(actionDate, SIGNAL(triggered()), textPage, SLOT(insertDate()));
     connect(actionBody, SIGNAL(triggered()), textPage, SLOT(insertBody()));
 
+    connect(actionSectSeparator, SIGNAL(triggered()), textPage, SLOT(separateSection()));
     connect(actionParaSeparator, SIGNAL(triggered()), textEdit->pageAction(QWebPage::InsertParagraphSeparator), SIGNAL(triggered()));
     connect(actionLineSeparator, SIGNAL(triggered()), textEdit->pageAction(QWebPage::InsertLineSeparator), SIGNAL(triggered()));
 

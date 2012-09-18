@@ -277,6 +277,12 @@ void FbTextPage::insertDate()
 {
 }
 
+void FbTextPage::separateSection()
+{
+    static const QString javascript = FB2::read(":/js/new_section.js");
+    mainFrame()->evaluateJavaScript(javascript);
+}
+
 FbTextElement FbTextPage::current()
 {
     return element(location());
