@@ -53,6 +53,7 @@ FbTextFindDlg::FbTextFindDlg(FbTextEdit &edit)
     , m_edit(edit)
 {
     ui->setupUi(this);
+    ui->checkHigh->hide();
     connect(ui->btnFind, SIGNAL(clicked()), this, SLOT(find()));
 }
 
@@ -69,8 +70,9 @@ void FbTextFindDlg::find()
     QWebPage::FindFlags options = QWebPage::FindWrapsAroundDocument;
     if (ui->radioUp->isChecked()) options |= QWebPage::FindBackward;
     if (ui->checkCase->isChecked()) options |= QWebPage::FindCaseSensitively;
-    if (ui->checkHigh->isChecked()) options |= QWebPage::HighlightAllOccurrences;
+    m_edit.findText(text, options);
 
+    options |= QWebPage::HighlightAllOccurrences;
     m_edit.findText(text, options);
 }
 
