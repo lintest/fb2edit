@@ -157,7 +157,7 @@ public:
     explicit FbListWidget(FbTextEdit *view, QWidget* parent = 0);
 
 private slots:
-    void loadFinished(bool ok);
+    void loadFinished();
 
 private:
     FbTextEdit &m_view;

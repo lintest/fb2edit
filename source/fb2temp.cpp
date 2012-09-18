@@ -350,14 +350,14 @@ FbListWidget::FbListWidget(FbTextEdit *view, QWidget* parent)
     splitter->setSizes(QList<int>() << 1 << 1);
     layout->addWidget(splitter);
 
-    connect(&m_view, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
-    loadFinished(true);
+    connect(&m_view, SIGNAL(loadFinished(bool)), SLOT(loadFinished()));
+    loadFinished();
 
 //    m_tool = new QToolBar(this);
 //    layout->addWidget(m_tool);
 }
 
-void FbListWidget::loadFinished(bool ok)
+void FbListWidget::loadFinished()
 {
     m_list->setModel(new FbListModel(*m_view.files(), this));
     m_list->label()->clear();

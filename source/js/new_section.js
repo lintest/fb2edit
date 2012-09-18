@@ -1,26 +1,32 @@
-(function() {
-   if(window.getSelection().rangeCount){ 
-      var selection = window.getSelection()
-      range = selection.getRangeAt(0)
-      
-      start = range.startContainer
-      end = range.endContainer
-      root = range.commonAncestorContainer
-
-      if(start.nodeName.toLowerCase() == "body") return null
-      if(start.nodeName == "#text") start = start.parentNode
-      if(end.nodeName == "#text") end = end.parentNode
-
-      if(start == end) root = start
-
-      var range = document.createRange();
-      range.setStartBefore(start);
-      range.setEndAfter(end);
-
-      var newNode = document.createElement("div");
-      newNode.className = "section";
-      range.surroundContents(newNode);
-      
-      return newNode;
-    }
+(function(){
+if(window.getSelection().rangeCount===0)return;
+var selection=window.getSelection();
+var range=selection.getRangeAt(0);
+var root=range.commonAncestorContainer;
+var start=range.startContainer;
+var end=range.endContainer;
+while (true) {
+ if(root===null)return;
+ tag=root.nodeName.toLowerCase();
+ if(tag==="body")return;
+ if(tag==="div"){
+  type=root.className.toLowerCase();
+  if(type==="body"||type==="section")break;
+ }
+ root = root.parentNode;
+}
+while(start.parentNode!==root) {
+ if(start===null)return;
+ start=start.parentNode;
+}
+while(end.parentNode!==root) {
+ if(end===null)return;
+ end=end.parentNode;
+}
+range=document.createRange();
+range.setStartBefore(start);
+range.setEndAfter(end);
+var newNode=document.createElement("div");
+newNode.className="section";
+range.surroundContents(newNode);
 })()
