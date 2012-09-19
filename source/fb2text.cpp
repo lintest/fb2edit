@@ -285,6 +285,22 @@ void FbTextPage::createSection()
 
 void FbTextPage::deleteSection()
 {
+    FbTextElement element = current();
+    while (!element.isNull()) {
+        if (element.isSection()) {
+            FbTextElement parent = element.parent();
+            FbTextElement subling = element.previousSibling();
+            QString xml = element.toInnerXml();
+            element.setOuterXml(xml);
+            if (subling.isNull()) {
+                parent.select();
+            } else {
+                subling.nextSibling().select();
+            }
+            break;
+        }
+        element = element.parent();
+    }
 }
 
 FbTextElement FbTextPage::current()

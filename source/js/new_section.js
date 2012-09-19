@@ -29,4 +29,7 @@ range.setEndAfter(end);
 var newNode=document.createElement("div");
 newNode.className="section";
 range.surroundContents(newNode);
+range.setEndBefore(start);
+selection.removeAllRanges();
+selection.addRange(range);
 })()
