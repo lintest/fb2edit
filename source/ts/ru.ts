@@ -2,25 +2,6 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU">
 <context>
-    <name>Dialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Tab 1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Tab 2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>FbAuthorDlg</name>
     <message>
         <source>Author</source>
@@ -462,7 +443,7 @@
     </message>
     <message>
         <source>Settings</source>
-        <translation>Настройки</translation>
+        <translation type="obsolete">Настройки</translation>
     </message>
     <message>
         <source>&amp;Bold</source>
@@ -560,6 +541,23 @@
         <source>Paste (no style)</source>
         <translation>Вставить простой текст</translation>
     </message>
+    <message>
+        <source>Simple text</source>
+        <translation>Простой текст</translation>
+    </message>
+    <message>
+        <source>Create section</source>
+        <translation>Создать секцию</translation>
+    </message>
+    <message>
+        <source>Remove section</source>
+        <translation>Удалить секцию</translation>
+    </message>
+    <message>
+        <source>Make title</source>
+        <translatorcomment>Стиль: Заголовок</translatorcomment>
+        <translation>Заголовок</translation>
+    </message>
 </context>
 <context>
     <name>FbNodeDlg</name>
@@ -618,6 +616,29 @@
     </message>
     <message>
         <source>&amp;Encoding</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FbSetup</name>
+    <message>
+        <source>Settings</source>
+        <translation type="unfinished">Настройки</translation>
+    </message>
+    <message>
+        <source>Tab 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default font:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Style file name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tab 2</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -849,6 +870,10 @@
     <message>
         <source>Unknown image format: %1</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear format</source>
+        <translation type="unfinished">&amp;Очистить формат</translation>
     </message>
 </context>
 </TS>

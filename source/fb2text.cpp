@@ -303,6 +303,10 @@ void FbTextPage::deleteSection()
     }
 }
 
+void FbTextPage::createTitle()
+{
+}
+
 FbTextElement FbTextPage::current()
 {
     return element(location());

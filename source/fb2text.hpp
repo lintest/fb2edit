@@ -92,6 +92,7 @@ public slots:
     void insertDate();
     void createSection();
     void deleteSection();
+    void createTitle();
 
 protected:
     virtual bool acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type);

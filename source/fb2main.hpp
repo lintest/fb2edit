@@ -149,6 +149,7 @@ private:
         *actionTextCode,
         *actionTextSub,
         *actionTextSup,
+        *actionTextTitle,
         *actionSectionAdd,
         *actionSectionDel,
         *actionContents,

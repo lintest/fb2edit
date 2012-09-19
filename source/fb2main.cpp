@@ -429,10 +429,9 @@ void FbMainWindow::createActions()
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextCode = act = new QAction(tr("&Code"), this);
+    actionTextCode = act = new QAction(FbIcon("utilities-terminal"), tr("&Code"), this);
     act->setCheckable(true);
     menu->addAction(act);
-    act->setEnabled(false);
 
     menu->addSeparator();
 
@@ -440,6 +439,9 @@ void FbMainWindow::createActions()
     menu->addAction(act);
 
     actionSectionDel = act = new FbTextAction(FbIcon("format-indent-less"), tr("Remove section"), QWebPage::ToggleSubscript, this);
+    menu->addAction(act);
+
+    actionTextTitle = act = new FbTextAction(FbIcon("format-justify-center"), tr("Make title"), QWebPage::ToggleSubscript, this);
     menu->addAction(act);
 
     menuView = menu = menuBar()->addMenu(tr("&View"));
@@ -722,6 +724,7 @@ void FbMainWindow::createTextToolbar()
 
     connect(actionSectionAdd, SIGNAL(triggered()), textPage, SLOT(createSection()));
     connect(actionSectionDel, SIGNAL(triggered()), textPage, SLOT(deleteSection()));
+    connect(actionTextTitle, SIGNAL(triggered()), textPage, SLOT(createTitle()));
 
     connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
@@ -737,6 +740,7 @@ void FbMainWindow::createTextToolbar()
     tool->addSeparator();
     tool->addAction(actionSectionAdd);
     tool->addAction(actionSectionDel);
+    tool->addAction(actionTextTitle);
 
     tool->addSeparator();
     tool->addAction(actionImage);
