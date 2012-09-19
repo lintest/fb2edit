@@ -90,7 +90,8 @@ public slots:
     void insertPoem();
     void insertStanza();
     void insertDate();
-    void separateSection();
+    void createSection();
+    void deleteSection();
 
 protected:
     virtual bool acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type);

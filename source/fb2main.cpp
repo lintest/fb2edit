@@ -391,7 +391,7 @@ void FbMainWindow::createActions()
 
     menu->addSeparator();
 
-    actionSectSeparator = act = new QAction(tr("Section break"), this);
+    actionSimpleText = act = new QAction(tr("Simple text"), this);
     menu->addAction(act);
 
     actionParaSeparator = act = new QAction(tr("Paragraph"), this);
@@ -433,6 +433,14 @@ void FbMainWindow::createActions()
     act->setCheckable(true);
     menu->addAction(act);
     act->setEnabled(false);
+
+    menu->addSeparator();
+
+    actionSectionAdd = act = new FbTextAction(FbIcon("format-indent-more"), tr("Create section"), QWebPage::ToggleSubscript, this);
+    menu->addAction(act);
+
+    actionSectionDel = act = new FbTextAction(FbIcon("format-indent-less"), tr("Remove section"), QWebPage::ToggleSubscript, this);
+    menu->addAction(act);
 
     menuView = menu = menuBar()->addMenu(tr("&View"));
 
@@ -709,9 +717,11 @@ void FbMainWindow::createTextToolbar()
     connect(actionDate, SIGNAL(triggered()), textPage, SLOT(insertDate()));
     connect(actionBody, SIGNAL(triggered()), textPage, SLOT(insertBody()));
 
-    connect(actionSectSeparator, SIGNAL(triggered()), textPage, SLOT(separateSection()));
     connect(actionParaSeparator, SIGNAL(triggered()), textEdit->pageAction(QWebPage::InsertParagraphSeparator), SIGNAL(triggered()));
     connect(actionLineSeparator, SIGNAL(triggered()), textEdit->pageAction(QWebPage::InsertLineSeparator), SIGNAL(triggered()));
+
+    connect(actionSectionAdd, SIGNAL(triggered()), textPage, SLOT(createSection()));
+    connect(actionSectionDel, SIGNAL(triggered()), textPage, SLOT(deleteSection()));
 
     connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
@@ -725,7 +735,10 @@ void FbMainWindow::createTextToolbar()
     textEdit->addTools(tool);
 
     tool->addSeparator();
+    tool->addAction(actionSectionAdd);
+    tool->addAction(actionSectionDel);
 
+    tool->addSeparator();
     tool->addAction(actionImage);
     tool->addAction(actionNote);
     tool->addAction(actionLink);
