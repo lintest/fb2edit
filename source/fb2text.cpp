@@ -279,8 +279,21 @@ void FbTextPage::insertDate()
 
 void FbTextPage::createSection()
 {
-    static const QString javascript = FB2::read(":/js/new_section.js");
-    mainFrame()->evaluateJavaScript(javascript);
+    // $(document).children("html").children("body").children("div.body").children("div.section").get(0)
+    static const QString js1 = FB2::read(":/js/section_get.js");
+    QString result = mainFrame()->evaluateJavaScript(js1).toString();
+    int pos = result.indexOf("|");
+    if (pos == 0) return;
+    const QString location = result.left(pos);
+    const QString position = result.mid(pos + 1);
+    FbTextElement original = element(location);
+    FbTextElement section = original.clone();
+    original.appendOutside(section);
+    original.takeFromDocument();
+    static const QString js2 = FB2::read(":/js/section_new.js") + ";f(this,%1)";
+    section.evaluateJavaScript(js2.arg(position));
+    QUndoCommand * command = new FbReplaceCmd(original, section);
+    push(command, tr("Create section"));
 }
 
 void FbTextPage::deleteSection()
@@ -314,7 +327,8 @@ FbTextElement FbTextPage::current()
 
 FbTextElement FbTextPage::element(const QString &location)
 {
-    QStringList list = location.split(",");
+    if (location.isEmpty()) return FbTextElement();
+    QStringList list = location.split(",", QString::SkipEmptyParts);
     QStringListIterator iterator(list);
     QWebElement result = doc();
     while (iterator.hasNext()) {
@@ -331,7 +345,7 @@ FbTextElement FbTextPage::element(const QString &location)
 
 QString FbTextPage::location()
 {
-    static const QString javascript = FB2::read(":/js/get_location.js").prepend("var element=document.getSelection().anchorNode;");
+    const QString javascript = "location(document.getSelection().anchorNode)";
     return mainFrame()->evaluateJavaScript(javascript).toString();
 }
 

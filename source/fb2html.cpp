@@ -183,8 +183,7 @@ FbTextElement FbTextElement::insertInside(const QString &style, const QString &h
 
 QString FbTextElement::location()
 {
-    static const QString javascript = FB2::read(":/js/get_location.js").prepend("var element=this;");
-    return evaluateJavaScript(javascript).toString();
+    return evaluateJavaScript("location(this)").toString();
 }
 
 void FbTextElement::select()
@@ -262,6 +261,36 @@ void FbInsertCmd::redo()
 void FbInsertCmd::undo()
 {
     m_element.takeFromDocument();
+}
+
+//---------------------------------------------------------------------------
+//  FbReplaceCmd
+//---------------------------------------------------------------------------
+
+FbReplaceCmd::FbReplaceCmd(const FbTextElement &original, const FbTextElement &element)
+    : QUndoCommand()
+    , m_original(original)
+    , m_element(element)
+    , m_update(false)
+{
+}
+
+void FbReplaceCmd::redo()
+{
+    if (m_update) {
+        m_original.prependOutside(m_element);
+        m_original.takeFromDocument();
+        m_element.select();
+    } else {
+        m_update = true;
+    }
+}
+
+void FbReplaceCmd::undo()
+{
+    m_element.prependOutside(m_original);
+    m_element.takeFromDocument();
+    m_original.select();
 }
 
 //---------------------------------------------------------------------------

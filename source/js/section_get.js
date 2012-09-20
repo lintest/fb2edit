@@ -1,15 +1,15 @@
-(function(){
-if(window.getSelection().rangeCount===0)return;
+(f=function(){
 var selection=window.getSelection();
+if(selection.rangeCount===0)return;
 var range=selection.getRangeAt(0);
 var root=range.commonAncestorContainer;
 var start=range.startContainer;
 var end=range.endContainer;
 while (true) {
  if(root===null)return;
- tag=root.nodeName.toLowerCase();
- if(tag==="body")return;
- if(tag==="div"){
+ tag=root.tagName;
+ if(tag==="BODY")return;
+ if(tag==="DIV"){
   type=root.className.toLowerCase();
   if(type==="body"||type==="section")break;
  }
@@ -23,13 +23,5 @@ while(end.parentNode!==root) {
  if(end===null)return;
  end=end.parentNode;
 }
-range=document.createRange();
-range.setStartBefore(start);
-range.setEndAfter(end);
-var newNode=document.createElement("div");
-newNode.className="section";
-range.surroundContents(newNode);
-range.setEndBefore(start);
-selection.removeAllRanges();
-selection.addRange(range);
+return location(root) + "|" + $(root).children().index(start) + "," + $(root).children().index(end);
 })()

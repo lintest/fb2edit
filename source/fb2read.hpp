@@ -200,6 +200,7 @@ protected:
 
 private:
     void addFile(const QString &name, const QByteArray &data);
+    void writeScript(const QString &src);
 
 private:
     typedef QHash<QString, QString> StringHash;

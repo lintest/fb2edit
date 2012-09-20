@@ -3,9 +3,10 @@
         <file alias="jquery.js">../../3rdparty/jQuery/jquery.js</file>
         <file>export.js</file>
         <file>get_status.js</file>
-        <file>get_location.js</file>
         <file>set_cursor.js</file>
         <file>insert_title.js</file>
-        <file>new_section.js</file>
+        <file>location.js</file>
+        <file>section_get.js</file>
+        <file>section_new.js</file>
     </qresource>
 </RCC>

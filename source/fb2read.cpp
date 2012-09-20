@@ -408,19 +408,24 @@ FbReadHandler::FbReadHandler(FbReadThread &thread, QXmlStreamWriter &writer)
 {
     m_writer.setAutoFormatting(true);
     m_writer.setAutoFormattingIndent(2);
-
     m_writer.writeStartElement("html");
     m_writer.writeStartElement("head");
-    m_writer.writeStartElement("script");
-    m_writer.writeAttribute("type", "text/javascript");
-    m_writer.writeAttribute("src", "qrc:/js/jquery.js");
-    m_writer.writeCharacters(" ");
-    m_writer.writeEndElement();
+    writeScript("qrc:/js/jquery.js");
+    writeScript("qrc:/js/location.js");
     m_writer.writeEndElement();
 }
 
 FbReadHandler::~FbReadHandler()
 {
+    m_writer.writeEndElement();
+}
+
+void FbReadHandler::writeScript(const QString &src)
+{
+    m_writer.writeStartElement("script");
+    m_writer.writeAttribute("type", "text/javascript");
+    m_writer.writeAttribute("src", src);
+    m_writer.writeCharacters(" ");
     m_writer.writeEndElement();
 }
 

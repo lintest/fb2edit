@@ -102,6 +102,18 @@ private:
     bool m_inner;
 };
 
+class FbReplaceCmd : public QUndoCommand
+{
+public:
+    explicit FbReplaceCmd(const FbTextElement &original, const FbTextElement &element);
+    virtual void undo();
+    virtual void redo();
+private:
+    FbTextElement m_original;
+    FbTextElement m_element;
+    bool m_update;
+};
+
 class FbDeleteCmd : public QUndoCommand
 {
 public:
