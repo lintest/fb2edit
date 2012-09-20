@@ -1,4 +1,4 @@
-f=function(elem,start, end){
+f=function(elem,start,end){
 start=$(elem).children().get(start);
 end=$(elem).children().get(end);
 var range=document.createRange();

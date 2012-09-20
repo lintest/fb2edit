@@ -59,10 +59,12 @@ public:
     FbTextElement(const QWebElement &x) : QWebElement(x) {}
     FbTextElement &operator=(const QWebElement &x) { QWebElement::operator=(x); return *this; }
     FbTextElement insertInside(const QString &style, const QString &html);
+    FbTextElement child(int index) const;
     void getChildren(FbElementList &list);
     bool hasSubtype(const QString &style) const;
     bool hasScheme() const;
     QString location();
+    int index() const;
 
 public:
     bool hasChild(const QString &style) const;
@@ -105,12 +107,12 @@ private:
 class FbReplaceCmd : public QUndoCommand
 {
 public:
-    explicit FbReplaceCmd(const FbTextElement &original, const FbTextElement &element);
+    explicit FbReplaceCmd(const FbTextElement &original, const FbTextElement &duplicate);
     virtual void undo();
     virtual void redo();
 private:
     FbTextElement m_original;
-    FbTextElement m_element;
+    FbTextElement m_duplicate;
     bool m_update;
 };
 

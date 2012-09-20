@@ -232,6 +232,27 @@ bool FbTextElement::hasTitle() const
     return FbTextElement(firstChild()).isTitle();
 }
 
+int FbTextElement::index() const
+{
+    int result = -1;
+    FbTextElement prior = *this;
+    while (!prior.isNull()) {
+        prior = prior.previousSibling();
+        result++;
+    }
+    return result;
+}
+
+FbTextElement FbTextElement::child(int index) const
+{
+    FbTextElement result = firstChild();
+    while (index > 0) {
+        result = result.nextSibling();
+        index--;
+    }
+    return index ? FbTextElement() : result;
+}
+
 //---------------------------------------------------------------------------
 //  FbInsertCmd
 //---------------------------------------------------------------------------
@@ -267,10 +288,10 @@ void FbInsertCmd::undo()
 //  FbReplaceCmd
 //---------------------------------------------------------------------------
 
-FbReplaceCmd::FbReplaceCmd(const FbTextElement &original, const FbTextElement &element)
+FbReplaceCmd::FbReplaceCmd(const FbTextElement &original, const FbTextElement &duplicate)
     : QUndoCommand()
     , m_original(original)
-    , m_element(element)
+    , m_duplicate(duplicate)
     , m_update(false)
 {
 }
@@ -278,9 +299,9 @@ FbReplaceCmd::FbReplaceCmd(const FbTextElement &original, const FbTextElement &e
 void FbReplaceCmd::redo()
 {
     if (m_update) {
-        m_original.prependOutside(m_element);
+        m_original.prependOutside(m_duplicate);
         m_original.takeFromDocument();
-        m_element.select();
+        m_duplicate.select();
     } else {
         m_update = true;
     }
@@ -288,8 +309,8 @@ void FbReplaceCmd::redo()
 
 void FbReplaceCmd::undo()
 {
-    m_element.prependOutside(m_original);
-    m_element.takeFromDocument();
+    m_duplicate.prependOutside(m_original);
+    m_duplicate.takeFromDocument();
     m_original.select();
 }
 

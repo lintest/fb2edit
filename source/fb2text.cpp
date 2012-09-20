@@ -287,12 +287,12 @@ void FbTextPage::createSection()
     const QString location = result.left(pos);
     const QString position = result.mid(pos + 1);
     FbTextElement original = element(location);
-    FbTextElement section = original.clone();
-    original.appendOutside(section);
+    FbTextElement duplicate = original.clone();
+    original.appendOutside(duplicate);
     original.takeFromDocument();
     static const QString js2 = FB2::read(":/js/section_new.js") + ";f(this,%1)";
-    section.evaluateJavaScript(js2.arg(position));
-    QUndoCommand * command = new FbReplaceCmd(original, section);
+    duplicate.evaluateJavaScript(js2.arg(position));
+    QUndoCommand * command = new FbReplaceCmd(original, duplicate);
     push(command, tr("Create section"));
 }
 
@@ -301,15 +301,25 @@ void FbTextPage::deleteSection()
     FbTextElement element = current();
     while (!element.isNull()) {
         if (element.isSection()) {
-            FbTextElement parent = element.parent();
-            FbTextElement subling = element.previousSibling();
+            if (element.parent().isBody()) return;
+            FbTextElement original = element.parent();
+            FbTextElement duplicate = original.clone();
+            int index = element.index();
+            original.appendOutside(duplicate);
+            original.takeFromDocument();
+            element = duplicate.child(index);
+            if (index) {
+                FbTextElement title = element.firstChild();
+                if (title.isTitle()) {
+                    title.removeClass("title");
+                    title.addClass("subtitle");
+                }
+            }
             QString xml = element.toInnerXml();
             element.setOuterXml(xml);
-            if (subling.isNull()) {
-                parent.select();
-            } else {
-                subling.nextSibling().select();
-            }
+            QUndoCommand * command = new FbReplaceCmd(original, duplicate);
+            push(command, tr("Remove section"));
+            element.select();
             break;
         }
         element = element.parent();
@@ -365,6 +375,9 @@ void FbTextPage::loadFinished()
 void FbTextPage::fixContents()
 {
     foreach (QWebElement span, doc().findAll("span.apple-style-span[style]")) {
+        span.removeAttribute("style");
+    }
+    foreach (QWebElement span, doc().findAll("[style]")) {
         span.removeAttribute("style");
     }
 }
