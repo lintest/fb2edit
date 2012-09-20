@@ -96,6 +96,7 @@ public slots:
 
 protected:
     virtual bool acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type);
+    void createDiv(const QString &className);
 
 protected:
     static QString div(const QString &style, const QString &text);

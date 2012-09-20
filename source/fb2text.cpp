@@ -277,23 +277,30 @@ void FbTextPage::insertDate()
 {
 }
 
-void FbTextPage::createSection()
+void FbTextPage::createDiv(const QString &className)
 {
     // $(document).children("html").children("body").children("div.body").children("div.section").get(0)
+    QString style = className;
     static const QString js1 = FB2::read(":/js/section_get.js");
     QString result = mainFrame()->evaluateJavaScript(js1).toString();
     int pos = result.indexOf("|");
     if (pos == 0) return;
     const QString location = result.left(pos);
     const QString position = result.mid(pos + 1);
+    if (style == "title" && position.left(2) != "0,") style.prepend("sub");
     FbTextElement original = element(location);
     FbTextElement duplicate = original.clone();
     original.appendOutside(duplicate);
     original.takeFromDocument();
-    static const QString js2 = FB2::read(":/js/section_new.js") + ";f(this,%1)";
-    duplicate.evaluateJavaScript(js2.arg(position));
+    static const QString js2 = FB2::read(":/js/section_new.js") + ";f(this,'%1',%2)";
+    duplicate.evaluateJavaScript(js2.arg(style).arg(position));
     QUndoCommand * command = new FbReplaceCmd(original, duplicate);
     push(command, tr("Create section"));
+}
+
+void FbTextPage::createSection()
+{
+    createDiv("section");
 }
 
 void FbTextPage::deleteSection()

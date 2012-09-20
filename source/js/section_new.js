@@ -1,11 +1,11 @@
-f=function(elem,start,end){
+f=function(elem,style,start,end){
 start=$(elem).children().get(start);
 end=$(elem).children().get(end);
 var range=document.createRange();
 range.setStartBefore(start);
 range.setEndAfter(end);
 var newNode=document.createElement("div");
-newNode.className="section";
+newNode.className=style;
 range.surroundContents(newNode);
 range.setEndBefore(start);
 var selection=window.getSelection();

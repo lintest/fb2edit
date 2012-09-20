@@ -23,5 +23,9 @@ while(end.parentNode!==root) {
  if(end===null)return;
  end=end.parentNode;
 }
-return location(root) + "|" + $(root).children().index(start) + "," + $(root).children().index(end);
+return location(root)
++"|"+$(root).children().index(start)
++","+$(root).children().index(end)
++","+range.startOffset
++","+range.endOffset;
 })()
