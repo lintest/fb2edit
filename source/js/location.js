@@ -9,3 +9,18 @@ var f=function(){
 };
 return h.map(f).get().join(",");
 };
+
+function locator(node){
+if (node === undefined) return "undefined";
+return (f = function(node){
+	if (node.tagName === "HTML") return "$('html')";
+	var child = $(node);
+	var parent = child.parent();
+    var prefix = f(node.parentNode);
+	if (node.nodeName === "#text") {
+        return prefix + ".contents()" + ".eq(" + parent.contents().index(node) + ")";
+	} else {
+        return prefix + ".children()" + ".eq(" + parent.children().index(node) + ")";
+	}
+})(node) + ".first()";
+};

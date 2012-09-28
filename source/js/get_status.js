@@ -1,3 +1,4 @@
+logger.trace(locator(document.getSelection().baseNode));
 var baseNode = document.getSelection().baseNode;
 if (baseNode === null) ''; else {
 	(f = function(node){
