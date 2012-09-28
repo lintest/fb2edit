@@ -472,6 +472,12 @@ void FbMainWindow::createActions()
     menu->addAction(act);
     tool->addAction(act);
 
+    act = new QAction(tr("&HTML"), this);
+    act->setCheckable(true);
+    connect(act, SIGNAL(triggered()), this, SLOT(viewHtml()));
+    viewGroup->addAction(act);
+    menu->addAction(act);
+
     menu->addSeparator();
 
     actionZoomIn = act = new QAction(FbIcon("zoom-in"), tr("Zoom in"), this);
@@ -852,8 +858,10 @@ void FbMainWindow::viewCode()
 
     bool load = false;
     QByteArray xml;
+    QString html;
     if (textFrame) {
         textFrame->view()->save(&xml);
+        html = textFrame->view()->page()->mainFrame()->toHtml();
         isSwitched = true;
         load = true;
     }
@@ -867,6 +875,69 @@ void FbMainWindow::viewCode()
         codeEdit = new FbCodeEdit;
     }
     if (load) codeEdit->load(xml);
+    codeEdit->setPlainText(html);
+    setCentralWidget(codeEdit);
+    codeEdit->setFocus();
+
+    FB2DELETE(toolEdit);
+    QToolBar *tool = toolEdit = addToolBar(tr("Edit"));
+    tool->addSeparator();
+    tool->addAction(actionUndo);
+    tool->addAction(actionRedo);
+    tool->addSeparator();
+    tool->addAction(actionCut);
+    tool->addAction(actionCopy);
+    tool->addAction(actionPaste);
+    tool->addSeparator();
+    tool->addAction(actionZoomIn);
+    tool->addAction(actionZoomOut);
+    tool->addAction(actionZoomReset);
+    tool->setMovable(false);
+
+    connect(codeEdit, SIGNAL(textChanged()), this, SLOT(documentWasModified()));
+    connect(codeEdit, SIGNAL(textChanged()), this, SLOT(checkScintillaUndo()));
+
+    connect(codeEdit, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)));
+    connect(codeEdit, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)));
+
+    connect(actionUndo, SIGNAL(triggered()), codeEdit, SLOT(undo()));
+    connect(actionRedo, SIGNAL(triggered()), codeEdit, SLOT(redo()));
+
+    connect(actionCut, SIGNAL(triggered()), codeEdit, SLOT(cut()));
+    connect(actionCopy, SIGNAL(triggered()), codeEdit, SLOT(copy()));
+    connect(actionPaste, SIGNAL(triggered()), codeEdit, SLOT(paste()));
+
+    connect(actionFind, SIGNAL(triggered()), codeEdit, SLOT(find()));
+
+    connect(actionZoomIn, SIGNAL(triggered()), codeEdit, SLOT(zoomIn()));
+    connect(actionZoomOut, SIGNAL(triggered()), codeEdit, SLOT(zoomOut()));
+    connect(actionZoomReset, SIGNAL(triggered()), codeEdit, SLOT(zoomReset()));
+
+    actionContents->setEnabled(false);
+    actionPictures->setEnabled(false);
+    actionInspect->setEnabled(false);
+}
+
+void FbMainWindow::viewHtml()
+{
+    if (codeEdit && centralWidget() == codeEdit) return;
+    if (!textFrame) return;
+
+    bool load = false;
+    QString html = textFrame->view()->page()->mainFrame()->toHtml();
+    isSwitched = true;
+    load = true;
+
+    FB2DELETE(textFrame);
+    FB2DELETE(dockTree);
+    FB2DELETE(dockImgs);
+    FB2DELETE(headTree);
+
+    if (!codeEdit) {
+        codeEdit = new FbCodeEdit;
+    }
+
+    codeEdit->setPlainText(html);
     setCentralWidget(codeEdit);
     codeEdit->setFocus();
 

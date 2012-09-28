@@ -63,6 +63,7 @@ private slots:
     void logDestroyed();
     void logShowed();
     void viewCode();
+    void viewHtml();
     void viewText();
     void viewHead();
     void viewTree();
