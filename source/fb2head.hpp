@@ -87,6 +87,10 @@ public:
         return m_parent;
     }
 
+    QWebElement element() const {
+        return m_element;
+    }
+
     QString text(int col = 0) const;
 
     void setText(const QString &text);
@@ -163,7 +167,7 @@ signals:
     void status(const QString &text);
 
 public slots:
-    void editCurrent();
+    void editCurrent(const QModelIndex &index);
     void updateTree();
 
 private slots:
@@ -190,16 +194,28 @@ class FbNodeDlg : public QDialog
     Q_OBJECT
 
 public:
-    explicit FbNodeDlg(QWidget *parent, FbScheme scheme, QStringList &list);
+    explicit FbNodeDlg(QWidget *parent, const FbScheme &scheme, const QStringList &list);
     QString value() const;
 
 private slots:
     void comboChanged(const QString &text);
 
 private:
-    const FbScheme m_scheme;
+    const FbScheme &m_scheme;
     QComboBox * m_combo;
     QLabel * m_text;
+};
+
+class FbNodeEditDlg : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit FbNodeEditDlg(QWidget *parent, const FbScheme &scheme, const QWebElement &element);
+
+private:
+    const FbScheme &m_scheme;
+    QWebElement m_element;
 };
 
 class FbAuthorDlg : public QDialog

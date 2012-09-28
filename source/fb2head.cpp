@@ -486,14 +486,15 @@ FbHeadView::FbHeadView(FbTextEdit *view, QWidget *parent)
 
     //setItemDelegate(new QItemDelegate(this));
     setRootIsDecorated(false);
-    setSelectionBehavior(QAbstractItemView::SelectRows);
+    setSelectionBehavior(QAbstractItemView::SelectItems);
     setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     connect(&m_view, SIGNAL(loadFinished(bool)), SLOT(updateTree()));
     connect(this, SIGNAL(activated(QModelIndex)), SLOT(activated(QModelIndex)));
     connect(this, SIGNAL(collapsed(QModelIndex)), SLOT(collapsed(QModelIndex)));
 
     header()->setDefaultSectionSize(200);
-    connect(actionModify, SIGNAL(triggered()), SLOT(editCurrent()));
+//    connect(this, SIGNAL(activated(QModelIndex)), SLOT(editCurrent(QModelIndex)));
+//    connect(actionModify, SIGNAL(triggered()), SLOT(editCurrent()));
 }
 
 void FbHeadView::initToolbar(QToolBar &toolbar)
@@ -510,15 +511,18 @@ void FbHeadView::updateTree()
     model->expand(this);
 }
 
-void FbHeadView::editCurrent()
+void FbHeadView::editCurrent(const QModelIndex &index)
 {
-    if (!model()) return;
-    QModelIndex current = currentIndex();
-    if (!current.isValid()) return;
-    QModelIndex parent = model()->parent(current);
-    QModelIndex index = model()->index(current.row(), 1, parent);
-    setCurrentIndex(index);
-    edit(index);
+    FbHeadModel * m = qobject_cast<FbHeadModel*>(model());
+    if (!m) return;
+
+    FbHeadItem * item = m->item(index);
+    if (!item) return;
+
+    FbNodeEditDlg dlg(this, item->scheme(), item->element());
+    if (dlg.exec()) {
+        //TODO
+    }
 }
 
 void FbHeadView::activated(const QModelIndex &index)
@@ -576,7 +580,11 @@ void FbHeadView::appendNode()
     FbNodeDlg dlg(this, item->scheme(), list);
     if (dlg.exec()) {
         current = m->append(current, dlg.value());
-        if (current.isValid()) setCurrentIndex(current);
+        if (current.isValid()) {
+            setCurrentIndex(current);
+            scrollTo(current);
+            expand(current);
+        }
     }
 }
 
@@ -594,7 +602,7 @@ QModelIndex FbHeadModel::append(const QModelIndex &parent, const QString &name)
     beginInsertRows(parent, row, row);
     FbHeadItem * item = owner->append(name);
     endInsertRows();
-    return createIndex(row, 0, (void*)item);
+    return createIndex(row, 1, (void*)item);
 }
 
 void FbHeadModel::remove(const QModelIndex &index)
@@ -611,7 +619,7 @@ void FbHeadModel::remove(const QModelIndex &index)
 //  FbNodeDlg
 //---------------------------------------------------------------------------
 
-FbNodeDlg::FbNodeDlg(QWidget *parent, FbScheme scheme, QStringList &list)
+FbNodeDlg::FbNodeDlg(QWidget *parent, const FbScheme &scheme, const QStringList &list)
     : QDialog(parent)
     , m_scheme(scheme)
 {
@@ -620,7 +628,6 @@ FbNodeDlg::FbNodeDlg(QWidget *parent, FbScheme scheme, QStringList &list)
     QGridLayout * layout = new QGridLayout(this);
 
     QLabel * label = new QLabel(this);
-    label->setObjectName(QString::fromUtf8("label"));
     label->setText(tr("Tag name:"));
     layout->addWidget(label, 0, 0, 1, 1);
 
@@ -661,6 +668,37 @@ void FbNodeDlg::comboChanged(const QString &text)
 QString FbNodeDlg::value() const
 {
     return m_combo->currentText();
+}
+
+//---------------------------------------------------------------------------
+//  FbNodeEditDlg
+//---------------------------------------------------------------------------
+
+FbNodeEditDlg::FbNodeEditDlg(QWidget *parent, const FbScheme &scheme, const QWebElement &element)
+    : QDialog(parent)
+    , m_scheme(scheme)
+    , m_element(element)
+{
+    setWindowTitle(tr("Modify tag"));
+
+    QGridLayout * layout = new QGridLayout(this);
+
+    QLabel *label = new QLabel(this);
+    label->setText(tr("Value:"));
+    layout->addWidget(label, 0, 0, 1, 1);
+
+    QLineEdit *edit = new QLineEdit(this);
+    layout->addWidget(edit, 0, 1, 1, 1);
+
+    QDialogButtonBox * buttons = new QDialogButtonBox(this);
+    buttons->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+    buttons->setOrientation(Qt::Horizontal);
+    layout->addWidget(buttons, 2, 0, 1, 2);
+
+    layout->setColumnStretch(1, 1);
+
+    connect(buttons, SIGNAL(accepted()), SLOT(accept()));
+    connect(buttons, SIGNAL(rejected()), SLOT(reject()));
 }
 
 //---------------------------------------------------------------------------
