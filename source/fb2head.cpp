@@ -99,12 +99,42 @@ QString FbScheme::info() const
 QString FbScheme::type() const
 {
     if (isNull()) return QString();
+    if (attribute("name") == "last-name") {
+        QString result = attribute("type");
+        return result;
+    }
     QString result = attribute("type");
     if (!result.isEmpty()) return result;
-    FbScheme child = firstChildElement("xs:complexType");
-    child = child.firstChildElement("xs:complexContent");
-    child = child.firstChildElement("xs:extension");
-    return child.attribute("base");
+    FbScheme child = firstChildElement("xs:complexType").firstChildElement();
+    while (!child.isNull()) {
+        QString tag = child.tagName();
+        if (tag == "xs:complexContent" || tag == "xs:simpleContent") {
+            return child.firstChildElement("xs:extension").attribute("base");
+        }
+        child = child.nextSiblingElement();
+    }
+    return QString();
+}
+
+FbScheme FbScheme::item(const QString &name) const
+{
+    FbScheme child = firstChildElement();
+    while (!child.isNull()) {
+        switch (toKeyword(child.tagName())) {
+            case XsElement: {
+                    if (child.attribute("name") == name) return child;
+                } break;
+            case XsChoice:
+            case XsComplexType:
+            case XsSequence: {
+                    FbScheme result = child.item(name);
+                    if (!result.isNull()) return result;
+                } break;
+            default: ;
+        }
+        child = child.nextSiblingElement();
+    }
+    return FbScheme();
 }
 
 FbScheme FbScheme::element(const QString &name) const
@@ -115,22 +145,8 @@ FbScheme FbScheme::element(const QString &name) const
         parent = parent.element("FictionBook");
     }
 
-    FbScheme child = parent.firstChildElement();
-    while (!child.isNull()) {
-        switch (toKeyword(child.tagName())) {
-            case XsElement: {
-                    if (child.attribute("name") == name) return child;
-                } break;
-            case XsChoice:
-            case XsComplexType:
-            case XsSequence: {
-                    FbScheme result = child.element(name);
-                    if (!result.isNull()) return result;
-                } break;
-            default: ;
-        }
-        child = child.nextSiblingElement();
-    }
+    FbScheme child = parent.item(name);
+    if (!child.isNull()) return child;
 
     QString type = this->type();
     if (type.isEmpty()) return *this;
@@ -579,11 +595,11 @@ void FbHeadView::appendNode()
 
     FbNodeDlg dlg(this, item->scheme(), list);
     if (dlg.exec()) {
-        current = m->append(current, dlg.value());
-        if (current.isValid()) {
-            setCurrentIndex(current);
-            scrollTo(current);
+        QModelIndex child = m->append(current, dlg.value());
+        if (child.isValid()) {
             expand(current);
+            setCurrentIndex(child);
+            scrollTo(child);
         }
     }
 }
@@ -602,7 +618,7 @@ QModelIndex FbHeadModel::append(const QModelIndex &parent, const QString &name)
     beginInsertRows(parent, row, row);
     FbHeadItem * item = owner->append(name);
     endInsertRows();
-    return createIndex(row, 1, (void*)item);
+    return createIndex(row, 0, (void*)item);
 }
 
 void FbHeadModel::remove(const QModelIndex &index)

@@ -49,6 +49,7 @@ public:
 
 private:
     FbScheme typeScheme() const;
+    FbScheme item(const QString &name) const;
 };
 
 class FbHeadItem: public QObject
