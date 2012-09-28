@@ -22,12 +22,24 @@ class FbNoteView;
 class FbReadThread;
 class FbTextElement;
 
+class FbTextLogger : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit FbTextLogger(QObject *parent = 0) : QObject(parent) {}
+
+public slots:
+    void trace(const QString &text);
+
+};
+
 class FbTextBase : public QWebView
 {
     Q_OBJECT
 
 public:
-    FbTextBase(QWidget* parent = 0)
+    FbTextBase(QWidget *parent = 0)
         : QWebView(parent)
     {
           m_timer.setInterval(100);
@@ -106,6 +118,9 @@ protected:
 private slots:
     void loadFinished();
     void fixContents();
+
+private:
+    FbTextLogger m_logger;
 };
 
 class FbTextEdit : public FbTextBase

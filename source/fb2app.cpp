@@ -1,5 +1,6 @@
-#include <QApplication>
 #include <QErrorMessage>
+#include <QLocale>
+#include <QTranslator>
 
 #include "fb2app.hpp"
 #include "fb2main.hpp"

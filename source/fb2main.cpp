@@ -472,11 +472,13 @@ void FbMainWindow::createActions()
     menu->addAction(act);
     tool->addAction(act);
 
+#ifdef QT_DEBUG
     act = new QAction(tr("&HTML"), this);
     act->setCheckable(true);
     connect(act, SIGNAL(triggered()), this, SLOT(viewHtml()));
     viewGroup->addAction(act);
     menu->addAction(act);
+#endif // _DEBUG
 
     menu->addSeparator();
 
@@ -858,10 +860,8 @@ void FbMainWindow::viewCode()
 
     bool load = false;
     QByteArray xml;
-    QString html;
     if (textFrame) {
         textFrame->view()->save(&xml);
-        html = textFrame->view()->page()->mainFrame()->toHtml();
         isSwitched = true;
         load = true;
     }
@@ -875,7 +875,6 @@ void FbMainWindow::viewCode()
         codeEdit = new FbCodeEdit;
     }
     if (load) codeEdit->load(xml);
-    codeEdit->setPlainText(html);
     setCentralWidget(codeEdit);
     codeEdit->setFocus();
 
@@ -923,10 +922,8 @@ void FbMainWindow::viewHtml()
     if (codeEdit && centralWidget() == codeEdit) return;
     if (!textFrame) return;
 
-    bool load = false;
     QString html = textFrame->view()->page()->mainFrame()->toHtml();
     isSwitched = true;
-    load = true;
 
     FB2DELETE(textFrame);
     FB2DELETE(dockTree);

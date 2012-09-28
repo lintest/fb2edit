@@ -479,7 +479,7 @@ bool FbSaveHandler::save()
 {
     m_writer.writeStartDocument();
     QWebFrame * frame = m_writer.view().page()->mainFrame();
-    static const QString javascript = FB2::read(":/js/export.js");
+    QString javascript = jScript("export.js");
     frame->addToJavaScriptWindowObject("handler", this);
     frame->evaluateJavaScript(javascript);
     m_writer.writeEndDocument();

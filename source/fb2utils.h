@@ -12,10 +12,6 @@ public:
     explicit FbIcon(const QString &name);
 };
 
-namespace FB2 {
-
-QString read(const QString &filename);
-
-}
+QString jScript(const QString &filename);
 
 #endif // FB2UTILS_H

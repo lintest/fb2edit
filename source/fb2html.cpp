@@ -188,7 +188,7 @@ QString FbTextElement::location()
 
 void FbTextElement::select()
 {
-    static const QString javascript = FB2::read(":/js/set_cursor.js");
+    QString javascript = jScript("set_cursor.js");
     evaluateJavaScript(javascript);
 }
 

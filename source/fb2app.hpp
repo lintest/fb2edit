@@ -1,7 +1,7 @@
 #ifndef FB2APP_H
 #define FB2APP_H
 
-#include <QtGui>
+#include <QApplication>
 
 class FbApplication : public QApplication
 {

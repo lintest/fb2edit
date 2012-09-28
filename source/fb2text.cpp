@@ -27,6 +27,15 @@
 #include <QtDebug>
 
 //---------------------------------------------------------------------------
+//  FbTextLogger
+//---------------------------------------------------------------------------
+
+void FbTextLogger::trace(const QString &text)
+{
+    qCritical() << text;
+}
+
+//---------------------------------------------------------------------------
 //  FbNoteView
 //---------------------------------------------------------------------------
 
@@ -74,6 +83,7 @@ void FbNoteView::hint(const QWebElement element, const QRect &rect)
 
 FbTextPage::FbTextPage(QObject *parent)
     : QWebPage(parent)
+    , m_logger(this)
 {
     QWebSettings *s = settings();
     s->setAttribute(QWebSettings::AutoLoadImages, true);
@@ -281,7 +291,7 @@ void FbTextPage::createDiv(const QString &className)
 {
     // $(document).children("html").children("body").children("div.body").children("div.section").get(0)
     QString style = className;
-    static const QString js1 = FB2::read(":/js/section_get.js");
+    QString js1 = jScript("section_get.js");
     QString result = mainFrame()->evaluateJavaScript(js1).toString();
     int pos = result.indexOf("|");
     if (pos == 0) return;
@@ -292,7 +302,7 @@ void FbTextPage::createDiv(const QString &className)
     FbTextElement duplicate = original.clone();
     original.appendOutside(duplicate);
     original.takeFromDocument();
-    static const QString js2 = FB2::read(":/js/section_new.js") + ";f(this,'%1',%2)";
+    QString js2 = jScript("section_new.js") + ";f(this,'%1',%2)";
     duplicate.evaluateJavaScript(js2.arg(style).arg(position));
     QUndoCommand * command = new FbReplaceCmd(original, duplicate);
     push(command, tr("Create section"));
@@ -335,6 +345,7 @@ void FbTextPage::deleteSection()
 
 void FbTextPage::createTitle()
 {
+    createDiv("title");
 }
 
 FbTextElement FbTextPage::current()
@@ -362,18 +373,19 @@ FbTextElement FbTextPage::element(const QString &location)
 
 QString FbTextPage::location()
 {
-    const QString javascript = "location(document.getSelection().anchorNode)";
+    QString javascript = "location(document.getSelection().anchorNode)";
     return mainFrame()->evaluateJavaScript(javascript).toString();
 }
 
 QString FbTextPage::status()
 {
-    static const QString javascript = FB2::read(":/js/get_status.js");
+    QString javascript = jScript("get_status.js");
     return mainFrame()->evaluateJavaScript(javascript).toString();
 }
 
 void FbTextPage::loadFinished()
 {
+    mainFrame()->addToJavaScriptWindowObject("logger", &m_logger);
     FbTextElement element = body().findFirst("div.body");
     if (element.isNull()) element = body();
     element.select();

@@ -1,13 +1,16 @@
 #include "fb2utils.h"
 
+#include <QApplication>
+#include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QTextStream>
 
 static QIcon loadIcon(const QString &name)
 {
     QIcon icon;
     icon.addFile(QString(":/24x24/%1.png").arg(name), QSize(24,24));
-    icon.addFile(QString(":/16x24/%1.png").arg(name), QSize(16,16));
+    icon.addFile(QString(":/16x16/%1.png").arg(name), QSize(16,16));
     return icon;
 }
 
@@ -16,14 +19,23 @@ FbIcon::FbIcon(const QString &name)
 {
 }
 
-namespace FB2 {
-
-QString read(const QString &filename)
+QString jScript(const QString &filename)
 {
+
+#ifdef QT_DEBUG
+    QString filepath = qApp->arguments().first();
+    filepath += "/../../fb2edit/source/js/";
+    filepath += filename;
+    filepath = QDir::cleanPath(filepath);
+#else
+    QString filepath = ":/js/";
+    filepath += filename;
+#endif
+
     // TODO: throw an exception instead of
     // returning an empty string
-    QFile file( filename );
-    if (!file.open( QFile::ReadOnly)) return QString();
+    QFile file( filepath );
+    if (!file.open(QFile::ReadOnly)) return QString();
 
     QTextStream in( &file );
 
@@ -35,6 +47,4 @@ QString read(const QString &filename)
     in.setAutoDetectUnicode( true );
 
     return in.readAll();
-}
-
 }
