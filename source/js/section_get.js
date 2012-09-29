@@ -26,6 +26,8 @@ while(end.parentNode!==root) {
 return location(root)
 +"|"+$(root).children().index(start)
 +","+$(root).children().index(end)
++"|"+locator(range.startContainer)
 +","+range.startOffset
++","+locator(range.endContainer)
 +","+range.endOffset;
 })()

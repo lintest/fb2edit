@@ -7,6 +7,7 @@ range.setEndAfter(end);
 var newNode=document.createElement("div");
 newNode.className=style;
 range.surroundContents(newNode);
+range.setStartBefore(start);
 range.setEndBefore(start);
 var selection=window.getSelection();
 selection.removeAllRanges();

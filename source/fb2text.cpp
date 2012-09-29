@@ -289,14 +289,13 @@ void FbTextPage::insertDate()
 
 void FbTextPage::createDiv(const QString &className)
 {
-    // $(document).children("html").children("body").children("div.body").children("div.section").get(0)
     QString style = className;
     QString js1 = jScript("section_get.js");
     QString result = mainFrame()->evaluateJavaScript(js1).toString();
-    int pos = result.indexOf("|");
-    if (pos == 0) return;
-    const QString location = result.left(pos);
-    const QString position = result.mid(pos + 1);
+    QStringList list = result.split("|");
+    if (list.count() < 2) return;
+    const QString location = list[0];
+    const QString position = list[1];
     if (style == "title" && position.left(2) != "0,") style.prepend("sub");
     FbTextElement original = element(location);
     FbTextElement duplicate = original.clone();
@@ -305,7 +304,7 @@ void FbTextPage::createDiv(const QString &className)
     QString js2 = jScript("section_new.js") + ";f(this,'%1',%2)";
     duplicate.evaluateJavaScript(js2.arg(style).arg(position));
     QUndoCommand * command = new FbReplaceCmd(original, duplicate);
-    push(command, tr("Create section"));
+    push(command, tr("Create <%1>").arg(className));
 }
 
 void FbTextPage::createSection()

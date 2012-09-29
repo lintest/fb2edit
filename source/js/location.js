@@ -22,5 +22,5 @@ return (f = function(node){
 	} else {
         return prefix + ".children()" + ".eq(" + parent.children().index(node) + ")";
 	}
-})(node) + ".first()";
+})(node) + ".get(0)";
 };
