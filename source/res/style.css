@@ -2,23 +2,23 @@ body {
   font-family: serif;
 }
 
-div.stylesheet{
+fb\:stylesheet{
   display: none;
 }
 
-div.description div {
+fb\:description div {
   display: none;
 }
 
-div.description div.title-info {
+fb\:description fb\:title-info {
   display: block;
 }
 
-div.description div.title-info div {
+fb\:description fb\:title-info div {
   display: none;
 }
 
-div.description div.title-info div.annotation {
+fb\:description fb\:title-info fb\:annotation {
   display: block;
   padding-left: 10;
   padding-right: 10;
@@ -33,7 +33,7 @@ div.description div.title-info div.annotation {
   margin-bottom: 1em;
 }
 
-div.annotation:before {
+fb\:annotation:before {
     color: gray;
     text-align: right;
     content: "<annotation>";
@@ -45,19 +45,19 @@ div.annotation:before {
     margin-bottom: -1em;
 }
 
-div.description div.title-info div.annotation div {
+fb\:description fb\:title-info fb\:annotation div {
   display: block;
 }
 
-div.description div.document-info {
+fb\:description fb\:document-info {
   display: block;
 }
 
-div.description div.document-info div {
+fb\:description fb\:document-info div {
   display: none;
 }
 
-div.description div.document-info div.history {
+fb\:description fb\:document-info fb\:history {
   display: block;
   padding-left: 10;
   padding-right: 10;
@@ -72,7 +72,7 @@ div.description div.document-info div.history {
   margin-bottom: 1em;
 }
 
-div.history:before {
+fb\:history:before {
     color: gray;
     text-align: right;
     content: "<history>";
@@ -84,11 +84,16 @@ div.history:before {
     margin-bottom: -1em;
 }
 
-div.description div.document-info div.history div {
+fb\:description fb\:document-info fb\:history div {
   display: block;
 }
 
-div.section {
+fb\:body {
+  display: block;
+}
+
+fb\:section {
+  display: block;
   border-top: none;
   border-bottom: none; 
   border-left: thin solid green; 
@@ -99,7 +104,8 @@ div.section {
   padding-right: 0;
 }
 
-div.title {
+fb\:title {
+  display: block;
   color: white;
   background: green;
   text-align: center;
@@ -107,11 +113,12 @@ div.title {
   font-size: 120%;
 }
 
-div.section div.title {
+fb\:section fb\:title {
   font-size: 100%;
 }
 
-div.subtitle {
+fb\:subtitle {
+  display: block;
   color: white;
   background: #d8a903;
   text-align: center;
@@ -120,40 +127,44 @@ div.subtitle {
   margin-right: 2%;
 }
 
-div.epigraph {
+fb\:epigraph {
+  display: block;
   border-left: 2 dotted purple;
   margin-left: 15%;
   padding-left: 4;
 }
 
-div.cite {
+fb\:cite {
+  display: block;
   border-left: 2 dotted teal;
   margin-left: 10%;
   padding-left: 4;
 }
 
-div.poem {
+fb\:poem {
+  display: block;
   border-left: thin solid blue;
   margin-left: 5%;
   padding-left: 4;
 }
 
-div.poem div.stanza {
+fb\:poem fb\:stanza {
+  display: block;
   border-left: thin solid blue;
   padding-left: 4;
 }
 
-div.poem div {
+fb\:poem div {
   margin-top: 1em;
   margin-bottom: 1em;
 }
 
-div.poem p {
+fb\:poem p {
   margin-top: 0;
   margin-bottom: 0;
 }
 
-div.body[fb2_name=notes] {
+fb\:body[name=notes] {
   border-top: none;
   border-bottom: none;
   border-left: none;
@@ -164,7 +175,7 @@ div.body[fb2_name=notes] {
   padding-right: 0;
 }
 
-div.body[fb2_name=notes] div[id] div.title {
+fb\:body[name=notes] fb\:section[id] fb\:title {
   font: inherit;
   float: left;
   margin-left: 4;
@@ -173,7 +184,7 @@ div.body[fb2_name=notes] div[id] div.title {
   padding-right: 4;
 }
 
-div.body[fb2_name=notes] div[id] div.title p {
+fb\:body[name=notes] fb\:section[id] fb\:title p {
   margin-top: 0;
   margin-bottom: 0;
 }

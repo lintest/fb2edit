@@ -287,6 +287,20 @@ void FbTextPage::insertDate()
 {
 }
 
+void FbTextPage::insertText()
+{
+    FbTextElement element = current();
+    while (!element.isNull()) {
+        if (element.tagName() == "DIV") {
+            if (element.parent().isBody()) break;
+            element.appendOutside("<p><br></p>");
+            element.nextSibling().select();
+            return;
+        }
+        element = element.parent();
+    }
+}
+
 void FbTextPage::createDiv(const QString &className)
 {
     QString style = className;
@@ -384,6 +398,7 @@ QString FbTextPage::status()
 
 void FbTextPage::loadFinished()
 {
+    mainFrame()->evaluateJavaScript("window.focus()");
     mainFrame()->addToJavaScriptWindowObject("logger", &m_logger);
     FbTextElement element = body().findFirst("div.body");
     if (element.isNull()) element = body();

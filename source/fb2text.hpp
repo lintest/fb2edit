@@ -102,6 +102,7 @@ public slots:
     void insertPoem();
     void insertStanza();
     void insertDate();
+    void insertText();
     void createSection();
     void deleteSection();
     void createTitle();

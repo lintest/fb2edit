@@ -295,14 +295,7 @@ void FbSaveHandler::TextHandler::Init(const QXmlAttributes &atts)
     m_writer.writeStartElement(m_tag, m_level);
     int count = atts.count();
     for (int i = 0; i < count; i++) {
-        QString name = atts.qName(i);
-        if (name == "id") {
-            m_writer.writeAttribute(name, atts.value(i));
-        } else if (name == "name") {
-            m_writer.writeAttribute(name, atts.value(i));
-        } else if (name.left(4) == "fb2_") {
-            m_writer.writeAttribute(name.mid(4), atts.value(i));
-        }
+        m_writer.writeAttribute(atts.qName(i), atts.value(i));
     }
 }
 

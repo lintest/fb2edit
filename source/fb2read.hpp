@@ -136,7 +136,6 @@ private:
     class TextHandler : public BaseHandler
     {
         FB2_BEGIN_KEYLIST
-            Section,
             Anchor,
             Table,
             Image,
@@ -150,8 +149,8 @@ private:
             Code,
        FB2_END_KEYLIST
     public:
-        explicit TextHandler(FbReadHandler &owner, const QString &name, const QXmlAttributes &atts, const QString &tag, const QString &style = QString());
-        explicit TextHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts, const QString &tag, const QString &style = QString());
+        explicit TextHandler(FbReadHandler &owner, const QString &name, const QXmlAttributes &atts, const QString &tag);
+        explicit TextHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts, const QString &tag);
     protected:
         virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
         virtual void TxtTag(const QString &text);
