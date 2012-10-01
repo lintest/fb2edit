@@ -63,74 +63,17 @@ private:
             : NodeHandler(name), m_owner(owner) {}
     protected:
         QXmlStreamWriter & writer() { return m_owner.writer(); }
-        void writeAttributes(const QXmlAttributes &atts);
     protected:
         FbReadHandler &m_owner;
     };
 
     class RootHandler : public BaseHandler
     {
-        FB2_BEGIN_KEYLIST
-            Style,
-            Descr,
-            Body,
-            Binary,
-        FB2_END_KEYLIST
     public:
         explicit RootHandler(FbReadHandler &owner, const QString &name);
     protected:
         virtual NodeHandler * NewTag(const QString & name, const QXmlAttributes &atts);
         virtual void EndTag(const QString &name);
-    };
-
-    class StyleHandler : public BaseHandler
-    {
-    public:
-        explicit StyleHandler(FbReadHandler &owner, const QString &name, const QXmlAttributes &atts);
-    protected:
-        virtual void TxtTag(const QString &text);
-        virtual void EndTag(const QString &name);
-    private:
-        bool m_empty;
-    };
-
-    class HeadHandler : public BaseHandler
-    {
-        FB2_BEGIN_KEYLIST
-            Image,
-        FB2_END_KEYLIST
-    public:
-        explicit HeadHandler(FbReadHandler &owner, const QString &name, const QXmlAttributes &atts);
-    protected:
-        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
-        virtual void TxtTag(const QString &text);
-        virtual void EndTag(const QString &name);
-    private:
-        bool m_empty;
-    };
-
-    class DescrHandler : public HeadHandler
-    {
-        FB2_BEGIN_KEYLIST
-            Title,
-            Document,
-            Publish,
-            Custom,
-        FB2_END_KEYLIST
-    public:
-        explicit DescrHandler(FbReadHandler &owner, const QString &name, const QXmlAttributes &atts)
-            : HeadHandler(owner, name, atts) {}
-    protected:
-        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
-    };
-
-    class TitleHandler : public HeadHandler
-    {
-    public:
-        explicit TitleHandler(FbReadHandler &owner, const QString &name, const QXmlAttributes &atts)
-            : HeadHandler(owner, name, atts) {}
-    protected:
-        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
     };
 
     class TextHandler : public BaseHandler
@@ -156,30 +99,13 @@ private:
         virtual void TxtTag(const QString &text);
         virtual void EndTag(const QString &name);
     protected:
-        void Init(const QXmlAttributes &atts);
+        void Init(const QString &name, const QXmlAttributes &atts);
         bool isNotes() const;
     protected:
         TextHandler *m_parent;
         QString m_tag;
         QString m_style;
-    };
-
-    class SpanHandler : public TextHandler
-    {
-    public:
-        explicit SpanHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts);
-    };
-
-    class AnchorHandler : public TextHandler
-    {
-    public:
-        explicit AnchorHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts);
-    };
-
-    class ImageHandler : public TextHandler
-    {
-    public:
-        explicit ImageHandler(FbReadHandler &owner, const QString &name, const QXmlAttributes &atts);
+        bool m_empty;
     };
 
     class BinaryHandler : public BaseHandler

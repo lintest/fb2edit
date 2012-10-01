@@ -2,93 +2,15 @@ body {
   font-family: serif;
 }
 
-fb\:stylesheet{
+body fb\:description {
   display: none;
 }
 
-fb\:description div {
+body fb\:stylesheet {
   display: none;
 }
 
-fb\:description fb\:title-info {
-  display: block;
-}
-
-fb\:description fb\:title-info div {
-  display: none;
-}
-
-fb\:description fb\:title-info fb\:annotation {
-  display: block;
-  padding-left: 10;
-  padding-right: 10;
-  border-width: thin;
-  border-style: solid;
-  border-color: blue;
-  border-top-left-radius: 10;
-  border-top-right-radius: 10;
-  border-bottom-left-radius: 10;
-  border-bottom-right-radius: 10;
-  margin-top: 0;
-  margin-bottom: 1em;
-}
-
-fb\:annotation:before {
-    color: gray;
-    text-align: right;
-    content: "<annotation>";
-    display: inline-block;
-    position: relative;
-    font-size: 0.8em;
-    width: 100%;
-    margin-top: 0;
-    margin-bottom: -1em;
-}
-
-fb\:description fb\:title-info fb\:annotation div {
-  display: block;
-}
-
-fb\:description fb\:document-info {
-  display: block;
-}
-
-fb\:description fb\:document-info div {
-  display: none;
-}
-
-fb\:description fb\:document-info fb\:history {
-  display: block;
-  padding-left: 10;
-  padding-right: 10;
-  border-width: thin;
-  border-style: solid;
-  border-color: blue;
-  border-top-left-radius: 10;
-  border-top-right-radius: 10;
-  border-bottom-left-radius: 10;
-  border-bottom-right-radius: 10;
-  margin-top: 1em;
-  margin-bottom: 1em;
-}
-
-fb\:history:before {
-    color: gray;
-    text-align: right;
-    content: "<history>";
-    display: inline-block;
-    position: relative;
-    font-size: 0.8em;
-    width: 100%;
-    margin-top: 0;
-    margin-bottom: -1em;
-}
-
-fb\:description fb\:document-info fb\:history div {
-  display: block;
-}
-
-fb\:body {
+body+fb\:body {
   display: block;
 }
 

@@ -87,28 +87,8 @@ bool FbReadThread::parse()
 #endif
 
 //---------------------------------------------------------------------------
-//  FbReadHandler::BaseHandler
-//---------------------------------------------------------------------------
-
-void FbReadHandler::BaseHandler::writeAttributes(const QXmlAttributes &atts)
-{
-    int count = atts.count();
-    for (int i = 0; i < count; i++) {
-        if (atts.localName(i) == "href") continue;
-        writer().writeAttribute(atts.qName(i), atts.value(i));
-    }
-}
-
-//---------------------------------------------------------------------------
 //  FbReadHandler::RootHandler
 //---------------------------------------------------------------------------
-
-FB2_BEGIN_KEYHASH(FbReadHandler::RootHandler)
-    FB2_KEY( Style  , "stylesheet"  );
-    FB2_KEY( Descr  , "description" );
-    FB2_KEY( Body   , "body"        );
-    FB2_KEY( Binary , "binary"      );
-FB2_END_KEYHASH
 
 FbReadHandler::RootHandler::RootHandler(FbReadHandler &owner, const QString &name)
     : BaseHandler(owner, name)
@@ -118,121 +98,14 @@ FbReadHandler::RootHandler::RootHandler(FbReadHandler &owner, const QString &nam
 
 FbXmlHandler::NodeHandler * FbReadHandler::RootHandler::NewTag(const QString &name, const QXmlAttributes &atts)
 {
-    switch (toKeyword(name)) {
-        case Body   : return new TextHandler(m_owner, name, atts, "fb:body");
-        case Descr  : return new DescrHandler(m_owner, name, atts);
-        case Style  : return new StyleHandler(m_owner, name, atts);
-        case Binary : return new BinaryHandler(m_owner, name, atts);
-        default: return NULL;
-    }
+    if (name == "binary") return new BinaryHandler(m_owner, name, atts);
+    return new TextHandler(m_owner, name, atts, "fb:" + name);
 }
 
 void FbReadHandler::RootHandler::EndTag(const QString &name)
 {
     Q_UNUSED(name);
     writer().writeEndElement();
-}
-
-//---------------------------------------------------------------------------
-//  FbReadHandler::StyleHandler
-//---------------------------------------------------------------------------
-
-FbReadHandler::StyleHandler::StyleHandler(FbReadHandler &owner, const QString &name, const QXmlAttributes &atts)
-    : BaseHandler(owner, name)
-    , m_empty(true)
-{
-    writer().writeStartElement("fb:" + name);
-    writeAttributes(atts);
-}
-
-void FbReadHandler::StyleHandler::TxtTag(const QString &text)
-{
-    writer().writeCharacters(text);
-    m_empty = false;
-}
-
-void FbReadHandler::StyleHandler::EndTag(const QString &name)
-{
-    Q_UNUSED(name);
-    if (m_empty) writer().writeCharacters(" ");
-    writer().writeEndElement();
-}
-
-//---------------------------------------------------------------------------
-//  FbReadHandler::HeadHandler
-//---------------------------------------------------------------------------
-
-FB2_BEGIN_KEYHASH(FbReadHandler::HeadHandler)
-    FB2_KEY( Image , "image" );
-FB2_END_KEYHASH
-
-FbReadHandler::HeadHandler::HeadHandler(FbReadHandler &owner, const QString &name, const QXmlAttributes &atts)
-    : BaseHandler(owner, name)
-    , m_empty(true)
-{
-    writer().writeStartElement("fb:" + name);
-    writeAttributes(atts);
-}
-
-FbXmlHandler::NodeHandler * FbReadHandler::HeadHandler::NewTag(const QString &name, const QXmlAttributes &atts)
-{
-    Q_UNUSED(atts);
-    m_empty = false;
-    switch (toKeyword(name)) {
-        case Image: return new ImageHandler(m_owner, name, atts);
-        default: return new HeadHandler(m_owner, name, atts);
-    }
-}
-
-void FbReadHandler::HeadHandler::TxtTag(const QString &text)
-{
-    m_empty = false;
-    writer().writeCharacters(text);
-}
-
-void FbReadHandler::HeadHandler::EndTag(const QString &name)
-{
-    Q_UNUSED(name);
-    if (m_empty) writer().writeCharacters(" ");
-    writer().writeEndElement();
-}
-
-//---------------------------------------------------------------------------
-//  FbReadHandler::DescrHandler
-//---------------------------------------------------------------------------
-
-FB2_BEGIN_KEYHASH(FbReadHandler::DescrHandler)
-    FB2_KEY( Title    , "title-info"    );
-    FB2_KEY( Document , "document-info" );
-    FB2_KEY( Publish  , "publish-info"  );
-    FB2_KEY( Custom   , "custom-info"   );
-FB2_END_KEYHASH
-
-FbXmlHandler::NodeHandler * FbReadHandler::DescrHandler::NewTag(const QString &name, const QXmlAttributes &atts)
-{
-    Q_UNUSED(atts);
-    switch (toKeyword(name)) {
-        case Title :
-        case Document :
-        case Publish :
-            return new TitleHandler(m_owner, name, atts);
-        case Custom :
-            return new HeadHandler(m_owner, name, atts);
-        default:
-            return NULL;
-    }
-}
-
-//---------------------------------------------------------------------------
-//  FbReadHandler::TitleHandler
-//---------------------------------------------------------------------------
-
-FbXmlHandler::NodeHandler * FbReadHandler::TitleHandler::NewTag(const QString &name, const QXmlAttributes &atts)
-{
-    if (name == "annotation" || name == "history") {
-        return new TextHandler(m_owner, name, atts, "fb:" + name);
-    }
-    return new HeadHandler(m_owner, name, atts);
 }
 
 //---------------------------------------------------------------------------
@@ -261,44 +134,55 @@ FbReadHandler::TextHandler::TextHandler(FbReadHandler &owner, const QString &nam
     : BaseHandler(owner, name)
     , m_parent(NULL)
     , m_tag(tag)
+    , m_empty(true)
 {
-    Init(atts);
+    Init(name, atts);
 }
 
 FbReadHandler::TextHandler::TextHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts, const QString &tag)
     : BaseHandler(parent->m_owner, name)
     , m_parent(parent)
     , m_tag(tag)
+    , m_empty(true)
 {
-    Init(atts);
-    if (name == "empty-line") {
-        writer().writeEmptyElement("br");
-    }
+    Init(name, atts);
 }
 
-void FbReadHandler::TextHandler::Init(const QXmlAttributes &atts)
+void FbReadHandler::TextHandler::Init(const QString &name, const QXmlAttributes &atts)
 {
-    if (m_tag.isEmpty()) return;
+    Keyword key = toKeyword(name);
     writer().writeStartElement(m_tag);
-    QString id = Value(atts, "id");
-    writeAttributes(atts);
+    int count = atts.count();
+    for (int i = 0; i < count; i++) {
+        QString name = atts.qName(i);
+        switch (key) {
+            case Anchor: { if (atts.localName(i) == "href") name = "href"; break; }
+            case Image:  { if (atts.localName(i) == "href") name = "src"; break; }
+        }
+        writer().writeAttribute(name, atts.value(i));
+    }
+    if (name == "empty-line") {
+        writer().writeEmptyElement("br");
+        m_empty = false;
+    }
 }
 
 FbXmlHandler::NodeHandler * FbReadHandler::TextHandler::NewTag(const QString &name, const QXmlAttributes &atts)
 {
+    m_empty = false;
     QString tag;
     switch (toKeyword(name)) {
-        case Anchor : return new AnchorHandler(this, name, atts);
-        case Image  : return new ImageHandler(m_owner, name, atts);
-        case Parag  : tag = "p";   break;
-        case Strong : tag = "b";   break;
-        case Emphas : tag = "i";   break;
-        case Strike : tag = "s";   break;
-        case Code   : tag = "tt";  break;
-        case Sub    : tag = "sub"; break;
-        case Sup    : tag = "sup"; break;
+        case Anchor : tag = "a";    break;
+        case Image  : tag = "img";  break;
+        case Parag  : tag = "p";    break;
+        case Strong : tag = "b";    break;
+        case Emphas : tag = "i";    break;
+        case Strike : tag = "s";    break;
+        case Code   : tag = "tt";   break;
+        case Sub    : tag = "sub";  break;
+        case Sup    : tag = "sup";  break;
         case Style  : tag = "span"; break;
-        default:    ; tag = "fb:" + name;
+        default     : tag = "fb:" + name;
     }
     return new TextHandler(this, name, atts, tag);
 }
@@ -306,13 +190,13 @@ FbXmlHandler::NodeHandler * FbReadHandler::TextHandler::NewTag(const QString &na
 void FbReadHandler::TextHandler::TxtTag(const QString &text)
 {
     writer().writeCharacters(text);
+    m_empty = false;
 }
 
 void FbReadHandler::TextHandler::EndTag(const QString &name)
 {
     Q_UNUSED(name);
-    if (m_tag.isEmpty()) return;
-    if (m_tag.left(3) == "fb:") writer().writeCharacters(" ");
+    if (m_empty) writer().writeCharacters(" ");
     writer().writeEndElement();
 }
 
@@ -320,37 +204,6 @@ bool FbReadHandler::TextHandler::isNotes() const
 {
     if (m_style == "notes") return true;
     return m_parent ? m_parent->isNotes() : false;
-}
-
-//---------------------------------------------------------------------------
-//  FbReadHandler::SpanHandler
-//---------------------------------------------------------------------------
-
-FbReadHandler::SpanHandler::SpanHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts)
-    : TextHandler(parent, name, atts, "span")
-{
-}
-
-//---------------------------------------------------------------------------
-//  FbReadHandler::AnchorHandler
-//---------------------------------------------------------------------------
-
-FbReadHandler::AnchorHandler::AnchorHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts)
-    : TextHandler(parent, name, atts, "a")
-{
-    QString href = Value(atts, "href");
-    writer().writeAttribute("href", href);
-}
-
-//---------------------------------------------------------------------------
-//  FbReadHandler::ImageHandler
-//---------------------------------------------------------------------------
-
-FbReadHandler::ImageHandler::ImageHandler(FbReadHandler &owner, const QString &name, const QXmlAttributes &atts)
-    : TextHandler(owner, name, atts, "img")
-{
-    QString href = Value(atts, "href");
-    writer().writeAttribute("src", href);
 }
 
 //---------------------------------------------------------------------------
