@@ -115,8 +115,14 @@ void FbTextElement::getChildren(FbElementList &list)
     FbTextElement child = firstChild();
     while (!child.isNull()) {
         QString tag = child.tagName().toLower();
-        if (tag == "div") {
-            if (child.hasAttribute("class")) list << child;
+        if (tag == "fb:section") {
+            list << child;
+        } else if (tag == "fb:title") {
+            list << child;
+        } else if (tag == "fb:subtitle") {
+            list << child;
+        } else if (tag == "fb:body") {
+            list << child;
         } else if (tag == "img") {
             list << child;
         } else {

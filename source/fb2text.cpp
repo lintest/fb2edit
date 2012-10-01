@@ -69,9 +69,9 @@ void FbNoteView::hint(const QWebElement element, const QRect &rect)
     QString html = element.toOuterXml();
     html.prepend(
         "<body bgcolor=lightyellow style='overflow:hidden;padding:0;margin:0;margin-top:2;'>"
-        "<div class=body fb2_name=notes style='padding:0;margin:0;'>"
+        "<fb:body name=notes style='padding:0;margin:0;'>"
     );
-    html.append("</div></body>");
+    html.append("</fb:body></body>");
     setGeometry(rect);
     setHtml(html, m_url);
     show();
@@ -585,7 +585,7 @@ void FbTextEdit::linkHovered(const QString &link, const QString &title, const QS
         return;
     }
 
-    const QString query = QString("DIV#%1").arg(href);
+    const QString query = QString("fb\\:section#%1").arg(href);
     const QWebElement element = doc().findFirst(query);
     if (element.isNull()) {
         if (m_noteView) m_noteView->hide();

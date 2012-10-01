@@ -38,17 +38,14 @@ void FbTreeItem::init()
 {
     m_text = QString();
     m_name = m_element.tagName().toLower();
-    QString style = m_element.attribute("class").toLower();
-    if (m_name == "div") {
-        if (style == "title") {
-            m_text = title();
-            if (m_parent) m_parent->m_text += m_text += " ";
-        } else if (style == "subtitle") {
-            m_text = title();
-        } else if (style == "body") {
-            m_body = m_element.attribute("fb2_name");
-        }
-        if (!style.isEmpty()) m_name = style;
+    if (m_name.left(3) == "fb:") m_name = m_name.mid(3);
+    if (m_name == "title") {
+        m_text = title();
+        if (m_parent) m_parent->m_text += m_text += " ";
+    } else if (m_name == "subtitle") {
+        m_text = title();
+    } else if (m_name == "body") {
+        m_body = m_element.attribute("name");
     } else if (m_name == "img") {
         m_name = "image";
         QUrl url = m_element.attribute("src");

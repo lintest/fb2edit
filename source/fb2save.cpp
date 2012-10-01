@@ -315,7 +315,7 @@ FbXmlHandler::NodeHandler * FbSaveHandler::TextHandler::NewTag(const QString &na
         case Code      : tag = "code"          ; break;
         case Sub       : tag = "sub"           ; break;
         case Sup       : tag = "sup"           ; break;
-        default: ;
+        default: if (name.left(3) == "fb:") tag = name.mid(3);
     }
     return new TextHandler(this, name, atts, tag);
 }
