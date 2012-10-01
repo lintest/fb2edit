@@ -158,6 +158,7 @@ void FbReadHandler::TextHandler::Init(const QString &name, const QXmlAttributes 
         switch (key) {
             case Anchor: { if (atts.localName(i) == "href") name = "href"; break; }
             case Image:  { if (atts.localName(i) == "href") name = "src"; break; }
+            default: ;
         }
         writer().writeAttribute(name, atts.value(i));
     }
