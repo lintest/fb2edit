@@ -96,10 +96,6 @@ public:
 
     void setText(const QString &text);
 
-    const QString & id() const {
-        return m_id;
-    }
-
     const QString & name() const {
         return m_name;
     }
@@ -126,7 +122,6 @@ private:
     FbHeadItem * m_parent;
     QString m_name;
     QString m_text;
-    QString m_id;
 };
 
 class FbHeadModel: public QAbstractItemModel

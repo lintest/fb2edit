@@ -99,10 +99,6 @@ QString FbScheme::info() const
 QString FbScheme::type() const
 {
     if (isNull()) return QString();
-    if (attribute("name") == "last-name") {
-        QString result = attribute("type");
-        return result;
-    }
     QString result = attribute("type");
     if (!result.isEmpty()) return result;
     FbScheme child = firstChildElement("xs:complexType").firstChildElement();
@@ -200,7 +196,6 @@ FbHeadItem::FbHeadItem(QWebElement &element, FbHeadItem *parent)
     , m_parent(parent)
 {
     m_name = element.tagName().toLower();
-    m_id = element.attribute("id");
     if (m_name == "div") {
         QString style = element.attribute("class").toLower();
         if (!style.isEmpty()) m_name = style;
@@ -306,8 +301,8 @@ QString FbHeadItem::value() const
             return m_element.attribute("src");
         } break;
         case Seqn : {
-            QString text = m_element.attribute("fb2_name");
-            QString numb = m_element.attribute("fb2_number");
+            QString text = m_element.attribute("name");
+            QString numb = m_element.attribute("number");
             if (numb.isEmpty() || numb == "0") return text;
             return text + ", " + tr("#") + numb;
         } break;
@@ -348,7 +343,7 @@ FbHeadModel::FbHeadModel(QWebView &view, QObject *parent)
     , m_root(NULL)
 {
     QWebElement doc = view.page()->mainFrame()->documentElement();
-    QWebElement head = doc.findFirst("div.description");
+    QWebElement head = doc.findFirst("fb\\:description");
     if (head.isNull()) return;
     m_root = new FbHeadItem(head);
 }
