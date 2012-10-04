@@ -46,9 +46,9 @@ private:
         Sublist(const TypeList &list, const QString &name);
         operator bool() const;
         bool operator !() const;
-        bool operator <(const QWebElement &element) const;
-        bool operator >=(const QWebElement &element) const;
-        bool operator !=(const QWebElement &element) const;
+        bool operator <(const FbTextElement &element) const;
+        bool operator >=(const FbTextElement &element) const;
+        bool operator !=(const FbTextElement &element) const;
     private:
         const TypeList &m_list;
         TypeList::const_iterator m_pos;
@@ -60,6 +60,7 @@ public:
     FbTextElement &operator=(const QWebElement &x) { QWebElement::operator=(x); return *this; }
     FbTextElement insertInside(const QString &style, const QString &html);
     FbTextElement child(int index) const;
+    QString nodeName() const;
     void getChildren(FbElementList &list);
     bool hasSubtype(const QString &style) const;
     bool hasScheme() const;
@@ -68,7 +69,6 @@ public:
 
 public:
     bool hasChild(const QString &style) const;
-    bool isDiv(const QString &style) const;
     bool isBody() const;
     bool isSection() const;
     bool isTitle() const;

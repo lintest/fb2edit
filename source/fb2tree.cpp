@@ -535,20 +535,22 @@ void FbTreeView::contextMenu(const QPoint &pos)
     QMenu menu;
     menu.addAction(actionSection);
 
-    if (e.isBody()) {
+    QString n = e.nodeName();
+
+    if (n == "body") {
         if (!e.hasChild("image")) menu.addAction(actionImage);
         if (!e.hasChild("title")) menu.addAction(actionTitle);
         menu.addAction(actionEpigraph);
     }
 
-    if (e.isSection()) {
+    if (n == "section") {
         if (!e.hasChild("title")) menu.addAction(actionTitle);
         menu.addAction(actionEpigraph);
         if (!e.hasChild("image")) menu.addAction(actionImage);
         if (!e.hasChild("annotetion")) menu.addAction(actionAnnot);
     }
 
-    if (e.isDiv("poem")) {
+    if (n == "poem") {
         if (!e.hasChild("title")) menu.addAction(actionTitle);
         menu.addAction(actionEpigraph);
         menu.addAction(actionStanza);
@@ -556,15 +558,15 @@ void FbTreeView::contextMenu(const QPoint &pos)
         if (!e.hasChild("date")) menu.addAction(actionDate);
     }
 
-    if (e.isDiv("stanza")) {
+    if (n == "stanza") {
         if (!e.hasChild("title")) menu.addAction(actionTitle);
     }
 
-    if (e.isDiv("epigraph")) {
+    if (n == "epigraph") {
         menu.addAction(actionAuthor);
     }
 
-    if (e.isDiv("cite")) {
+    if (n == "cite") {
         menu.addAction(actionAuthor);
     }
 

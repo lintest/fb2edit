@@ -83,32 +83,38 @@ bool FbTextElement::Sublist::operator!() const
     return m_pos == m_list.end();
 }
 
-bool FbTextElement::Sublist::operator <(const QWebElement &element) const
+bool FbTextElement::Sublist::operator <(const FbTextElement &element) const
 {
-    const QString name = element.attribute("class");
+    const QString name = element.nodeName();
     for (TypeList::const_iterator it = m_list.begin(); it != m_list.end(); it++) {
         if (it->name() == name) return m_pos < it  || element.isNull();
     }
     return false;
 }
 
-bool FbTextElement::Sublist::operator >=(const QWebElement &element) const
+bool FbTextElement::Sublist::operator >=(const FbTextElement &element) const
 {
-    const QString name = element.attribute("class");
+    const QString name = element.nodeName();
     for (TypeList::const_iterator it = m_list.begin(); it != m_list.end(); it++) {
         if (it->name() == name) return m_pos >= it || element.isNull();
     }
     return false;
 }
 
-bool FbTextElement::Sublist::operator !=(const QWebElement &element) const
+bool FbTextElement::Sublist::operator !=(const FbTextElement &element) const
 {
-    return element.isNull() || m_pos->name() != element.attribute("class");
+    return element.isNull() || m_pos->name() != element.nodeName();
 }
 
 //---------------------------------------------------------------------------
 //  FbTextElement
 //---------------------------------------------------------------------------
+
+QString FbTextElement::nodeName() const
+{
+    QString n = tagName().toLower();
+    return n.left(3) == "fb:" ? n.mid(3) : n;
+}
 
 void FbTextElement::getChildren(FbElementList &list)
 {
@@ -140,7 +146,7 @@ bool FbTextElement::hasScheme() const
 const FbTextElement::TypeList * FbTextElement::subtypes() const
 {
     static Scheme scheme;
-    return scheme[attribute("class").toLower()];
+    return scheme[nodeName()];
 }
 
 bool FbTextElement::hasSubtype(const QString &style) const
@@ -202,35 +208,30 @@ bool FbTextElement::hasChild(const QString &style) const
 {
     FbTextElement child = firstChild();
     while (!child.isNull()) {
-        if (child.tagName() == "DIV" && child.attribute("class").toLower() == style) return true;
+        if (child.nodeName() == style) return true;
         child = child.nextSibling();
     }
     return false;
 }
 
-bool FbTextElement::isDiv(const QString &style) const
-{
-    return tagName() == "DIV" && attribute("class").toLower() == style;
-}
-
 bool FbTextElement::isBody() const
 {
-    return isDiv("body");
+    return nodeName() == "body";
 }
 
 bool FbTextElement::isSection() const
 {
-    return isDiv("section");
+    return nodeName() == "section";
 }
 
 bool FbTextElement::isTitle() const
 {
-    return isDiv("title");
+    return nodeName() == "title";
 }
 
 bool FbTextElement::isStanza() const
 {
-    return isDiv("stanza");
+    return nodeName() == "stanza";
 }
 
 bool FbTextElement::hasTitle() const
