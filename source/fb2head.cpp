@@ -196,11 +196,10 @@ FbHeadItem::FbHeadItem(QWebElement &element, FbHeadItem *parent)
     , m_parent(parent)
 {
     m_name = element.tagName().toLower();
-    if (m_name == "div") {
-        QString style = element.attribute("class").toLower();
-        if (!style.isEmpty()) m_name = style;
-        if (style == "annotation") return;
-        if (style == "history") return;
+    if (m_name.left(3) == "fb:") {
+        m_name = m_name.mid(3);
+        if (m_name == "annotation") return;
+        if (m_name == "history") return;
     } else if (m_name == "img") {
         m_name = "image";
         m_text = element.attribute("alt");
@@ -217,9 +216,8 @@ FbHeadItem::~FbHeadItem()
 
 FbHeadItem * FbHeadItem::append(const QString name)
 {
-    m_element.appendInside("<div></div>");
+    m_element.appendInside(QString("<fb:%1></fb:%1>").arg(name));
     QWebElement element = m_element.lastChild();
-    element.addClass(name);
     if (name == "annotation" || name == "history") {
         element.appendInside("<p><br></p>");
     }
@@ -233,7 +231,7 @@ void FbHeadItem::addChildren(QWebElement &parent)
     QWebElement child = parent.firstChild();
     while (!child.isNull()) {
         QString tag = child.tagName().toLower();
-        if (tag == "div") {
+        if (tag.left(3) == "fb:") {
             m_list << new FbHeadItem(child, this);
         } else if (tag == "img") {
             m_list << new FbHeadItem(child, this);

@@ -110,6 +110,12 @@ bool FbTextElement::Sublist::operator !=(const FbTextElement &element) const
 //  FbTextElement
 //---------------------------------------------------------------------------
 
+QString FbTextElement::blockName() const
+{
+    QString n = tagName().toLower();
+    return n.left(3) == "fb:" ? n.mid(3) : QString();
+}
+
 QString FbTextElement::nodeName() const
 {
     QString n = tagName().toLower();
@@ -121,13 +127,9 @@ void FbTextElement::getChildren(FbElementList &list)
     FbTextElement child = firstChild();
     while (!child.isNull()) {
         QString tag = child.tagName().toLower();
-        if (tag == "fb:section") {
-            list << child;
-        } else if (tag == "fb:title") {
-            list << child;
-        } else if (tag == "fb:subtitle") {
-            list << child;
-        } else if (tag == "fb:body") {
+        if (tag == "fb:description") {
+            // skip description
+        } else if (tag.left(3) == "fb:") {
             list << child;
         } else if (tag == "img") {
             list << child;

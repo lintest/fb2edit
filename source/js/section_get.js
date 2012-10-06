@@ -9,10 +9,7 @@ while (true) {
  if(root===null)return;
  tag=root.tagName;
  if(tag==="BODY")return;
- if(tag==="DIV"){
-  type=root.className.toLowerCase();
-  if(type==="body"||type==="section")break;
- }
+ if(tag==="FB:BODY"||type==="FB:SECTION")break;
  root = root.parentNode;
 }
 while(start.parentNode!==root) {

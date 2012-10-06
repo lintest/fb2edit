@@ -1,11 +1,10 @@
-f=function(elem,style,start,end){
+f=function(elem,tag,start,end){
 start=$(elem).children().get(start);
 end=$(elem).children().get(end);
 var range=document.createRange();
 range.setStartBefore(start);
 range.setEndAfter(end);
-var newNode=document.createElement("div");
-newNode.className=style;
+var newNode=document.createElement(tag);
 range.surroundContents(newNode);
 range.setStartBefore(start);
 range.setEndBefore(start);

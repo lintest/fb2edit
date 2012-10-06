@@ -112,14 +112,13 @@ bool FbTextPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest
     if (type == NavigationTypeLinkClicked) {
         qCritical() << request.url().fragment();
         return false;
-//        QToolTip::showText(request.url().fragment());
     }
     return QWebPage::acceptNavigationRequest(frame, request, type);
 }
 
-QString FbTextPage::div(const QString &style, const QString &text)
+QString FbTextPage::block(const QString &name, const QString &text)
 {
-    return QString("<div class=%1>%2</div>").arg(style).arg(text);
+    return QString("<fb:%1>%2</fb:%1>").arg(name).arg(text);
 }
 
 QString FbTextPage::p(const QString &text)
@@ -152,7 +151,7 @@ void FbTextPage::update()
 
 void FbTextPage::appendSection(const FbTextElement &parent)
 {
-    QString html = div("section", div("title", p()) + p());
+    QString html = block("section", block("title", p()) + p());
     FbTextElement element = parent;
     element.appendInside(html);
     element = parent.lastChild();
@@ -162,7 +161,7 @@ void FbTextPage::appendSection(const FbTextElement &parent)
 
 void FbTextPage::insertBody()
 {
-    QString html = div("body", div("title", p()) + div("section", div("title", p()) + p()));
+    QString html = block("body", block("title", p()) + block("section", block("title", p()) + p()));
     FbTextElement element = body();
     element.appendInside(html);
     element = element.lastChild();
@@ -188,7 +187,7 @@ void FbTextPage::insertTitle()
     while (!element.isNull()) {
         FbTextElement parent = element.parent();
         if ((parent.isSection() || parent.isBody()) && !parent.hasTitle()) {
-            QString html = div("title", p());
+            QString html = block("title", p());
             parent.prependInside(html);
             element = parent.firstChild();
             QUndoCommand * command = new FbInsertCmd(element);
@@ -205,7 +204,7 @@ void FbTextPage::insertSubtitle()
     while (!element.isNull()) {
         FbTextElement parent = element.parent();
         if (parent.isSection()) {
-            QString html = div("subtitle", p());
+            QString html = block("subtitle", p());
             if (element.isTitle()) {
                 element.appendOutside(html);
                 element = element.nextSibling();
@@ -227,7 +226,7 @@ void FbTextPage::insertPoem()
     while (!element.isNull()) {
         FbTextElement parent = element.parent();
         if (parent.isSection()) {
-            QString html = div("poem", div("stanza", p()));
+            QString html = block("poem", block("stanza", p()));
             if (element.isTitle()) {
                 element.appendOutside(html);
                 element = element.nextSibling();
@@ -248,7 +247,7 @@ void FbTextPage::insertStanza()
     FbTextElement element = current();
     while (!element.isNull()) {
         if (element.isStanza()) {
-            QString html = div("stanza", p());
+            QString html = block("stanza", p());
             element.appendOutside(html);
             element = element.nextSibling();
             QUndoCommand * command = new FbInsertCmd(element);
@@ -273,7 +272,7 @@ void FbTextPage::insertEpigraph()
     FbTextElement element = current();
     while (!element.isNull()) {
         if (element.hasSubtype(type)) {
-            QString html = div("epigraph", p());
+            QString html = block("epigraph", p());
             element = element.insertInside(type, html);
             QUndoCommand * command = new FbInsertCmd(element);
             push(command, tr("Insert epigraph"));
@@ -289,21 +288,11 @@ void FbTextPage::insertDate()
 
 void FbTextPage::insertText()
 {
-    FbTextElement element = current();
-    while (!element.isNull()) {
-        if (element.tagName() == "DIV") {
-            if (element.parent().isBody()) break;
-            element.appendOutside("<p><br></p>");
-            element.nextSibling().select();
-            return;
-        }
-        element = element.parent();
-    }
 }
 
-void FbTextPage::createDiv(const QString &className)
+void FbTextPage::createBlock(const QString &name)
 {
-    QString style = className;
+    QString style = name;
     QString js1 = jScript("section_get.js");
     QString result = mainFrame()->evaluateJavaScript(js1).toString();
     QStringList list = result.split("|");
@@ -315,15 +304,15 @@ void FbTextPage::createDiv(const QString &className)
     FbTextElement duplicate = original.clone();
     original.appendOutside(duplicate);
     original.takeFromDocument();
-    QString js2 = jScript("section_new.js") + ";f(this,'%1',%2)";
+    QString js2 = jScript("section_new.js") + ";f(this,'fb:%1',%2)";
     duplicate.evaluateJavaScript(js2.arg(style).arg(position));
     QUndoCommand * command = new FbReplaceCmd(original, duplicate);
-    push(command, tr("Create <%1>").arg(className));
+    push(command, tr("Create <%1>").arg(style));
 }
 
 void FbTextPage::createSection()
 {
-    createDiv("section");
+    createBlock("section");
 }
 
 void FbTextPage::deleteSection()
@@ -358,7 +347,7 @@ void FbTextPage::deleteSection()
 
 void FbTextPage::createTitle()
 {
-    createDiv("title");
+    createBlock("title");
 }
 
 FbTextElement FbTextPage::current()
@@ -398,10 +387,13 @@ QString FbTextPage::status()
 
 void FbTextPage::loadFinished()
 {
-    mainFrame()->evaluateJavaScript("window.focus()");
     mainFrame()->addToJavaScriptWindowObject("logger", &m_logger);
-    FbTextElement element = body().findFirst("div.body");
+    FbTextElement element = body().findFirst("fb\\:section");
+    if (element.isNull()) element = body().findFirst("fb\\:body");
     if (element.isNull()) element = body();
+    FbTextElement child = element.firstChild();
+    if (child.isTitle()) child = child.nextSibling();
+    if (!child.isNull()) element = child;
     element.select();
 }
 

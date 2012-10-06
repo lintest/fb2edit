@@ -60,6 +60,7 @@ public:
     FbTextElement &operator=(const QWebElement &x) { QWebElement::operator=(x); return *this; }
     FbTextElement insertInside(const QString &style, const QString &html);
     FbTextElement child(int index) const;
+    QString blockName() const;
     QString nodeName() const;
     void getChildren(FbElementList &list);
     bool hasSubtype(const QString &style) const;

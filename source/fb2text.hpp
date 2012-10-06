@@ -109,10 +109,10 @@ public slots:
 
 protected:
     virtual bool acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type);
-    void createDiv(const QString &className);
+    void createBlock(const QString &name);
 
 protected:
-    static QString div(const QString &style, const QString &text);
+    static QString block(const QString &name, const QString &text);
     static QString p(const QString &text = "<br/>");
     void update();
 

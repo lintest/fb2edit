@@ -780,7 +780,6 @@ void FbMainWindow::viewText()
         textFrame = new FbTextFrame(this, actionInspect);
     }
     setCentralWidget(textFrame);
-    textFrame->view()->setFocus();
     viewTree();
 
     FbTextEdit *textEdit = textFrame->view();
@@ -794,6 +793,8 @@ void FbMainWindow::viewText()
     actionContents->setEnabled(true);
     actionPictures->setEnabled(true);
     actionInspect->setEnabled(true);
+
+    textFrame->view()->setFocus();
 }
 
 void FbMainWindow::viewHead()
