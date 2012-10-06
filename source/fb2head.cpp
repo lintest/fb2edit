@@ -381,7 +381,11 @@ FbHeadItem * FbHeadModel::item(const QModelIndex &index) const
 int FbHeadModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
+#ifdef QT_DEBUG
     return 6;
+#else
+    return 2;
+#endif
 }
 
 QModelIndex FbHeadModel::index(int row, int column, const QModelIndex &parent) const
