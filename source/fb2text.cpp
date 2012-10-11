@@ -382,7 +382,8 @@ QString FbTextPage::location()
 QString FbTextPage::status()
 {
     QString javascript = jScript("get_status.js");
-    return mainFrame()->evaluateJavaScript(javascript).toString();
+    QString status = mainFrame()->evaluateJavaScript(javascript).toString();
+    return status.replace("FB:", "");
 }
 
 void FbTextPage::loadFinished()
