@@ -95,7 +95,7 @@ private:
     class TextHandler : public NodeHandler
     {
         FB2_BEGIN_KEYLIST
-            Section,
+            Origin,
             Anchor,
             Table,
             Image,

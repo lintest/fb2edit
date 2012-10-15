@@ -110,3 +110,7 @@ fb\:body[name=notes] fb\:section[id] fb\:title p {
   margin-top: 0;
   margin-bottom: 0;
 }
+
+table, td, th {
+  border: 1 solid gray; 
+}

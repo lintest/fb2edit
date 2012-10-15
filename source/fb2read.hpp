@@ -79,8 +79,8 @@ private:
     class TextHandler : public BaseHandler
     {
         FB2_BEGIN_KEYLIST
+            Origin,
             Anchor,
-            Table,
             Image,
             Parag,
             Style,

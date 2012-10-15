@@ -114,8 +114,11 @@ void FbReadHandler::RootHandler::EndTag(const QString &name)
 
 FB2_BEGIN_KEYHASH(FbReadHandler::TextHandler)
     FB2_KEY( Anchor  , "a"             );
-    FB2_KEY( Table   , "table"         );
     FB2_KEY( Image   , "image"         );
+    FB2_KEY( Origin  , "table"         );
+    FB2_KEY( Origin  , "td"            );
+    FB2_KEY( Origin  , "th"            );
+    FB2_KEY( Origin  , "tr"            );
 
     FB2_KEY( Parag   , "empty-line"    );
     FB2_KEY( Parag   , "p"             );
@@ -173,6 +176,7 @@ FbXmlHandler::NodeHandler * FbReadHandler::TextHandler::NewTag(const QString &na
     m_empty = false;
     QString tag;
     switch (toKeyword(name)) {
+        case Origin : tag = name;   break;
         case Anchor : tag = "a";    break;
         case Image  : tag = "img";  break;
         case Parag  : tag = "p";    break;

@@ -255,10 +255,12 @@ void FbSaveWriter::writeContentType(const QString &name, QByteArray &data)
 //---------------------------------------------------------------------------
 
 FB2_BEGIN_KEYHASH(FbSaveHandler::TextHandler)
-    FB2_KEY( Section , "div"    );
     FB2_KEY( Anchor  , "a"      );
-    FB2_KEY( Image   , "img"  );
-    FB2_KEY( Table   , "table"  );
+    FB2_KEY( Image   , "img"    );
+    FB2_KEY( Origin  , "table"  );
+    FB2_KEY( Origin  , "td"     );
+    FB2_KEY( Origin  , "th"     );
+    FB2_KEY( Origin  , "tr"     );
     FB2_KEY( Parag   , "p"      );
     FB2_KEY( Strong  , "b"      );
     FB2_KEY( Emphas  , "i"      );
@@ -304,7 +306,7 @@ FbXmlHandler::NodeHandler * FbSaveHandler::TextHandler::NewTag(const QString &na
     m_hasChild = true;
     QString tag = QString();
     switch (toKeyword(name)) {
-        case Section   : tag = atts.value("class") ; break;
+        case Origin    : tag = name; break;
         case Anchor    : return new AnchorHandler(this, name, atts);
         case Image     : return new ImageHandler(this, name, atts);
         case Parag     : return new ParagHandler(this, name, atts);
