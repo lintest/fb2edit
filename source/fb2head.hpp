@@ -44,6 +44,7 @@ public:
     static const QDomDocument & fb2();
     FbScheme element(const QString &name) const;
     void items(QStringList &list) const;
+    bool hasItems() const;
     QString info() const;
     QString type() const;
 
@@ -121,7 +122,6 @@ private:
     QWebElement m_element;
     FbHeadItem * m_parent;
     QString m_name;
-    QString m_text;
 };
 
 class FbHeadModel: public QAbstractItemModel
@@ -158,6 +158,7 @@ class FbHeadView : public QTreeView
 public:
     explicit FbHeadView(FbTextEdit *view, QWidget *parent = 0);
     void initToolbar(QToolBar &toolbar);
+    FbHeadModel * model() const;
 
 signals:
     void status(const QString &text);

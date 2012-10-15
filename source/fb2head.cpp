@@ -66,6 +66,24 @@ void FbScheme::items(QStringList &list) const
     }
 }
 
+bool FbScheme::hasItems() const
+{
+    FbScheme child = typeScheme().firstChildElement();
+    while (!child.isNull()) {
+        switch (toKeyword(child.tagName())) {
+            case XsElement:
+                return true;
+            case XsChoice:
+            case XsComplexType:
+            case XsSequence:
+                if (child.hasItems()) return true;
+            default: ;
+        }
+        child = child.nextSiblingElement();
+    }
+    return false;
+}
+
 FbScheme FbScheme::typeScheme() const
 {
     QString typeName = type();
@@ -202,7 +220,6 @@ FbHeadItem::FbHeadItem(QWebElement &element, FbHeadItem *parent)
         if (m_name == "history") return;
     } else if (m_name == "img") {
         m_name = "image";
-        m_text = element.attribute("alt");
     }
     addChildren(element);
 }
@@ -260,10 +277,11 @@ QString FbHeadItem::text(int col) const
     switch (col) {
         case 0: return QString("<%1> %2").arg(m_name).arg(hint());
         case 1: return value();
-        case 2: return scheme().info();
-        case 3: return scheme().type();
-        case 4: return scheme().attribute("minOccurs");
-        case 5: return scheme().attribute("maxOccurs");
+        case 2: return scheme().hasItems() ? "Yes" : "No";
+        case 3: return scheme().info();
+        case 4: return scheme().type();
+        case 5: return scheme().attribute("minOccurs");
+        case 6: return scheme().attribute("maxOccurs");
     }
     return QString();
 }
@@ -382,7 +400,7 @@ int FbHeadModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
 #ifdef QT_DEBUG
-    return 6;
+    return 7;
 #else
     return 2;
 #endif
@@ -440,6 +458,13 @@ QVariant FbHeadModel::headerData(int section, Qt::Orientation orientation, int r
         switch (section) {
             case 0: return tr("Key");
             case 1: return tr("Value");
+        #ifdef QT_DEBUG
+            case 2: return tr("Has items");
+            case 3: return tr("Info");
+            case 4: return tr("Type");
+            case 5: return tr("Min");
+            case 6: return tr("Max");
+        #endif
         }
     }
     return QVariant();
@@ -447,7 +472,7 @@ QVariant FbHeadModel::headerData(int section, Qt::Orientation orientation, int r
 
 void FbHeadItem::setText(const QString &text)
 {
-    m_text = text;
+    m_element.setPlainText(text);
 }
 
 bool FbHeadModel::setData(const QModelIndex &index, const QVariant &value, int role)
@@ -464,7 +489,13 @@ Qt::ItemFlags FbHeadModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid()) return 0;
     Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-    if (index.column() == 1) flags |= Qt::ItemIsEditable;
+    if (index.column() == 1) {
+        if (FbHeadItem * i = item(index)) {
+            if (!i->scheme().hasItems()) {
+                flags |= Qt::ItemIsEditable;
+            }
+        }
+    }
     return flags;
 }
 
@@ -510,6 +541,11 @@ FbHeadView::FbHeadView(FbTextEdit *view, QWidget *parent)
 //    connect(actionModify, SIGNAL(triggered()), SLOT(editCurrent()));
 }
 
+FbHeadModel * FbHeadView::model() const
+{
+    return qobject_cast<FbHeadModel*>(QTreeView::model());
+}
+
 void FbHeadView::initToolbar(QToolBar &toolbar)
 {
     toolbar.addSeparator();
@@ -540,7 +576,13 @@ void FbHeadView::editCurrent(const QModelIndex &index)
 
 void FbHeadView::activated(const QModelIndex &index)
 {
-    if (index.isValid() && index.column() == 1) edit(index);
+    if (index.isValid() && index.column() == 1) {
+        if (FbHeadItem * i = model()->item(index)) {
+            if (!i->scheme().hasItems()) {
+                edit(index);
+            }
+        }
+    }
     showStatus(index);
 }
 

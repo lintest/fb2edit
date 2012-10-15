@@ -167,7 +167,7 @@ protected:
 
 private:
     void moveCurrent(int dx, int dy);
-    FbTreeModel * model();
+    FbTreeModel * model() const;
 
 private:
     FbTextEdit & m_view;

@@ -710,7 +710,7 @@ void FbTreeView::deleteNode()
     }
 }
 
-FbTreeModel * FbTreeView::model()
+FbTreeModel * FbTreeView::model() const
 {
     return qobject_cast<FbTreeModel*>(QTreeView::model());
 }
