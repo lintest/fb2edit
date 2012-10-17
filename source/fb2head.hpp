@@ -44,7 +44,7 @@ public:
     static const QDomDocument & fb2();
     FbScheme element(const QString &name) const;
     void items(QStringList &list) const;
-    bool hasItems() const;
+    bool canEdit() const;
     QString info() const;
     QString type() const;
 
@@ -58,7 +58,9 @@ class FbHeadItem: public QObject
     Q_OBJECT
 
     FB2_BEGIN_KEYLIST
+        Genr,
         Auth,
+        Date,
         Cover,
         Image,
         Seqn,
@@ -93,9 +95,9 @@ public:
         return m_element;
     }
 
-    QString text(int col = 0) const;
+    QString data(int col = 0) const;
 
-    void setText(const QString &text);
+    void setData(const QString &text, int col = 0);
 
     const QString & name() const {
         return m_name;
@@ -104,6 +106,12 @@ public:
     QString sub(const QString &key) const;
 
     FbScheme scheme() const;
+
+    bool canEdit() const {
+        return scheme().canEdit();
+    }
+
+    bool canEditExtra() const;
 
 private:
     class HintHash : public QHash<QString, QString>
@@ -114,7 +122,10 @@ private:
 
 private:
     void addChildren(QWebElement &parent);
+    void setValue(const QString &text);
+    void setExtra(const QString &text);
     QString value() const;
+    QString extra() const;
     QString hint() const;
 
 private:
@@ -134,6 +145,7 @@ public:
     void expand(QTreeView *view);
     FbHeadItem * item(const QModelIndex &index) const;
     QModelIndex append(const QModelIndex &parent, const QString &name);
+    bool canEdit(const QModelIndex &index) const;
     void remove(const QModelIndex &index);
 
 public:

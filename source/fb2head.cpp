@@ -66,22 +66,24 @@ void FbScheme::items(QStringList &list) const
     }
 }
 
-bool FbScheme::hasItems() const
+bool FbScheme::canEdit() const
 {
-    FbScheme child = typeScheme().firstChildElement();
+    if (type() == "sequenceType") return true;
+    FbScheme scheme = typeScheme();
+    FbScheme child = scheme.firstChildElement();
     while (!child.isNull()) {
         switch (toKeyword(child.tagName())) {
             case XsElement:
-                return true;
+                return false;
             case XsChoice:
             case XsComplexType:
             case XsSequence:
-                if (child.hasItems()) return true;
+                if (!child.canEdit()) return false;
             default: ;
         }
         child = child.nextSiblingElement();
     }
-    return false;
+    return true;
 }
 
 FbScheme FbScheme::typeScheme() const
@@ -202,9 +204,11 @@ FbHeadItem::HintHash::HintHash()
 }
 
 FB2_BEGIN_KEYHASH(FbHeadItem)
+    FB2_KEY( Genr   , "genre"     );
     FB2_KEY( Auth   , "author"    );
+    FB2_KEY( Date   , "date"      );
     FB2_KEY( Cover  , "coverpage" );
-    FB2_KEY( Image  , "image"       );
+    FB2_KEY( Image  , "image"     );
     FB2_KEY( Seqn   , "sequence"  );
 FB2_END_KEYHASH
 
@@ -272,18 +276,27 @@ FbHeadItem * FbHeadItem::item(int row) const
     return m_list[row];
 }
 
-QString FbHeadItem::text(int col) const
+QString FbHeadItem::data(int col) const
 {
     switch (col) {
         case 0: return QString("<%1> %2").arg(m_name).arg(hint());
         case 1: return value();
-        case 2: return scheme().hasItems() ? "Yes" : "No";
+        case 2: return extra();
         case 3: return scheme().info();
         case 4: return scheme().type();
-        case 5: return scheme().attribute("minOccurs");
-        case 6: return scheme().attribute("maxOccurs");
+        case 5: return scheme().canEdit() ? "Yes" : "No";
+        case 6: return scheme().attribute("minOccurs");
+        case 7: return scheme().attribute("maxOccurs");
     }
     return QString();
+}
+
+void FbHeadItem::setData(const QString &text, int col)
+{
+    switch (col) {
+        case 1: return setValue(text);
+        case 2: return setExtra(text);
+    }
 }
 
 QString FbHeadItem::hint() const
@@ -297,13 +310,13 @@ QString FbHeadItem::hint() const
 QString FbHeadItem::value() const
 {
     switch (toKeyword(m_name)) {
-        case Auth : {
+        case Auth: {
             QString result = sub("last-name");
             result += " " + sub("first-name");
             result += " " + sub("middle-name");
             return result.simplified();
         } break;
-        case Cover : {
+        case Cover: {
             QString text;
             foreach (FbHeadItem * item, m_list) {
                 if (item->m_name == "image") {
@@ -313,19 +326,56 @@ QString FbHeadItem::value() const
             }
             return text;
         } break;
-        case Image : {
+        case Image: {
             return m_element.attribute("src");
         } break;
-        case Seqn : {
-            QString text = m_element.attribute("name");
-            QString numb = m_element.attribute("number");
-            if (numb.isEmpty() || numb == "0") return text;
-            return text + ", " + tr("#") + numb;
+        case Seqn: {
+            return m_element.attribute("name");
         } break;
         default: ;
     }
     if (m_list.count()) return QString();
     return m_element.toPlainText().simplified();
+}
+
+QString FbHeadItem::extra() const
+{
+    switch (toKeyword(m_name)) {
+        case Genr: return m_element.attribute("match");
+        case Seqn: return m_element.attribute("number");
+        case Date: return m_element.attribute("value");
+        default: return QString();
+    }
+}
+
+void FbHeadItem::setValue(const QString &text)
+{
+    switch (toKeyword(m_name)) {
+        case Seqn: m_element.setAttribute("name", text); break;
+        default: m_element.setPlainText(text);
+    }
+}
+
+void FbHeadItem::setExtra(const QString &text)
+{
+    switch (toKeyword(m_name)) {
+        case Date: m_element.setAttribute("value", text); break;
+        case Genr: m_element.setAttribute("match", text); break;
+        case Seqn: m_element.setAttribute("number", text); break;
+        default: ;
+    }
+}
+
+bool FbHeadItem::canEditExtra() const
+{
+    switch (toKeyword(m_name)) {
+        case Date:
+        case Genr:
+        case Seqn:
+            return true;
+        default:
+            return false;
+    }
 }
 
 QString FbHeadItem::sub(const QString &key) const
@@ -400,9 +450,9 @@ int FbHeadModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
 #ifdef QT_DEBUG
-    return 7;
+    return 8;
 #else
-    return 2;
+    return 3;
 #endif
 }
 
@@ -449,7 +499,7 @@ QVariant FbHeadModel::data(const QModelIndex &index, int role) const
 {
     if (role != Qt::DisplayRole && role != Qt::EditRole) return QVariant();
     FbHeadItem * i = item(index);
-    return i ? i->text(index.column()) : QVariant();
+    return i ? i->data(index.column()) : QVariant();
 }
 
 QVariant FbHeadModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -458,30 +508,27 @@ QVariant FbHeadModel::headerData(int section, Qt::Orientation orientation, int r
         switch (section) {
             case 0: return tr("Key");
             case 1: return tr("Value");
+            case 2: return tr("Extra");
         #ifdef QT_DEBUG
-            case 2: return tr("Has items");
             case 3: return tr("Info");
             case 4: return tr("Type");
-            case 5: return tr("Min");
-            case 6: return tr("Max");
+            case 5: return tr("Can edit");
+            case 6: return tr("Min");
+            case 7: return tr("Max");
         #endif
         }
     }
     return QVariant();
 }
 
-void FbHeadItem::setText(const QString &text)
-{
-    m_element.setPlainText(text);
-}
-
 bool FbHeadModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (role != Qt::EditRole) return false;
-    FbHeadItem * i = item(index);
-    if (!i) return false;
-    i->setText(value.toString());
-    emit dataChanged(index, index);
+    if (FbHeadItem * i = item(index)) {
+        i->setData(value.toString(), index.column());
+        emit dataChanged(index, index);
+        return true;
+    }
     return true;
 }
 
@@ -489,14 +536,17 @@ Qt::ItemFlags FbHeadModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid()) return 0;
     Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-    if (index.column() == 1) {
-        if (FbHeadItem * i = item(index)) {
-            if (!i->scheme().hasItems()) {
-                flags |= Qt::ItemIsEditable;
-            }
-        }
-    }
+    if (canEdit(index)) flags |= Qt::ItemIsEditable;
     return flags;
+}
+
+bool FbHeadModel::canEdit(const QModelIndex &index) const
+{
+    switch (index.column()) {
+        case 1: if (FbHeadItem * i = item(index)) return i->canEdit(); break;
+        case 2: if (FbHeadItem * i = item(index)) return i->canEditExtra(); break;
+    }
+    return false;
 }
 
 //---------------------------------------------------------------------------
@@ -576,13 +626,7 @@ void FbHeadView::editCurrent(const QModelIndex &index)
 
 void FbHeadView::activated(const QModelIndex &index)
 {
-    if (index.isValid() && index.column() == 1) {
-        if (FbHeadItem * i = model()->item(index)) {
-            if (!i->scheme().hasItems()) {
-                edit(index);
-            }
-        }
-    }
+    if (model()->canEdit(index)) edit(index);
     showStatus(index);
 }
 
@@ -597,7 +641,7 @@ void FbHeadView::showStatus(const QModelIndex &current)
     if (!model()) return;
     if (!current.isValid()) return;
     QModelIndex parent = model()->parent(current);
-    QModelIndex index = model()->index(current.row(), 2, parent);
+    QModelIndex index = model()->index(current.row(), 3, parent);
     emit status(model()->data(index).toString());
 }
 
