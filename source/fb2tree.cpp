@@ -380,6 +380,24 @@ void FbTreeModel::update()
     }
 }
 
+QModelIndex FbTreeModel::append(const QModelIndex &parent, FbTextElement element)
+{
+    FbTreeItem * owner = item(parent);
+    if (!owner || owner == m_root) return QModelIndex();
+
+    int count = owner->count();
+    int row = element.childIndex();
+    if (row > count) row = count;
+    if (row < 0) row = 0;
+
+    FbTreeItem * child = new FbTreeItem(element);
+    beginInsertRows(parent, row, row);
+    owner->insert(child, row);
+    endInsertRows();
+
+    return createIndex(row, 0, (void*)child);
+}
+
 //---------------------------------------------------------------------------
 //  FbTreeView
 //---------------------------------------------------------------------------
@@ -625,19 +643,6 @@ void FbTreeView::updateTree()
     selectTree();
 }
 
-QModelIndex FbTreeModel::append(const QModelIndex &parent, FbTextElement element)
-{
-    FbTreeItem * owner = item(parent);
-    if (!owner || owner == m_root) return QModelIndex();
-
-    int row = element.childIndex();
-    FbTreeItem * child = new FbTreeItem(element);
-    beginInsertRows(parent, row, row);
-    owner->insert(child, row);
-    endInsertRows();
-    return createIndex(row, 0, (void*)child);
-}
-
 void FbTreeView::append(const QModelIndex &parent, FbTextElement element)
 {
     FbTreeModel * m = model();
@@ -645,6 +650,8 @@ void FbTreeView::append(const QModelIndex &parent, FbTextElement element)
 
     QModelIndex current = currentIndex();
     QModelIndex index = m->append(parent, element);
+    if (!index.isValid()) return;
+
     setCurrentIndex(index);
     emit QTreeView::currentChanged(index, current);
     emit QTreeView::activated(index);
