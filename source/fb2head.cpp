@@ -560,6 +560,7 @@ FbHeadView::FbHeadView(FbTextEdit *view, QWidget *parent)
     QAction * act;
 
     setContextMenuPolicy(Qt::ActionsContextMenu);
+    setStyleSheet("show-decoration-selected: 1;");
 
     actionInsert = act = new QAction(FbIcon("list-add"), tr("&Append"), this);
     act->setShortcutContext(Qt::WidgetShortcut);
@@ -587,8 +588,6 @@ FbHeadView::FbHeadView(FbTextEdit *view, QWidget *parent)
     connect(this, SIGNAL(collapsed(QModelIndex)), SLOT(collapsed(QModelIndex)));
 
     header()->setDefaultSectionSize(200);
-//    connect(this, SIGNAL(activated(QModelIndex)), SLOT(editCurrent(QModelIndex)));
-//    connect(actionModify, SIGNAL(triggered()), SLOT(editCurrent()));
 }
 
 FbHeadModel * FbHeadView::model() const
