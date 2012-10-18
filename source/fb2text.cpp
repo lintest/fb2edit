@@ -116,6 +116,11 @@ bool FbTextPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest
     return QWebPage::acceptNavigationRequest(frame, request, type);
 }
 
+QString FbTextPage::block(const QString &name)
+{
+    return block(name, p());
+}
+
 QString FbTextPage::block(const QString &name, const QString &text)
 {
     return QString("<fb:%1>%2</fb:%1>").arg(name).arg(text);
@@ -149,7 +154,7 @@ void FbTextPage::update()
     emit selectionChanged();
 }
 
-void FbTextPage::appendSection(const FbTextElement &parent)
+FbTextElement FbTextPage::appendSection(const FbTextElement &parent)
 {
     QString html = block("section", block("title", p()) + p());
     FbTextElement element = parent;
@@ -157,6 +162,18 @@ void FbTextPage::appendSection(const FbTextElement &parent)
     element = parent.lastChild();
     QUndoCommand * command = new FbInsertCmd(element);
     push(command, tr("Append section"));
+    return element;
+}
+
+FbTextElement FbTextPage::appendTitle(const FbTextElement &parent)
+{
+    QString html = block("title", p());
+    FbTextElement element = parent;
+    element.prependInside(html);
+    element = parent.firstChild();
+    QUndoCommand * command = new FbInsertCmd(element);
+    push(command, tr("Append section"));
+    return element;
 }
 
 void FbTextPage::insertBody()

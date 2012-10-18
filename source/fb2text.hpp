@@ -78,7 +78,6 @@ class FbTextPage : public QWebPage
 
 public:
     explicit FbTextPage(QObject *parent = 0);
-
     FbNetworkAccessManager *temp();
     void push(QUndoCommand * command, const QString &text = QString());
     FbTextElement element(const QString &location);
@@ -89,7 +88,8 @@ public:
     FbTextElement body();
     FbTextElement doc();
 
-    void appendSection(const FbTextElement &parent);
+    FbTextElement appendSection(const FbTextElement &parent);
+    FbTextElement appendTitle(const FbTextElement &parent);
 
 public slots:
     void insertBody();
@@ -112,6 +112,7 @@ protected:
     void createBlock(const QString &name);
 
 protected:
+    static QString block(const QString &name);
     static QString block(const QString &name, const QString &text);
     static QString p(const QString &text = "<br/>");
     void update();

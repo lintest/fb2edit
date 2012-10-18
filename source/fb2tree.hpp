@@ -166,6 +166,7 @@ protected:
     void keyPressEvent(QKeyEvent *event);
 
 private:
+    void append(const QModelIndex &parent, FbTextElement element);
     void moveCurrent(int dx, int dy);
     FbTreeModel * model() const;
 

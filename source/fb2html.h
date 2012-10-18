@@ -66,6 +66,7 @@ public:
     bool hasSubtype(const QString &style) const;
     bool hasScheme() const;
     QString location();
+    int childIndex() const;
     int index() const;
 
 public:

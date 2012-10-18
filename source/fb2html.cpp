@@ -140,6 +140,20 @@ void FbTextElement::getChildren(FbElementList &list)
     }
 }
 
+int FbTextElement::childIndex() const
+{
+    FbElementList list;
+    parent().getChildren(list);
+
+    int result = 0;
+    FbElementList::const_iterator it;
+    for (it = list.constBegin(); it != list.constEnd(); ++it) {
+        if (*it == *this) return result;
+        result++;
+    }
+    return -1;
+}
+
 bool FbTextElement::hasScheme() const
 {
     return subtypes();
@@ -210,7 +224,7 @@ bool FbTextElement::hasChild(const QString &style) const
 {
     FbTextElement child = firstChild();
     while (!child.isNull()) {
-        if (child.nodeName() == style) return true;
+        if (child.tagName() == style) return true;
         child = child.nextSibling();
     }
     return false;
@@ -218,27 +232,27 @@ bool FbTextElement::hasChild(const QString &style) const
 
 bool FbTextElement::isBody() const
 {
-    return nodeName() == "body";
+    return tagName() == "FB:BODY";
 }
 
 bool FbTextElement::isSection() const
 {
-    return nodeName() == "section";
+    return tagName() == "FB:SECTION";
 }
 
 bool FbTextElement::isTitle() const
 {
-    return nodeName() == "title";
+    return tagName() == "FB:TITLE";
 }
 
 bool FbTextElement::isStanza() const
 {
-    return nodeName() == "stanza";
+    return tagName() == "FB:STANZA";
 }
 
 bool FbTextElement::hasTitle() const
 {
-    return FbTextElement(firstChild()).isTitle();
+    return hasChild("FB:TITLE");
 }
 
 int FbTextElement::index() const

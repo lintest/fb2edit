@@ -535,38 +535,38 @@ void FbTreeView::contextMenu(const QPoint &pos)
     QMenu menu;
     menu.addAction(actionSection);
 
-    QString n = e.nodeName();
+    QString tag = e.tagName();
 
-    if (n == "body") {
-        if (!e.hasChild("image")) menu.addAction(actionImage);
-        if (!e.hasChild("title")) menu.addAction(actionTitle);
+    if (tag == "FB:BODY") {
+        if (!e.hasChild("IMG")) menu.addAction(actionImage);
+        if (!e.hasTitle()) menu.addAction(actionTitle);
         menu.addAction(actionEpigraph);
     }
 
-    if (n == "section") {
-        if (!e.hasChild("title")) menu.addAction(actionTitle);
+    if (tag == "FB:SECTION") {
+        if (!e.hasTitle()) menu.addAction(actionTitle);
         menu.addAction(actionEpigraph);
-        if (!e.hasChild("image")) menu.addAction(actionImage);
-        if (!e.hasChild("annotetion")) menu.addAction(actionAnnot);
+        if (!e.hasChild("IMG")) menu.addAction(actionImage);
+        if (!e.hasChild("FB:ANNOTATION")) menu.addAction(actionAnnot);
     }
 
-    if (n == "poem") {
-        if (!e.hasChild("title")) menu.addAction(actionTitle);
+    if (tag == "FB:POEM") {
+        if (!e.hasTitle()) menu.addAction(actionTitle);
         menu.addAction(actionEpigraph);
         menu.addAction(actionStanza);
         menu.addAction(actionAuthor);
         if (!e.hasChild("date")) menu.addAction(actionDate);
     }
 
-    if (n == "stanza") {
-        if (!e.hasChild("title")) menu.addAction(actionTitle);
+    if (tag == "FB:STANZA") {
+        if (!e.hasTitle()) menu.addAction(actionTitle);
     }
 
-    if (n == "epigraph") {
+    if (tag == "FB:EPIGRAPH") {
         menu.addAction(actionAuthor);
     }
 
-    if (n == "cite") {
+    if (tag == "FB:CITE") {
         menu.addAction(actionAuthor);
     }
 
@@ -629,7 +629,8 @@ QModelIndex FbTreeModel::append(const QModelIndex &parent, FbTextElement element
 {
     FbTreeItem * owner = item(parent);
     if (!owner || owner == m_root) return QModelIndex();
-    int row = owner->count();
+
+    int row = element.childIndex();
     FbTreeItem * child = new FbTreeItem(element);
     beginInsertRows(parent, row, row);
     owner->insert(child, row);
@@ -637,33 +638,53 @@ QModelIndex FbTreeModel::append(const QModelIndex &parent, FbTextElement element
     return createIndex(row, 0, (void*)child);
 }
 
+void FbTreeView::append(const QModelIndex &parent, FbTextElement element)
+{
+    FbTreeModel * m = model();
+    if (!m) return;
+
+    QModelIndex current = currentIndex();
+    QModelIndex index = m->append(parent, element);
+    setCurrentIndex(index);
+    emit QTreeView::currentChanged(index, current);
+    emit QTreeView::activated(index);
+    scrollTo(index);
+}
+
 void FbTreeView::insertSection()
 {
-    if (FbTreeModel * m = model()) {
-        QModelIndex index = currentIndex();
-        FbTreeItem * item = m->item(index);
-        if (!item) return;
+    FbTreeModel * m = model();
+    if (!m) return;
 
-        FbTextElement element = item->element();
-        while (!element.isNull()) {
-            if (element.isSection() || element.isBody()) {
-                m_view.page()->appendSection(element);
-                QModelIndex result = m->append(index, element.lastChild());
-                if (!result.isValid()) return;
-                setCurrentIndex(result);
-                emit QTreeView::currentChanged(result, index);
-                emit QTreeView::activated(result);
-                scrollTo(result);
-                break;
-            }
-            element = element.parent();
-            index = m->parent(index);
+    QModelIndex index = currentIndex();
+    FbTreeItem * item = m->item(index);
+    if (!item) return;
+
+    FbTextElement element = item->element();
+    while (!element.isNull()) {
+        if (element.isBody() || element.isSection()) {
+            element = m_view.page()->appendSection(element);
+            append(index, element);
+            break;
         }
+        element = element.parent();
+        index = m->parent(index);
     }
 }
 
 void FbTreeView::insertTitle()
 {
+    FbTreeModel * m = model();
+    if (!m) return;
+
+    QModelIndex index = currentIndex();
+    FbTreeItem * item = m->item(index);
+    if (!item) return;
+
+    FbTextElement element = item->element();
+    if (element.hasTitle()) return;
+    element = m_view.page()->appendTitle(element);
+    append(index, element);
 }
 
 void FbTreeView::insertAuthor()
