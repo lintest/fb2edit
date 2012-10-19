@@ -5,3 +5,5 @@ range.setEnd(this,0);
 var selection = window.getSelection();
 selection.removeAllRanges();
 selection.addRange(range);
+range.collapse(true);
+range.select();

@@ -13,6 +13,7 @@ FbTextElement::Scheme::Scheme()
         << Type("title")
         << Type("epigraph", 0, 0)
         << Type()
+        << Type("section")
     ;
 
     m_types["section"]
@@ -21,6 +22,7 @@ FbTextElement::Scheme::Scheme()
         << Type("image")
         << Type("annotation")
         << Type()
+        << Type("section")
     ;
 
     m_types["poem"]
