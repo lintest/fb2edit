@@ -90,22 +90,78 @@ bool FbReadThread::parse()
 //  FbReadHandler::RootHandler
 //---------------------------------------------------------------------------
 
+FB2_BEGIN_KEYHASH(FbReadHandler::RootHandler)
+    FB2_KEY( Style  , "stylesheet"  );
+    FB2_KEY( Descr  , "description" );
+    FB2_KEY( Body   , "body"        );
+    FB2_KEY( Binary , "binary"      );
+FB2_END_KEYHASH
+
 FbReadHandler::RootHandler::RootHandler(FbReadHandler &owner, const QString &name)
     : BaseHandler(owner, name)
+    , m_head(true)
 {
-    writer().writeStartElement("body");
 }
 
 FbXmlHandler::NodeHandler * FbReadHandler::RootHandler::NewTag(const QString &name, const QXmlAttributes &atts)
 {
-    if (name == "binary") return new BinaryHandler(m_owner, name, atts);
+    switch (toKeyword(name)) {
+        case Binary: return new BinaryHandler(m_owner, name, atts);
+        case Style: return new StyleHandler(m_owner, name, m_style);
+        default: ;
+    }
+
+    if (m_head) {
+        writeHeader();
+        m_head = false;
+    }
+
     return new TextHandler(m_owner, name, atts, "fb:" + name);
 }
 
 void FbReadHandler::RootHandler::EndTag(const QString &name)
 {
     Q_UNUSED(name);
+    if (!m_head) writer().writeEndElement();
+}
+
+void FbReadHandler::RootHandler::writeScript(const QString &src)
+{
+    writer().writeStartElement("script");
+    writer().writeAttribute("type", "text/javascript");
+    writer().writeAttribute("src", src);
+    writer().writeCharacters(" ");
     writer().writeEndElement();
+}
+
+void FbReadHandler::RootHandler::writeHeader()
+{
+    writer().writeStartElement("head");
+    writeScript("qrc:/js/jquery.js");
+    writeScript("qrc:/js/location.js");
+    if (!m_style.isEmpty()) {
+        writer().writeStartElement("style");
+        writer().writeAttribute("type", "text/css");
+        writer().writeCharacters(m_style);
+        writer().writeEndElement();
+    }
+    writer().writeEndElement();
+    writer().writeStartElement("body");
+}
+
+//---------------------------------------------------------------------------
+//  FbReadHandler::StyleHandler
+//---------------------------------------------------------------------------
+
+FbReadHandler::StyleHandler::StyleHandler(FbReadHandler &owner, const QString &name, QString &text)
+    : BaseHandler(owner, name)
+    , m_text(text)
+{
+}
+
+void FbReadHandler::StyleHandler::TxtTag(const QString &text)
+{
+    m_text += text;
 }
 
 //---------------------------------------------------------------------------
@@ -246,23 +302,10 @@ FbReadHandler::FbReadHandler(FbReadThread &thread, QXmlStreamWriter &writer)
     m_writer.setAutoFormatting(true);
     m_writer.setAutoFormattingIndent(2);
     m_writer.writeStartElement("html");
-    m_writer.writeStartElement("head");
-    writeScript("qrc:/js/jquery.js");
-    writeScript("qrc:/js/location.js");
-    m_writer.writeEndElement();
 }
 
 FbReadHandler::~FbReadHandler()
 {
-    m_writer.writeEndElement();
-}
-
-void FbReadHandler::writeScript(const QString &src)
-{
-    m_writer.writeStartElement("script");
-    m_writer.writeAttribute("type", "text/javascript");
-    m_writer.writeAttribute("src", src);
-    m_writer.writeCharacters(" ");
     m_writer.writeEndElement();
 }
 

@@ -137,6 +137,14 @@ private:
         FbSaveWriter &m_writer;
     };
 
+    class HeadHandler : public TextHandler
+    {
+    public:
+        explicit HeadHandler(FbSaveWriter &writer, const QString &name, const QXmlAttributes &atts);
+    protected:
+        virtual void EndTag(const QString &name);
+    };
+
     class BodyHandler : public TextHandler
     {
     public:

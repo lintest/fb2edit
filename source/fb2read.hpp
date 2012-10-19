@@ -69,11 +69,33 @@ private:
 
     class RootHandler : public BaseHandler
     {
+        FB2_BEGIN_KEYLIST
+            Style,
+            Descr,
+            Body,
+            Binary,
+       FB2_END_KEYLIST
     public:
         explicit RootHandler(FbReadHandler &owner, const QString &name);
     protected:
         virtual NodeHandler * NewTag(const QString & name, const QXmlAttributes &atts);
         virtual void EndTag(const QString &name);
+    private:
+        void writeScript(const QString &src);
+        void writeHeader();
+    private:
+        QString m_style;
+        bool m_head;
+    };
+
+    class StyleHandler : public BaseHandler
+    {
+    public:
+        explicit StyleHandler(FbReadHandler &owner, const QString &name, QString &text);
+    protected:
+        virtual void TxtTag(const QString &text);
+    private:
+        QString &m_text;
     };
 
     class TextHandler : public BaseHandler
@@ -125,7 +147,6 @@ protected:
 
 private:
     void addFile(const QString &name, const QByteArray &data);
-    void writeScript(const QString &src);
 
 private:
     typedef QHash<QString, QString> StringHash;
