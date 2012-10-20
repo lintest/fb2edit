@@ -137,6 +137,9 @@ FbSaveWriter::FbSaveWriter(FbTextEdit &view, QByteArray *array)
     : QXmlStreamWriter(array)
     , m_view(view)
 {
+    if (QWebFrame * frame = m_view.page()->mainFrame()) {
+        m_style = frame->findFirstElement("html>head>style").toPlainText();
+    }
 }
 
 FbSaveWriter::FbSaveWriter(FbTextEdit &view, QIODevice *device)
@@ -208,6 +211,25 @@ QString FbSaveWriter::getFileName(const QString &path)
         m_names.append(name);
         return name;
     }
+}
+
+void FbSaveWriter::writeStyle()
+{
+    if (m_style.isEmpty()) return;
+
+    const QString postfix = "\n  ";
+    writeStartElement("stylesheet", 2);
+    writeAttribute("type", "text/css");
+    writeCharacters(postfix);
+
+    QStringList list = m_style.split("}", QString::SkipEmptyParts);
+    foreach (const QString &str, list) {
+        QString line = str.simplified();
+        if (line.isEmpty()) continue;
+        writeCharacters("  " + line + "}" + postfix);
+    }
+
+    QXmlStreamWriter::writeEndElement();
 }
 
 void FbSaveWriter::writeFiles()
@@ -363,6 +385,7 @@ FbSaveHandler::BodyHandler::BodyHandler(FbSaveWriter &writer, const QString &nam
 {
     m_writer.writeAttribute("xmlns", "http://www.gribuser.ru/xml/fictionbook/2.0");
     m_writer.writeAttribute("xmlns:l", "http://www.w3.org/1999/xlink");
+    m_writer.writeStyle();
 }
 
 void FbSaveHandler::BodyHandler::EndTag(const QString &name)

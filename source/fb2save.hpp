@@ -76,12 +76,14 @@ public:
     void writeComment(const QString &ch);
     void writeLineEnd();
     void writeFiles();
+    void writeStyle();
 private:
     QByteArray downloadFile(const QUrl &url);
     void writeContentType(const QString &name, QByteArray &data);
 private:
     FbTextEdit &m_view;
     QStringList m_names;
+    QString m_style;
 };
 
 class FbSaveHandler : public FbHtmlHandler
@@ -94,7 +96,7 @@ public:
 private:
     class TextHandler : public NodeHandler
     {
-        FB2_BEGIN_KEYLIST
+       FB2_BEGIN_KEYLIST
             Origin,
             Anchor,
             Table,
@@ -135,14 +137,6 @@ private:
         virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
     protected:
         FbSaveWriter &m_writer;
-    };
-
-    class HeadHandler : public TextHandler
-    {
-    public:
-        explicit HeadHandler(FbSaveWriter &writer, const QString &name, const QXmlAttributes &atts);
-    protected:
-        virtual void EndTag(const QString &name);
     };
 
     class BodyHandler : public TextHandler
