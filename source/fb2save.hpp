@@ -119,7 +119,7 @@ private:
         virtual void TxtTag(const QString &text);
         virtual void EndTag(const QString &name);
     protected:
-        void Init(const QXmlAttributes &atts);
+        virtual void writeAtts(const QXmlAttributes &atts);
         virtual int nextLevel() const;
     protected:
         FbSaveWriter &m_writer;
@@ -157,6 +157,8 @@ private:
     {
     public:
         explicit AnchorHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts);
+    protected:
+        virtual void writeAtts(const QXmlAttributes &atts);
     };
 
     class ImageHandler : public TextHandler
@@ -164,7 +166,7 @@ private:
     public:
         explicit ImageHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts);
     protected:
-        virtual void EndTag(const QString &name) { Q_UNUSED(name); }
+        virtual void writeAtts(const QXmlAttributes &atts);
     };
 
     class ParagHandler : public TextHandler

@@ -300,7 +300,8 @@ FbSaveHandler::TextHandler::TextHandler(FbSaveWriter &writer, const QString &nam
     , m_level(1)
     , m_hasChild(false)
 {
-    Init(atts);
+    m_writer.writeStartElement(m_tag, m_level);
+    writeAtts(atts);
 }
 
 FbSaveHandler::TextHandler::TextHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts, const QString &tag)
@@ -310,10 +311,11 @@ FbSaveHandler::TextHandler::TextHandler(TextHandler *parent, const QString &name
     , m_level(parent->nextLevel())
     , m_hasChild(false)
 {
-    Init(atts);
+    m_writer.writeStartElement(m_tag, m_level);
+    writeAtts(atts);
 }
 
-void FbSaveHandler::TextHandler::Init(const QXmlAttributes &atts)
+void FbSaveHandler::TextHandler::writeAtts(const QXmlAttributes &atts)
 {
     if (m_tag.isEmpty()) return;
     m_writer.writeStartElement(m_tag, m_level);
@@ -410,8 +412,16 @@ FbSaveHandler::SpanHandler::SpanHandler(TextHandler *parent, const QString &name
 FbSaveHandler::AnchorHandler::AnchorHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts)
     : TextHandler(parent, name, atts, "a")
 {
-    QString href = Value(atts, "href");
-    m_writer.writeAttribute("l:href", href);
+}
+
+void FbSaveHandler::AnchorHandler::writeAtts(const QXmlAttributes &atts)
+{
+    int count = atts.count();
+    for (int i = 0; i < count; i++) {
+        QString name = atts.qName(i);
+        if (name == "href") name == "l:href";
+        m_writer.writeAttribute(name, atts.value(i));
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -421,11 +431,21 @@ FbSaveHandler::AnchorHandler::AnchorHandler(TextHandler *parent, const QString &
 FbSaveHandler::ImageHandler::ImageHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts)
     : TextHandler(parent, name, atts, "image")
 {
-    QString src = Value(atts, "src");
-    QString file = m_writer.getFileName(src);
-    file.prepend('#');
-    m_writer.writeAttribute("l:href", file);
-    m_writer.writeEndElement(0);
+}
+
+void FbSaveHandler::ImageHandler::writeAtts(const QXmlAttributes &atts)
+{
+    int count = atts.count();
+    for (int i = 0; i < count; i++) {
+        QString name = atts.qName(i);
+        QString value = atts.value(i);
+        if (name == "src") {
+            name == "l:href";
+            value = m_writer.getFileName(value);
+            value.prepend('#');
+        }
+        m_writer.writeAttribute(name, value);
+    }
 }
 
 //---------------------------------------------------------------------------
