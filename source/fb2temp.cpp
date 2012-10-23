@@ -6,6 +6,7 @@
 #include <QFileInfo>
 #include <QImageReader>
 #include <QUrl>
+#include <QWebFrame>
 #include <QVBoxLayout>
 #include <QtDebug>
 
@@ -245,9 +246,9 @@ void FbNetworkAccessManager::data(QString name, QByteArray data)
 //  FbListModel
 //---------------------------------------------------------------------------
 
-FbListModel::FbListModel(FbNetworkAccessManager &files, QObject *parent)
+FbListModel::FbListModel(FbTextEdit *text, QObject *parent)
     : QAbstractListModel(parent)
-    , m_files(files)
+    , m_text(text)
 {
 }
 
@@ -259,8 +260,9 @@ int FbListModel::columnCount(const QModelIndex &parent) const
 
 int FbListModel::rowCount(const QModelIndex &parent) const
 {
-    if (parent.isValid()) return 0;
-    return m_files.count();
+    Q_UNUSED(parent);
+    FbNetworkAccessManager * f = files();
+    return f ? f->count() : 0;
 }
 
 QVariant FbListModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -275,12 +277,22 @@ QVariant FbListModel::headerData(int section, Qt::Orientation orientation, int r
     return QVariant();
 }
 
+FbNetworkAccessManager * FbListModel::files() const
+{
+    if (FbTextPage *page = qobject_cast<FbTextPage*>(m_text->page())) {
+        return qobject_cast<FbNetworkAccessManager*>(page->networkAccessManager());
+    } else {
+        return 0;
+    }
+}
+
 QVariant FbListModel::data(const QModelIndex &index, int role) const
 {
     if (index.isValid()) {
         switch (role) {
             case Qt::DisplayRole: {
-                return m_files.info(index.row(), index.column());
+                FbNetworkAccessManager * f = files();
+                return f ? f->info(index.row(), index.column()) : QVariant();
             } break;
             case Qt::TextAlignmentRole: {
                 switch (index.column()) {
@@ -304,21 +316,13 @@ FbListView::FbListView(FbNetworkAccessManager *files, QWidget *parent)
     : QTreeView(parent)
     , m_files(*files)
 {
-    m_label = new QLabel(this);
-    m_label->setScaledContents(true);
 }
 
 void FbListView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     QTreeView::currentChanged(current, previous);
-
-    int row = current.row();
-    if (0 <= row && row < model()->temp().count()) {
-        QPixmap pixmap;
-        pixmap.loadFromData(model()->temp().data(row));
-        m_label->setPixmap(pixmap);
-        m_label->resize(pixmap.size());
-    }
+    QModelIndex index = model()->index(current.row(), 0);
+    emit showImage(model()->data(index).toString());
 }
 
 FbListModel * FbListView::model() const
@@ -330,9 +334,9 @@ FbListModel * FbListView::model() const
 //  FbListWidget
 //---------------------------------------------------------------------------
 
-FbListWidget::FbListWidget(FbTextEdit *view, QWidget* parent)
+FbListWidget::FbListWidget(FbTextEdit *text, QWidget* parent)
     : QWidget(parent)
-    , m_view(*view)
+    , m_text(text)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(0);
@@ -340,28 +344,40 @@ FbListWidget::FbListWidget(FbTextEdit *view, QWidget* parent)
 
     QSplitter *splitter = new QSplitter(Qt::Vertical, this);
 
-    m_list = new FbListView(view->files(), splitter);
+    m_list = new FbListView(text->files(), splitter);
     splitter->addWidget(m_list);
 
-    QScrollArea *scroll = new QScrollArea(splitter);
-    scroll->setWidget(m_list->label());
-    splitter->addWidget(scroll);
+    FbWebFrame *frame = new FbWebFrame(splitter);
+    splitter->addWidget(frame);
+    m_view = frame->view();
 
-    splitter->setSizes(QList<int>() << 1 << 1);
+    splitter->setSizes(QList<int>() << 100 << 100);
+
     layout->addWidget(splitter);
 
-    connect(&m_view, SIGNAL(loadFinished(bool)), SLOT(loadFinished()));
+    connect(m_text, SIGNAL(loadFinished(bool)), SLOT(loadFinished()));
+    connect(m_list, SIGNAL(showImage(QString)), SLOT(showImage(QString)));
     loadFinished();
-
-//    m_tool = new QToolBar(this);
-//    layout->addWidget(m_tool);
 }
 
 void FbListWidget::loadFinished()
 {
-    m_list->setModel(new FbListModel(*m_view.files(), this));
-    m_list->label()->clear();
+    if (m_view->page() && m_text->page()) {
+        m_view->page()->setNetworkAccessManager(m_text->page()->networkAccessManager());
+    }
+
+    m_view->load(QUrl());
+
+    m_list->setModel(new FbListModel(m_text, this));
     m_list->reset();
     m_list->resizeColumnToContents(1);
     m_list->resizeColumnToContents(2);
+}
+
+void FbListWidget::showImage(const QString &name)
+{
+    QUrl url = m_text->page()->mainFrame()->url();
+    url.setFragment(name);
+    QString html = QString("<img src=%1 valign=center align=center width=100%>").arg(url.toString());
+    m_view->setHtml(html);
 }

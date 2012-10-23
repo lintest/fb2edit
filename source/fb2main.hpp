@@ -21,6 +21,21 @@ class FbTextEdit;
 class FbTextFrame;
 class FbTextPage;
 
+class FbLogDock: public QDockWidget
+{
+    Q_OBJECT
+
+public:
+    explicit FbLogDock(const QString &title, QWidget *parent = 0, Qt::WindowFlags flags = 0)
+        : QDockWidget(title, parent, flags) {}
+
+    QSize sizeHint() const {
+        QSize sh = QDockWidget::sizeHint();
+        sh.setHeight(40);
+        return sh;
+    }
+};
+
 class FbDockWidget : public QDockWidget
 {
     Q_OBJECT

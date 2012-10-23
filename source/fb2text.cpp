@@ -770,6 +770,23 @@ void FbTextEdit::execCommand(const QString &cmd, const QString &arg)
 }
 
 //---------------------------------------------------------------------------
+//  FbWebFrame
+//---------------------------------------------------------------------------
+
+FbWebFrame::FbWebFrame(QWidget *parent)
+    : QFrame(parent)
+    , m_view(this)
+{
+    setFrameShape(QFrame::StyledPanel);
+    setFrameShadow(QFrame::Sunken);
+
+    QLayout * layout = new QBoxLayout(QBoxLayout::LeftToRight, this);
+    layout->setSpacing(0);
+    layout->setMargin(0);
+    layout->addWidget(&m_view);
+}
+
+//---------------------------------------------------------------------------
 //  FbTextFrame
 //---------------------------------------------------------------------------
 

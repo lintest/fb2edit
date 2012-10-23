@@ -82,12 +82,13 @@ FbTextPage * FbMainWindow::page()
     return textFrame ? textFrame->view()->page() : 0;
 }
 
+
 void FbMainWindow::logMessage(const QString &message)
 {
     if (!messageEdit) {
         messageEdit = new QTextEdit(this);
         connect(messageEdit, SIGNAL(destroyed()), SLOT(logDestroyed()));
-        QDockWidget * dock = new QDockWidget(tr("Message log"), this);
+        QDockWidget * dock = new FbLogDock(tr("Message log"), this);
         dock->setAttribute(Qt::WA_DeleteOnClose);
         dock->setFeatures(QDockWidget::AllDockWidgetFeatures);
         dock->setWidget(messageEdit);

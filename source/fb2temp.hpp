@@ -8,8 +8,8 @@
 #include <QNetworkReply>
 #include <QString>
 #include <QTemporaryFile>
-#include <QToolBar>
 #include <QTreeView>
+#include <QWebView>
 
 class FbTextEdit;
 
@@ -117,7 +117,7 @@ class FbListModel : public QAbstractListModel
     Q_OBJECT
 
 public:
-    explicit FbListModel(FbNetworkAccessManager &files, QObject *parent = 0);
+    explicit FbListModel(FbTextEdit *text, QObject *parent = 0);
 
 public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -125,11 +125,11 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
-public:
-    FbNetworkAccessManager &temp() { return m_files; }
+private:
+    FbNetworkAccessManager *files() const;
 
 private:
-    FbNetworkAccessManager &m_files;
+    FbTextEdit *m_text;
 };
 
 class FbListView : public QTreeView
@@ -138,15 +138,16 @@ class FbListView : public QTreeView
 
 public:
     explicit FbListView(FbNetworkAccessManager *files, QWidget *parent = 0);
-    QLabel *label() { return m_label; }
     FbListModel *model() const;
 
 protected:
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);
 
+signals:
+    void showImage(const QString &name);
+
 private:
     FbNetworkAccessManager &m_files;
-    QLabel *m_label;
 };
 
 class FbListWidget : public QWidget
@@ -154,15 +155,20 @@ class FbListWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit FbListWidget(FbTextEdit *view, QWidget* parent = 0);
+    explicit FbListWidget(FbTextEdit *text, QWidget* parent = 0);
+
+    QSize sizeHint() const { return QSize(200,200); }
+
+public slots:
+    void showImage(const QString &name);
 
 private slots:
     void loadFinished();
 
 private:
-    FbTextEdit &m_view;
+    FbTextEdit *m_text;
     FbListView *m_list;
-    QToolBar *m_tool;
+    QWebView *m_view;
 };
 
 #endif // FB2TEMP_H
