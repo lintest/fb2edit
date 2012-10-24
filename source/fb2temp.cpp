@@ -220,9 +220,8 @@ QVariant FbNetworkAccessManager::info(int row, int col) const
     if (0 <= row && row < count()) {
         FbTemporaryFile *file = m_files[row];
         switch (col) {
-            case 0: return file->name();
-            case 1: return file->type();
-            case 2: return file->size();
+            case 2: return file->type();
+            case 3: return file->size();
         }
         return m_files[row]->name();
     }
@@ -255,7 +254,7 @@ FbListModel::FbListModel(FbTextEdit *text, QObject *parent)
 int FbListModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return 3;
+    return 4;
 }
 
 int FbListModel::rowCount(const QModelIndex &parent) const
@@ -269,9 +268,9 @@ QVariant FbListModel::headerData(int section, Qt::Orientation orientation, int r
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
-            case 0: return tr("File name");
-            case 1: return tr("Type");
-            case 2: return tr("Size");
+            case 1: return tr("File name");
+            case 2: return tr("Type");
+            case 3: return tr("Size");
         }
     }
     return QVariant();
@@ -296,7 +295,7 @@ QVariant FbListModel::data(const QModelIndex &index, int role) const
             } break;
             case Qt::TextAlignmentRole: {
                 switch (index.column()) {
-                    case 2: return Qt::AlignRight;
+                    case 3: return Qt::AlignRight;
                     default: return Qt::AlignLeft;
                 }
             }
@@ -316,6 +315,7 @@ FbListView::FbListView(FbNetworkAccessManager *files, QWidget *parent)
     : QTreeView(parent)
     , m_files(*files)
 {
+    setAllColumnsShowFocus(true);
 }
 
 void FbListView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
@@ -372,6 +372,8 @@ void FbListWidget::loadFinished()
     m_list->reset();
     m_list->resizeColumnToContents(1);
     m_list->resizeColumnToContents(2);
+    m_list->resizeColumnToContents(3);
+    m_list->setColumnHidden(0, true);
 }
 
 void FbListWidget::showImage(const QString &name)
