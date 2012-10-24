@@ -302,6 +302,7 @@ FbSaveHandler::TextHandler::TextHandler(FbSaveWriter &writer, const QString &nam
     , m_level(1)
     , m_hasChild(false)
 {
+    if (tag.isEmpty()) return;
     m_writer.writeStartElement(m_tag, m_level);
     writeAtts(atts);
 }
@@ -320,7 +321,6 @@ FbSaveHandler::TextHandler::TextHandler(TextHandler *parent, const QString &name
 
 void FbSaveHandler::TextHandler::writeAtts(const QXmlAttributes &atts)
 {
-    if (m_tag.isEmpty()) return;
     int count = atts.count();
     for (int i = 0; i < count; i++) {
         QString name = atts.qName(i);
@@ -427,6 +427,10 @@ FbSaveHandler::ParagHandler::ParagHandler(TextHandler *parent, const QString &na
     , m_parent(parent->tag())
     , m_empty(true)
 {
+    int count = atts.count();
+    for (int i = 0; i < count; i++) {
+        m_atts.append(atts.qName(i), atts.uri(i), atts.localName(i), atts.value(i));
+    }
 }
 
 FbXmlHandler::NodeHandler * FbSaveHandler::ParagHandler::NewTag(const QString &name, const QXmlAttributes &atts)
@@ -456,6 +460,7 @@ void FbSaveHandler::ParagHandler::start()
     if (!m_empty) return;
     QString tag = m_parent == "stanza" ? "v" : "p";
     m_writer.writeStartElement(tag, m_level);
+    writeAtts(m_atts);
     m_empty = false;
 }
 

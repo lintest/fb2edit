@@ -166,6 +166,7 @@ private:
         void start();
     private:
         const QString m_parent;
+        QXmlAttributes m_atts;
         bool m_empty;
     };
 
