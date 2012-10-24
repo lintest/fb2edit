@@ -4,10 +4,12 @@
 #include "fb2save.hpp"
 #include "fb2text.hpp"
 #include "fb2utils.h"
+#include "fb2html.h"
 
 #include <QAbstractNetworkCache>
 #include <QBuffer>
 #include <QComboBox>
+#include <QDateTime>
 #include <QFileDialog>
 #include <QGridLayout>
 #include <QLabel>
@@ -321,7 +323,18 @@ void FbSaveHandler::TextHandler::writeAtts(const QXmlAttributes &atts)
     if (m_tag.isEmpty()) return;
     int count = atts.count();
     for (int i = 0; i < count; i++) {
-        m_writer.writeAttribute(atts.qName(i), atts.value(i));
+        QString name = atts.qName(i);
+        QString value = atts.value(i);
+        if (m_tag == "image") {
+            if (name == "src") {
+                name = "l:href";
+                value = m_writer.getFileName(value);
+                value.prepend('#');
+            }
+        } else if (m_tag == "a") {
+            if (name == "href") name = "l:href";
+        }
+        m_writer.writeAttribute(name, value);
     }
 }
 
@@ -331,10 +344,10 @@ FbXmlHandler::NodeHandler * FbSaveHandler::TextHandler::NewTag(const QString &na
     QString tag = QString();
     switch (toKeyword(name)) {
         case Origin    : tag = name; break;
-        case Anchor    : return new AnchorHandler(this, name, atts);
-        case Image     : return new ImageHandler(this, name, atts);
         case Parag     : return new ParagHandler(this, name, atts);
         case Span      : return new SpanHandler(this, name, atts);
+        case Anchor    : tag = "a"             ; break;
+        case Image     : tag = "image"         ; break;
         case Strong    : tag = "strong"        ; break;
         case Emphas    : tag = "emphasis"      ; break;
         case Strike    : tag = "strikethrough" ; break;
@@ -406,49 +419,6 @@ FbSaveHandler::SpanHandler::SpanHandler(TextHandler *parent, const QString &name
 }
 
 //---------------------------------------------------------------------------
-//  FbSaveHandler::AnchorHandler
-//---------------------------------------------------------------------------
-
-FbSaveHandler::AnchorHandler::AnchorHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts)
-    : TextHandler(parent, name, atts, "a")
-{
-}
-
-void FbSaveHandler::AnchorHandler::writeAtts(const QXmlAttributes &atts)
-{
-    int count = atts.count();
-    for (int i = 0; i < count; i++) {
-        QString name = atts.qName(i);
-        if (name == "href") name == "l:href";
-        m_writer.writeAttribute(name, atts.value(i));
-    }
-}
-
-//---------------------------------------------------------------------------
-//  FbSaveHandler::ImageHandler
-//---------------------------------------------------------------------------
-
-FbSaveHandler::ImageHandler::ImageHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts)
-    : TextHandler(parent, name, atts, "image")
-{
-}
-
-void FbSaveHandler::ImageHandler::writeAtts(const QXmlAttributes &atts)
-{
-    int count = atts.count();
-    for (int i = 0; i < count; i++) {
-        QString name = atts.qName(i);
-        QString value = atts.value(i);
-        if (name == "src") {
-            name == "l:href";
-            value = m_writer.getFileName(value);
-            value.prepend('#');
-        }
-        m_writer.writeAttribute(name, value);
-    }
-}
-
-//---------------------------------------------------------------------------
 //  FbSaveHandler::ParagHandler
 //---------------------------------------------------------------------------
 
@@ -513,13 +483,39 @@ FbXmlHandler::NodeHandler * FbSaveHandler::CreateRoot(const QString &name, const
     return 0;
 }
 
+void FbSaveHandler::setDocumentInfo(QWebFrame * frame)
+{
+    QString info1 = qApp->applicationName() += QString(" ") += qApp->applicationVersion();
+    QDateTime now = QDateTime::currentDateTime();
+    QString info2 = now.toString("dd MMMM yyyy");
+    QString value = now.toString("yyyy-MM-dd hh:mm:ss");
+
+    FbTextElement parent = frame->documentElement().findFirst("body");
+    parent = parent["fb:description"];
+    parent = parent["fb:document-info"];
+
+    FbTextElement child1 = parent["fb:program-used"];
+    child1.setInnerXml(info1);
+
+    FbTextElement child2 = parent["fb:date"];
+    child2.setInnerXml(info2);
+    child2.setAttribute("value", value);
+}
+
 bool FbSaveHandler::save()
 {
+    FbTextPage *page = m_writer.view().page();
+    if (!page) return false;
+
+    QWebFrame *frame = page->mainFrame();
+    if (!frame) return false;
+
+    if (page->isModified()) setDocumentInfo(frame);
     m_writer.writeStartDocument();
-    QWebFrame * frame = m_writer.view().page()->mainFrame();
     QString javascript = jScript("export.js");
     frame->addToJavaScriptWindowObject("handler", this);
     frame->evaluateJavaScript(javascript);
     m_writer.writeEndDocument();
+
     return true;
 }

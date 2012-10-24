@@ -153,22 +153,6 @@ private:
         explicit SpanHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts);
     };
 
-    class AnchorHandler : public TextHandler
-    {
-    public:
-        explicit AnchorHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts);
-    protected:
-        virtual void writeAtts(const QXmlAttributes &atts);
-    };
-
-    class ImageHandler : public TextHandler
-    {
-    public:
-        explicit ImageHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts);
-    protected:
-        virtual void writeAtts(const QXmlAttributes &atts);
-    };
-
     class ParagHandler : public TextHandler
     {
     public:
@@ -187,6 +171,9 @@ private:
 
 protected:
     virtual NodeHandler * CreateRoot(const QString &name, const QXmlAttributes &atts);
+
+private:
+    void setDocumentInfo(QWebFrame *frame);
 
 private:
     FbSaveWriter & m_writer;

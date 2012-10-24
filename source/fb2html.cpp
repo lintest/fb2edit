@@ -112,6 +112,18 @@ bool FbTextElement::Sublist::operator !=(const FbTextElement &element) const
 //  FbTextElement
 //---------------------------------------------------------------------------
 
+FbTextElement FbTextElement::operator[](const QString &name)
+{
+    FbTextElement child = firstChild();
+    while (!child.isNull()) {
+        if (child.tagName().toLower() == name) return child;
+        child = child.nextSibling();
+    }
+    QString html = QString("<%1></%1>").arg(name);
+    appendInside(html);
+    return lastChild();
+}
+
 QString FbTextElement::blockName() const
 {
     QString n = tagName().toLower();

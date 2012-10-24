@@ -90,7 +90,7 @@
     <name>FbHeadItem</name>
     <message>
         <source>#</source>
-        <translation>№</translation>
+        <translation type="obsolete">№</translation>
     </message>
     <message>
         <source>Book</source>
@@ -160,6 +160,10 @@
         <source>History</source>
         <translation>История</translation>
     </message>
+    <message>
+        <source>Editor</source>
+        <translation>Редактор</translation>
+    </message>
 </context>
 <context>
     <name>FbHeadModel</name>
@@ -171,20 +175,44 @@
         <source>Value</source>
         <translation>Значение</translation>
     </message>
+    <message>
+        <source>Extra</source>
+        <translation>Дополнение</translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation>Информация</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Тип</translation>
+    </message>
+    <message>
+        <source>Can edit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Min</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FbHeadView</name>
     <message>
         <source>&amp;Append</source>
-        <translation type="unfinished">&amp;Добавить</translation>
+        <translation>&amp;Добавить</translation>
     </message>
     <message>
         <source>&amp;Modify</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Изменить</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation type="unfinished">&amp;Удалить</translation>
+        <translation>&amp;Удалить</translation>
     </message>
 </context>
 <context>
@@ -558,6 +586,10 @@
         <translatorcomment>Стиль: Заголовок</translatorcomment>
         <translation>Заголовок</translation>
     </message>
+    <message>
+        <source>&amp;HTML</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FbNodeDlg</name>
@@ -567,6 +599,17 @@
     </message>
     <message>
         <source>Tag name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FbNodeEditDlg</name>
+    <message>
+        <source>Modify tag</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Value:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -717,6 +760,14 @@
     <message>
         <source>Insert epigraph</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create &lt;%1&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove section</source>
+        <translation type="unfinished">Удалить секцию</translation>
     </message>
 </context>
 <context>

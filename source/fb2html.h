@@ -70,6 +70,7 @@ public:
     int index() const;
 
 public:
+    FbTextElement operator[](const QString &name);
     bool hasChild(const QString &style) const;
     bool isBody() const;
     bool isSection() const;

@@ -193,6 +193,7 @@ FbHeadItem::HintHash::HintHash()
     insert( "book-title"    , tr( "Title"       ));
     insert( "annotation"    , tr( "Annotation"  ));
     insert( "coverpage"     , tr( "Cover"       ));
+    insert( "program-used"  , tr( "Editor"      ));
     insert( "date"          , tr( "Date"        ));
     insert( "lang"          , tr( "Language"    ));
     insert( "translator"    , tr( "Translator"  ));
