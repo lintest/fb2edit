@@ -311,6 +311,7 @@ FbSaveHandler::TextHandler::TextHandler(TextHandler *parent, const QString &name
     , m_level(parent->nextLevel())
     , m_hasChild(false)
 {
+    if (tag.isEmpty()) return;
     m_writer.writeStartElement(m_tag, m_level);
     writeAtts(atts);
 }
@@ -318,7 +319,6 @@ FbSaveHandler::TextHandler::TextHandler(TextHandler *parent, const QString &name
 void FbSaveHandler::TextHandler::writeAtts(const QXmlAttributes &atts)
 {
     if (m_tag.isEmpty()) return;
-    m_writer.writeStartElement(m_tag, m_level);
     int count = atts.count();
     for (int i = 0; i < count; i++) {
         m_writer.writeAttribute(atts.qName(i), atts.value(i));
