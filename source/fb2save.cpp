@@ -196,7 +196,7 @@ QByteArray FbSaveWriter::downloadFile(const QUrl &url)
     return reply->readAll();
 }
 
-QString FbSaveWriter::getFileName(const QString &path)
+QString FbSaveWriter::filename(const QString &path)
 {
     if (path.left(1) == "#") {
         QString name = path.mid(1);
@@ -279,12 +279,12 @@ void FbSaveWriter::writeContentType(const QString &name, QByteArray &data)
 //---------------------------------------------------------------------------
 
 FB2_BEGIN_KEYHASH(FbSaveHandler::TextHandler)
-    FB2_KEY( Anchor  , "a"      );
-    FB2_KEY( Image   , "img"    );
     FB2_KEY( Origin  , "table"  );
     FB2_KEY( Origin  , "td"     );
     FB2_KEY( Origin  , "th"     );
     FB2_KEY( Origin  , "tr"     );
+    FB2_KEY( Origin  , "a"      );
+    FB2_KEY( Image   , "img"    );
     FB2_KEY( Parag   , "p"      );
     FB2_KEY( Strong  , "b"      );
     FB2_KEY( Emphas  , "i"      );
@@ -328,8 +328,7 @@ void FbSaveHandler::TextHandler::writeAtts(const QXmlAttributes &atts)
         if (m_tag == "image") {
             if (name == "src") {
                 name = "l:href";
-                value = m_writer.getFileName(value);
-                value.prepend('#');
+                value = m_writer.filename(value).prepend('#');
             }
         } else if (m_tag == "a") {
             if (name == "href") name = "l:href";
@@ -346,7 +345,6 @@ FbXmlHandler::NodeHandler * FbSaveHandler::TextHandler::NewTag(const QString &na
         case Origin    : tag = name; break;
         case Parag     : return new ParagHandler(this, name, atts);
         case Span      : return new SpanHandler(this, name, atts);
-        case Anchor    : tag = "a"             ; break;
         case Image     : tag = "image"         ; break;
         case Strong    : tag = "strong"        ; break;
         case Emphas    : tag = "emphasis"      ; break;

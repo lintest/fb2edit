@@ -70,7 +70,7 @@ public:
     explicit FbSaveWriter(FbTextEdit &view, QIODevice *device);
     explicit FbSaveWriter(FbTextEdit &view, QString *string);
     FbTextEdit & view() { return m_view; }
-    QString getFileName(const QString &src);
+    QString filename(const QString &src);
     void writeStartElement(const QString &name, int level);
     void writeEndElement(int level);
     void writeComment(const QString &ch);
