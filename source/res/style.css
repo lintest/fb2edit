@@ -39,16 +39,6 @@ fb\:section fb\:title {
   font-size: 100%;
 }
 
-fb\:subtitle {
-  display: block;
-  color: white;
-  background: #d8a903;
-  text-align: center;
-  font-family: sans-serif;
-  margin-left: 2%;
-  margin-right: 2%;
-}
-
 fb\:epigraph {
   display: block;
   border-left: 2 dotted purple;
@@ -84,6 +74,21 @@ fb\:poem div {
 fb\:poem p {
   margin-top: 0;
   margin-bottom: 0;
+}
+
+p[fb\:class=subtitle] {
+  color: white;
+  background: #d8a903;
+  text-align: center;
+  font-family: sans-serif;
+  margin-left: 2%;
+  margin-right: 2%;
+}
+
+p[fb\:class=text-author] {
+  color: blue;
+  text-align: right;
+  margin-left: 40%;
 }
 
 fb\:body[name=notes] {

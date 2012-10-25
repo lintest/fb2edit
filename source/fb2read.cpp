@@ -177,6 +177,8 @@ FB2_BEGIN_KEYHASH(FbReadHandler::TextHandler)
     FB2_KEY( Origin  , "tr"            );
 
     FB2_KEY( Parag   , "empty-line"    );
+    FB2_KEY( Parag   , "text-author"   );
+    FB2_KEY( Parag   , "subtitle"      );
     FB2_KEY( Parag   , "p"             );
     FB2_KEY( Parag   , "v"             );
 
@@ -221,9 +223,8 @@ void FbReadHandler::TextHandler::Init(const QString &name, const QXmlAttributes 
         }
         writer().writeAttribute(name, atts.value(i));
     }
-    if (name == "empty-line") {
-        writer().writeEmptyElement("br");
-        m_empty = false;
+    if (m_tag == "p" && (name == "text-author" || name == "subtitle")) {
+        writer().writeAttribute("fb:class", name);
     }
 }
 
@@ -256,8 +257,13 @@ void FbReadHandler::TextHandler::TxtTag(const QString &text)
 
 void FbReadHandler::TextHandler::EndTag(const QString &name)
 {
-    Q_UNUSED(name);
-    if (m_empty) writer().writeCharacters(" ");
+    if (m_empty) {
+        if (name == "p") {
+            writer().writeEmptyElement("br");
+        } else {
+            writer().writeCharacters(" ");
+        }
+    }
     writer().writeEndElement();
 }
 

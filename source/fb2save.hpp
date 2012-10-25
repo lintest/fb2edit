@@ -167,6 +167,7 @@ private:
     private:
         const QString m_parent;
         QXmlAttributes m_atts;
+        QString m_class;
         bool m_empty;
     };
 

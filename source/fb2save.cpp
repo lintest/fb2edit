@@ -427,7 +427,13 @@ FbSaveHandler::ParagHandler::ParagHandler(TextHandler *parent, const QString &na
 {
     int count = atts.count();
     for (int i = 0; i < count; i++) {
-        m_atts.append(atts.qName(i), atts.uri(i), atts.localName(i), atts.value(i));
+        QString qName = atts.qName(i);
+        QString value = atts.value(i);
+        if (qName == "fb:class") {
+            m_class = value;
+        } else {
+            m_atts.append(qName, "", "", value);
+        }
     }
 }
 
@@ -456,7 +462,12 @@ void FbSaveHandler::ParagHandler::EndTag(const QString &name)
 void FbSaveHandler::ParagHandler::start()
 {
     if (!m_empty) return;
-    QString tag = m_parent == "stanza" ? "v" : "p";
+    QString tag = "p";
+    if (m_class.isEmpty()) {
+        if (m_parent == "stanza") tag = "v";
+    } else {
+        tag = m_class;
+    }
     m_writer.writeStartElement(tag, m_level);
     writeAtts(m_atts);
     m_empty = false;
@@ -490,7 +501,7 @@ void FbSaveHandler::setDocumentInfo(QWebFrame * frame)
 {
     QString info1 = qApp->applicationName() += QString(" ") += qApp->applicationVersion();
     QDateTime now = QDateTime::currentDateTime();
-    QString info2 = now.toString("dd MMMM yyyy");
+    QString info2 = now.toString("dd MMM yyyy");
     QString value = now.toString("yyyy-MM-dd hh:mm:ss");
 
     FbTextElement parent = frame->documentElement().findFirst("body");
