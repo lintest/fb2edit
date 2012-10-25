@@ -43,7 +43,7 @@ public:
     QString add(const QString &path, QByteArray &data);
     bool exists(const QString &name) const;
     FbTemporaryFile * get(const QString &name) const;
-    const QString & set(const QString &name, QByteArray &data, const QString &hash = QString());
+    const QString & set(const QString &name, QByteArray data, const QString &hash = QString());
     QString name(const QString &hash) const;
     QByteArray data(const QString &name) const;
 private:
@@ -91,7 +91,7 @@ public:
     void setPath(const QString &path) { m_path = path; }
 
 public slots:
-    void data(QString name, QByteArray data);
+    void data(const QString &name, const QByteArray &data);
 
 public:
     QString add(const QString &path, QByteArray &data) { return m_files.add(path, data); }

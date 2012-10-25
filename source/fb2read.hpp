@@ -8,8 +8,26 @@
 #include <QThread>
 #include <QXmlDefaultHandler>
 
-class FbTextPage;
+class FbReadThread : public QThread
+{
+    Q_OBJECT
 
+public:
+    FbReadThread(const QString &html, QObject *parent = 0);
+
+signals:
+    void html(const QString &html, const QUrl &url);
+
+protected:
+    void run();
+
+private:
+    const QString m_html;
+};
+
+
+class FbTextPage;
+/*
 class FbReadThread : public QThread
 {
     Q_OBJECT
@@ -19,7 +37,6 @@ public:
 
 public:
     void setPage(FbTextPage *page) { m_page = page; }
-    void setTemp(QObject *temp) { m_temp = temp; }
     FbTextPage * page() const { return m_page; }
     QObject * temp() const { return m_temp; }
     QString * data() { return &m_html; }
@@ -45,14 +62,16 @@ private:
     bool m_abort;
     QMutex mutex;
 };
-
-class FbReadHandler : public FbXmlHandler
+*/
+class FbReadHandler : public QObject, public FbXmlHandler
 {
+    Q_OBJECT
+
 public:
-    explicit FbReadHandler(FbReadThread &thread, QXmlStreamWriter &writer);
+    static bool load(QObject *page, QXmlInputSource &source, QString &html);
+    explicit FbReadHandler(QXmlStreamWriter &writer);
     virtual ~FbReadHandler();
     virtual bool comment(const QString& ch);
-    FbReadThread & thread() { return m_thread; }
     QXmlStreamWriter & writer() { return m_writer; }
 
 private:
@@ -142,6 +161,9 @@ private:
         QString m_text;
     };
 
+signals:
+    void binary(const QString &name, const QByteArray &data);
+
 protected:
     virtual NodeHandler * CreateRoot(const QString &name, const QXmlAttributes &atts);
 
@@ -150,9 +172,7 @@ private:
 
 private:
     typedef QHash<QString, QString> StringHash;
-    FbReadThread &m_thread;
     QXmlStreamWriter &m_writer;
-    QObject *m_temp;
     StringHash m_hash;
 };
 

@@ -69,8 +69,15 @@ FbMainWindow::FbMainWindow(const QString &filename, ViewMode mode)
 
     setCurrentFile(filename);
     if (mode == FB2) {
-        viewText();
-        textFrame->view()->load(filename.isEmpty() ? ":blank.fb2" : filename);
+        QString filepath = filename.isEmpty() ? ":blank.fb2" : filename;
+        FbTextPage *page = new FbTextPage(this);
+        if (page->load(filepath, QString())) {
+            viewText(page);
+        } else {
+            delete page;
+            viewCode();
+            if (!filename.isEmpty()) loadXML(filepath);
+        }
     } else {
         viewCode();
         if (!filename.isEmpty()) loadXML(filename);
@@ -165,7 +172,14 @@ void FbMainWindow::fileOpen()
     if (textFrame) {
         if (isUntitled && !isWindowModified()) {
             setCurrentFile(filename);
-            textFrame->view()->load(filename);
+            FbTextPage *page = new FbTextPage(this);
+            if (page->load(filename, QString())) {
+                viewText(page);
+            } else {
+                delete page;
+                viewCode();
+                if (!filename.isEmpty()) loadXML(filename);
+            }
         } else {
             FbMainWindow * other = new FbMainWindow(filename, FB2);
             other->move(x() + 40, y() + 40);
@@ -759,18 +773,20 @@ void FbMainWindow::createTextToolbar()
     tool->addAction(actionSection);
 }
 
-void FbMainWindow::viewText()
+void FbMainWindow::viewText(FbTextPage *page)
 {
     if (textFrame && centralWidget() == textFrame) return;
 
     if (textFrame) textFrame->hideInspector();
 
-    bool load = false;
-    QString xml;
     if (codeEdit) {
-        xml = codeEdit->text();
+        QString xml = codeEdit->text();
+        page = new FbTextPage(this);
+        if (!page->load(QString(), xml)) {
+            delete page;
+            return;
+        }
         isSwitched = true;
-        load = true;
     }
 
     FB2DELETE(codeEdit);
@@ -781,21 +797,24 @@ void FbMainWindow::viewText()
         textFrame = new FbTextFrame(this, actionInspect);
     }
     setCentralWidget(textFrame);
-    viewTree();
 
     FbTextEdit *textEdit = textFrame->view();
+
+    if (page) {
+        page->setParent(textEdit);
+        textEdit->setPage(page);
+    }
 
     connect(textEdit, SIGNAL(loadFinished(bool)), SLOT(createTextToolbar()));
     connect(textEdit->pageAction(QWebPage::Undo), SIGNAL(changed()), SLOT(undoChanged()));
     connect(textEdit->pageAction(QWebPage::Redo), SIGNAL(changed()), SLOT(redoChanged()));
 
-    if (load) textFrame->view()->load(curFile, xml);
-
     actionContents->setEnabled(true);
     actionPictures->setEnabled(true);
     actionInspect->setEnabled(true);
 
-    textFrame->view()->setFocus();
+    textEdit->setFocus();
+    viewTree();
 }
 
 void FbMainWindow::viewHead()
@@ -804,8 +823,16 @@ void FbMainWindow::viewHead()
 
     if (textFrame) textFrame->hideInspector();
 
-    QString xml;
-    if (codeEdit) xml = codeEdit->text();
+    FbTextPage *page = 0;
+    if (codeEdit) {
+        QString xml = codeEdit->text();
+        page = new FbTextPage(this);
+        if (!page->load(QString(), xml)) {
+            delete page;
+            return;
+        }
+        isSwitched = true;
+    }
 
     FB2DELETE(dockTree);
     FB2DELETE(dockImgs);
@@ -814,6 +841,11 @@ void FbMainWindow::viewHead()
 
     if (!textFrame) {
         textFrame = new FbTextFrame(this, actionInspect);
+        FbTextEdit *textEdit = textFrame->view();
+        if (page) {
+            page->setParent(textEdit);
+            textEdit->setPage(page);
+        }
     }
 
     if (!headTree) {
@@ -828,8 +860,6 @@ void FbMainWindow::viewHead()
     headTree->updateTree();
 
     headTree->setFocus();
-
-    if (!xml.isEmpty()) textFrame->view()->load(curFile, xml);
 
     if (textFrame) {
         actionUndo->disconnect();

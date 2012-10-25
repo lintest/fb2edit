@@ -110,7 +110,7 @@ QByteArray FbTemporaryList::data(const QString &name) const
     return QByteArray();
 }
 
-const QString & FbTemporaryList::set(const QString &name, QByteArray &data, const QString &hash)
+const QString & FbTemporaryList::set(const QString &name, QByteArray data, const QString &hash)
 {
     FbTemporaryFile * file = get(name);
     if (!file) append(file = new FbTemporaryFile(name));
@@ -236,7 +236,7 @@ QByteArray FbNetworkAccessManager::data(int index) const
     return QByteArray();
 }
 
-void FbNetworkAccessManager::data(QString name, QByteArray data)
+void FbNetworkAccessManager::data(const QString &name, const QByteArray &data)
 {
     m_files.set(name, data);
 }

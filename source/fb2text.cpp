@@ -106,6 +106,45 @@ FbNetworkAccessManager *FbTextPage::temp()
     return qobject_cast<FbNetworkAccessManager*>(networkAccessManager());
 }
 
+void FbTextPage::binary(const QString &name, const QByteArray &data)
+{
+    if (FbNetworkAccessManager *t = temp()) t->data(name, data);
+}
+
+bool FbTextPage::load(const QString &filename, const QString &xml)
+{
+    QXmlInputSource source;
+    if (xml.isEmpty()) {
+        QFile file(filename);
+        if (!file.open(QFile::ReadOnly | QFile::Text)) {
+            qCritical() << QObject::tr("Cannot read file %1: %2.").arg(filename).arg(file.errorString());
+            return false;
+        }
+        source.setData(file.readAll());
+    } else {
+        source.setData(xml);
+    }
+
+    bool ok = FbReadHandler::load(this, source, m_html);
+    if (ok) QTimer::singleShot(1000, this, SLOT(onTimer()));
+
+    return ok;
+}
+
+void FbTextPage::onTimer()
+{
+    static int number = 0;
+    QUrl url(QString("fb2:/%1/").arg(number++));
+    temp()->setPath(url.path());
+    mainFrame()->setHtml(m_html, url);
+}
+
+void FbTextPage::html(const QString &html, const QUrl &url)
+{
+    mainFrame()->setHtml(html, url);
+    temp()->setPath(url.path());
+}
+
 bool FbTextPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type)
 {
     Q_UNUSED(frame);
@@ -614,18 +653,9 @@ void FbTextEdit::linkHovered(const QString &link, const QString &title, const QS
     noteView().hint(element, QRect(point, size));
 }
 
-void FbTextEdit::load(const QString &filename, const QString &xml)
-{
-    if (m_thread) return;
-    m_thread = new FbReadThread(this, filename, xml);
-    FbTextPage *page = new FbTextPage(m_thread);
-    m_thread->setPage(page);
-    m_thread->setTemp(page->temp());
-    m_thread->start();
-}
-
 void FbTextEdit::html(QString html)
 {
+/*
     if (!m_thread) return;
     static int number = 0;
     QWebSettings::clearMemoryCaches();
@@ -638,6 +668,7 @@ void FbTextEdit::html(QString html)
     connect(page, SIGNAL(linkHovered(QString,QString,QString)), SLOT(linkHovered(QString,QString,QString)));
     m_thread->deleteLater();
     m_thread = 0;
+*/
 }
 
 bool FbTextEdit::save(QIODevice *device, const QString &codec)

@@ -8,6 +8,24 @@
 //  FbReadThread
 //---------------------------------------------------------------------------
 
+FbReadThread::FbReadThread(const QString &html, QObject *parent)
+    : QThread(parent)
+    , m_html(html)
+{
+    connect(this, SIGNAL(html(QString,QUrl)), parent, SLOT(html(QString,QUrl)));
+}
+
+void FbReadThread::run()
+{
+
+    sleep(1);
+    static int number = 0;
+    QUrl url(QString("fb2:/%1/").arg(number++));
+    emit html(m_html, url);
+    deleteLater();
+}
+
+/*
 FbReadThread::FbReadThread(QObject *parent, const QString &filename, const QString &xml)
     : QThread(parent)
     , m_temp(0)
@@ -66,6 +84,7 @@ bool FbReadThread::parse()
 {
     QXmlStreamWriter writer(&m_html);
     FbReadHandler handler(*this, writer);
+    connect(&handler, SIGNAL(binary(QString,QByteArray)), this, SLOT(data(QString,QByteArray)));
     QXmlSimpleReader reader;
     reader.setContentHandler(&handler);
     reader.setLexicalHandler(&handler);
@@ -85,6 +104,8 @@ bool FbReadThread::parse()
 }
 
 #endif
+
+*/
 
 //---------------------------------------------------------------------------
 //  FbReadHandler::RootHandler
@@ -299,11 +320,29 @@ void FbReadHandler::BinaryHandler::EndTag(const QString &name)
 //  FbReadHandler
 //---------------------------------------------------------------------------
 
-FbReadHandler::FbReadHandler(FbReadThread &thread, QXmlStreamWriter &writer)
+bool FbReadHandler::load(QObject *page, QXmlInputSource &source, QString &html)
+{
+    QXmlStreamWriter writer(&html);
+    FbReadHandler handler(writer);
+
+    connect(&handler, SIGNAL(binary(QString,QByteArray)), page, SLOT(binary(QString,QByteArray)));
+
+#ifdef FB2_USE_LIBXML2
+    XML2::XmlReader reader;
+#else
+    QXmlSimpleReader reader;
+#endif
+
+    reader.setContentHandler(&handler);
+    reader.setLexicalHandler(&handler);
+    reader.setErrorHandler(&handler);
+
+    return reader.parse(source);
+}
+
+FbReadHandler::FbReadHandler(QXmlStreamWriter &writer)
     : FbXmlHandler()
-    , m_thread(thread)
     , m_writer(writer)
-    , m_temp(thread.temp())
 {
     m_writer.setAutoFormatting(true);
     m_writer.setAutoFormattingIndent(2);
@@ -331,5 +370,5 @@ bool FbReadHandler::comment(const QString& ch)
 
 void FbReadHandler::addFile(const QString &name, const QByteArray &data)
 {
-    QMetaObject::invokeMethod(m_temp, "data", Qt::QueuedConnection, Q_ARG(QString, name), Q_ARG(QByteArray, data));
+    emit binary(name, data);
 }

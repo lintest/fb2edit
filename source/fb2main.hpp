@@ -79,7 +79,7 @@ private slots:
     void logShowed();
     void viewCode();
     void viewHtml();
-    void viewText();
+    void viewText(FbTextPage *page = 0);
     void viewHead();
     void viewTree();
     void viewImgs();

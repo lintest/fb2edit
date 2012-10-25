@@ -79,6 +79,7 @@ class FbTextPage : public QWebPage
 public:
     explicit FbTextPage(QObject *parent = 0);
     FbNetworkAccessManager *temp();
+    bool load(const QString &filename, const QString &xml = QString());
     void push(QUndoCommand * command, const QString &text = QString());
     FbTextElement element(const QString &location);
     FbTextElement current();
@@ -92,6 +93,7 @@ public:
     FbTextElement appendTitle(const FbTextElement &parent);
 
 public slots:
+    void html(const QString &html, const QUrl &url);
     void insertBody();
     void insertTitle();
     void insertAnnot();
@@ -118,11 +120,14 @@ protected:
     void update();
 
 private slots:
+    void onTimer();
+    void binary(const QString &name, const QByteArray &data);
     void loadFinished();
     void fixContents();
 
 private:
     FbTextLogger m_logger;
+    QString m_html;
 };
 
 class FbTextEdit : public FbTextBase
@@ -135,7 +140,6 @@ public:
 
     FbTextPage *page();
     FbNetworkAccessManager *files();
-    void load(const QString &filename, const QString &xml = QString());
     bool save(QIODevice *device, const QString &codec = QString());
     bool save(QByteArray *array);
     bool save(QString *string);
