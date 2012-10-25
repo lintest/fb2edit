@@ -199,7 +199,7 @@ class FbTextFrame : public QFrame
     Q_OBJECT
 
 public:
-    explicit FbTextFrame(QWidget *parent, QAction *action);
+    explicit FbTextFrame(QWidget *parent, QAction *action = 0);
     ~FbTextFrame();
 
 public:

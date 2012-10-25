@@ -9,6 +9,7 @@ class QAction;
 class QFile;
 class QMenu;
 class QModelIndex;
+class QStackedWidget;
 class QTextEdit;
 class QTreeView;
 class QWebInspector;
@@ -112,6 +113,7 @@ private:
     void setCurrentFile(const QString &fileName = QString());
     FbMainWindow *findFbMainWindow(const QString &fileName);
 
+    QStackedWidget *mainDock;
     FbTextFrame *textFrame;
     FbCodeEdit *codeEdit;
     FbHeadView *headTree;

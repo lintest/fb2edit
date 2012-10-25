@@ -554,9 +554,9 @@ bool FbHeadModel::canEdit(const QModelIndex &index) const
 //  FbTreeView
 //---------------------------------------------------------------------------
 
-FbHeadView::FbHeadView(FbTextEdit *view, QWidget *parent)
+FbHeadView::FbHeadView(QWidget *parent)
     : QTreeView(parent)
-    , m_view(*view)
+    , m_view(0)
 {
     QAction * act;
 
@@ -584,11 +584,16 @@ FbHeadView::FbHeadView(FbTextEdit *view, QWidget *parent)
     setRootIsDecorated(false);
     setSelectionBehavior(QAbstractItemView::SelectItems);
     setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
-    connect(&m_view, SIGNAL(loadFinished(bool)), SLOT(updateTree()));
     connect(this, SIGNAL(activated(QModelIndex)), SLOT(activated(QModelIndex)));
     connect(this, SIGNAL(collapsed(QModelIndex)), SLOT(collapsed(QModelIndex)));
 
     header()->setDefaultSectionSize(200);
+}
+
+void FbHeadView::setView(FbTextEdit *view)
+{
+    m_view = view;
+    connect(m_view, SIGNAL(loadFinished(bool)), SLOT(updateTree()));
 }
 
 FbHeadModel * FbHeadView::model() const
@@ -605,7 +610,8 @@ void FbHeadView::initToolbar(QToolBar &toolbar)
 
 void FbHeadView::updateTree()
 {
-    FbHeadModel * model = new FbHeadModel(m_view, this);
+    if (!m_view) return;
+    FbHeadModel * model = new FbHeadModel(*m_view, this);
     setModel(model);
     model->expand(this);
 }

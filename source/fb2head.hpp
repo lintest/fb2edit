@@ -168,8 +168,9 @@ class FbHeadView : public QTreeView
     Q_OBJECT
 
 public:
-    explicit FbHeadView(FbTextEdit *view, QWidget *parent = 0);
+    explicit FbHeadView(QWidget *parent = 0);
     void initToolbar(QToolBar &toolbar);
+    void setView(FbTextEdit *view);
     FbHeadModel * model() const;
 
 signals:
@@ -192,7 +193,7 @@ private:
     void showStatus(const QModelIndex &current);
 
 private:
-    FbTextEdit & m_view;
+    FbTextEdit * m_view;
     QAction * actionInsert;
     QAction * actionModify;
     QAction * actionDelete;

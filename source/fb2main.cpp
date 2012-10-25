@@ -1,5 +1,6 @@
 #include <QtGui>
 #include <QtDebug>
+#include <QStackedWidget>
 #include <QTreeView>
 #include <QWebFrame>
 
@@ -66,6 +67,14 @@ FbMainWindow::FbMainWindow(const QString &filename, ViewMode mode)
     createActions();
     createStatusBar();
     readSettings();
+
+    mainDock = new QStackedWidget(this);
+    mainDock->addWidget(textFrame = new FbTextFrame(mainDock));
+    mainDock->addWidget(codeEdit = new FbCodeEdit(mainDock));
+    mainDock->addWidget(headTree = new FbHeadView(mainDock));
+    setCentralWidget(mainDock);
+
+    headTree->setView(textFrame->view());
 
     setCurrentFile(filename);
     if (mode == FB2) {
@@ -780,7 +789,7 @@ void FbMainWindow::viewText()
     } else {
         textFrame = new FbTextFrame(this, actionInspect);
     }
-    setCentralWidget(textFrame);
+//    setCentralWidget(textFrame);
     viewTree();
 
     FbTextEdit *textEdit = textFrame->view();
@@ -800,30 +809,22 @@ void FbMainWindow::viewText()
 
 void FbMainWindow::viewHead()
 {
-    if (headTree && centralWidget() == headTree) return;
+    if (mainDock->currentWidget() == headTree) return;
 
-    if (textFrame) textFrame->hideInspector();
+    FB2DELETE(dockTree);
+    FB2DELETE(dockImgs);
+    textFrame->hideInspector();
+
+    mainDock->setCurrentWidget(headTree);
 
     QString xml;
     if (codeEdit) xml = codeEdit->text();
 
-    FB2DELETE(dockTree);
-    FB2DELETE(dockImgs);
-    FB2DELETE(codeEdit);
-    FB2DELETE(toolEdit);
-
-    if (!textFrame) {
-        textFrame = new FbTextFrame(this, actionInspect);
-    }
-
-    if (!headTree) {
-        headTree = new FbHeadView(textFrame->view(), this);
-        connect(headTree, SIGNAL(status(QString)), this, SLOT(status(QString)));
-    }
+    connect(headTree, SIGNAL(status(QString)), this, SLOT(status(QString)));
 
     this->setFocus();
     textFrame->setParent(NULL);
-    setCentralWidget(headTree);
+//    setCentralWidget(headTree);
     textFrame->setParent(this);
     headTree->updateTree();
 
@@ -878,7 +879,7 @@ void FbMainWindow::viewCode()
         codeEdit = new FbCodeEdit;
     }
     if (load) codeEdit->load(xml);
-    setCentralWidget(codeEdit);
+//    setCentralWidget(codeEdit);
     codeEdit->setFocus();
 
     FB2DELETE(toolEdit);
@@ -938,7 +939,7 @@ void FbMainWindow::viewHtml()
     }
 
     codeEdit->setPlainText(html);
-    setCentralWidget(codeEdit);
+//    setCentralWidget(codeEdit);
     codeEdit->setFocus();
 
     FB2DELETE(toolEdit);
