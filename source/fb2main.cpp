@@ -849,7 +849,8 @@ void FbMainWindow::viewHead()
     }
 
     if (!headTree) {
-        headTree = new FbHeadView(textFrame->view(), this);
+        headTree = new FbHeadEdit(this);
+        headTree->setText(textFrame->view());
         connect(headTree, SIGNAL(status(QString)), this, SLOT(status(QString)));
     }
 

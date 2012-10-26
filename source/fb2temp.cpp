@@ -349,7 +349,9 @@ FbListWidget::FbListWidget(FbTextEdit *text, QWidget* parent)
 
     FbWebFrame *frame = new FbWebFrame(splitter);
     splitter->addWidget(frame);
-    m_view = frame->view();
+
+    m_view = new FbTextBase(frame);
+    frame->layout()->addWidget(m_view);
 
     splitter->setSizes(QList<int>() << 100 << 100);
 

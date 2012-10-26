@@ -28,7 +28,8 @@ file( GLOB FB2_SRCS source/*.cpp     )
 file( GLOB FB2_UIS  source/*.ui      )
 file( GLOB FB2_TSS  source/ts/*.ts   )
 
-set(FB2_DEFINITIONS "PACKAGE_NAME=\"${PACKAGE_NAME}\"; PACKAGE_VENDOR=\"${PACKAGE_VENDOR}\"; PACKAGE_VERSION=\"${PACKAGE_VERSION}\"")
+set(PACKAGE_COMMIT `log --pretty=format:'%ai | %H | %d' --abbrev-commit -1`)
+set(FB2_DEFINITIONS "PACKAGE_NAME=\"${PACKAGE_NAME}\"; PACKAGE_VENDOR=\"${PACKAGE_VENDOR}\"; PACKAGE_VERSION=\"${PACKAGE_VERSION}\"; PACKAGE_COMMIT=\"${PACKAGE_COMMIT}\"")
 set_source_files_properties( source/fb2app.cpp PROPERTIES COMPILE_DEFINITIONS "${FB2_DEFINITIONS}")
 
 set(FB2_RES
@@ -79,5 +80,3 @@ if( UNIX AND NOT APPLE )
     install( CODE "FILE(MAKE_DIRECTORY WORKING_DIRECTORY \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/share/pixmaps/)" )
     install( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink ../icons/hicolor/48x48/apps/fb2edit.png fb2edit.png WORKING_DIRECTORY \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/share/pixmaps)" )
 endif()
-
-

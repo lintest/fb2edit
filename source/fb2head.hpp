@@ -163,12 +163,13 @@ private:
     FbHeadItem * m_root;
 };
 
-class FbHeadView : public QTreeView
+class FbHeadEdit : public QTreeView
 {
     Q_OBJECT
 
 public:
-    explicit FbHeadView(FbTextEdit *view, QWidget *parent = 0);
+    explicit FbHeadEdit(QWidget *parent = 0);
+    void setText(FbTextEdit *text);
     void initToolbar(QToolBar &toolbar);
     FbHeadModel * model() const;
 
@@ -192,7 +193,7 @@ private:
     void showStatus(const QModelIndex &current);
 
 private:
-    FbTextEdit & m_view;
+    FbTextEdit * m_text;
     QAction * actionInsert;
     QAction * actionModify;
     QAction * actionDelete;

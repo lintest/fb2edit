@@ -554,9 +554,8 @@ bool FbHeadModel::canEdit(const QModelIndex &index) const
 //  FbTreeView
 //---------------------------------------------------------------------------
 
-FbHeadView::FbHeadView(FbTextEdit *view, QWidget *parent)
+FbHeadEdit::FbHeadEdit(QWidget *parent)
     : QTreeView(parent)
-    , m_view(*view)
 {
     QAction * act;
 
@@ -584,33 +583,37 @@ FbHeadView::FbHeadView(FbTextEdit *view, QWidget *parent)
     setRootIsDecorated(false);
     setSelectionBehavior(QAbstractItemView::SelectItems);
     setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
-    connect(&m_view, SIGNAL(loadFinished(bool)), SLOT(updateTree()));
     connect(this, SIGNAL(activated(QModelIndex)), SLOT(activated(QModelIndex)));
     connect(this, SIGNAL(collapsed(QModelIndex)), SLOT(collapsed(QModelIndex)));
 
     header()->setDefaultSectionSize(200);
 }
 
-FbHeadModel * FbHeadView::model() const
+void FbHeadEdit::setText(FbTextEdit *text)
+{
+    connect(m_text = text, SIGNAL(loadFinished(bool)), SLOT(updateTree()));
+}
+
+FbHeadModel * FbHeadEdit::model() const
 {
     return qobject_cast<FbHeadModel*>(QTreeView::model());
 }
 
-void FbHeadView::initToolbar(QToolBar &toolbar)
+void FbHeadEdit::initToolbar(QToolBar &toolbar)
 {
     toolbar.addSeparator();
     toolbar.addAction(actionInsert);
     toolbar.addAction(actionDelete);
 }
 
-void FbHeadView::updateTree()
+void FbHeadEdit::updateTree()
 {
-    FbHeadModel * model = new FbHeadModel(m_view, this);
+    FbHeadModel * model = new FbHeadModel(*m_text, this);
     setModel(model);
     model->expand(this);
 }
 
-void FbHeadView::editCurrent(const QModelIndex &index)
+void FbHeadEdit::editCurrent(const QModelIndex &index)
 {
     FbHeadModel * m = qobject_cast<FbHeadModel*>(model());
     if (!m) return;
@@ -624,19 +627,19 @@ void FbHeadView::editCurrent(const QModelIndex &index)
     }
 }
 
-void FbHeadView::activated(const QModelIndex &index)
+void FbHeadEdit::activated(const QModelIndex &index)
 {
     if (model()->canEdit(index)) edit(index);
     showStatus(index);
 }
 
-void FbHeadView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
+void FbHeadEdit::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     QTreeView::currentChanged(current, previous);
     showStatus(current);
 }
 
-void FbHeadView::showStatus(const QModelIndex &current)
+void FbHeadEdit::showStatus(const QModelIndex &current)
 {
     if (!model()) return;
     if (!current.isValid()) return;
@@ -645,14 +648,14 @@ void FbHeadView::showStatus(const QModelIndex &current)
     emit status(model()->data(index).toString());
 }
 
-void FbHeadView::collapsed(const QModelIndex &index)
+void FbHeadEdit::collapsed(const QModelIndex &index)
 {
     if (model() && !model()->parent(index).isValid()) {
         expand(index);
     }
 }
 
-void FbHeadView::appendNode()
+void FbHeadEdit::appendNode()
 {
     FbHeadModel * m = qobject_cast<FbHeadModel*>(model());
     if (!m) return;
@@ -687,7 +690,7 @@ void FbHeadView::appendNode()
     }
 }
 
-void FbHeadView::removeNode()
+void FbHeadEdit::removeNode()
 {
     FbHeadModel * m = qobject_cast<FbHeadModel*>(model());
     if (m) m->remove(currentIndex());

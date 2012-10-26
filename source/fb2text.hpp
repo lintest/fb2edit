@@ -188,14 +188,8 @@ private:
 class FbWebFrame : public QFrame
 {
     Q_OBJECT
-
 public:
     explicit FbWebFrame(QWidget *parent = 0);
-
-    QWebView * view() { return &m_view; }
-
-private:
-    QWebView m_view;
 };
 
 class FbTextFrame : public QFrame

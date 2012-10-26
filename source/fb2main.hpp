@@ -16,7 +16,7 @@ QT_END_NAMESPACE
 
 class FbCodeEdit;
 class FbTreeView;
-class FbHeadView;
+class FbHeadEdit;
 class FbTextEdit;
 class FbTextFrame;
 class FbTextPage;
@@ -114,7 +114,7 @@ private:
 
     FbTextFrame *textFrame;
     FbCodeEdit *codeEdit;
-    FbHeadView *headTree;
+    FbHeadEdit *headTree;
     QTextEdit *noteEdit;
     QToolBar *toolEdit;
     QDockWidget *dockTree;
