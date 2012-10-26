@@ -11,6 +11,15 @@
     #define PACKAGE_VERSION "0.XX.XX"
 #endif  // PACKAGE_VERSION
 
+QString FbApplication::lastCommit()
+{
+#ifndef COMMIT_INFO
+    return COMMIT_INFO;
+#else
+    return QString();
+#endif  // PACKAGE_VERSION
+}
+
 void FbApplication::handleMessage(QtMsgType type, const char *msg)
 {
     /*

@@ -13,8 +13,11 @@ public:
 
     void handleMessage(QtMsgType type, const char *msg);
 
+    static QString lastCommit();
+
 signals:
     void logMessage(const QString &message);
 };
+
 
 #endif // FB2APP_H

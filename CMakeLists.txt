@@ -28,8 +28,15 @@ file( GLOB FB2_SRCS source/*.cpp     )
 file( GLOB FB2_UIS  source/*.ui      )
 file( GLOB FB2_TSS  source/ts/*.ts   )
 
-set(PACKAGE_COMMIT `log --pretty=format:'%ai | %H | %d' --abbrev-commit -1`)
-set(FB2_DEFINITIONS "PACKAGE_NAME=\"${PACKAGE_NAME}\"; PACKAGE_VENDOR=\"${PACKAGE_VENDOR}\"; PACKAGE_VERSION=\"${PACKAGE_VERSION}\"; PACKAGE_COMMIT=\"${PACKAGE_COMMIT}\"")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GTK_PKG_FLAGS}")
+
+if(IS_DIRECTORY ${CMAKE_HOME_DIRECTORY}/.git)
+#    exec_program("git --git-dir=${CMAKE_HOME_DIRECTORY}/.git git log --format=%ai%H%d -1" OUTPUT_VARIABLE COMMIT_INFO)
+#    exec_program("git --git-dir=${CMAKE_HOME_DIRECTORY}/.git log --format=medium -1 | head -n1" OUTPUT_VARIABLE COMMIT_INFO)
+#    message( STATUS "COMMIT_INFO = ${COMMIT_INFO}")
+endif(IS_DIRECTORY ${CMAKE_HOME_DIRECTORY}/.git)
+
+set(FB2_DEFINITIONS "PACKAGE_NAME=\"${PACKAGE_NAME}\"; PACKAGE_VENDOR=\"${PACKAGE_VENDOR}\"; PACKAGE_VERSION=\"${PACKAGE_VERSION}\"; COMMIT_INFO=\"${COMMIT_INFO}\"")
 set_source_files_properties( source/fb2app.cpp PROPERTIES COMPILE_DEFINITIONS "${FB2_DEFINITIONS}")
 
 set(FB2_RES

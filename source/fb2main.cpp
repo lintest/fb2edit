@@ -218,8 +218,9 @@ bool FbMainWindow::fileSaveAs()
 
 void FbMainWindow::about()
 {
-    QMessageBox::about(this, tr("About fb2edit"),
-        tr("The <b>fb2edit</b> is application for editing FB2-files."));
+    QString text = tr("The <b>fb2edit</b> is application for editing FB2-files.");
+    text += "<br>" << FbApplication::lastCommit();
+    QMessageBox::about(this, tr("About fb2edit"), text);
 }
 
 void FbMainWindow::documentWasModified()
