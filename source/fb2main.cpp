@@ -185,12 +185,12 @@ void FbMainWindow::about()
 
 void FbMainWindow::documentWasModified()
 {
-    setModified(isSwitched || codeEdit->isModified());
+//    setModified(isSwitched || codeEdit->isModified());
 }
 
 void FbMainWindow::cleanChanged(bool clean)
 {
-    setModified(isSwitched || !clean);
+//    setModified(isSwitched || !clean);
 }
 
 void FbMainWindow::setModified(bool modified)
@@ -508,29 +508,27 @@ void FbMainWindow::openSettings()
 
 void FbMainWindow::createTree()
 {
-    if (textFrame && centralWidget() == textFrame) {
-        dockTree = new FbDockWidget(tr("Contents"), this);
-        dockTree->setWidget(new FbTreeWidget(textFrame->view(), this));
-        connect(dockTree, SIGNAL(visibilityChanged(bool)), actionContents, SLOT(setChecked(bool)));
-        connect(dockTree, SIGNAL(destroyed()), SLOT(treeDestroyed()));
-        addDockWidget(Qt::LeftDockWidgetArea, dockTree);
-    }
+    if (mainDock->mode() != FbMainDock::Text) return;
+    dockTree = new FbDockWidget(tr("Contents"), this);
+    dockTree->setWidget(new FbTreeWidget(mainDock->text(), this));
+    connect(dockTree, SIGNAL(visibilityChanged(bool)), actionContents, SLOT(setChecked(bool)));
+    connect(dockTree, SIGNAL(destroyed()), SLOT(treeDestroyed()));
+    addDockWidget(Qt::LeftDockWidgetArea, dockTree);
 }
 
 void FbMainWindow::createImgs()
 {
-    if (textFrame && centralWidget() == textFrame) {
-        dockImgs = new FbDockWidget(tr("Pictures"), this);
-        dockImgs->setWidget(new FbListWidget(textFrame->view(), this));
-        connect(dockImgs, SIGNAL(visibilityChanged(bool)), actionPictures, SLOT(setChecked(bool)));
-        connect(dockImgs, SIGNAL(destroyed()), SLOT(imgsDestroyed()));
-        addDockWidget(Qt::RightDockWidgetArea, dockImgs);
-    }
+    if (mainDock->mode() != FbMainDock::Text) return;
+    dockImgs = new FbDockWidget(tr("Pictures"), this);
+    dockImgs->setWidget(new FbListWidget(mainDock->text(), this));
+    connect(dockImgs, SIGNAL(visibilityChanged(bool)), actionPictures, SLOT(setChecked(bool)));
+    connect(dockImgs, SIGNAL(destroyed()), SLOT(imgsDestroyed()));
+    addDockWidget(Qt::RightDockWidgetArea, dockImgs);
 }
 
 void FbMainWindow::selectionChanged()
 {
-    FbTextEdit *view = textFrame->view();
+    FbTextEdit *view = mainDock->text();
     actionCut->setEnabled(view->actionEnabled(QWebPage::Cut));
     actionCopy->setEnabled(view->actionEnabled(QWebPage::Copy));
     statusBar()->showMessage(view->page()->status());
@@ -548,12 +546,12 @@ void FbMainWindow::canRedoChanged(bool canRedo)
 
 void FbMainWindow::undoChanged()
 {
-    actionUndo->setEnabled(textFrame->view()->actionEnabled(QWebPage::Undo));
+    actionUndo->setEnabled(mainDock->text()->actionEnabled(QWebPage::Undo));
 }
 
 void FbMainWindow::redoChanged()
 {
-    actionRedo->setEnabled(textFrame->view()->actionEnabled(QWebPage::Redo));
+    actionRedo->setEnabled(mainDock->text()->actionEnabled(QWebPage::Redo));
 }
 
 void FbMainWindow::createStatusBar()
@@ -579,6 +577,7 @@ void FbMainWindow::writeSettings()
 
 bool FbMainWindow::maybeSave()
 {
+/*
     if (textFrame && textFrame->view()->isModified()) {
         QMessageBox::StandardButton ret;
         ret = QMessageBox::warning(this, qApp->applicationName(),
@@ -591,6 +590,7 @@ bool FbMainWindow::maybeSave()
             return false;
     }
     return true;
+*/  return false;
 }
 
 bool FbMainWindow::saveFile(const QString &fileName, const QString &codec)
@@ -600,22 +600,9 @@ bool FbMainWindow::saveFile(const QString &fileName, const QString &codec)
         QMessageBox::warning(this, qApp->applicationName(), tr("Cannot write file %1: %2.").arg(fileName).arg(file.errorString()));
         return false;
     }
-
-    if (textFrame) {
-        isSwitched = false;
-        textFrame->view()->save(&file, codec);
-        setCurrentFile(fileName);
-        return true;
-    }
-
-    if (codeEdit) {
-        QTextStream out(&file);
-        out << codeEdit->toPlainText();
-        setCurrentFile(fileName);
-        return true;
-    }
-
-    return false;
+    bool ok = mainDock->save(&file);
+    setCurrentFile(fileName);
+    return ok;
 }
 
 void FbMainWindow::setCurrentFile(const QString &filename)
@@ -650,14 +637,16 @@ FbMainWindow *FbMainWindow::findFbMainWindow(const QString &fileName)
 
 void FbMainWindow::checkScintillaUndo()
 {
+/*
     if (!codeEdit) return;
     actionUndo->setEnabled(codeEdit->isUndoAvailable());
     actionRedo->setEnabled(codeEdit->isRedoAvailable());
+*/
 }
 
 void FbMainWindow::createTextToolbar()
 {
-    FbTextEdit * textEdit = textFrame->view();
+    FbTextEdit * textEdit = mainDock->text();
     FbTextPage * textPage = textEdit->page();
 
     connect(textPage->undoStack(), SIGNAL(cleanChanged(bool)), SLOT(cleanChanged(bool)));

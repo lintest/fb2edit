@@ -7,6 +7,7 @@
 
 FbMainDock::FbMainDock(QWidget *parent)
     : QStackedWidget(parent)
+    , isSwitched(false)
 {
     textFrame = new FbWebFrame(this);
     m_text = new FbTextEdit(textFrame);
@@ -20,6 +21,23 @@ FbMainDock::FbMainDock(QWidget *parent)
     addWidget(m_code);
 
     m_head->setText(m_text);
+}
+
+void FbMainDock::createActions()
+{
+    QAction * act;
+
+    actionUndo = act = new QAction(FbIcon("edit-undo"), tr("&Undo"), this);
+    act->setPriority(QAction::LowPriority);
+    act->setShortcut(QKeySequence::Undo);
+    act->setEnabled(false);
+    menu->addAction(act);
+
+    actionRedo = act = new QAction(FbIcon("edit-redo"), tr("&Redo"), this);
+    act->setPriority(QAction::LowPriority);
+    act->setShortcut(QKeySequence::Redo);
+    act->setEnabled(false);
+    menu->addAction(act);
 }
 
 FbMainDock::Mode FbMainDock::mode() const
@@ -55,3 +73,16 @@ bool FbMainDock::load(const QString &filename)
 
     return false;
 }
+
+bool FbMainDock::save(QIODevice *device)
+{
+    if (currentWidget() == m_code) {
+        QTextStream out(device);
+        out << m_code->toPlainText();
+    } else {
+        isSwitched = false;
+        m_text->save(device, codec);
+    }
+    return true;
+}
+
