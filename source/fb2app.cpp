@@ -13,8 +13,8 @@
 
 QString FbApplication::lastCommit()
 {
-#ifndef COMMIT_INFO
-    return COMMIT_INFO;
+#ifdef COMMIT_INFO
+    return QString(COMMIT_INFO).replace("//", "<br>");
 #else
     return QString();
 #endif  // PACKAGE_VERSION

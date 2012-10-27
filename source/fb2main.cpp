@@ -3,6 +3,7 @@
 #include <QTreeView>
 #include <QWebFrame>
 
+#include "fb2app.hpp"
 #include "fb2main.hpp"
 #include "fb2code.hpp"
 #include "fb2dlgs.hpp"
@@ -219,7 +220,7 @@ bool FbMainWindow::fileSaveAs()
 void FbMainWindow::about()
 {
     QString text = tr("The <b>fb2edit</b> is application for editing FB2-files.");
-    text += "<br>" << FbApplication::lastCommit();
+    text += QString("<br>") += FbApplication::lastCommit();
     QMessageBox::about(this, tr("About fb2edit"), text);
 }
 

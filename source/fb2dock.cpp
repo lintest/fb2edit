@@ -3,19 +3,29 @@
 #include "fb2head.hpp"
 #include "fb2text.hpp"
 
+#include <QLayout>
+
 FbMainDock::FbMainDock(QWidget *parent)
     : QStackedWidget(parent)
 {
-    addWidget(m_text = new FbTextEdit(this));
-    addWidget(m_head = new FbHeadEdit(this));
-    addWidget(m_code = new FbCodeEdit(this));
+    textFrame = new FbWebFrame(this);
+    m_text = new FbTextEdit(textFrame);
+    textFrame->layout()->addWidget(m_text);
+
+    m_head = new FbHeadEdit(this);
+    m_code = new FbCodeEdit(this);
+
+    addWidget(textFrame);
+    addWidget(m_head);
+    addWidget(m_code);
+
     m_head->setText(m_text);
 }
 
 FbMainDock::Mode FbMainDock::mode() const
 {
     QWidget * current = currentWidget();
-    if (current == m_text) return Text;
+    if (current == textFrame) return Text;
     if (current == m_head) return Head;
     if (current == m_code) return Code;
     return Text;
@@ -23,4 +33,9 @@ FbMainDock::Mode FbMainDock::mode() const
 
 void FbMainDock::setMode(Mode mode)
 {
+    switch (mode) {
+        case Text: setCurrentWidget(textFrame); return;
+        case Head: setCurrentWidget(m_head); return;
+        case Code: setCurrentWidget(m_code); return;
+    }
 }

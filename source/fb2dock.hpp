@@ -26,6 +26,7 @@ signals:
 public slots:
 
 private:
+    QFrame *textFrame;
     FbTextEdit *m_text;
     FbHeadEdit *m_head;
     FbCodeEdit *m_code;

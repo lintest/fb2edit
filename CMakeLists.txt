@@ -31,9 +31,8 @@ file( GLOB FB2_TSS  source/ts/*.ts   )
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GTK_PKG_FLAGS}")
 
 if(IS_DIRECTORY ${CMAKE_HOME_DIRECTORY}/.git)
-#    exec_program("git --git-dir=${CMAKE_HOME_DIRECTORY}/.git git log --format=%ai%H%d -1" OUTPUT_VARIABLE COMMIT_INFO)
-#    exec_program("git --git-dir=${CMAKE_HOME_DIRECTORY}/.git log --format=medium -1 | head -n1" OUTPUT_VARIABLE COMMIT_INFO)
-#    message( STATUS "COMMIT_INFO = ${COMMIT_INFO}")
+    exec_program("git --git-dir=${CMAKE_HOME_DIRECTORY}/.git log --format=%ai//%h%d -1" OUTPUT_VARIABLE COMMIT_INFO)
+    message( STATUS "COMMIT_INFO = ${COMMIT_INFO}")
 endif(IS_DIRECTORY ${CMAKE_HOME_DIRECTORY}/.git)
 
 set(FB2_DEFINITIONS "PACKAGE_NAME=\"${PACKAGE_NAME}\"; PACKAGE_VENDOR=\"${PACKAGE_VENDOR}\"; PACKAGE_VERSION=\"${PACKAGE_VERSION}\"; COMMIT_INFO=\"${COMMIT_INFO}\"")
