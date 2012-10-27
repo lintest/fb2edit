@@ -17,7 +17,7 @@ public:
     FbTextEdit * text() { return m_text; }
     FbHeadEdit * head() { return m_head; }
     FbCodeEdit * code() { return m_code; }
-
+    bool load(const QString &filename);
     Mode mode() const;
     void setMode(Mode mode);
 

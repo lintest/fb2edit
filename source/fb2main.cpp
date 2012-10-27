@@ -7,6 +7,7 @@
 #include "fb2main.hpp"
 #include "fb2code.hpp"
 #include "fb2dlgs.hpp"
+#include "fb2dock.hpp"
 #include "fb2read.hpp"
 #include "fb2save.hpp"
 #include "fb2text.hpp"
@@ -46,9 +47,6 @@ QAction * FbTextAction::action(QWebPage::WebAction action)
 
 FbMainWindow::FbMainWindow(const QString &filename, ViewMode mode)
     : QMainWindow()
-    , textFrame(0)
-    , codeEdit(0)
-    , headTree(0)
     , noteEdit(0)
     , toolEdit(0)
     , dockTree(0)
@@ -64,32 +62,23 @@ FbMainWindow::FbMainWindow(const QString &filename, ViewMode mode)
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowIcon(QIcon(":icon.ico"));
 
+    mainDock = new FbMainDock(this);
+    setCentralWidget(mainDock);
+
     createActions();
     createStatusBar();
     readSettings();
 
     setCurrentFile(filename);
-    if (mode == FB2) {
-        QString filepath = filename.isEmpty() ? ":blank.fb2" : filename;
-        FbTextPage *page = new FbTextPage(this);
-        if (page->load(filepath, QString())) {
-            viewText(page);
-        } else {
-            delete page;
-            viewCode();
-            if (!filename.isEmpty()) loadXML(filepath);
-        }
-    } else {
-        viewCode();
-        if (!filename.isEmpty()) loadXML(filename);
-    }
+    mainDock->load(filename);
 }
 
+/*
 FbTextPage * FbMainWindow::page()
 {
     return textFrame ? textFrame->view()->page() : 0;
 }
-
+*/
 
 void FbMainWindow::logMessage(const QString &message)
 {
@@ -128,18 +117,6 @@ void FbMainWindow::imgsDestroyed()
     dockImgs = NULL;
 }
 
-bool FbMainWindow::loadXML(const QString &filename)
-{
-    if (!filename.isEmpty()) {
-        QFile file(filename);
-        if (file.open(QFile::ReadOnly | QFile::Text)) {
-            codeEdit->clear();
-            return codeEdit->read(&file);
-        }
-    }
-    return false;
-}
-
 void FbMainWindow::closeEvent(QCloseEvent *event)
 {
     if (maybeSave()) {
@@ -170,31 +147,13 @@ void FbMainWindow::fileOpen()
         return;
     }
 
-    if (textFrame) {
-        if (isUntitled && !isWindowModified()) {
-            setCurrentFile(filename);
-            FbTextPage *page = new FbTextPage(this);
-            if (page->load(filename, QString())) {
-                viewText(page);
-            } else {
-                delete page;
-                viewCode();
-                if (!filename.isEmpty()) loadXML(filename);
-            }
-        } else {
-            FbMainWindow * other = new FbMainWindow(filename, FB2);
-            other->move(x() + 40, y() + 40);
-            other->show();
-        }
-    } else if (codeEdit) {
-        if (isUntitled && !isWindowModified()) {
-            setCurrentFile(filename);
-            loadXML(filename);
-        } else {
-            FbMainWindow * other = new FbMainWindow(filename, XML);
-            other->move(x() + 40, y() + 40);
-            other->show();
-        }
+    if (isUntitled && !isWindowModified()) {
+        mainDock->load(filename);
+    } else {
+        FbMainWindow * other = new FbMainWindow(filename, FB2);
+        other->mainDock->load(filename);
+        other->move(x() + 40, y() + 40);
+        other->show();
     }
 }
 

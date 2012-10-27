@@ -39,3 +39,19 @@ void FbMainDock::setMode(Mode mode)
         case Code: setCurrentWidget(m_code); return;
     }
 }
+
+bool FbMainDock::load(const QString &filename)
+{
+    QFile file(filename);
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        qCritical() << QObject::tr("Cannot read file %1: %2.").arg(filename).arg(file.errorString());
+        return false;
+    }
+
+    if (mode == Code) {
+        m_code->clear();
+        return m_code->read(&file);
+    }
+
+    return false;
+}

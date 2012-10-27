@@ -14,6 +14,7 @@ class QTreeView;
 class QWebInspector;
 QT_END_NAMESPACE
 
+class FbMainDock;
 class FbCodeEdit;
 class FbTreeView;
 class FbHeadEdit;
@@ -95,7 +96,6 @@ private slots:
     void openSettings();
 
 private:
-    bool loadXML(const QString &filename);
     QString appTitle() const;
 
 private:
@@ -112,9 +112,7 @@ private:
     void setCurrentFile(const QString &fileName = QString());
     FbMainWindow *findFbMainWindow(const QString &fileName);
 
-    FbTextFrame *textFrame;
-    FbCodeEdit *codeEdit;
-    FbHeadEdit *headTree;
+    FbMainDock *mainDock;
     QTextEdit *noteEdit;
     QToolBar *toolEdit;
     QDockWidget *dockTree;
