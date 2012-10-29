@@ -23,7 +23,7 @@
 //  FbScheme::Fb
 //---------------------------------------------------------------------------
 
-FbScheme::Fb::Fb()
+FbScheme::FbDom::FbDom()
 {
     QFile file(":/fb2/FictionBook2.1.xsd");
     if (file.open(QIODevice::ReadOnly)) setContent(&file);
@@ -35,7 +35,7 @@ FbScheme::Fb::Fb()
 
 const QDomDocument & FbScheme::fb2()
 {
-    static const Fb doc;
+    static const FbDom doc;
     return doc;
 }
 
@@ -587,6 +587,11 @@ FbHeadEdit::FbHeadEdit(QWidget *parent)
     connect(this, SIGNAL(collapsed(QModelIndex)), SLOT(collapsed(QModelIndex)));
 
     header()->setDefaultSectionSize(200);
+}
+
+void FbHeadEdit::setAction(Fb::Actions index, QAction *action)
+{
+    m_actions[index] = action;
 }
 
 void FbHeadEdit::setText(FbTextEdit *text)

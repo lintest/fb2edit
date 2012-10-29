@@ -37,13 +37,6 @@ public:
     }
 };
 
-class FbDockWidget : public QDockWidget
-{
-    Q_OBJECT
-public:
-    explicit FbDockWidget(const QString &title, QWidget *parent = 0, Qt::WindowFlags flags = 0);
-};
-
 class FbMainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -74,16 +67,12 @@ private slots:
     void createTextToolbar();
     void documentWasModified();
     void checkScintillaUndo();
-    void treeDestroyed();
-    void imgsDestroyed();
     void logDestroyed();
     void logShowed();
     void viewCode();
     void viewHtml();
     void viewText(FbTextPage *page = 0);
     void viewHead();
-    void viewTree();
-    void viewImgs();
 
     void cleanChanged(bool clean);
     void canUndoChanged(bool canUndo);
@@ -115,64 +104,11 @@ private:
     FbMainDock *mainDock;
     QTextEdit *noteEdit;
     QToolBar *toolEdit;
-    QDockWidget *dockTree;
-    QDockWidget *dockImgs;
     QWebInspector *inspector;
     QTextEdit *messageEdit;
     QString curFile;
     bool isSwitched;
     bool isUntitled;
-
-    QMenu
-        *menuEdit,
-        *menuText,
-        *menuView;
-
-    QAction
-        *actionBack,
-        *actionForward,
-        *actionUndo,
-        *actionRedo,
-        *actionCut,
-        *actionCopy,
-        *actionPaste,
-        *actionPasteText,
-        *actionSelect,
-        *actionFind,
-        *actionReplace,
-        *actionImage,
-        *actionNote,
-        *actionLink,
-        *actionBody,
-        *actionTitle,
-        *actionEpigraph,
-        *actionSubtitle,
-        *actionAnnot,
-        *actionPoem,
-        *actionDate,
-        *actionStanza,
-        *actionAuthor,
-        *actionSection,
-        *actionSimpleText,
-        *actionParaSeparator,
-        *actionLineSeparator,
-        *actionClearFormat,
-        *actionTextBold,
-        *actionTextItalic,
-        *actionTextStrike,
-        *actionTextCode,
-        *actionTextSub,
-        *actionTextSup,
-        *actionTextTitle,
-        *actionSectionAdd,
-        *actionSectionDel,
-        *actionContents,
-        *actionPictures,
-        *actionInspect,
-        *actionZoomIn,
-        *actionZoomOut,
-        *actionZoomReset
-    ;
 };
 
 #endif // FB2MAIN_H

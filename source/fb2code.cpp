@@ -356,6 +356,11 @@ FbCodeEdit::FbCodeEdit(QWidget *parent) : QPlainTextEdit(parent)
     highlightCurrentLine();
 }
 
+void FbCodeEdit::setAction(Fb::Actions index, QAction *action)
+{
+    m_actions[index] = action;
+}
+
 bool FbCodeEdit::read(QIODevice *device)
 {
     QByteArray data = device->readAll();

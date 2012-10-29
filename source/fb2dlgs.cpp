@@ -1,5 +1,6 @@
 #include "fb2dlgs.hpp"
 #include "fb2code.hpp"
+#include "fb2page.hpp"
 #include "fb2text.hpp"
 #include "fb2tree.hpp"
 #include "fb2utils.h"

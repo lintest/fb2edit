@@ -1,6 +1,7 @@
 #include <QtGui>
 #include <QtDebug>
 
+#include "fb2page.hpp"
 #include "fb2save.hpp"
 #include "fb2text.hpp"
 #include "fb2utils.h"

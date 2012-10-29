@@ -19,6 +19,7 @@ class QToolBar;
 class QLineEdit;
 QT_END_NAMESPACE
 
+#include "fb2enum.h"
 #include "fb2xml.h"
 
 class FbTextEdit;
@@ -33,13 +34,17 @@ class FbScheme : public QDomElement
     FB2_END_KEYLIST
 
 private:
-    class Fb : public QDomDocument { public: Fb(); };
+    class FbDom : public QDomDocument { public: FbDom(); };
 
 public:
     FbScheme() {}
     FbScheme(const FbScheme &x) : QDomElement(x) {}
     FbScheme(const QDomElement &x) : QDomElement(x) {}
     FbScheme& operator=(const FbScheme &x) { QDomElement::operator=(x); return *this; }
+
+    void setAction(Fb::Actions index, QAction *action);
+    void connectActions();
+    void disconnectActions();
 
     static const QDomDocument & fb2();
     FbScheme element(const QString &name) const;
@@ -51,6 +56,7 @@ public:
 private:
     FbScheme typeScheme() const;
     FbScheme item(const QString &name) const;
+    QMap<Fb::Actions, QAction*> m_actions;
 };
 
 class FbHeadItem: public QObject
@@ -173,6 +179,10 @@ public:
     void initToolbar(QToolBar &toolbar);
     FbHeadModel * model() const;
 
+    void setAction(Fb::Actions index, QAction *action);
+    void connectActions();
+    void disconnectActions();
+
 signals:
     void status(const QString &text);
 
@@ -197,6 +207,7 @@ private:
     QAction * actionInsert;
     QAction * actionModify;
     QAction * actionDelete;
+    QMap<Fb::Actions, QAction*> m_actions;
 };
 
 class FbNodeDlg : public QDialog

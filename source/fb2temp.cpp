@@ -10,6 +10,7 @@
 #include <QVBoxLayout>
 #include <QtDebug>
 
+#include "fb2page.hpp"
 #include "fb2text.hpp"
 
 //---------------------------------------------------------------------------

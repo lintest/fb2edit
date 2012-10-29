@@ -10,6 +10,7 @@
 #include <QTreeView>
 #include <QUrl>
 
+#include "fb2page.hpp"
 #include "fb2text.hpp"
 #include "fb2html.h"
 #include "fb2utils.h"

@@ -162,6 +162,9 @@ private slots:
     void moveLeft();
     void moveRight();
 
+    void treeDestroyed();
+    void imgsDestroyed();
+
 protected:
     void keyPressEvent(QKeyEvent *event);
 

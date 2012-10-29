@@ -2,36 +2,32 @@
 #define FB2TEXT_H
 
 #include <QAction>
+#include <QDockWidget>
 #include <QFrame>
+#include <QMainWindow>
 #include <QResizeEvent>
 #include <QTimer>
 #include <QThread>
 #include <QWebElement>
 #include <QWebView>
 
+#include "fb2enum.h"
 #include "fb2temp.hpp"
 
 QT_BEGIN_NAMESPACE
-class QDockWidget;
 class QToolBar;
-class QUndoCommand;
 class QWebInspector;
 QT_END_NAMESPACE
 
 class FbNoteView;
 class FbReadThread;
-class FbTextElement;
+class FbTextPage;
 
-class FbTextLogger : public QObject
+class FbDockWidget : public QDockWidget
 {
     Q_OBJECT
-
 public:
-    explicit FbTextLogger(QObject *parent = 0) : QObject(parent) {}
-
-public slots:
-    void trace(const QString &text);
-
+    explicit FbDockWidget(const QString &title, QWidget *parent = 0, Qt::WindowFlags flags = 0);
 };
 
 class FbTextBase : public QWebView
@@ -72,70 +68,12 @@ private:
     QSize m_size;
 };
 
-class FbTextPage : public QWebPage
-{
-    Q_OBJECT
-
-public:
-    explicit FbTextPage(QObject *parent = 0);
-    FbNetworkAccessManager *temp();
-    bool load(const QString &filename, const QString &xml = QString());
-    void push(QUndoCommand * command, const QString &text = QString());
-    FbTextElement element(const QString &location);
-    FbTextElement current();
-    QString location();
-    QString status();
-
-    FbTextElement body();
-    FbTextElement doc();
-
-    FbTextElement appendSection(const FbTextElement &parent);
-    FbTextElement appendTitle(const FbTextElement &parent);
-
-public slots:
-    void html(const QString &html, const QUrl &url);
-    void insertBody();
-    void insertTitle();
-    void insertAnnot();
-    void insertAuthor();
-    void insertEpigraph();
-    void insertSubtitle();
-    void insertSection();
-    void insertPoem();
-    void insertStanza();
-    void insertDate();
-    void insertText();
-    void createSection();
-    void deleteSection();
-    void createTitle();
-
-protected:
-    virtual bool acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type);
-    void createBlock(const QString &name);
-
-protected:
-    static QString block(const QString &name);
-    static QString block(const QString &name, const QString &text);
-    static QString p(const QString &text = "<br/>");
-    void update();
-
-private slots:
-    void onTimer();
-    void binary(const QString &name, const QByteArray &data);
-    void loadFinished();
-    void fixContents();
-
-private:
-    FbTextLogger m_logger;
-    QString m_html;
-};
-
 class FbTextEdit : public FbTextBase
 {
     Q_OBJECT
 
 public:
-    explicit FbTextEdit(QWidget *parent = 0);
+    explicit FbTextEdit(QWidget *parent, QWidget *owner);
     virtual ~FbTextEdit();
 
     FbTextPage *page();
@@ -144,8 +82,10 @@ public:
     bool save(QByteArray *array);
     bool save(QString *string);
 
-    bool actionEnabled(QWebPage::WebAction action);
-    bool actionChecked(QWebPage::WebAction action);
+    QAction * act(Fb::Actions index) const;
+    void setAction(Fb::Actions index, QAction *action);
+    void connectActions(QToolBar *tool);
+    void disconnectActions();
 
     bool BoldChecked();
     bool ItalicChecked();
@@ -170,18 +110,30 @@ public slots:
 private slots:
     void linkHovered(const QString &link, const QString &title, const QString &textContent);
     void contextMenu(const QPoint &pos);
+    void createImgs();
+    void createTree();
+    void treeDestroyed();
+    void imgsDestroyed();
 
 private:
+    void viewTree();
+    void viewImgs();
+    void viewInsp();
+    bool actionEnabled(QWebPage::WebAction action);
+    bool actionChecked(QWebPage::WebAction action);
     void execCommand(const QString &cmd, const QString &arg);
-    void exec(QUndoCommand *command);
     FbTemporaryFile * file(const QString &name);
     FbNoteView & noteView();
     QWebElement body();
     QWebElement doc();
 
 private:
+    QMainWindow *m_owner;
     FbNoteView *m_noteView;
     FbReadThread *m_thread;
+    QMap<Fb::Actions, QAction*> m_actions;
+    QDockWidget *dockTree;
+    QDockWidget *dockImgs;
     QPoint m_point;
 };
 

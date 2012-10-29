@@ -8,23 +8,11 @@
 #include "fb2code.hpp"
 #include "fb2dlgs.hpp"
 #include "fb2dock.hpp"
+#include "fb2page.hpp"
 #include "fb2read.hpp"
 #include "fb2save.hpp"
 #include "fb2text.hpp"
-#include "fb2tree.hpp"
-#include "fb2head.hpp"
 #include "fb2utils.h"
-
-//---------------------------------------------------------------------------
-//  FbDockWidget
-//---------------------------------------------------------------------------
-
-FbDockWidget::FbDockWidget(const QString &title, QWidget *parent, Qt::WindowFlags flags)
-    : QDockWidget(title, parent, flags)
-{
-    setFeatures(QDockWidget::AllDockWidgetFeatures);
-    setAttribute(Qt::WA_DeleteOnClose);
-}
 
 //---------------------------------------------------------------------------
 //  FbTextAction
@@ -49,8 +37,6 @@ FbMainWindow::FbMainWindow(const QString &filename, ViewMode mode)
     : QMainWindow()
     , noteEdit(0)
     , toolEdit(0)
-    , dockTree(0)
-    , dockImgs(0)
     , inspector(0)
     , messageEdit(0)
     , isSwitched(false)
@@ -103,18 +89,6 @@ void FbMainWindow::logShowed()
 void FbMainWindow::logDestroyed()
 {
     messageEdit = NULL;
-}
-
-void FbMainWindow::treeDestroyed()
-{
-    actionContents->setChecked(false);
-    dockTree = NULL;
-}
-
-void FbMainWindow::imgsDestroyed()
-{
-    actionPictures->setChecked(false);
-    dockImgs = NULL;
 }
 
 void FbMainWindow::closeEvent(QCloseEvent *event)
@@ -208,7 +182,10 @@ void FbMainWindow::createActions()
     QAction * act;
     QMenu * menu;
     QToolBar * tool;
-    QList<QAction*> actions;
+
+    FbTextEdit *text = mainDock->text();
+    FbHeadEdit *head = mainDock->head();
+    FbCodeEdit *code = mainDock->code();
 
     menu = menuBar()->addMenu(tr("&File"));
     tool = addToolBar(tr("File"));
@@ -256,17 +233,26 @@ void FbMainWindow::createActions()
     connect(act, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
     menu->addAction(act);
 
-    menuEdit = menu = menuBar()->addMenu(tr("&Edit"));
+    menu = menuBar()->addMenu(tr("&Edit"));
+
+    tool = addToolBar(tr("Edit"));
+    tool->setMovable(false);
+    tool->addSeparator();
+    mainDock->setTool(tool);
 
     connect(QApplication::clipboard(), SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
 
-    actionUndo = act = new QAction(FbIcon("edit-undo"), tr("&Undo"), this);
+    act = new QAction(FbIcon("edit-undo"), tr("&Undo"), this);
+    text->setAction(Fb::EditUndo, act);
+    code->setAction(Fb::EditUndo, act);
     act->setPriority(QAction::LowPriority);
     act->setShortcut(QKeySequence::Undo);
     act->setEnabled(false);
     menu->addAction(act);
 
-    actionRedo = act = new QAction(FbIcon("edit-redo"), tr("&Redo"), this);
+    act = new QAction(FbIcon("edit-redo"), tr("&Redo"), this);
+    text->setAction(Fb::EditRedo, act);
+    code->setAction(Fb::EditUndo, act);
     act->setPriority(QAction::LowPriority);
     act->setShortcut(QKeySequence::Redo);
     act->setEnabled(false);
@@ -274,7 +260,9 @@ void FbMainWindow::createActions()
 
     menu->addSeparator();
 
-    actionCut = act = new QAction(FbIcon("edit-cut"), tr("Cu&t"), this);
+    act = new QAction(FbIcon("edit-cut"), tr("Cu&t"), this);
+    text->setAction(Fb::EditCut, act);
+    code->setAction(Fb::EditCut, act);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Cut);
@@ -282,7 +270,9 @@ void FbMainWindow::createActions()
     act->setEnabled(false);
     menu->addAction(act);
 
-    actionCopy = act = new QAction(FbIcon("edit-copy"), tr("&Copy"), this);
+    act = new QAction(FbIcon("edit-copy"), tr("&Copy"), this);
+    text->setAction(Fb::EditCopy, act);
+    code->setAction(Fb::EditCopy, act);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Copy);
@@ -290,25 +280,32 @@ void FbMainWindow::createActions()
     act->setEnabled(false);
     menu->addAction(act);
 
-    actionPaste = act = new QAction(FbIcon("edit-paste"), tr("&Paste"), this);
+    act = new QAction(FbIcon("edit-paste"), tr("&Paste"), this);
+    text->setAction(Fb::EditPaste, act);
+    code->setAction(Fb::EditPaste, act);
     act->setShortcutContext(Qt::WidgetShortcut);
     act->setPriority(QAction::LowPriority);
     act->setShortcuts(QKeySequence::Paste);
     act->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
     menu->addAction(act);
 
-    actionPasteText = act = new QAction(tr("Paste (no style)"), this);
+    act = new QAction(tr("Paste (no style)"), this);
+    text->setAction(Fb::PasteText, act);
     menu->addAction(act);
 
     clipboardDataChanged();
 
     menu->addSeparator();
 
-    actionFind = act = new QAction(FbIcon("edit-find"), tr("&Find..."), this);
+    act = new QAction(FbIcon("edit-find"), tr("&Find..."), this);
+    text->setAction(Fb::TextFind, act);
+    code->setAction(Fb::TextFind, act);
     act->setShortcuts(QKeySequence::Find);
     menu->addAction(act);
 
-    actionReplace = act = new QAction(FbIcon("edit-find-replace"), tr("&Replace..."), this);
+    act = new QAction(FbIcon("edit-find-replace"), tr("&Replace..."), this);
+    text->setAction(Fb::TextReplace, act);
+    code->setAction(Fb::TextReplace, act);
     menu->addAction(act);
 
     menu->addSeparator();
@@ -321,106 +318,133 @@ void FbMainWindow::createActions()
 
     menu = menuBar()->addMenu(tr("&Insert", "Main menu"));
 
-    actionImage = act = new QAction(FbIcon("insert-image"), tr("&Image"), this);
+    act = new QAction(FbIcon("insert-image"), tr("&Image"), this);
+    text->setAction(Fb::InsertImage, act);
     menu->addAction(act);
 
-    actionNote = act = new QAction(FbIcon("insert-text"), tr("&Footnote"), this);
+    act = new QAction(FbIcon("insert-text"), tr("&Footnote"), this);
+    text->setAction(Fb::InsertNote, act);
     menu->addAction(act);
 
-    actionLink = act = new QAction(FbIcon("insert-link"), tr("&Hiperlink"), this);
-    menu->addAction(act);
-
-    menu->addSeparator();
-
-    actionBody = act = new QAction(tr("&Body"), this);
-    menu->addAction(act);
-
-    actionSection = act = new QAction(FbIcon("insert-object"), tr("&Section"), this);
-    menu->addAction(act);
-
-    actionTitle = act = new QAction(tr("&Title"), this);
-    menu->addAction(act);
-
-    actionEpigraph = act = new QAction(tr("&Epigraph"), this);
-    menu->addAction(act);
-
-    actionAnnot = act = new QAction(tr("&Annotation"), this);
-    menu->addAction(act);
-
-    actionSubtitle = act = new QAction(tr("&Subtitle"), this);
-    menu->addAction(act);
-
-    actionAuthor = act = new QAction(tr("&Cite"), this);
-    menu->addAction(act);
-
-    actionPoem = act = new QAction(tr("&Poem"), this);
-    menu->addAction(act);
-
-    actionStanza = act = new QAction(tr("&Stanza"), this);
-    menu->addAction(act);
-
-    actionAuthor = act = new QAction(tr("&Author"), this);
-    menu->addAction(act);
-
-    actionDate = act = new QAction(tr("&Date"), this);
+    act = new QAction(FbIcon("insert-link"), tr("&Hiperlink"), this);
+    text->setAction(Fb::InsertLink, act);
     menu->addAction(act);
 
     menu->addSeparator();
 
-    actionSimpleText = act = new QAction(tr("Simple text"), this);
+    act = new QAction(tr("&Body"), this);
+    text->setAction(Fb::InsertBody, act);
     menu->addAction(act);
 
-    actionParaSeparator = act = new QAction(tr("Paragraph"), this);
+    act = new QAction(FbIcon("insert-object"), tr("&Section"), this);
+    text->setAction(Fb::InsertSection, act);
     menu->addAction(act);
 
-    actionLineSeparator = act = new QAction(tr("Line end"), this);
+    act = new QAction(tr("&Title"), this);
+    text->setAction(Fb::InsertTitle, act);
     menu->addAction(act);
 
-    menuText = menu = menuBar()->addMenu(tr("Fo&rmat"));
+    act = new QAction(tr("&Epigraph"), this);
+    text->setAction(Fb::InsertEpigraph, act);
+    menu->addAction(act);
 
-    actionClearFormat = act = new FbTextAction(FbIcon("edit-clear"), tr("Clear format"), QWebPage::RemoveFormat, this);
+    act = new QAction(tr("&Annotation"), this);
+    text->setAction(Fb::InsertAnnot, act);
+    menu->addAction(act);
+
+    act = new QAction(tr("&Subtitle"), this);
+    text->setAction(Fb::InsertSubtitle, act);
+    menu->addAction(act);
+
+    act = new QAction(tr("&Cite"), this);
+    text->setAction(Fb::InsertCite, act);
+    menu->addAction(act);
+
+    act = new QAction(tr("&Poem"), this);
+    text->setAction(Fb::InsertPoem, act);
+    menu->addAction(act);
+
+    act = new QAction(tr("&Stanza"), this);
+    text->setAction(Fb::InsertStanza, act);
+    menu->addAction(act);
+
+    act = new QAction(tr("&Author"), this);
+    text->setAction(Fb::InsertAuthor, act);
+    menu->addAction(act);
+
+    act = new QAction(tr("&Date"), this);
+    text->setAction(Fb::InsertDate, act);
     menu->addAction(act);
 
     menu->addSeparator();
 
-    actionTextBold = act = new FbTextAction(FbIcon("format-text-bold"), tr("&Bold"), QWebPage::ToggleBold, this);
+    act = new QAction(tr("Simple text"), this);
+    text->setAction(Fb::InsertText, act);
+    menu->addAction(act);
+
+    act = new QAction(tr("Paragraph"), this);
+    text->setAction(Fb::InsertParag, act);
+    menu->addAction(act);
+
+    act = new QAction(tr("Line end"), this);
+    text->setAction(Fb::InsertLine, act);
+    menu->addAction(act);
+
+    menu = menuBar()->addMenu(tr("Fo&rmat"));
+
+    act = new FbTextAction(FbIcon("edit-clear"), tr("Clear format"), QWebPage::RemoveFormat, this);
+    text->setAction(Fb::ClearFormat, act);
+    menu->addAction(act);
+
+    menu->addSeparator();
+
+    act = new FbTextAction(FbIcon("format-text-bold"), tr("&Bold"), QWebPage::ToggleBold, this);
+    text->setAction(Fb::TextBold, act);
     act->setShortcuts(QKeySequence::Bold);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextItalic = act = new FbTextAction(FbIcon("format-text-italic"), tr("&Italic"), QWebPage::ToggleItalic, this);
+    act = new FbTextAction(FbIcon("format-text-italic"), tr("&Italic"), QWebPage::ToggleItalic, this);
+    text->setAction(Fb::TextItalic, act);
     act->setShortcuts(QKeySequence::Italic);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextStrike = act = new FbTextAction(FbIcon("format-text-strikethrough"), tr("&Strikethrough"), QWebPage::ToggleStrikethrough, this);
+    act = new FbTextAction(FbIcon("format-text-strikethrough"), tr("&Strikethrough"), QWebPage::ToggleStrikethrough, this);
+    text->setAction(Fb::TextStrike, act);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextSup = act = new FbTextAction(FbIcon("format-text-superscript"), tr("Su&perscript"), QWebPage::ToggleSuperscript, this);
+    act = new FbTextAction(FbIcon("format-text-superscript"), tr("Su&perscript"), QWebPage::ToggleSuperscript, this);
+    text->setAction(Fb::TextSup, act);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextSub = act = new FbTextAction(FbIcon("format-text-subscript"), tr("Su&bscript"), QWebPage::ToggleSubscript, this);
+    act = new FbTextAction(FbIcon("format-text-subscript"), tr("Su&bscript"), QWebPage::ToggleSubscript, this);
+    text->setAction(Fb::TextSub, act);
     act->setCheckable(true);
     menu->addAction(act);
 
-    actionTextCode = act = new QAction(FbIcon("utilities-terminal"), tr("&Code"), this);
+    act = new QAction(FbIcon("utilities-terminal"), tr("&Code"), this);
+    text->setAction(Fb::TextCode, act);
     act->setCheckable(true);
     menu->addAction(act);
 
     menu->addSeparator();
 
-    actionSectionAdd = act = new FbTextAction(FbIcon("format-indent-more"), tr("Create section"), QWebPage::ToggleSubscript, this);
+    act = new FbTextAction(FbIcon("format-indent-more"), tr("Create section"), QWebPage::ToggleSubscript, this);
+    text->setAction(Fb::SectionAdd, act);
     menu->addAction(act);
 
-    actionSectionDel = act = new FbTextAction(FbIcon("format-indent-less"), tr("Remove section"), QWebPage::ToggleSubscript, this);
+    act = new FbTextAction(FbIcon("format-indent-less"), tr("Remove section"), QWebPage::ToggleSubscript, this);
+    text->setAction(Fb::SectionDel, act);
     menu->addAction(act);
 
-    actionTextTitle = act = new FbTextAction(FbIcon("format-justify-center"), tr("Make title"), QWebPage::ToggleSubscript, this);
+    act = new FbTextAction(FbIcon("format-justify-center"), tr("Make title"), QWebPage::ToggleSubscript, this);
+    text->setAction(Fb::TextTitle, act);
     menu->addAction(act);
 
-    menuView = menu = menuBar()->addMenu(tr("&View"));
+    menu = menuBar()->addMenu(tr("&View"));
 
     tool->addSeparator();
 
@@ -458,32 +482,37 @@ void FbMainWindow::createActions()
 
     menu->addSeparator();
 
-    actionZoomIn = act = new QAction(FbIcon("zoom-in"), tr("Zoom in"), this);
+    act = new QAction(FbIcon("zoom-in"), tr("Zoom in"), this);
+    text->setAction(Fb::ZoomIn, act);
+    code->setAction(Fb::ZoomIn, act);
     act->setShortcuts(QKeySequence::ZoomIn);
     menu->addAction(act);
 
-    actionZoomOut = act = new QAction(FbIcon("zoom-out"), tr("Zoom out"), this);
+    act = new QAction(FbIcon("zoom-out"), tr("Zoom out"), this);
+    text->setAction(Fb::ZoomOut, act);
+    code->setAction(Fb::ZoomOut, act);
     act->setShortcuts(QKeySequence::ZoomOut);
     menu->addAction(act);
 
-    actionZoomReset = act = new QAction(FbIcon("zoom-original"), tr("Zoom original"), this);
+    act = new QAction(FbIcon("zoom-original"), tr("Zoom original"), this);
+    text->setAction(Fb::ZoomReset, act);
+    code->setAction(Fb::ZoomReset, act);
     menu->addAction(act);
 
     menu->addSeparator();
 
-    actionContents = act = new QAction(tr("&Contents"), this);
-    act->setCheckable(true);
-    connect(act, SIGNAL(triggered()), this, SLOT(viewTree()));
+    act = new QAction(tr("&Contents"), this);
+    text->setAction(Fb::ViewContents, act);
     menu->addAction(act);
 
-    actionPictures = act = new QAction(tr("&Pictures"), this);
+    act = new QAction(tr("&Pictures"), this);
+    text->setAction(Fb::ViewPictures, act);
     act->setCheckable(true);
-    connect(act, SIGNAL(triggered()), this, SLOT(viewImgs()));
     menu->addAction(act);
 
-    actionInspect = act = new QAction(tr("&Web inspector"), this);
+    act = new QAction(tr("&Web inspector"), this);
+    text->setAction(Fb::ViewInspect, act);
     act->setCheckable(true);
-    connect(this, SIGNAL(showInspectorChecked(bool)), actionInspect, SLOT(setChecked(bool)));
     menu->addAction(act);
 
     menuBar()->addSeparator();
@@ -504,54 +533,6 @@ void FbMainWindow::openSettings()
 {
     FbSetupDlg dlg(this);
     dlg.exec();
-}
-
-void FbMainWindow::createTree()
-{
-    if (mainDock->mode() != FbMainDock::Text) return;
-    dockTree = new FbDockWidget(tr("Contents"), this);
-    dockTree->setWidget(new FbTreeWidget(mainDock->text(), this));
-    connect(dockTree, SIGNAL(visibilityChanged(bool)), actionContents, SLOT(setChecked(bool)));
-    connect(dockTree, SIGNAL(destroyed()), SLOT(treeDestroyed()));
-    addDockWidget(Qt::LeftDockWidgetArea, dockTree);
-}
-
-void FbMainWindow::createImgs()
-{
-    if (mainDock->mode() != FbMainDock::Text) return;
-    dockImgs = new FbDockWidget(tr("Pictures"), this);
-    dockImgs->setWidget(new FbListWidget(mainDock->text(), this));
-    connect(dockImgs, SIGNAL(visibilityChanged(bool)), actionPictures, SLOT(setChecked(bool)));
-    connect(dockImgs, SIGNAL(destroyed()), SLOT(imgsDestroyed()));
-    addDockWidget(Qt::RightDockWidgetArea, dockImgs);
-}
-
-void FbMainWindow::selectionChanged()
-{
-    FbTextEdit *view = mainDock->text();
-    actionCut->setEnabled(view->actionEnabled(QWebPage::Cut));
-    actionCopy->setEnabled(view->actionEnabled(QWebPage::Copy));
-    statusBar()->showMessage(view->page()->status());
-}
-
-void FbMainWindow::canUndoChanged(bool canUndo)
-{
-    actionUndo->setEnabled(canUndo);
-}
-
-void FbMainWindow::canRedoChanged(bool canRedo)
-{
-    actionRedo->setEnabled(canRedo);
-}
-
-void FbMainWindow::undoChanged()
-{
-    actionUndo->setEnabled(mainDock->text()->actionEnabled(QWebPage::Undo));
-}
-
-void FbMainWindow::redoChanged()
-{
-    actionRedo->setEnabled(mainDock->text()->actionEnabled(QWebPage::Redo));
 }
 
 void FbMainWindow::createStatusBar()
@@ -634,93 +615,12 @@ FbMainWindow *FbMainWindow::findFbMainWindow(const QString &fileName)
     }
     return 0;
 }
-
+/*
 void FbMainWindow::checkScintillaUndo()
 {
-/*
     if (!codeEdit) return;
     actionUndo->setEnabled(codeEdit->isUndoAvailable());
     actionRedo->setEnabled(codeEdit->isRedoAvailable());
-*/
-}
-
-void FbMainWindow::createTextToolbar()
-{
-    FbTextEdit * textEdit = mainDock->text();
-    FbTextPage * textPage = textEdit->page();
-
-    connect(textPage->undoStack(), SIGNAL(cleanChanged(bool)), SLOT(cleanChanged(bool)));
-    connect(textPage->undoStack(), SIGNAL(canUndoChanged(bool)), SLOT(canUndoChanged(bool)));
-    connect(textPage->undoStack(), SIGNAL(canRedoChanged(bool)), SLOT(canRedoChanged(bool)));
-    connect(textPage, SIGNAL(selectionChanged()), SLOT(selectionChanged()));
-
-    connect(actionUndo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Undo), SIGNAL(triggered()));
-    connect(actionRedo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Redo), SIGNAL(triggered()));
-
-    connect(actionCut, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Cut), SIGNAL(triggered()));
-    connect(actionCopy, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Copy), SIGNAL(triggered()));
-    connect(actionPaste, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Paste), SIGNAL(triggered()));
-    connect(actionPasteText, SIGNAL(triggered()), textEdit->pageAction(QWebPage::PasteAndMatchStyle), SIGNAL(triggered()));
-
-    connect(actionClearFormat, SIGNAL(triggered()), textEdit->pageAction(QWebPage::RemoveFormat), SIGNAL(triggered()));
-    connect(actionTextBold, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleBold), SIGNAL(triggered()));
-    connect(actionTextItalic, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleItalic), SIGNAL(triggered()));
-    connect(actionTextStrike, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleStrikethrough), SIGNAL(triggered()));
-    connect(actionTextSub, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSubscript), SIGNAL(triggered()));
-    connect(actionTextSup, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSuperscript), SIGNAL(triggered()));
-
-    connect(textEdit->pageAction(QWebPage::RemoveFormat), SIGNAL(changed()), actionClearFormat, SLOT(updateEnabled()));
-    connect(textEdit->pageAction(QWebPage::ToggleBold), SIGNAL(changed()), actionTextBold, SLOT(updateChecked()));
-    connect(textEdit->pageAction(QWebPage::ToggleItalic), SIGNAL(changed()), actionTextItalic, SLOT(updateChecked()));
-    connect(textEdit->pageAction(QWebPage::ToggleStrikethrough), SIGNAL(changed()), actionTextStrike, SLOT(updateChecked()));
-    connect(textEdit->pageAction(QWebPage::ToggleSubscript), SIGNAL(changed()), actionTextSub, SLOT(updateChecked()));
-    connect(textEdit->pageAction(QWebPage::ToggleSuperscript), SIGNAL(changed()), actionTextSup, SLOT(updateChecked()));
-
-    connect(actionFind, SIGNAL(triggered()), textEdit, SLOT(find()));
-    connect(actionImage, SIGNAL(triggered()), textEdit, SLOT(insertImage()));
-    connect(actionNote, SIGNAL(triggered()), textEdit, SLOT(insertNote()));
-    connect(actionLink, SIGNAL(triggered()), textEdit, SLOT(insertLink()));
-
-    connect(actionTitle, SIGNAL(triggered()), textPage, SLOT(insertTitle()));
-    connect(actionAnnot, SIGNAL(triggered()), textPage, SLOT(insertAnnot()));
-    connect(actionAuthor, SIGNAL(triggered()), textPage, SLOT(insertAuthor()));
-    connect(actionEpigraph, SIGNAL(triggered()), textPage, SLOT(insertEpigraph()));
-    connect(actionSubtitle, SIGNAL(triggered()), textPage, SLOT(insertSubtitle()));
-    connect(actionSection, SIGNAL(triggered()), textPage, SLOT(insertSection()));
-    connect(actionStanza, SIGNAL(triggered()), textPage, SLOT(insertStanza()));
-    connect(actionPoem, SIGNAL(triggered()), textPage, SLOT(insertPoem()));
-    connect(actionDate, SIGNAL(triggered()), textPage, SLOT(insertDate()));
-    connect(actionBody, SIGNAL(triggered()), textPage, SLOT(insertBody()));
-
-    connect(actionSimpleText, SIGNAL(triggered()), textPage, SLOT(insertText()));
-    connect(actionParaSeparator, SIGNAL(triggered()), textEdit->pageAction(QWebPage::InsertParagraphSeparator), SIGNAL(triggered()));
-    connect(actionLineSeparator, SIGNAL(triggered()), textEdit->pageAction(QWebPage::InsertLineSeparator), SIGNAL(triggered()));
-
-    connect(actionSectionAdd, SIGNAL(triggered()), textPage, SLOT(createSection()));
-    connect(actionSectionDel, SIGNAL(triggered()), textPage, SLOT(deleteSection()));
-    connect(actionTextTitle, SIGNAL(triggered()), textPage, SLOT(createTitle()));
-
-    connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
-    connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
-    connect(actionZoomReset, SIGNAL(triggered()), textEdit, SLOT(zoomReset()));
-
-    FB2DELETE(toolEdit);
-    QToolBar *tool = toolEdit = addToolBar(tr("Edit"));
-    tool->setMovable(false);
-    tool->addSeparator();
-
-    textEdit->addTools(tool);
-
-    tool->addSeparator();
-    tool->addAction(actionSectionAdd);
-    tool->addAction(actionSectionDel);
-    tool->addAction(actionTextTitle);
-
-    tool->addSeparator();
-    tool->addAction(actionImage);
-    tool->addAction(actionNote);
-    tool->addAction(actionLink);
-    tool->addAction(actionSection);
 }
 
 void FbMainWindow::viewText(FbTextPage *page)
@@ -978,7 +878,7 @@ void FbMainWindow::clipboardDataChanged()
         actionPasteText->setEnabled(md->hasText());
     }
 }
-
+*/
 void FbMainWindow::status(const QString &text)
 {
     statusBar()->showMessage(text);

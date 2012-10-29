@@ -5,11 +5,12 @@
 #include <QList>
 #include <QPlainTextEdit>
 #include <QObject>
-
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>
 #include <QColor>
 #include <QTextEdit>
+
+#include "fb2enum.h"
 
 class FbHighlighter : public QSyntaxHighlighter
 {
@@ -82,6 +83,10 @@ class FbCodeEdit : public QPlainTextEdit
 public:
     FbCodeEdit(QWidget *parent = 0);
 
+    void setAction(Fb::Actions index, QAction *action);
+    void connectActions();
+    void disconnectActions();
+
     QString text() const { return toPlainText(); }
 
     bool read(QIODevice *device);
@@ -133,6 +138,7 @@ private:
 private:
     FbHighlighter * highlighter;
     QWidget *lineNumberArea;
+    QMap<Fb::Actions, QAction*> m_actions;
     qreal zoomRatio;
     static qreal baseFontSize;
     static qreal zoomRatioMin;

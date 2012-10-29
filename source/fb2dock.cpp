@@ -4,13 +4,18 @@
 #include "fb2text.hpp"
 
 #include <QLayout>
+#include <QtDebug>
+
+//---------------------------------------------------------------------------
+//  FbMainDock
+//---------------------------------------------------------------------------
 
 FbMainDock::FbMainDock(QWidget *parent)
     : QStackedWidget(parent)
     , isSwitched(false)
 {
     textFrame = new FbWebFrame(this);
-    m_text = new FbTextEdit(textFrame);
+    m_text = new FbTextEdit(textFrame, parent);
     textFrame->layout()->addWidget(m_text);
 
     m_head = new FbHeadEdit(this);
@@ -21,23 +26,6 @@ FbMainDock::FbMainDock(QWidget *parent)
     addWidget(m_code);
 
     m_head->setText(m_text);
-}
-
-void FbMainDock::createActions()
-{
-    QAction * act;
-
-    actionUndo = act = new QAction(FbIcon("edit-undo"), tr("&Undo"), this);
-    act->setPriority(QAction::LowPriority);
-    act->setShortcut(QKeySequence::Undo);
-    act->setEnabled(false);
-    menu->addAction(act);
-
-    actionRedo = act = new QAction(FbIcon("edit-redo"), tr("&Redo"), this);
-    act->setPriority(QAction::LowPriority);
-    act->setShortcut(QKeySequence::Redo);
-    act->setEnabled(false);
-    menu->addAction(act);
 }
 
 FbMainDock::Mode FbMainDock::mode() const
@@ -66,7 +54,7 @@ bool FbMainDock::load(const QString &filename)
         return false;
     }
 
-    if (mode == Code) {
+    if (currentWidget() == m_code) {
         m_code->clear();
         return m_code->read(&file);
     }
@@ -74,7 +62,7 @@ bool FbMainDock::load(const QString &filename)
     return false;
 }
 
-bool FbMainDock::save(QIODevice *device)
+bool FbMainDock::save(QIODevice *device, const QString &codec)
 {
     if (currentWidget() == m_code) {
         QTextStream out(device);
