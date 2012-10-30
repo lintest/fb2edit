@@ -22,6 +22,7 @@
 
 #include "fb2dlgs.hpp"
 #include "fb2page.hpp"
+#include "fb2save.hpp"
 #include "fb2tree.hpp"
 #include "fb2utils.h"
 
@@ -162,7 +163,7 @@ void FbTextBase::addTools(QToolBar *tool)
 //  FbTextEdit
 //---------------------------------------------------------------------------
 
-FbTextEdit::FbTextEdit(QWidget *parent, QWidget *owner)
+FbTextEdit::FbTextEdit(QWidget *parent, QObject *owner)
     : FbTextBase(parent)
     , m_owner(qobject_cast<QMainWindow*>(owner))
     , m_noteView(0)
@@ -280,6 +281,7 @@ void FbTextEdit::disconnectActions()
 {
     foreach (QAction *action, m_actions) {
         action->setDisabled(true);
+        action->setChecked(false);
         disconnect(action);
     }
 }
@@ -563,7 +565,7 @@ FbWebFrame::FbWebFrame(QWidget *parent)
 
 FbTextFrame::FbTextFrame(QWidget *parent, QAction *action)
     : QFrame(parent)
-    , m_view(this)
+    , m_view(this, parent->parent())
     , m_dock(0)
 {
     setFrameShape(QFrame::StyledPanel);
@@ -632,11 +634,11 @@ FbTextAction::FbTextAction(const QIcon &icon, const QString &text, QWebPage::Web
 
 void FbTextAction::updateChecked()
 {
-    if (QAction * act = action(m_action)) setChecked(act->isChecked());
+//    if (QAction * act = action(m_action)) setChecked(act->isChecked());
 }
 
 void FbTextAction::updateEnabled()
 {
-    if (QAction * act = action(m_action)) setEnabled(act->isEnabled());
+//    if (QAction * act = action(m_action)) setEnabled(act->isEnabled());
 }
 

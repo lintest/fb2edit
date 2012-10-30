@@ -45,9 +45,6 @@ public:
     enum ViewMode { FB2, XML };
     explicit FbMainWindow(const QString &filename = QString(), ViewMode mode = FB2);
 
-public:
-    FbTextPage * page();
-
 protected:
     void closeEvent(QCloseEvent *event);
 
@@ -64,24 +61,12 @@ private slots:
     bool fileSaveAs();
 
     void about();
-    void createTextToolbar();
     void documentWasModified();
-    void checkScintillaUndo();
     void logDestroyed();
     void logShowed();
-    void viewCode();
-    void viewHtml();
-    void viewText(FbTextPage *page = 0);
-    void viewHead();
 
-    void cleanChanged(bool clean);
-    void canUndoChanged(bool canUndo);
-    void canRedoChanged(bool canRedo);
     void status(const QString &text);
     void clipboardDataChanged();
-    void selectionChanged();
-    void undoChanged();
-    void redoChanged();
     void openSettings();
 
 private:

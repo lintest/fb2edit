@@ -73,7 +73,7 @@ class FbTextEdit : public FbTextBase
     Q_OBJECT
 
 public:
-    explicit FbTextEdit(QWidget *parent, QWidget *owner);
+    explicit FbTextEdit(QWidget *parent, QObject *owner);
     virtual ~FbTextEdit();
 
     FbTextPage *page();

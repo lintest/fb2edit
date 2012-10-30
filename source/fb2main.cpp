@@ -15,21 +15,6 @@
 #include "fb2utils.h"
 
 //---------------------------------------------------------------------------
-//  FbTextAction
-//---------------------------------------------------------------------------
-
-QAction * FbTextAction::action(QWebPage::WebAction action)
-{
-    FbMainWindow * main = qobject_cast<FbMainWindow*>(parent());
-    if (!main) return 0;
-
-    FbTextPage * page = main->page();
-    if (!page) return 0;
-
-    return page->action(action);
-}
-
-//---------------------------------------------------------------------------
 //  FbMainWindow
 //---------------------------------------------------------------------------
 
@@ -162,11 +147,6 @@ void FbMainWindow::documentWasModified()
 //    setModified(isSwitched || codeEdit->isModified());
 }
 
-void FbMainWindow::cleanChanged(bool clean)
-{
-//    setModified(isSwitched || !clean);
-}
-
 void FbMainWindow::setModified(bool modified)
 {
     QFileInfo info = windowFilePath();
@@ -234,11 +214,6 @@ void FbMainWindow::createActions()
     menu->addAction(act);
 
     menu = menuBar()->addMenu(tr("&Edit"));
-
-    tool = addToolBar(tr("Edit"));
-    tool->setMovable(false);
-    tool->addSeparator();
-    mainDock->setTool(tool);
 
     connect(QApplication::clipboard(), SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
 
@@ -450,32 +425,24 @@ void FbMainWindow::createActions()
 
     QActionGroup * viewGroup = new QActionGroup(this);
 
-    act = new QAction(tr("&Text"), this);
-    act->setCheckable(true);
+    act = new FbModeAction(mainDock, Fb::Text, tr("&Text"));
+    viewGroup->addAction(act);
+    menu->addAction(act);
+    tool->addAction(act);
     act->setChecked(true);
-    connect(act, SIGNAL(triggered()), this, SLOT(viewText()));
+
+    act = new FbModeAction(mainDock, Fb::Head, tr("&Head"));
     viewGroup->addAction(act);
     menu->addAction(act);
     tool->addAction(act);
 
-    act = new QAction(tr("&Head"), this);
-    act->setCheckable(true);
-    connect(act, SIGNAL(triggered()), this, SLOT(viewHead()));
-    viewGroup->addAction(act);
-    menu->addAction(act);
-    tool->addAction(act);
-
-    act = new QAction(tr("&XML"), this);
-    act->setCheckable(true);
-    connect(act, SIGNAL(triggered()), this, SLOT(viewCode()));
+    act = new FbModeAction(mainDock, Fb::Code, tr("&XML"));
     viewGroup->addAction(act);
     menu->addAction(act);
     tool->addAction(act);
 
 #ifdef QT_DEBUG
-    act = new QAction(tr("&HTML"), this);
-    act->setCheckable(true);
-    connect(act, SIGNAL(triggered()), this, SLOT(viewHtml()));
+    act = new FbModeAction(mainDock, Fb::Html, tr("&HTML"));
     viewGroup->addAction(act);
     menu->addAction(act);
 #endif // _DEBUG
@@ -527,6 +494,11 @@ void FbMainWindow::createActions()
     act->setStatusTip(tr("Show the Qt library's About box"));
     connect(act, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     menu->addAction(act);
+
+    toolEdit = tool = addToolBar(tr("Edit"));
+    tool->setMovable(false);
+    tool->addSeparator();
+    mainDock->setTool(tool);
 }
 
 void FbMainWindow::openSettings()
@@ -558,8 +530,7 @@ void FbMainWindow::writeSettings()
 
 bool FbMainWindow::maybeSave()
 {
-/*
-    if (textFrame && textFrame->view()->isModified()) {
+    if (mainDock->isModified()) {
         QMessageBox::StandardButton ret;
         ret = QMessageBox::warning(this, qApp->applicationName(),
                      tr("The document has been modified. Do you want to save your changes?"),
@@ -571,7 +542,6 @@ bool FbMainWindow::maybeSave()
             return false;
     }
     return true;
-*/  return false;
 }
 
 bool FbMainWindow::saveFile(const QString &fileName, const QString &codec)
@@ -870,15 +840,15 @@ void FbMainWindow::viewImgs()
 {
     if (dockImgs) dockImgs->deleteLater(); else createImgs();
 }
-
+*/
 void FbMainWindow::clipboardDataChanged()
 {
     if (const QMimeData *md = QApplication::clipboard()->mimeData()) {
-        actionPaste->setEnabled(md->hasText());
-        actionPasteText->setEnabled(md->hasText());
+//        actionPaste->setEnabled(md->hasText());
+//        actionPasteText->setEnabled(md->hasText());
     }
 }
-*/
+
 void FbMainWindow::status(const QString &text)
 {
     statusBar()->showMessage(text);

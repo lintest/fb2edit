@@ -7,6 +7,24 @@
 #include <QtDebug>
 
 //---------------------------------------------------------------------------
+//  FbModeAction
+//---------------------------------------------------------------------------
+
+FbModeAction::FbModeAction(FbMainDock *parent, Fb::Mode mode, const QString &text)
+    : QAction(text, parent)
+    , m_dock(parent)
+    , m_mode(mode)
+{
+    setCheckable(true);
+    connect(this, SIGNAL(triggered()), SLOT(switchMode()));
+}
+
+void FbModeAction::switchMode()
+{
+    m_dock->setMode(m_mode);
+}
+
+//---------------------------------------------------------------------------
 //  FbMainDock
 //---------------------------------------------------------------------------
 
@@ -28,21 +46,14 @@ FbMainDock::FbMainDock(QWidget *parent)
     m_head->setText(m_text);
 }
 
-FbMainDock::Mode FbMainDock::mode() const
+void FbMainDock::setMode(Fb::Mode mode)
 {
-    QWidget * current = currentWidget();
-    if (current == textFrame) return Text;
-    if (current == m_head) return Head;
-    if (current == m_code) return Code;
-    return Text;
-}
-
-void FbMainDock::setMode(Mode mode)
-{
-    switch (mode) {
-        case Text: setCurrentWidget(textFrame); return;
-        case Head: setCurrentWidget(m_head); return;
-        case Code: setCurrentWidget(m_code); return;
+    if (mode == m_mode) return;
+    switch (m_mode = mode) {
+        case Fb::Text: setCurrentWidget(textFrame); break;
+        case Fb::Head: setCurrentWidget(m_head); break;
+        case Fb::Code: setCurrentWidget(m_code); break;
+        case Fb::Html: setCurrentWidget(m_code); break;
     }
 }
 
@@ -74,3 +85,12 @@ bool FbMainDock::save(QIODevice *device, const QString &codec)
     return true;
 }
 
+bool FbMainDock::isModified() const
+{
+    if (isSwitched) return true;
+    QWidget * current = currentWidget();
+    if (current == textFrame) return m_text->isModified();
+    if (current == m_head) return m_text->isModified();
+    if (current == m_code) return m_code->isModified();
+    return false;
+}

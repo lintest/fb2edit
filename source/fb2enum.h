@@ -3,6 +3,13 @@
 
 namespace Fb {
 
+enum Mode {
+    Text,
+    Head,
+    Code,
+    Html,
+};
+
 enum Actions {
     GoBack,
     GoForward,
