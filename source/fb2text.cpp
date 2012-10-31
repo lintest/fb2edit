@@ -286,11 +286,10 @@ void FbTextEdit::connectActions(QToolBar *tool)
 
 void FbTextEdit::disconnectActions()
 {
+    m_actions.disconnect();
     foreach (QAction *action, m_actions) {
         if (FbTextAction *a = qobject_cast<FbTextAction*>(action)) {
             a->disconnectAction();
-        } else {
-            action->disconnect();
         }
     }
 }
@@ -338,6 +337,21 @@ void FbTextEdit::viewInspector(bool show)
         m_owner->addDockWidget(Qt::BottomDockWidgetArea, dockInsp);
     } else {
         dockImgs->hide();
+    }
+}
+
+void FbTextEdit::hideDocks()
+{
+    if (dockTree) {
+        dockTree->deleteLater();
+        dockTree = 0;
+    }
+    if (dockImgs) {
+        dockImgs->deleteLater();
+        dockImgs = 0;
+    }
+    if (dockInsp) {
+        dockInsp->hide();
     }
 }
 

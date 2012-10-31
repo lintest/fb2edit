@@ -66,7 +66,6 @@ private slots:
     void logShowed();
 
     void status(const QString &text);
-    void clipboardDataChanged();
     void openSettings();
 
 private:

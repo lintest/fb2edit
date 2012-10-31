@@ -87,6 +87,7 @@ public:
     void setAction(Fb::Actions index, QAction *action);
     void connectActions(QToolBar *tool);
     void disconnectActions();
+    void hideDocks();
 
     bool BoldChecked();
     bool ItalicChecked();

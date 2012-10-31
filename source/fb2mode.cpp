@@ -14,8 +14,8 @@ void FbActionMap::connect()
 void FbActionMap::disconnect()
 {
     foreach (QAction *action, *this) {
+        if (action->isCheckable()) action->setChecked(false);
         action->setEnabled(false);
-        action->setChecked(false);
         action->disconnect();
     }
 }

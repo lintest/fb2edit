@@ -84,6 +84,7 @@ class FbCodeEdit : public QPlainTextEdit
 public:
     FbCodeEdit(QWidget *parent = 0);
 
+    QAction * act(Fb::Actions index) const;
     void setAction(Fb::Actions index, QAction *action);
     void connectActions(QToolBar *tool);
     void disconnectActions();
@@ -94,12 +95,6 @@ public:
 
     void load(const QByteArray data)
         { setPlainText(QString::fromUtf8(data.data())); }
-
-    bool isUndoAvailable() { return false; }
-
-    bool isRedoAvailable() { return false; }
-
-    void zoomTo ( int ) {}
 
     bool findText(const QString &exp, QTextDocument::FindFlags options = 0);
 
@@ -115,6 +110,7 @@ protected:
     void resizeEvent(QResizeEvent *event);
 
 private slots:
+    void clipboardDataChanged();
     void updateLineNumberAreaWidth(int newBlockCount);
     void highlightCurrentLine();
     void updateLineNumberArea(const QRect &, int);

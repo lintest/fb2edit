@@ -1,6 +1,10 @@
 #include "fb2code.hpp"
 #include "fb2dlgs.hpp"
 
+//---------------------------------------------------------------------------
+//  FbHighlighter
+//---------------------------------------------------------------------------
+
 #include <QXmlInputSource>
 #include <QtGui>
 
@@ -330,6 +334,10 @@ int FbHighlighter::processDefaultText(int i, const QString& text)
     return iLength;
 }
 
+//---------------------------------------------------------------------------
+//  FbCodeEdit
+//---------------------------------------------------------------------------
+
 qreal FbCodeEdit::baseFontSize = 10;
 qreal FbCodeEdit::zoomRatioMin = 0.2;
 qreal FbCodeEdit::zoomRatioMax = 5.0;
@@ -356,6 +364,11 @@ FbCodeEdit::FbCodeEdit(QWidget *parent) : QPlainTextEdit(parent)
     highlightCurrentLine();
 }
 
+QAction * FbCodeEdit::act(Fb::Actions index) const
+{
+    return m_actions[index];
+}
+
 void FbCodeEdit::setAction(Fb::Actions index, QAction *action)
 {
     m_actions[index] = action;
@@ -363,10 +376,62 @@ void FbCodeEdit::setAction(Fb::Actions index, QAction *action)
 
 void FbCodeEdit::connectActions(QToolBar *tool)
 {
+    act(Fb::EditUndo)->setEnabled(document()->isUndoAvailable());
+    act(Fb::EditRedo)->setEnabled(document()->isRedoAvailable());
+    act(Fb::EditFind)->setEnabled(true);
+
+    act(Fb::ZoomIn)->setEnabled(true);
+    act(Fb::ZoomOut)->setEnabled(true);
+    act(Fb::ZoomReset)->setEnabled(true);
+
+    connect(act(Fb::EditUndo), SIGNAL(triggered()), SLOT(undo()));
+    connect(act(Fb::EditRedo), SIGNAL(triggered()), SLOT(redo()));
+
+    connect(this, SIGNAL(undoAvailable(bool)), act(Fb::EditUndo), SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(redoAvailable(bool)), act(Fb::EditRedo), SLOT(setEnabled(bool)));
+
+    connect(act(Fb::EditCut), SIGNAL(triggered()), SLOT(cut()));
+    connect(act(Fb::EditCopy), SIGNAL(triggered()), SLOT(copy()));
+    connect(act(Fb::EditPaste), SIGNAL(triggered()), SLOT(paste()));
+    connect(act(Fb::EditFind), SIGNAL(triggered()), SLOT(find()));
+
+    connect(this, SIGNAL(copyAvailable(bool)), act(Fb::EditCut), SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(copyAvailable(bool)), act(Fb::EditCopy), SLOT(setEnabled(bool)));
+    connect(qApp->clipboard(), SIGNAL(dataChanged()), SLOT(clipboardDataChanged()));
+    clipboardDataChanged();
+
+    connect(act(Fb::ZoomIn), SIGNAL(triggered()), SLOT(zoomIn()));
+    connect(act(Fb::ZoomOut), SIGNAL(triggered()), SLOT(zoomOut()));
+    connect(act(Fb::ZoomReset), SIGNAL(triggered()), SLOT(zoomReset()));
+
+    tool->clear();
+
+    tool->addSeparator();
+    tool->addAction(act(Fb::EditUndo));
+    tool->addAction(act(Fb::EditRedo));
+
+    tool->addSeparator();
+    tool->addAction(act(Fb::EditCut));
+    tool->addAction(act(Fb::EditCopy));
+    tool->addAction(act(Fb::EditPaste));
+
+    tool->addSeparator();
+    tool->addAction(act(Fb::ZoomIn));
+    tool->addAction(act(Fb::ZoomOut));
+    tool->addAction(act(Fb::ZoomReset));
+
 }
 
 void FbCodeEdit::disconnectActions()
 {
+    m_actions.disconnect();
+}
+
+void FbCodeEdit::clipboardDataChanged()
+{
+    if (const QMimeData *md = QApplication::clipboard()->mimeData()) {
+        act(Fb::EditPaste)->setEnabled(md->hasText());
+    }
 }
 
 bool FbCodeEdit::read(QIODevice *device)

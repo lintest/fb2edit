@@ -601,11 +601,7 @@ void FbHeadEdit::connectActions(QToolBar *tool)
 
 void FbHeadEdit::disconnectActions()
 {
-    foreach (QAction *action, m_actions) {
-        action->setDisabled(true);
-        action->setChecked(false);
-        disconnect(action);
-    }
+    m_actions.disconnect();
 }
 
 FbHeadModel * FbHeadEdit::model() const

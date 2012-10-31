@@ -228,7 +228,7 @@ void FbMainWindow::createActions()
 
     act = new FbTextAction(FbIcon("edit-redo"), tr("&Redo"), QWebPage::Redo, text);
     text->setAction(Fb::EditRedo, act);
-    code->setAction(Fb::EditUndo, act);
+    code->setAction(Fb::EditRedo, act);
     act->setPriority(QAction::LowPriority);
     act->setShortcut(QKeySequence::Redo);
     act->setEnabled(false);
@@ -265,24 +265,21 @@ void FbMainWindow::createActions()
     act->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
     menu->addAction(act);
 
-    act = new FbTextAction(FbIcon("Paste (no style)"), tr("&Paste"), QWebPage::PasteAndMatchStyle, text);
-    act = new QAction(tr("Paste (no style)"), this);
+    act = new FbTextAction(tr("Paste (no style)"), QWebPage::PasteAndMatchStyle, text);
     text->setAction(Fb::PasteText, act);
     menu->addAction(act);
-
-    clipboardDataChanged();
 
     menu->addSeparator();
 
     act = new QAction(FbIcon("edit-find"), tr("&Find..."), this);
-    text->setAction(Fb::TextFind, act);
-    code->setAction(Fb::TextFind, act);
+    text->setAction(Fb::EditFind, act);
+    code->setAction(Fb::EditFind, act);
     act->setShortcuts(QKeySequence::Find);
     menu->addAction(act);
 
     act = new QAction(FbIcon("edit-find-replace"), tr("&Replace..."), this);
-    text->setAction(Fb::TextReplace, act);
-    code->setAction(Fb::TextReplace, act);
+    text->setAction(Fb::EditReplace, act);
+    code->setAction(Fb::EditReplace, act);
     menu->addAction(act);
 
     menu->addSeparator();
@@ -294,6 +291,7 @@ void FbMainWindow::createActions()
     menu->addAction(act);
 
     menu = menuBar()->addMenu(tr("&Insert", "Main menu"));
+    mainDock->addMenu(menu);
 
     act = new QAction(FbIcon("insert-image"), tr("&Image"), this);
     text->setAction(Fb::InsertImage, act);
@@ -368,6 +366,7 @@ void FbMainWindow::createActions()
     menu->addAction(act);
 
     menu = menuBar()->addMenu(tr("Fo&rmat"));
+    mainDock->addMenu(menu);
 
     act = new FbTextAction(FbIcon("edit-clear"), tr("Clear format"), QWebPage::RemoveFormat, text);
     text->setAction(Fb::ClearFormat, act);
@@ -844,14 +843,6 @@ void FbMainWindow::viewImgs()
     if (dockImgs) dockImgs->deleteLater(); else createImgs();
 }
 */
-void FbMainWindow::clipboardDataChanged()
-{
-    if (const QMimeData *md = QApplication::clipboard()->mimeData()) {
-//        actionPaste->setEnabled(md->hasText());
-//        actionPasteText->setEnabled(md->hasText());
-    }
-}
-
 void FbMainWindow::status(const QString &text)
 {
     statusBar()->showMessage(text);

@@ -48,11 +48,12 @@ FbMainDock::FbMainDock(QWidget *parent)
 void FbMainDock::setMode(Fb::Mode mode)
 {
     if (mode == m_mode) return;
+    enableMenu(mode == Fb::Text);
     switch (m_mode = mode) {
-        case Fb::Text: setModeText(); return;
-        case Fb::Head: setModeHead(); return;
-        case Fb::Code: setModeCode(); return;
-        case Fb::Html: setModeHtml(); return;
+        case Fb::Text: setModeText(); break;
+        case Fb::Head: setModeHead(); break;
+        case Fb::Code: setModeCode(); break;
+        case Fb::Html: setModeHtml(); break;
     }
 }
 
@@ -68,6 +69,7 @@ void FbMainDock::setModeText()
 void FbMainDock::setModeHead()
 {
     m_mode = Fb::Head;
+    m_text->hideDocks();
     setCurrentWidget(m_head);
     m_text->disconnectActions();
     m_code->disconnectActions();
@@ -77,18 +79,20 @@ void FbMainDock::setModeHead()
 void FbMainDock::setModeCode()
 {
     m_mode = Fb::Code;
+    m_text->hideDocks();
     setCurrentWidget(m_code);
+    m_text->disconnectActions();
     m_head->disconnectActions();
-    m_code->disconnectActions();
     m_code->connectActions(m_tool);
 }
 
 void FbMainDock::setModeHtml()
 {
     m_mode = Fb::Html;
+    m_text->hideDocks();
     setCurrentWidget(m_code);
+    m_text->disconnectActions();
     m_head->disconnectActions();
-    m_code->disconnectActions();
     m_code->connectActions(m_tool);
 }
 
@@ -128,4 +132,16 @@ bool FbMainDock::isModified() const
     if (current == m_head) return m_text->isModified();
     if (current == m_code) return m_code->isModified();
     return false;
+}
+
+void FbMainDock::addMenu(QMenu *menu)
+{
+    m_menus.append(menu);
+}
+
+void FbMainDock::enableMenu(bool value)
+{
+    foreach (QMenu *menu, m_menus) {
+        menu->setEnabled(value);
+    }
 }

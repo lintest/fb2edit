@@ -3,6 +3,7 @@
 
 #include <QAction>
 #include <QIcon>
+#include <QMenu>
 #include <QStackedWidget>
 #include <QToolBar>
 #include <QIODevice>
@@ -27,6 +28,7 @@ public:
     Fb::Mode mode() const { return m_mode; }
     void setMode(Fb::Mode mode);
     void setTool(QToolBar *tool) { m_tool = tool; }
+    void addMenu(QMenu *menu);
     bool isModified() const;
 
 signals:
@@ -34,6 +36,7 @@ signals:
 public slots:
 
 private:
+    void enableMenu(bool value);
     void setModeText();
     void setModeHead();
     void setModeCode();
@@ -41,6 +44,7 @@ private:
 
 private:
     QFrame *textFrame;
+    QList<QMenu*> m_menus;
     FbTextEdit *m_text;
     FbHeadEdit *m_head;
     FbCodeEdit *m_code;
