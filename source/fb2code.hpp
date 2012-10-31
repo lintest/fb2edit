@@ -2,9 +2,8 @@
 #define FB2CODE_H
 
 #include <QByteArray>
-#include <QList>
-#include <QPlainTextEdit>
 #include <QObject>
+#include <QPlainTextEdit>
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>
 #include <QColor>
@@ -133,7 +132,7 @@ private:
     void setZoomRatio(qreal ratio);
 
 private:
-    FbHighlighter * highlighter;
+    FbHighlighter *highlighter;
     QWidget *lineNumberArea;
     FbActionMap m_actions;
     qreal zoomRatio;

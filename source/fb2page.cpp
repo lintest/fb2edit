@@ -74,24 +74,6 @@ bool FbTextPage::load(const QString &filename, const QString &xml)
     return ok;
 }
 
-QAction * FbTextPage::act(Fb::Actions index) const
-{
-    return m_actions[index];
-}
-
-void FbTextPage::setAction(Fb::Actions index, QAction *action)
-{
-    m_actions[index] = action;
-}
-
-void FbTextPage::connectActions()
-{
-}
-
-void FbTextPage::disconnectActions()
-{
-}
-
 void FbTextPage::onTimer()
 {
     static int number = 0;

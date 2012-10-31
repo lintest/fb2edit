@@ -36,11 +36,6 @@ public:
     QString location();
     QString status();
 
-    QAction * act(Fb::Actions index) const;
-    void setAction(Fb::Actions index, QAction *action);
-    void connectActions();
-    void disconnectActions();
-
     FbTextElement body();
     FbTextElement doc();
 

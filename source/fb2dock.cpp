@@ -64,6 +64,7 @@ void FbMainDock::setModeText()
     m_head->disconnectActions();
     m_code->disconnectActions();
     m_text->connectActions(m_tool);
+    m_text->viewContents(true);
 }
 
 void FbMainDock::setModeHead()

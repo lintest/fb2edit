@@ -4,10 +4,8 @@
 #include <QAction>
 #include <QDockWidget>
 #include <QFrame>
-#include <QMainWindow>
 #include <QResizeEvent>
 #include <QTimer>
-#include <QThread>
 #include <QWebElement>
 #include <QWebView>
 
@@ -15,8 +13,8 @@
 #include "fb2temp.hpp"
 
 QT_BEGIN_NAMESPACE
+class QMainWindow;
 class QToolBar;
-class QWebInspector;
 QT_END_NAMESPACE
 
 class FbNoteView;
@@ -101,6 +99,9 @@ protected:
 public slots:
     void html(QString html);
     void data(QString name, QByteArray data);
+    void viewContents(bool show);
+    void viewPictures(bool show);
+    void viewInspector(bool show);
     void insertImage();
     void insertNote();
     void insertLink();
@@ -111,9 +112,6 @@ private slots:
     void contextMenu(const QPoint &pos);
     void treeDestroyed();
     void imgsDestroyed();
-    void viewContents(bool show);
-    void viewPictures(bool show);
-    void viewInspector(bool show);
     void zoomIn();
     void zoomOut();
     void zoomReset();

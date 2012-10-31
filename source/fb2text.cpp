@@ -1,20 +1,12 @@
 #include "fb2text.hpp"
 
-#include <QAction>
 #include <QBoxLayout>
 #include <QDockWidget>
 #include <QFileDialog>
 #include <QInputDialog>
 #include <QMainWindow>
 #include <QMenu>
-#include <QNetworkRequest>
-#include <QStyle>
-#include <QStyleOptionFrame>
 #include <QToolBar>
-#include <QToolTip>
-#include <QUndoCommand>
-#include <QUndoStack>
-#include <QWebElement>
 #include <QWebInspector>
 #include <QWebFrame>
 #include <QWebPage>
@@ -25,6 +17,57 @@
 #include "fb2save.hpp"
 #include "fb2tree.hpp"
 #include "fb2utils.h"
+
+//---------------------------------------------------------------------------
+//  FbTextAction
+//---------------------------------------------------------------------------
+
+FbTextAction::FbTextAction(const QString &text, QWebPage::WebAction action, FbTextEdit *parent)
+    : QAction(text, parent)
+    , m_action(action)
+    , m_parent(parent)
+{
+}
+
+FbTextAction::FbTextAction(const QIcon &icon, const QString &text, QWebPage::WebAction action, FbTextEdit* parent)
+    : QAction(icon, text, parent)
+    , m_action(action)
+    , m_parent(parent)
+{
+}
+
+QAction * FbTextAction::action(QWebPage::WebAction action)
+{
+    return m_parent->pageAction(m_action);
+}
+
+void FbTextAction::updateAction()
+{
+    if (QAction * act = action(m_action)) {
+        if (isCheckable()) setChecked(act->isChecked());
+        setEnabled(act->isEnabled());
+    }
+}
+
+void FbTextAction::connectAction()
+{
+    if (QAction * act = action(m_action)) {
+        connect(this, SIGNAL(triggered(bool)), act, SIGNAL(triggered(bool)));
+        connect(act, SIGNAL(changed()), this, SLOT(updateAction()));
+        if (isCheckable()) setChecked(act->isChecked());
+        setEnabled(act->isEnabled());
+    } else {
+        if (isCheckable()) setChecked(false);
+        setEnabled(false);
+    }
+}
+
+void FbTextAction::disconnectAction()
+{
+    QAction * act = action(m_action);
+    disconnect(act, 0, this, 0);
+    disconnect(this, 0, act, 0);
+}
 
 //---------------------------------------------------------------------------
 //  FbDockWidget
@@ -610,53 +653,3 @@ FbTextFrame::FbTextFrame(QWidget *parent)
     setLayout(layout);
 }
 
-//---------------------------------------------------------------------------
-//  FbTextAction
-//---------------------------------------------------------------------------
-
-FbTextAction::FbTextAction(const QString &text, QWebPage::WebAction action, FbTextEdit *parent)
-    : QAction(text, parent)
-    , m_action(action)
-    , m_parent(parent)
-{
-}
-
-FbTextAction::FbTextAction(const QIcon &icon, const QString &text, QWebPage::WebAction action, FbTextEdit* parent)
-    : QAction(icon, text, parent)
-    , m_action(action)
-    , m_parent(parent)
-{
-}
-
-QAction * FbTextAction::action(QWebPage::WebAction action)
-{
-    return m_parent->pageAction(m_action);
-}
-
-void FbTextAction::updateAction()
-{
-    if (QAction * act = action(m_action)) {
-        if (isCheckable()) setChecked(act->isChecked());
-        setEnabled(act->isEnabled());
-    }
-}
-
-void FbTextAction::connectAction()
-{
-    if (QAction * act = action(m_action)) {
-        connect(this, SIGNAL(triggered(bool)), act, SIGNAL(triggered(bool)));
-        connect(act, SIGNAL(changed()), this, SLOT(updateAction()));
-        if (isCheckable()) setChecked(act->isChecked());
-        setEnabled(act->isEnabled());
-    } else {
-        if (isCheckable()) setChecked(false);
-        setEnabled(false);
-    }
-}
-
-void FbTextAction::disconnectAction()
-{
-    QAction * act = action(m_action);
-    disconnect(act, 0, this, 0);
-    disconnect(this, 0, act, 0);
-}
