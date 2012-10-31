@@ -50,6 +50,11 @@ void FbMainDock::switchMode(Fb::Mode mode)
 {
     QString xml;
     if (currentWidget() == m_code) {
+        switch (mode) {
+            case Fb::Text:
+            case Fb::Head:
+            default: ;
+        }
     } else {
         switch (mode) {
             case Fb::Code: m_text->save(&xml); break;

@@ -376,21 +376,6 @@ int FbSaveHandler::TextHandler::nextLevel() const
 }
 
 //---------------------------------------------------------------------------
-//  FbSaveHandler::RootHandler
-//---------------------------------------------------------------------------
-
-FbSaveHandler::RootHandler::RootHandler(FbSaveWriter &writer, const QString &name)
-    : NodeHandler(name)
-    , m_writer(writer)
-{
-}
-
-FbXmlHandler::NodeHandler * FbSaveHandler::RootHandler::NewTag(const QString &name, const QXmlAttributes &atts)
-{
-    return name == "body" ? new BodyHandler(m_writer, name, atts) : NULL;
-}
-
-//---------------------------------------------------------------------------
 //  FbSaveHandler::BodyHandler
 //---------------------------------------------------------------------------
 
@@ -493,8 +478,8 @@ bool FbSaveHandler::comment(const QString& ch)
 FbXmlHandler::NodeHandler * FbSaveHandler::CreateRoot(const QString &name, const QXmlAttributes &atts)
 {
     Q_UNUSED(atts);
-    if (name == "html") return new RootHandler(m_writer, name);
-    m_error = QObject::tr("The tag <html> was not found.");
+    if (name == "body") return new BodyHandler(m_writer, name, atts);
+    m_error = QObject::tr("The tag <body> was not found.");
     return 0;
 }
 
@@ -529,7 +514,8 @@ bool FbSaveHandler::save()
     m_writer.writeStartDocument();
     QString javascript = jScript("export.js");
     frame->addToJavaScriptWindowObject("handler", this);
-    frame->evaluateJavaScript(javascript);
+    QWebElement body = frame->findFirstElement("body");
+    body.evaluateJavaScript(javascript);
     m_writer.writeEndDocument();
 
     return true;

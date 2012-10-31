@@ -216,8 +216,6 @@ void FbMainWindow::createActions()
 
     menu = menuBar()->addMenu(tr("&Edit"));
 
-    connect(QApplication::clipboard(), SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
-
     act = new FbTextAction(FbIcon("edit-undo"), tr("&Undo"), QWebPage::Undo, text);
     text->setAction(Fb::EditUndo, act);
     code->setAction(Fb::EditUndo, act);
@@ -553,7 +551,7 @@ bool FbMainWindow::saveFile(const QString &fileName, const QString &codec)
         QMessageBox::warning(this, qApp->applicationName(), tr("Cannot write file %1: %2.").arg(fileName).arg(file.errorString()));
         return false;
     }
-    bool ok = mainDock->save(&file);
+    bool ok = mainDock->save(&file, codec);
     setCurrentFile(fileName);
     return ok;
 }

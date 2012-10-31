@@ -385,6 +385,7 @@ void FbTextEdit::viewInspector(bool show)
 
 void FbTextEdit::hideDocks()
 {
+    return;
     if (dockTree) {
         dockTree->deleteLater();
         dockTree = 0;
