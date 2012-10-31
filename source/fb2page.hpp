@@ -8,7 +8,7 @@
 class FbTextElement;
 class FbNetworkAccessManager;
 
-#include "fb2enum.h"
+#include "fb2mode.h"
 
 class FbTextLogger : public QObject
 {
@@ -81,7 +81,7 @@ private slots:
     void fixContents();
 
 private:
-    QMap<Fb::Actions, QAction*> m_actions;
+    FbActionMap m_actions;
     FbTextLogger m_logger;
     QString m_html;
 };

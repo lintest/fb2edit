@@ -361,6 +361,14 @@ void FbCodeEdit::setAction(Fb::Actions index, QAction *action)
     m_actions[index] = action;
 }
 
+void FbCodeEdit::connectActions(QToolBar *tool)
+{
+}
+
+void FbCodeEdit::disconnectActions()
+{
+}
+
 bool FbCodeEdit::read(QIODevice *device)
 {
     QByteArray data = device->readAll();

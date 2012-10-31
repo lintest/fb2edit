@@ -7,27 +7,11 @@
 #include <QToolBar>
 #include <QIODevice>
 
-#include "fb2enum.h"
+#include "fb2mode.h"
 
 class FbTextEdit;
 class FbHeadEdit;
 class FbCodeEdit;
-
-class FbMainDock;
-
-class FbModeAction : public QAction
-{
-    Q_OBJECT
-public:
-    explicit FbModeAction(FbMainDock *parent, Fb::Mode mode, const QString &text);
-
-private slots:
-    void switchMode();
-
-private:
-    FbMainDock * m_dock;
-    Fb::Mode m_mode;
-};
 
 class FbMainDock : public QStackedWidget
 {
@@ -50,12 +34,32 @@ signals:
 public slots:
 
 private:
+    void setModeText();
+    void setModeHead();
+    void setModeCode();
+    void setModeHtml();
+
+private:
     QFrame *textFrame;
     FbTextEdit *m_text;
     FbHeadEdit *m_head;
     FbCodeEdit *m_code;
     QToolBar *m_tool;
     bool isSwitched;
+    Fb::Mode m_mode;
+};
+
+class FbModeAction : public QAction
+{
+    Q_OBJECT
+public:
+    explicit FbModeAction(FbMainDock *parent, Fb::Mode mode, const QString &text);
+
+private slots:
+    void switchMode();
+
+private:
+    FbMainDock * m_dock;
     Fb::Mode m_mode;
 };
 

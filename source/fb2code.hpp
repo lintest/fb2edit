@@ -9,8 +9,9 @@
 #include <QTextCharFormat>
 #include <QColor>
 #include <QTextEdit>
+#include <QToolBar>
 
-#include "fb2enum.h"
+#include "fb2mode.h"
 
 class FbHighlighter : public QSyntaxHighlighter
 {
@@ -84,7 +85,7 @@ public:
     FbCodeEdit(QWidget *parent = 0);
 
     void setAction(Fb::Actions index, QAction *action);
-    void connectActions();
+    void connectActions(QToolBar *tool);
     void disconnectActions();
 
     QString text() const { return toPlainText(); }
@@ -138,7 +139,7 @@ private:
 private:
     FbHighlighter * highlighter;
     QWidget *lineNumberArea;
-    QMap<Fb::Actions, QAction*> m_actions;
+    FbActionMap m_actions;
     qreal zoomRatio;
     static qreal baseFontSize;
     static qreal zoomRatioMin;

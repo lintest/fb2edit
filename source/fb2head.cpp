@@ -554,8 +554,9 @@ bool FbHeadModel::canEdit(const QModelIndex &index) const
 //  FbTreeView
 //---------------------------------------------------------------------------
 
-FbHeadEdit::FbHeadEdit(QWidget *parent)
+FbHeadEdit::FbHeadEdit(QWidget *parent, FbTextEdit *text)
     : QTreeView(parent)
+    , m_text(text)
 {
     QAction * act;
 
@@ -594,9 +595,17 @@ void FbHeadEdit::setAction(Fb::Actions index, QAction *action)
     m_actions[index] = action;
 }
 
-void FbHeadEdit::setText(FbTextEdit *text)
+void FbHeadEdit::connectActions(QToolBar *tool)
 {
-    connect(m_text = text, SIGNAL(loadFinished(bool)), SLOT(updateTree()));
+}
+
+void FbHeadEdit::disconnectActions()
+{
+    foreach (QAction *action, m_actions) {
+        action->setDisabled(true);
+        action->setChecked(false);
+        disconnect(action);
+    }
 }
 
 FbHeadModel * FbHeadEdit::model() const

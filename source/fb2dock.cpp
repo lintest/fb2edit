@@ -36,25 +36,60 @@ FbMainDock::FbMainDock(QWidget *parent)
     m_text = new FbTextEdit(textFrame, parent);
     textFrame->layout()->addWidget(m_text);
 
-    m_head = new FbHeadEdit(this);
+    m_head = new FbHeadEdit(this, m_text);
+
     m_code = new FbCodeEdit(this);
 
     addWidget(textFrame);
     addWidget(m_head);
     addWidget(m_code);
-
-    m_head->setText(m_text);
 }
 
 void FbMainDock::setMode(Fb::Mode mode)
 {
     if (mode == m_mode) return;
     switch (m_mode = mode) {
-        case Fb::Text: setCurrentWidget(textFrame); break;
-        case Fb::Head: setCurrentWidget(m_head); break;
-        case Fb::Code: setCurrentWidget(m_code); break;
-        case Fb::Html: setCurrentWidget(m_code); break;
+        case Fb::Text: setModeText(); return;
+        case Fb::Head: setModeHead(); return;
+        case Fb::Code: setModeCode(); return;
+        case Fb::Html: setModeHtml(); return;
     }
+}
+
+void FbMainDock::setModeText()
+{
+    m_mode = Fb::Text;
+    setCurrentWidget(textFrame);
+    m_head->disconnectActions();
+    m_code->disconnectActions();
+    m_text->connectActions(m_tool);
+}
+
+void FbMainDock::setModeHead()
+{
+    m_mode = Fb::Head;
+    setCurrentWidget(m_head);
+    m_text->disconnectActions();
+    m_code->disconnectActions();
+    m_head->connectActions(m_tool);
+}
+
+void FbMainDock::setModeCode()
+{
+    m_mode = Fb::Code;
+    setCurrentWidget(m_code);
+    m_head->disconnectActions();
+    m_code->disconnectActions();
+    m_code->connectActions(m_tool);
+}
+
+void FbMainDock::setModeHtml()
+{
+    m_mode = Fb::Html;
+    setCurrentWidget(m_code);
+    m_head->disconnectActions();
+    m_code->disconnectActions();
+    m_code->connectActions(m_tool);
 }
 
 bool FbMainDock::load(const QString &filename)

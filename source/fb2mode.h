@@ -1,5 +1,8 @@
-#ifndef FB2ENUM_H
-#define FB2ENUM_H
+#ifndef FB2MODE_H
+#define FB2MODE_H
+
+#include <QAction>
+#include <QMap>
 
 namespace Fb {
 
@@ -59,4 +62,11 @@ enum Actions {
 
 }
 
-#endif // FB2ENUM_H
+class FbActionMap : public QMap<Fb::Actions, QAction*>
+{
+public:
+    void connect();
+    void disconnect();
+};
+
+#endif // FB2MODE_H

@@ -40,6 +40,7 @@ FbMainWindow::FbMainWindow(const QString &filename, ViewMode mode)
     createStatusBar();
     readSettings();
 
+    mainDock->setMode(Fb::Text);
     setCurrentFile(filename);
     mainDock->load(filename);
 }
@@ -367,35 +368,35 @@ void FbMainWindow::createActions()
 
     menu = menuBar()->addMenu(tr("Fo&rmat"));
 
-    act = new FbTextAction(FbIcon("edit-clear"), tr("Clear format"), QWebPage::RemoveFormat, this);
+    act = new FbTextAction(FbIcon("edit-clear"), tr("Clear format"), QWebPage::RemoveFormat, text);
     text->setAction(Fb::ClearFormat, act);
     menu->addAction(act);
 
     menu->addSeparator();
 
-    act = new FbTextAction(FbIcon("format-text-bold"), tr("&Bold"), QWebPage::ToggleBold, this);
+    act = new FbTextAction(FbIcon("format-text-bold"), tr("&Bold"), QWebPage::ToggleBold, text);
     text->setAction(Fb::TextBold, act);
     act->setShortcuts(QKeySequence::Bold);
     act->setCheckable(true);
     menu->addAction(act);
 
-    act = new FbTextAction(FbIcon("format-text-italic"), tr("&Italic"), QWebPage::ToggleItalic, this);
+    act = new FbTextAction(FbIcon("format-text-italic"), tr("&Italic"), QWebPage::ToggleItalic, text);
     text->setAction(Fb::TextItalic, act);
     act->setShortcuts(QKeySequence::Italic);
     act->setCheckable(true);
     menu->addAction(act);
 
-    act = new FbTextAction(FbIcon("format-text-strikethrough"), tr("&Strikethrough"), QWebPage::ToggleStrikethrough, this);
+    act = new FbTextAction(FbIcon("format-text-strikethrough"), tr("&Strikethrough"), QWebPage::ToggleStrikethrough, text);
     text->setAction(Fb::TextStrike, act);
     act->setCheckable(true);
     menu->addAction(act);
 
-    act = new FbTextAction(FbIcon("format-text-superscript"), tr("Su&perscript"), QWebPage::ToggleSuperscript, this);
+    act = new FbTextAction(FbIcon("format-text-superscript"), tr("Su&perscript"), QWebPage::ToggleSuperscript, text);
     text->setAction(Fb::TextSup, act);
     act->setCheckable(true);
     menu->addAction(act);
 
-    act = new FbTextAction(FbIcon("format-text-subscript"), tr("Su&bscript"), QWebPage::ToggleSubscript, this);
+    act = new FbTextAction(FbIcon("format-text-subscript"), tr("Su&bscript"), QWebPage::ToggleSubscript, text);
     text->setAction(Fb::TextSub, act);
     act->setCheckable(true);
     menu->addAction(act);
@@ -407,15 +408,15 @@ void FbMainWindow::createActions()
 
     menu->addSeparator();
 
-    act = new FbTextAction(FbIcon("format-indent-more"), tr("Create section"), QWebPage::ToggleSubscript, this);
+    act = new FbTextAction(FbIcon("format-indent-more"), tr("Create section"), QWebPage::ToggleSubscript, text);
     text->setAction(Fb::SectionAdd, act);
     menu->addAction(act);
 
-    act = new FbTextAction(FbIcon("format-indent-less"), tr("Remove section"), QWebPage::ToggleSubscript, this);
+    act = new FbTextAction(FbIcon("format-indent-less"), tr("Remove section"), QWebPage::ToggleSubscript, text);
     text->setAction(Fb::SectionDel, act);
     menu->addAction(act);
 
-    act = new FbTextAction(FbIcon("format-justify-center"), tr("Make title"), QWebPage::ToggleSubscript, this);
+    act = new FbTextAction(FbIcon("format-justify-center"), tr("Make title"), QWebPage::ToggleSubscript, text);
     text->setAction(Fb::TextTitle, act);
     menu->addAction(act);
 
@@ -470,6 +471,7 @@ void FbMainWindow::createActions()
 
     act = new QAction(tr("&Contents"), this);
     text->setAction(Fb::ViewContents, act);
+    act->setCheckable(true);
     menu->addAction(act);
 
     act = new QAction(tr("&Pictures"), this);

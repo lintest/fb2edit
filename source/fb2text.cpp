@@ -170,6 +170,7 @@ FbTextEdit::FbTextEdit(QWidget *parent, QObject *owner)
     , m_thread(0)
     , dockTree(0)
     , dockImgs(0)
+    , dockInsp(0)
 {
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(contextMenu(QPoint)));
@@ -203,9 +204,11 @@ void FbTextEdit::setAction(Fb::Actions index, QAction *action)
 
 void FbTextEdit::connectActions(QToolBar *tool)
 {
-    connect(act(Fb::ViewContents), SIGNAL(triggered()), this, SLOT(viewTree()));
-    connect(act(Fb::ViewPictures), SIGNAL(triggered()), this, SLOT(viewImgs()));
-    connect(act(Fb::ViewPictures), SIGNAL(triggered()), this, SLOT(viewInsp()));
+    m_actions.connect();
+
+    connect(act(Fb::ViewContents), SIGNAL(triggered(bool)), this, SLOT(viewTree(bool)));
+    connect(act(Fb::ViewPictures), SIGNAL(triggered(bool)), this, SLOT(viewImgs(bool)));
+    connect(act(Fb::ViewInspect), SIGNAL(triggered(bool)), this, SLOT(viewInsp(bool)));
 /*
     connect(textPage->undoStack(), SIGNAL(cleanChanged(bool)), SLOT(cleanChanged(bool)));
     connect(textPage->undoStack(), SIGNAL(canUndoChanged(bool)), SLOT(canUndoChanged(bool)));
@@ -262,46 +265,87 @@ void FbTextEdit::connectActions(QToolBar *tool)
     connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
     connect(actionZoomReset, SIGNAL(triggered()), textEdit, SLOT(zoomReset()));
 
+*/
+
     tool->clear();
 
     tool->addSeparator();
-    tool->addAction(actionSectionAdd);
-    tool->addAction(actionSectionDel);
-    tool->addAction(actionTextTitle);
+    tool->addAction(act(Fb::EditUndo));
+    tool->addAction(act(Fb::EditRedo));
 
     tool->addSeparator();
-    tool->addAction(actionImage);
-    tool->addAction(actionNote);
-    tool->addAction(actionLink);
-    tool->addAction(actionSection);
-*/
+    tool->addAction(act(Fb::EditCut));
+    tool->addAction(act(Fb::EditCopy));
+    tool->addAction(act(Fb::EditPaste));
+
+    tool->addSeparator();
+    tool->addAction(act(Fb::TextBold));
+    tool->addAction(act(Fb::TextItalic));
+    tool->addAction(act(Fb::TextStrike));
+    tool->addAction(act(Fb::TextSup));
+    tool->addAction(act(Fb::TextSub));
+
+    tool->addSeparator();
+    tool->addAction(act(Fb::SectionAdd));
+    tool->addAction(act(Fb::SectionDel));
+    tool->addAction(act(Fb::TextTitle));
+
+    tool->addSeparator();
+    tool->addAction(act(Fb::InsertImage));
+    tool->addAction(act(Fb::InsertNote));
+    tool->addAction(act(Fb::InsertLink));
+    tool->addAction(act(Fb::InsertSection));
 }
 
 void FbTextEdit::disconnectActions()
 {
-    foreach (QAction *action, m_actions) {
-        action->setDisabled(true);
-        action->setChecked(false);
-        disconnect(action);
+    m_actions.disconnect();
+}
+
+void FbTextEdit::viewTree(bool show)
+{
+    if (show) {
+        if (dockTree) { dockTree->show(); return; }
+        dockTree = new FbDockWidget(tr("Contents"), this);
+        dockTree->setWidget(new FbTreeWidget(this, m_owner));
+        connect(dockTree, SIGNAL(visibilityChanged(bool)), act(Fb::ViewContents), SLOT(setChecked(bool)));
+        connect(dockTree, SIGNAL(destroyed()), SLOT(treeDestroyed()));
+        m_owner->addDockWidget(Qt::LeftDockWidgetArea, dockTree);
+    } else {
+        dockTree->deleteLater();
+        dockTree = 0;
     }
 }
 
-void FbTextEdit::createTree()
+void FbTextEdit::viewImgs(bool show)
 {
-    dockTree = new FbDockWidget(tr("Contents"), this);
-    dockTree->setWidget(new FbTreeWidget(this, m_owner));
-//    connect(dockTree, SIGNAL(visibilityChanged(bool)), actionContents, SLOT(setChecked(bool)));
-//    connect(dockTree, SIGNAL(destroyed()), SLOT(treeDestroyed()));
-    m_owner->addDockWidget(Qt::LeftDockWidgetArea, dockTree);
+    if (show) {
+        if (dockImgs) { dockImgs->show(); return; }
+        dockImgs = new FbDockWidget(tr("Pictures"), this);
+        dockImgs->setWidget(new FbListWidget(this, m_owner));
+        connect(dockImgs, SIGNAL(visibilityChanged(bool)), act(Fb::ViewPictures), SLOT(setChecked(bool)));
+        connect(dockImgs, SIGNAL(destroyed()), SLOT(imgsDestroyed()));
+        m_owner->addDockWidget(Qt::RightDockWidgetArea, dockImgs);
+    } else {
+        dockImgs->deleteLater();
+        dockImgs = 0;
+    }
 }
 
-void FbTextEdit::createImgs()
+void FbTextEdit::viewInsp(bool show)
 {
-    dockImgs = new FbDockWidget(tr("Pictures"), this);
-    dockImgs->setWidget(new FbListWidget(this, m_owner));
-//    connect(dockImgs, SIGNAL(visibilityChanged(bool)), actionPictures, SLOT(setChecked(bool)));
-//    connect(dockImgs, SIGNAL(destroyed()), SLOT(imgsDestroyed()));
-    m_owner->addDockWidget(Qt::RightDockWidgetArea, dockImgs);
+    if (show) {
+        if (dockInsp) { dockInsp->show(); return; }
+        QWebInspector *inspector = new QWebInspector(this);
+        inspector->setPage(page());
+        dockInsp = new QDockWidget(tr("Web inspector"), this);
+        dockInsp->setFeatures(QDockWidget::AllDockWidgetFeatures);
+        dockInsp->setWidget(inspector);
+        connect(dockInsp, SIGNAL(visibilityChanged(bool)), act(Fb::ViewInspect), SLOT(setChecked(bool)));
+        m_owner->addDockWidget(Qt::BottomDockWidgetArea, dockInsp);
+    } else {
+        dockImgs->hide();
+    }
 }
 
 void FbTextEdit::treeDestroyed()
@@ -560,85 +604,35 @@ FbWebFrame::FbWebFrame(QWidget *parent)
 }
 
 //---------------------------------------------------------------------------
-//  FbTextFrame
-//---------------------------------------------------------------------------
-
-FbTextFrame::FbTextFrame(QWidget *parent, QAction *action)
-    : QFrame(parent)
-    , m_view(this, parent->parent())
-    , m_dock(0)
-{
-    setFrameShape(QFrame::StyledPanel);
-    setFrameShadow(QFrame::Sunken);
-
-    QLayout * layout = new QBoxLayout(QBoxLayout::LeftToRight, this);
-    layout->setSpacing(0);
-    layout->setMargin(0);
-    layout->addWidget(&m_view);
-
-    connect(action, SIGNAL(triggered()), SLOT(showInspector()));
-}
-
-FbTextFrame::~FbTextFrame()
-{
-    if (m_dock) m_dock->deleteLater();
-}
-
-void FbTextFrame::showInspector()
-{
-    if (m_dock) {
-        m_dock->setVisible(m_dock->isHidden());
-        return;
-    }
-
-    QMainWindow *main = qobject_cast<QMainWindow*>(parent());
-    if (!main) return;
-
-    m_dock = new QDockWidget(tr("Web inspector"), this);
-    m_dock->setFeatures(QDockWidget::AllDockWidgetFeatures);
-    main->addDockWidget(Qt::BottomDockWidgetArea, m_dock);
-
-    QWebInspector *inspector = new QWebInspector(this);
-    inspector->setPage(m_view.page());
-    m_dock->setWidget(inspector);
-
-    connect(m_dock, SIGNAL(visibilityChanged(bool)), main, SIGNAL(showInspectorChecked(bool)));
-    connect(m_dock, SIGNAL(destroyed()), SLOT(dockDestroyed()));
-}
-
-void FbTextFrame::hideInspector()
-{
-    if (m_dock) m_dock->hide();
-}
-
-void FbTextFrame::dockDestroyed()
-{
-    m_dock = 0;
-}
-
-//---------------------------------------------------------------------------
 //  FbTextAction
 //---------------------------------------------------------------------------
 
-FbTextAction::FbTextAction(const QString &text, QWebPage::WebAction action, QObject* parent)
+FbTextAction::FbTextAction(const QString &text, QWebPage::WebAction action, FbTextEdit *parent)
     : QAction(text, parent)
     , m_action(action)
+    , m_parent(parent)
 {
 }
 
-FbTextAction::FbTextAction(const QIcon &icon, const QString &text, QWebPage::WebAction action, QObject* parent)
+FbTextAction::FbTextAction(const QIcon &icon, const QString &text, QWebPage::WebAction action, FbTextEdit* parent)
     : QAction(icon, text, parent)
     , m_action(action)
+    , m_parent(parent)
 {
+}
+
+QAction * FbTextAction::action(QWebPage::WebAction action)
+{
+    return m_parent->pageAction(m_action);
 }
 
 void FbTextAction::updateChecked()
 {
-//    if (QAction * act = action(m_action)) setChecked(act->isChecked());
+    if (QAction * act = action(m_action)) setChecked(act->isChecked());
 }
 
 void FbTextAction::updateEnabled()
 {
-//    if (QAction * act = action(m_action)) setEnabled(act->isEnabled());
+    if (QAction * act = action(m_action)) setEnabled(act->isEnabled());
 }
 

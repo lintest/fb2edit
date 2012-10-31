@@ -19,7 +19,7 @@ class QToolBar;
 class QLineEdit;
 QT_END_NAMESPACE
 
-#include "fb2enum.h"
+#include "fb2mode.h"
 #include "fb2xml.h"
 
 class FbTextEdit;
@@ -56,7 +56,7 @@ public:
 private:
     FbScheme typeScheme() const;
     FbScheme item(const QString &name) const;
-    QMap<Fb::Actions, QAction*> m_actions;
+    FbActionMap m_actions;
 };
 
 class FbHeadItem: public QObject
@@ -174,13 +174,12 @@ class FbHeadEdit : public QTreeView
     Q_OBJECT
 
 public:
-    explicit FbHeadEdit(QWidget *parent = 0);
-    void setText(FbTextEdit *text);
+    explicit FbHeadEdit(QWidget *parent, FbTextEdit *text);
     void initToolbar(QToolBar &toolbar);
     FbHeadModel * model() const;
 
     void setAction(Fb::Actions index, QAction *action);
-    void connectActions();
+    void connectActions(QToolBar *tool);
     void disconnectActions();
 
 signals:
@@ -207,7 +206,7 @@ private:
     QAction * actionInsert;
     QAction * actionModify;
     QAction * actionDelete;
-    QMap<Fb::Actions, QAction*> m_actions;
+    FbActionMap m_actions;
 };
 
 class FbNodeDlg : public QDialog

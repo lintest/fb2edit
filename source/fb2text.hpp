@@ -11,7 +11,7 @@
 #include <QWebElement>
 #include <QWebView>
 
-#include "fb2enum.h"
+#include "fb2mode.h"
 #include "fb2temp.hpp"
 
 QT_BEGIN_NAMESPACE
@@ -110,15 +110,13 @@ public slots:
 private slots:
     void linkHovered(const QString &link, const QString &title, const QString &textContent);
     void contextMenu(const QPoint &pos);
-    void createImgs();
-    void createTree();
     void treeDestroyed();
     void imgsDestroyed();
+    void viewTree(bool show);
+    void viewImgs(bool show);
+    void viewInsp(bool show);
 
 private:
-    void viewTree();
-    void viewImgs();
-    void viewInsp();
     bool actionEnabled(QWebPage::WebAction action);
     bool actionChecked(QWebPage::WebAction action);
     void execCommand(const QString &cmd, const QString &arg);
@@ -131,9 +129,10 @@ private:
     QMainWindow *m_owner;
     FbNoteView *m_noteView;
     FbReadThread *m_thread;
-    QMap<Fb::Actions, QAction*> m_actions;
+    FbActionMap m_actions;
     QDockWidget *dockTree;
     QDockWidget *dockImgs;
+    QDockWidget *dockInsp;
     QPoint m_point;
 };
 
@@ -144,36 +143,13 @@ public:
     explicit FbWebFrame(QWidget *parent = 0);
 };
 
-class FbTextFrame : public QFrame
-{
-    Q_OBJECT
-
-public:
-    explicit FbTextFrame(QWidget *parent, QAction *action);
-    ~FbTextFrame();
-
-public:
-    FbTextEdit * view() { return &m_view; }
-
-public slots:
-    void showInspector();
-    void hideInspector();
-
-private slots:
-    void dockDestroyed();
-
-private:
-    FbTextEdit m_view;
-    QDockWidget *m_dock;
-};
-
 class FbTextAction : public QAction
 {
     Q_OBJECT
 
 public:
-    explicit FbTextAction(const QString &text, QWebPage::WebAction action, QObject* parent);
-    explicit FbTextAction(const QIcon &icon, const QString &text, QWebPage::WebAction action, QObject* parent);
+    explicit FbTextAction(const QString &text, QWebPage::WebAction action, FbTextEdit* parent);
+    explicit FbTextAction(const QIcon &icon, const QString &text, QWebPage::WebAction action, FbTextEdit *parent);
 
 public slots:
     void updateChecked();
@@ -184,6 +160,7 @@ private:
 
 private:
     QWebPage::WebAction m_action;
+    FbTextEdit *m_parent;
 };
 
 #endif // FB2TEXT_H
