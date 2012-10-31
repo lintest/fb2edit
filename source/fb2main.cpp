@@ -218,7 +218,7 @@ void FbMainWindow::createActions()
 
     connect(QApplication::clipboard(), SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
 
-    act = new QAction(FbIcon("edit-undo"), tr("&Undo"), this);
+    act = new FbTextAction(FbIcon("edit-undo"), tr("&Undo"), QWebPage::Undo, text);
     text->setAction(Fb::EditUndo, act);
     code->setAction(Fb::EditUndo, act);
     act->setPriority(QAction::LowPriority);
@@ -226,7 +226,7 @@ void FbMainWindow::createActions()
     act->setEnabled(false);
     menu->addAction(act);
 
-    act = new QAction(FbIcon("edit-redo"), tr("&Redo"), this);
+    act = new FbTextAction(FbIcon("edit-redo"), tr("&Redo"), QWebPage::Redo, text);
     text->setAction(Fb::EditRedo, act);
     code->setAction(Fb::EditUndo, act);
     act->setPriority(QAction::LowPriority);
@@ -236,7 +236,7 @@ void FbMainWindow::createActions()
 
     menu->addSeparator();
 
-    act = new QAction(FbIcon("edit-cut"), tr("Cu&t"), this);
+    act = new FbTextAction(FbIcon("edit-cut"), tr("Cu&t"), QWebPage::Cut, text);
     text->setAction(Fb::EditCut, act);
     code->setAction(Fb::EditCut, act);
     act->setShortcutContext(Qt::WidgetShortcut);
@@ -246,7 +246,7 @@ void FbMainWindow::createActions()
     act->setEnabled(false);
     menu->addAction(act);
 
-    act = new QAction(FbIcon("edit-copy"), tr("&Copy"), this);
+    act = new FbTextAction(FbIcon("edit-copy"), tr("&Copy"), QWebPage::Copy, text);
     text->setAction(Fb::EditCopy, act);
     code->setAction(Fb::EditCopy, act);
     act->setShortcutContext(Qt::WidgetShortcut);
@@ -256,7 +256,7 @@ void FbMainWindow::createActions()
     act->setEnabled(false);
     menu->addAction(act);
 
-    act = new QAction(FbIcon("edit-paste"), tr("&Paste"), this);
+    act = new FbTextAction(FbIcon("edit-paste"), tr("&Paste"), QWebPage::Paste, text);
     text->setAction(Fb::EditPaste, act);
     code->setAction(Fb::EditPaste, act);
     act->setShortcutContext(Qt::WidgetShortcut);
@@ -265,6 +265,7 @@ void FbMainWindow::createActions()
     act->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
     menu->addAction(act);
 
+    act = new FbTextAction(FbIcon("Paste (no style)"), tr("&Paste"), QWebPage::PasteAndMatchStyle, text);
     act = new QAction(tr("Paste (no style)"), this);
     text->setAction(Fb::PasteText, act);
     menu->addAction(act);
@@ -408,15 +409,15 @@ void FbMainWindow::createActions()
 
     menu->addSeparator();
 
-    act = new FbTextAction(FbIcon("format-indent-more"), tr("Create section"), QWebPage::ToggleSubscript, text);
+    act = new QAction(FbIcon("format-indent-more"), tr("Create section"), text);
     text->setAction(Fb::SectionAdd, act);
     menu->addAction(act);
 
-    act = new FbTextAction(FbIcon("format-indent-less"), tr("Remove section"), QWebPage::ToggleSubscript, text);
+    act = new QAction(FbIcon("format-indent-less"), tr("Remove section"), text);
     text->setAction(Fb::SectionDel, act);
     menu->addAction(act);
 
-    act = new FbTextAction(FbIcon("format-justify-center"), tr("Make title"), QWebPage::ToggleSubscript, text);
+    act = new QAction(FbIcon("format-justify-center"), tr("Make title"), text);
     text->setAction(Fb::TextTitle, act);
     menu->addAction(act);
 
@@ -480,7 +481,7 @@ void FbMainWindow::createActions()
     menu->addAction(act);
 
     act = new QAction(tr("&Web inspector"), this);
-    text->setAction(Fb::ViewInspect, act);
+    text->setAction(Fb::ViewInspector, act);
     act->setCheckable(true);
     menu->addAction(act);
 

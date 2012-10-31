@@ -32,7 +32,7 @@ FbMainDock::FbMainDock(QWidget *parent)
     : QStackedWidget(parent)
     , isSwitched(false)
 {
-    textFrame = new FbWebFrame(this);
+    textFrame = new FbTextFrame(this);
     m_text = new FbTextEdit(textFrame, parent);
     textFrame->layout()->addWidget(m_text);
 

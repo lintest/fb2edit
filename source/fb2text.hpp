@@ -83,6 +83,7 @@ public:
     bool save(QString *string);
 
     QAction * act(Fb::Actions index) const;
+    QAction * pAct(QWebPage::WebAction index) const;
     void setAction(Fb::Actions index, QAction *action);
     void connectActions(QToolBar *tool);
     void disconnectActions();
@@ -102,9 +103,6 @@ public slots:
     void insertImage();
     void insertNote();
     void insertLink();
-    void zoomIn();
-    void zoomOut();
-    void zoomReset();
     void find();
 
 private slots:
@@ -112,9 +110,12 @@ private slots:
     void contextMenu(const QPoint &pos);
     void treeDestroyed();
     void imgsDestroyed();
-    void viewTree(bool show);
-    void viewImgs(bool show);
-    void viewInsp(bool show);
+    void viewContents(bool show);
+    void viewPictures(bool show);
+    void viewInspector(bool show);
+    void zoomIn();
+    void zoomOut();
+    void zoomReset();
 
 private:
     bool actionEnabled(QWebPage::WebAction action);
@@ -136,11 +137,11 @@ private:
     QPoint m_point;
 };
 
-class FbWebFrame : public QFrame
+class FbTextFrame : public QFrame
 {
     Q_OBJECT
 public:
-    explicit FbWebFrame(QWidget *parent = 0);
+    explicit FbTextFrame(QWidget *parent = 0);
 };
 
 class FbTextAction : public QAction
@@ -150,10 +151,11 @@ class FbTextAction : public QAction
 public:
     explicit FbTextAction(const QString &text, QWebPage::WebAction action, FbTextEdit* parent);
     explicit FbTextAction(const QIcon &icon, const QString &text, QWebPage::WebAction action, FbTextEdit *parent);
+    void connectAction();
+    void disconnectAction();
 
-public slots:
-    void updateChecked();
-    void updateEnabled();
+private slots:
+    void updateAction();
 
 private:
     QAction * action(QWebPage::WebAction action);

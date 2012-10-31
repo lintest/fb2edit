@@ -197,6 +197,11 @@ QAction * FbTextEdit::act(Fb::Actions index) const
     return m_actions[index];
 }
 
+QAction * FbTextEdit::pAct(QWebPage::WebAction index) const
+{
+    return pageAction(index);
+}
+
 void FbTextEdit::setAction(Fb::Actions index, QAction *action)
 {
     m_actions[index] = action;
@@ -206,36 +211,22 @@ void FbTextEdit::connectActions(QToolBar *tool)
 {
     m_actions.connect();
 
-    connect(act(Fb::ViewContents), SIGNAL(triggered(bool)), this, SLOT(viewTree(bool)));
-    connect(act(Fb::ViewPictures), SIGNAL(triggered(bool)), this, SLOT(viewImgs(bool)));
-    connect(act(Fb::ViewInspect), SIGNAL(triggered(bool)), this, SLOT(viewInsp(bool)));
-/*
-    connect(textPage->undoStack(), SIGNAL(cleanChanged(bool)), SLOT(cleanChanged(bool)));
-    connect(textPage->undoStack(), SIGNAL(canUndoChanged(bool)), SLOT(canUndoChanged(bool)));
-    connect(textPage->undoStack(), SIGNAL(canRedoChanged(bool)), SLOT(canRedoChanged(bool)));
+    foreach (QAction *action, m_actions) {
+        if (FbTextAction *a = qobject_cast<FbTextAction*>(action)) {
+            a->connectAction();
+        }
+    }
+
+    connect(act(Fb::ViewContents), SIGNAL(triggered(bool)), this, SLOT(viewContents(bool)));
+    connect(act(Fb::ViewPictures), SIGNAL(triggered(bool)), this, SLOT(viewPictures(bool)));
+    connect(act(Fb::ViewInspector), SIGNAL(triggered(bool)), this, SLOT(viewInspector(bool)));
+
+    connect(act(Fb::ZoomIn), SIGNAL(triggered()), SLOT(zoomIn()));
+    connect(act(Fb::ZoomOut), SIGNAL(triggered()), SLOT(zoomOut()));
+    connect(act(Fb::ZoomReset), SIGNAL(triggered()), SLOT(zoomReset()));
+
+    /*
     connect(textPage, SIGNAL(selectionChanged()), SLOT(selectionChanged()));
-
-    connect(actionUndo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Undo), SIGNAL(triggered()));
-    connect(actionRedo, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Redo), SIGNAL(triggered()));
-
-    connect(actionCut, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Cut), SIGNAL(triggered()));
-    connect(actionCopy, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Copy), SIGNAL(triggered()));
-    connect(actionPaste, SIGNAL(triggered()), textEdit->pageAction(QWebPage::Paste), SIGNAL(triggered()));
-    connect(actionPasteText, SIGNAL(triggered()), textEdit->pageAction(QWebPage::PasteAndMatchStyle), SIGNAL(triggered()));
-
-    connect(actionClearFormat, SIGNAL(triggered()), textEdit->pageAction(QWebPage::RemoveFormat), SIGNAL(triggered()));
-    connect(actionTextBold, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleBold), SIGNAL(triggered()));
-    connect(actionTextItalic, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleItalic), SIGNAL(triggered()));
-    connect(actionTextStrike, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleStrikethrough), SIGNAL(triggered()));
-    connect(actionTextSub, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSubscript), SIGNAL(triggered()));
-    connect(actionTextSup, SIGNAL(triggered()), textEdit->pageAction(QWebPage::ToggleSuperscript), SIGNAL(triggered()));
-
-    connect(textEdit->pageAction(QWebPage::RemoveFormat), SIGNAL(changed()), actionClearFormat, SLOT(updateEnabled()));
-    connect(textEdit->pageAction(QWebPage::ToggleBold), SIGNAL(changed()), actionTextBold, SLOT(updateChecked()));
-    connect(textEdit->pageAction(QWebPage::ToggleItalic), SIGNAL(changed()), actionTextItalic, SLOT(updateChecked()));
-    connect(textEdit->pageAction(QWebPage::ToggleStrikethrough), SIGNAL(changed()), actionTextStrike, SLOT(updateChecked()));
-    connect(textEdit->pageAction(QWebPage::ToggleSubscript), SIGNAL(changed()), actionTextSub, SLOT(updateChecked()));
-    connect(textEdit->pageAction(QWebPage::ToggleSuperscript), SIGNAL(changed()), actionTextSup, SLOT(updateChecked()));
 
     connect(actionFind, SIGNAL(triggered()), textEdit, SLOT(find()));
     connect(actionImage, SIGNAL(triggered()), textEdit, SLOT(insertImage()));
@@ -260,10 +251,6 @@ void FbTextEdit::connectActions(QToolBar *tool)
     connect(actionSectionAdd, SIGNAL(triggered()), textPage, SLOT(createSection()));
     connect(actionSectionDel, SIGNAL(triggered()), textPage, SLOT(deleteSection()));
     connect(actionTextTitle, SIGNAL(triggered()), textPage, SLOT(createTitle()));
-
-    connect(actionZoomIn, SIGNAL(triggered()), textEdit, SLOT(zoomIn()));
-    connect(actionZoomOut, SIGNAL(triggered()), textEdit, SLOT(zoomOut()));
-    connect(actionZoomReset, SIGNAL(triggered()), textEdit, SLOT(zoomReset()));
 
 */
 
@@ -299,10 +286,16 @@ void FbTextEdit::connectActions(QToolBar *tool)
 
 void FbTextEdit::disconnectActions()
 {
-    m_actions.disconnect();
+    foreach (QAction *action, m_actions) {
+        if (FbTextAction *a = qobject_cast<FbTextAction*>(action)) {
+            a->disconnectAction();
+        } else {
+            action->disconnect();
+        }
+    }
 }
 
-void FbTextEdit::viewTree(bool show)
+void FbTextEdit::viewContents(bool show)
 {
     if (show) {
         if (dockTree) { dockTree->show(); return; }
@@ -317,7 +310,7 @@ void FbTextEdit::viewTree(bool show)
     }
 }
 
-void FbTextEdit::viewImgs(bool show)
+void FbTextEdit::viewPictures(bool show)
 {
     if (show) {
         if (dockImgs) { dockImgs->show(); return; }
@@ -332,7 +325,7 @@ void FbTextEdit::viewImgs(bool show)
     }
 }
 
-void FbTextEdit::viewInsp(bool show)
+void FbTextEdit::viewInspector(bool show)
 {
     if (show) {
         if (dockInsp) { dockInsp->show(); return; }
@@ -341,7 +334,7 @@ void FbTextEdit::viewInsp(bool show)
         dockInsp = new QDockWidget(tr("Web inspector"), this);
         dockInsp->setFeatures(QDockWidget::AllDockWidgetFeatures);
         dockInsp->setWidget(inspector);
-        connect(dockInsp, SIGNAL(visibilityChanged(bool)), act(Fb::ViewInspect), SLOT(setChecked(bool)));
+        connect(dockInsp, SIGNAL(visibilityChanged(bool)), act(Fb::ViewInspector), SLOT(setChecked(bool)));
         m_owner->addDockWidget(Qt::BottomDockWidgetArea, dockInsp);
     } else {
         dockImgs->hide();
@@ -588,10 +581,10 @@ void FbTextEdit::execCommand(const QString &cmd, const QString &arg)
 }
 
 //---------------------------------------------------------------------------
-//  FbWebFrame
+//  FbTextFrame
 //---------------------------------------------------------------------------
 
-FbWebFrame::FbWebFrame(QWidget *parent)
+FbTextFrame::FbTextFrame(QWidget *parent)
     : QFrame(parent)
 {
     setFrameShape(QFrame::StyledPanel);
@@ -626,13 +619,30 @@ QAction * FbTextAction::action(QWebPage::WebAction action)
     return m_parent->pageAction(m_action);
 }
 
-void FbTextAction::updateChecked()
+void FbTextAction::updateAction()
 {
-    if (QAction * act = action(m_action)) setChecked(act->isChecked());
+    if (QAction * act = action(m_action)) {
+        if (isCheckable()) setChecked(act->isChecked());
+        setEnabled(act->isEnabled());
+    }
 }
 
-void FbTextAction::updateEnabled()
+void FbTextAction::connectAction()
 {
-    if (QAction * act = action(m_action)) setEnabled(act->isEnabled());
+    if (QAction * act = action(m_action)) {
+        connect(this, SIGNAL(triggered(bool)), act, SIGNAL(triggered(bool)));
+        connect(act, SIGNAL(changed()), this, SLOT(updateAction()));
+        if (isCheckable()) setChecked(act->isChecked());
+        setEnabled(act->isEnabled());
+    } else {
+        if (isCheckable()) setChecked(false);
+        setEnabled(false);
+    }
 }
 
+void FbTextAction::disconnectAction()
+{
+    QAction * act = action(m_action);
+    disconnect(act, 0, this, 0);
+    disconnect(this, 0, act, 0);
+}
