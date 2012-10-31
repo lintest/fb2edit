@@ -533,6 +533,11 @@ bool FbTextEdit::save(QString *string)
     return ok;
 }
 
+QString FbTextEdit::toHtml()
+{
+    return page()->mainFrame()->toHtml();
+}
+
 void FbTextEdit::data(QString name, QByteArray data)
 {
     files()->data(name, data);

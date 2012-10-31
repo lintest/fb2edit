@@ -79,6 +79,7 @@ public:
     bool save(QIODevice *device, const QString &codec = QString());
     bool save(QByteArray *array);
     bool save(QString *string);
+    QString toHtml();
 
     QAction * act(Fb::Actions index) const;
     QAction * pAct(QWebPage::WebAction index) const;

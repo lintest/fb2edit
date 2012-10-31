@@ -26,6 +26,7 @@ public:
     bool load(const QString &filename);
     bool save(QIODevice *device, const QString &codec = QString());
     Fb::Mode mode() const { return m_mode; }
+    void switchMode(Fb::Mode mode);
     void setMode(Fb::Mode mode);
     void setTool(QToolBar *tool) { m_tool = tool; }
     void addMenu(QMenu *menu);

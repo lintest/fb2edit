@@ -1,6 +1,7 @@
 #include "fb2dock.hpp"
 #include "fb2code.hpp"
 #include "fb2head.hpp"
+#include "fb2page.hpp"
 #include "fb2text.hpp"
 
 #include <QLayout>
@@ -21,7 +22,7 @@ FbModeAction::FbModeAction(FbMainDock *parent, Fb::Mode mode, const QString &tex
 
 void FbModeAction::switchMode()
 {
-    m_dock->setMode(m_mode);
+    m_dock->switchMode(m_mode);
 }
 
 //---------------------------------------------------------------------------
@@ -43,6 +44,23 @@ FbMainDock::FbMainDock(QWidget *parent)
     addWidget(textFrame);
     addWidget(m_head);
     addWidget(m_code);
+}
+
+void FbMainDock::switchMode(Fb::Mode mode)
+{
+    QString xml;
+    if (currentWidget() == m_code) {
+    } else {
+        switch (mode) {
+            case Fb::Code: m_text->save(&xml); break;
+            case Fb::Html: xml = m_text->toHtml(); break;
+            default: ;
+        }
+    }
+    setMode(mode);
+    if (!xml.isEmpty()) {
+        m_code->setPlainText(xml);
+    }
 }
 
 void FbMainDock::setMode(Fb::Mode mode)
