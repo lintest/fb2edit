@@ -68,7 +68,6 @@ FbTextElement::Sublist::Sublist(const TypeList &list, const QString &name)
     : m_list(list)
     , m_pos(list.begin())
 {
-    TypeList::const_iterator empty = list.end();
     while (m_pos != list.end()) {
         if (m_pos->name() == name) break;
         m_pos++;
@@ -430,4 +429,3 @@ void FbMoveRightCmd::undo()
 {
     m_subling.appendOutside(m_element.takeFromDocument());
 }
-
