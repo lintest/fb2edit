@@ -8,44 +8,19 @@
 #include <QThread>
 #include <QXmlDefaultHandler>
 
+class FbNetworkAccessManager;
+
 class FbReadThread : public QThread
 {
     Q_OBJECT
 
 public:
-    FbReadThread(const QString &html, QObject *parent = 0);
-
-signals:
-    void html(const QString &html, const QUrl &url);
-
-protected:
-    void run();
-
-private:
-    const QString m_html;
-};
-
-
-class FbTextPage;
-/*
-class FbReadThread : public QThread
-{
-    Q_OBJECT
-public:
-    FbReadThread(QObject *parent, const QString &filename, const QString &xml = QString());
+    FbReadThread(QObject *parent, QXmlInputSource *source);
     ~FbReadThread();
 
-public:
-    void setPage(FbTextPage *page) { m_page = page; }
-    FbTextPage * page() const { return m_page; }
-    QObject * temp() const { return m_temp; }
-    QString * data() { return &m_html; }
-
 signals:
-    void html(QString name);
-
-public slots:
-    void stop();
+    void binary(const QString &name, const QByteArray &data);
+    void html(QObject *temp, const QString &html);
 
 protected:
     void run();
@@ -54,15 +29,11 @@ private:
     bool parse();
 
 private:
-    FbTextPage *m_page;
-    QObject *m_temp;
-    const QString m_filename;
-    const QString m_xml;
+    QXmlInputSource *m_source;
+    FbNetworkAccessManager *m_temp;
     QString m_html;
-    bool m_abort;
-    QMutex mutex;
 };
-*/
+
 class FbReadHandler : public QObject, public FbXmlHandler
 {
     Q_OBJECT

@@ -1,28 +1,54 @@
-#include <QtGui>
+#include "fb2read.hpp"
+
 #include <QtDebug>
 
-#include "fb2page.hpp"
-#include "fb2read.hpp"
+#include "fb2temp.hpp"
 #include "fb2xml2.h"
 
 //---------------------------------------------------------------------------
 //  FbReadThread
 //---------------------------------------------------------------------------
 
-FbReadThread::FbReadThread(const QString &html, QObject *parent)
+FbReadThread::FbReadThread(QObject *parent, QXmlInputSource *source)
     : QThread(parent)
-    , m_html(html)
+    , m_source(source)
 {
-    connect(this, SIGNAL(html(QString,QUrl)), parent, SLOT(html(QString,QUrl)));
+    m_temp = new FbNetworkAccessManager(this);
+}
+
+FbReadThread::~FbReadThread()
+{
+    delete m_source;
 }
 
 void FbReadThread::run()
 {
-
-    sleep(1);
-    QUrl url = FbTextPage::createUrl();
-    emit html(m_html, url);
+    if (parse()) {
+        emit html(m_temp, m_html);
+    } else {
+        delete m_temp;
+    }
     deleteLater();
+}
+
+bool FbReadThread::parse()
+{
+    QXmlStreamWriter writer(&m_html);
+    FbReadHandler handler(writer);
+
+    connect(&handler, SIGNAL(binary(QString,QByteArray)), m_temp, SLOT(binary(QString,QByteArray)));
+
+#ifdef FB2_USE_LIBXML2
+    XML2::XmlReader reader;
+#else
+    QXmlSimpleReader reader;
+#endif
+
+    reader.setContentHandler(&handler);
+    reader.setLexicalHandler(&handler);
+    reader.setErrorHandler(&handler);
+
+    return reader.parse(m_source);
 }
 
 /*
@@ -34,12 +60,6 @@ FbReadThread::FbReadThread(QObject *parent, const QString &filename, const QStri
     , m_abort(false)
 {
     connect(this, SIGNAL(html(QString)), parent, SLOT(html(QString)));
-}
-
-FbReadThread::~FbReadThread()
-{
-    stop();
-    wait();
 }
 
 void FbReadThread::stop()

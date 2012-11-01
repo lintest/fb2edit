@@ -201,6 +201,11 @@ FbNetworkAccessManager::FbNetworkAccessManager(QObject *parent)
 //    QWebSettings::clearMemoryCaches();
 }
 
+void FbNetworkAccessManager::binary(const QString &name, const QByteArray &data)
+{
+    m_files.set(name, data);
+}
+
 QNetworkReply * FbNetworkAccessManager::createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData)
 {
     const QUrl &url = request.url();
@@ -235,11 +240,6 @@ QByteArray FbNetworkAccessManager::data(int index) const
         return m_files[index]->data();
     }
     return QByteArray();
-}
-
-void FbNetworkAccessManager::data(const QString &name, const QByteArray &data)
-{
-    m_files.set(name, data);
 }
 
 //---------------------------------------------------------------------------

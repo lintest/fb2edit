@@ -130,7 +130,9 @@ bool FbMainDock::load(const QString &filename)
 
     if (currentWidget() == m_code) {
         m_code->clear();
-        return m_code->read(&file);
+        return m_code->read(file);
+    } else {
+        m_text->page()->read(file);
     }
 
     return false;

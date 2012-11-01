@@ -29,7 +29,7 @@ class FbTextPage : public QWebPage
 public:
     explicit FbTextPage(QObject *parent = 0);
     FbNetworkAccessManager *temp();
-    bool load(const QString &filename, const QString &xml = QString());
+    bool read(QIODevice &device);
     void push(QUndoCommand * command, const QString &text = QString());
     FbTextElement element(const QString &location);
     FbTextElement current();
@@ -45,7 +45,7 @@ public:
     static QUrl createUrl();
 
 public slots:
-    void html(const QString &html, const QUrl &url);
+    void html(QObject *temp, const QString &html);
     void insertBody();
     void insertTitle();
     void insertAnnot();
@@ -72,8 +72,6 @@ protected:
     void update();
 
 private slots:
-    void onTimer();
-    void binary(const QString &name, const QByteArray &data);
     void loadFinished();
     void fixContents();
 

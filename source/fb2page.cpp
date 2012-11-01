@@ -43,8 +43,14 @@ FbTextPage::FbTextPage(QObject *parent)
 
     setContentEditable(true);
     setNetworkAccessManager(new FbNetworkAccessManager(this));
+    connect(this, SIGNAL(linkHovered(QString,QString,QString)), parent, SLOT(linkHovered(QString,QString,QString)));
     connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished()));
     connect(this, SIGNAL(contentsChanged()), SLOT(fixContents()));
+
+    QFile file(":blank.fb2");
+    if (file.open(QFile::ReadOnly | QFile::Text)) {
+        read(file);
+    }
 }
 
 FbNetworkAccessManager *FbTextPage::temp()
@@ -52,42 +58,30 @@ FbNetworkAccessManager *FbTextPage::temp()
     return qobject_cast<FbNetworkAccessManager*>(networkAccessManager());
 }
 
-void FbTextPage::binary(const QString &name, const QByteArray &data)
+bool FbTextPage::read(QIODevice &device)
 {
-    if (FbNetworkAccessManager *t = temp()) t->data(name, data);
+    QXmlInputSource *source = new QXmlInputSource();
+    source->setData(device.readAll());
+
+    FbReadThread *thread = new FbReadThread(this, source);
+    connect(thread, SIGNAL(html(QObject*,QString)), this, SLOT(html(QObject*,QString)));
+    thread->start();
+
+    return true;
 }
 
-bool FbTextPage::load(const QString &filename, const QString &xml)
+void FbTextPage::html(QObject *temp, const QString &html)
 {
-    QXmlInputSource source;
-    if (xml.isEmpty()) {
-        QFile file(filename);
-        if (!file.open(QFile::ReadOnly | QFile::Text)) {
-            qCritical() << QObject::tr("Cannot read file %1: %2.").arg(filename).arg(file.errorString());
-            return false;
-        }
-        source.setData(file.readAll());
-    } else {
-        source.setData(xml);
-    }
+    FbNetworkAccessManager *manager = qobject_cast<FbNetworkAccessManager*>(temp);
+    if (!manager) { temp->deleteLater(); return; }
 
-    bool ok = FbReadHandler::load(this, source, m_html);
-    if (ok) QTimer::singleShot(1000, this, SLOT(onTimer()));
+    QUrl url = FbTextPage::createUrl();
+    setNetworkAccessManager(manager);
+    manager->setPath(url.path());
+    manager->setParent(this);
 
-    return ok;
-}
-
-void FbTextPage::onTimer()
-{
-    QUrl url = createUrl();
-    temp()->setPath(url.path());
-    mainFrame()->setHtml(m_html, url);
-}
-
-void FbTextPage::html(const QString &html, const QUrl &url)
-{
+    QWebSettings::clearMemoryCaches();
     mainFrame()->setHtml(html, url);
-    temp()->setPath(url.path());
 }
 
 bool FbTextPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type)

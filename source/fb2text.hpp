@@ -98,8 +98,6 @@ protected:
     virtual void mouseMoveEvent(QMouseEvent *event);
 
 public slots:
-    void html(QString html);
-    void data(QString name, QByteArray data);
     void viewContents(bool show);
     void viewPictures(bool show);
     void viewInspector(bool show);

@@ -91,7 +91,7 @@ public:
     void setPath(const QString &path) { m_path = path; }
 
 public slots:
-    void data(const QString &name, const QByteArray &data);
+    void binary(const QString &name, const QByteArray &data);
 
 public:
     QString add(const QString &path, QByteArray &data) { return m_files.add(path, data); }

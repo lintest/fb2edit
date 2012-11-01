@@ -491,24 +491,6 @@ void FbTextEdit::linkHovered(const QString &link, const QString &title, const QS
     noteView().hint(element, QRect(point, size));
 }
 
-void FbTextEdit::html(QString html)
-{
-/*
-    if (!m_thread) return;
-    static int number = 0;
-    QWebSettings::clearMemoryCaches();
-    QUrl url = FbTextPage::createUrl();
-    FbTextPage *page = m_thread->page();
-    setPage(page);
-    page->setParent(this);
-    page->temp()->setPath(url.path());
-    setHtml(html, url);
-    connect(page, SIGNAL(linkHovered(QString,QString,QString)), SLOT(linkHovered(QString,QString,QString)));
-    m_thread->deleteLater();
-    m_thread = 0;
-*/
-}
-
 bool FbTextEdit::save(QIODevice *device, const QString &codec)
 {
     FbSaveWriter writer(*this, device);
@@ -537,11 +519,6 @@ bool FbTextEdit::save(QString *string)
 QString FbTextEdit::toHtml()
 {
     return page()->mainFrame()->toHtml();
-}
-
-void FbTextEdit::data(QString name, QByteArray data)
-{
-    files()->data(name, data);
 }
 
 void FbTextEdit::zoomIn()
