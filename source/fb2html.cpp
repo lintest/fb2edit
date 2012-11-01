@@ -8,46 +8,48 @@
 
 FbTextElement::Scheme::Scheme()
 {
-    m_types["body"]
-        << Type("image")
-        << Type("title")
-        << Type("epigraph", 0, 0)
-        << Type()
-        << Type("section")
+    m_types["BODY"]
+        << Type("FB:DESCRIPTION", 1, 1)
+        << Type("FB:BODY", 1, 1)
     ;
 
-    m_types["section"]
-        << Type("title")
-        << Type("epigraph", 0, 0)
-        << Type("image")
-        << Type("annotation")
-        << Type()
-        << Type("section")
+    m_types["FB:DESCRIPTION"]
+        << Type("FB:TITLE-INFO", 1, 1)
+        << Type("FB:SRC-TITLE-INFO", 0, 1)
+        << Type("FB:DOCUMENT-INFO", 1, 1)
+        << Type("FB:PUBLISH-INFO", 0, 1)
+        << Type("FB:CUSTOM-INFO")
     ;
 
-    m_types["poem"]
-        << Type("title")
-        << Type("epigraph", 0, 0)
-        << Type("stanza", 1, 0)
-        << Type()
-        << Type("text-author", 0, 0)
-        << Type("date")
+    m_types["FB:DOCUMENT-INFO"]
+        << Type("FB:AUTHOR", 1, 1)
+        << Type("FB:PROGRAM-USED", 0, 1)
+        << Type("FB:DATE", 0, 1)
     ;
 
-    m_types["stanza"]
-        << Type("title")
-        << Type("subtitle")
-        << Type()
+    m_types["FB:BODY"]
+        << Type("IMG")
+        << Type("FB:TITLE", 0, 1)
+        << Type("FB:EPIGRAPH")
+        << Type("FB:SECTION", 1, 0)
     ;
 
-    m_types["epigraph"]
-        << Type()
-        << Type("text-author", 0, 0)
+    m_types["FB:SECTION"]
+        << Type("FB:TITLE", 1, 0)
+        << Type("FB:EPIGRAPH")
+        << Type("IMG")
+        << Type("FB:ANNOTATION")
+        << Type("FB:SECTION")
     ;
 
-    m_types["cite"]
-        << Type()
-        << Type("text-author", 0, 0)
+    m_types["FB:POEM"]
+        << Type("FB:TITLE", 1, 0)
+        << Type("FB:EPIGRAPH", 0, 0)
+        << Type("FB:STANZA", 1, 0)
+    ;
+
+    m_types["FB:STANZA"]
+        << Type("FB:TITLE", 1, 0)
     ;
 }
 
@@ -69,10 +71,8 @@ FbTextElement::Sublist::Sublist(const TypeList &list, const QString &name)
     TypeList::const_iterator empty = list.end();
     while (m_pos != list.end()) {
         if (m_pos->name() == name) break;
-        if (m_pos->name().isEmpty()) empty = m_pos;
         m_pos++;
     }
-    if (m_pos == list.end()) m_pos = empty;
 }
 
 FbTextElement::Sublist::operator bool() const
@@ -87,25 +87,12 @@ bool FbTextElement::Sublist::operator!() const
 
 bool FbTextElement::Sublist::operator <(const FbTextElement &element) const
 {
+    if (element.isNull()) return true;
     const QString name = element.nodeName();
     for (TypeList::const_iterator it = m_list.begin(); it != m_list.end(); it++) {
-        if (it->name() == name) return m_pos < it  || element.isNull();
+        if (it->name() == name) return m_pos < it;
     }
     return false;
-}
-
-bool FbTextElement::Sublist::operator >=(const FbTextElement &element) const
-{
-    const QString name = element.nodeName();
-    for (TypeList::const_iterator it = m_list.begin(); it != m_list.end(); it++) {
-        if (it->name() == name) return m_pos >= it || element.isNull();
-    }
-    return false;
-}
-
-bool FbTextElement::Sublist::operator !=(const FbTextElement &element) const
-{
-    return element.isNull() || m_pos->name() != element.nodeName();
 }
 
 //---------------------------------------------------------------------------
@@ -114,20 +101,13 @@ bool FbTextElement::Sublist::operator !=(const FbTextElement &element) const
 
 FbTextElement FbTextElement::operator[](const QString &name)
 {
+    QString tagName = name.toUpper();
     FbTextElement child = firstChild();
     while (!child.isNull()) {
-        if (child.tagName().toLower() == name) return child;
+        if (child.tagName() == tagName) return child;
         child = child.nextSibling();
     }
-    QString html = QString("<%1></%1>").arg(name);
-    appendInside(html);
-    return lastChild();
-}
-
-QString FbTextElement::blockName() const
-{
-    QString n = tagName().toLower();
-    return n.left(3) == "fb:" ? n.mid(3) : QString();
+    return insertInside(tagName, QString("<%1></%1>").arg(name));
 }
 
 QString FbTextElement::nodeName() const
@@ -140,12 +120,12 @@ void FbTextElement::getChildren(FbElementList &list)
 {
     FbTextElement child = firstChild();
     while (!child.isNull()) {
-        QString tag = child.tagName().toLower();
-        if (tag == "fb:description") {
+        QString tag = child.tagName();
+        if (tag == "FB:DESCRIPTION") {
             // skip description
-        } else if (tag.left(3) == "fb:") {
+        } else if (tag.left(3) == "FB:") {
             list << child;
-        } else if (tag == "img") {
+        } else if (tag == "IMG") {
             list << child;
         } else {
             child.getChildren(list);
@@ -176,7 +156,7 @@ bool FbTextElement::hasScheme() const
 const FbTextElement::TypeList * FbTextElement::subtypes() const
 {
     static Scheme scheme;
-    return scheme[nodeName()];
+    return scheme[tagName()];
 }
 
 bool FbTextElement::hasSubtype(const QString &style) const
@@ -203,24 +183,23 @@ FbTextElement FbTextElement::insertInside(const QString &style, const QString &h
     if (!types) return FbTextElement();
 
     Sublist sublist(*types, style);
-    if (!sublist) return FbTextElement();
-
-    FbTextElement child = firstChild();
-    if (sublist < child) {
-        prependInside(html);
-        return firstChild();
-    }
-
-    while (!child.isNull()) {
-        FbTextElement subling = child.nextSibling();
-        if (sublist >= child && sublist != subling) {
-            child.appendOutside(html);
-            return child.nextSibling();
+    if (sublist) {
+        FbTextElement child = firstChild();
+        if (sublist < child) {
+            prependInside(html);
+            return firstChild();
         }
-        child = subling;
+        while (!child.isNull()) {
+            FbTextElement subling = child.nextSibling();
+            if (sublist < subling) {
+                child.appendOutside(html);
+                return child.nextSibling();
+            }
+            child = subling;
+        }
     }
-
-    return FbTextElement();
+    appendInside(html);
+    return lastChild();
 }
 
 QString FbTextElement::location()

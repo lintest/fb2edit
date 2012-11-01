@@ -16,7 +16,8 @@ private:
     class Type
     {
     public:
-        Type(const QString &name = QString(), int min=0, int max=1): m_name(name), m_min(min), m_max(max) {}
+        Type(const QString &name): m_name(name), m_min(0), m_max(0) {}
+        Type(const QString &name, int min, int max): m_name(name), m_min(min), m_max(max) {}
         Type(const Type &t): m_name(t.m_name), m_min(t.m_min), m_max(t.m_max) {}
         const QString & name() const { return m_name; }
         int min() const { return m_min; }
@@ -47,8 +48,6 @@ private:
         operator bool() const;
         bool operator !() const;
         bool operator <(const FbTextElement &element) const;
-        bool operator >=(const FbTextElement &element) const;
-        bool operator !=(const FbTextElement &element) const;
     private:
         const TypeList &m_list;
         TypeList::const_iterator m_pos;
@@ -60,7 +59,6 @@ public:
     FbTextElement &operator=(const QWebElement &x) { QWebElement::operator=(x); return *this; }
     FbTextElement insertInside(const QString &style, const QString &html);
     FbTextElement child(int index) const;
-    QString blockName() const;
     QString nodeName() const;
     void getChildren(FbElementList &list);
     bool hasSubtype(const QString &style) const;

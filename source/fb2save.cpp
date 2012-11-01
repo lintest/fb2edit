@@ -376,6 +376,21 @@ int FbSaveHandler::TextHandler::nextLevel() const
 }
 
 //---------------------------------------------------------------------------
+//  FbSaveHandler::RootHandler
+//---------------------------------------------------------------------------
+
+FbSaveHandler::RootHandler::RootHandler(FbSaveWriter &writer, const QString &name)
+    : NodeHandler(name)
+    , m_writer(writer)
+{
+}
+
+FbXmlHandler::NodeHandler * FbSaveHandler::RootHandler::NewTag(const QString &name, const QXmlAttributes &atts)
+{
+    return name == "body" ? new BodyHandler(m_writer, name, atts) : NULL;
+}
+
+//---------------------------------------------------------------------------
 //  FbSaveHandler::BodyHandler
 //---------------------------------------------------------------------------
 
@@ -478,8 +493,8 @@ bool FbSaveHandler::comment(const QString& ch)
 FbXmlHandler::NodeHandler * FbSaveHandler::CreateRoot(const QString &name, const QXmlAttributes &atts)
 {
     Q_UNUSED(atts);
-    if (name == "body") return new BodyHandler(m_writer, name, atts);
-    m_error = QObject::tr("The tag <body> was not found.");
+    if (name == "html") return new RootHandler(m_writer, name);
+    m_error = QObject::tr("The tag <html> was not found.");
     return 0;
 }
 
@@ -490,14 +505,14 @@ void FbSaveHandler::setDocumentInfo(QWebFrame * frame)
     QString info2 = now.toString("dd MMM yyyy");
     QString value = now.toString("yyyy-MM-dd hh:mm:ss");
 
-    FbTextElement parent = frame->documentElement().findFirst("body");
-    parent = parent["fb:description"];
-    parent = parent["fb:document-info"];
+    FbTextElement parent = frame->documentElement().findFirst("BODY");
+    parent = parent["FB:DESCRIPTION"];
+    parent = parent["FB:DOCUMENT-INFO"];
 
-    FbTextElement child1 = parent["fb:program-used"];
+    FbTextElement child1 = parent["FB:PROGRAM-USED"];
     child1.setInnerXml(info1);
 
-    FbTextElement child2 = parent["fb:date"];
+    FbTextElement child2 = parent["FB:DATE"];
     child2.setInnerXml(info2);
     child2.setAttribute("value", value);
 }
@@ -514,8 +529,7 @@ bool FbSaveHandler::save()
     m_writer.writeStartDocument();
     QString javascript = jScript("export.js");
     frame->addToJavaScriptWindowObject("handler", this);
-    QWebElement body = frame->findFirstElement("body");
-    body.evaluateJavaScript(javascript);
+    frame->evaluateJavaScript(javascript);
     m_writer.writeEndDocument();
 
     return true;

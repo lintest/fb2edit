@@ -129,6 +129,16 @@ private:
         bool m_hasChild;
     };
 
+    class RootHandler : public NodeHandler
+    {
+    public:
+        explicit RootHandler(FbSaveWriter &writer, const QString &name);
+    protected:
+        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
+    protected:
+        FbSaveWriter &m_writer;
+    };
+
     class BodyHandler : public TextHandler
     {
     public:
