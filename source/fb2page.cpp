@@ -86,6 +86,7 @@ void FbTextPage::html(QObject *temp, const QString &html)
 
     QWebSettings::clearMemoryCaches();
     mainFrame()->setHtml(html, url);
+
 }
 
 bool FbTextPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type)
@@ -408,6 +409,8 @@ void FbTextPage::loadFinished()
     if (child.isTitle()) child = child.nextSibling();
     if (!child.isNull()) element = child;
     element.select();
+
+    mainFrame()->findFirstElement("style#fb2edit").setInnerXml("p:after{content:' \\B6';}");
 }
 
 void FbTextPage::fixContents()

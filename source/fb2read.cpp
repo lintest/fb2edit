@@ -178,13 +178,14 @@ void FbReadHandler::RootHandler::writeScript(const QString &src)
     writer().writeStartElement("script");
     writer().writeAttribute("type", "text/javascript");
     writer().writeAttribute("src", src);
-    writer().writeCharacters(" ");
+    writer().writeCharacters("");
     writer().writeEndElement();
 }
 
 void FbReadHandler::RootHandler::writeHeader()
 {
     writer().writeStartElement("head");
+
     writeScript("qrc:/js/jquery.js");
     writeScript("qrc:/js/location.js");
     if (!m_style.isEmpty()) {
@@ -193,7 +194,15 @@ void FbReadHandler::RootHandler::writeHeader()
         writer().writeCharacters(m_style);
         writer().writeEndElement();
     }
+
+    writer().writeStartElement("style");
+    writer().writeAttribute("type", "text/css");
+    writer().writeAttribute("id", "fb2edit");
+    writer().writeCharacters("");
     writer().writeEndElement();
+
+    writer().writeEndElement();
+
     writer().writeStartElement("body");
 }
 
@@ -309,7 +318,7 @@ void FbReadHandler::TextHandler::EndTag(const QString &name)
         if (name == "p") {
             writer().writeEmptyElement("br");
         } else {
-            writer().writeCharacters(" ");
+            writer().writeCharacters("");
         }
     }
     writer().writeEndElement();
