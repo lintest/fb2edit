@@ -41,7 +41,6 @@ enum Actions {
     InsertSection,
     InsertText,
     InsertParag,
-    InsertLine,
     ClearFormat,
     TextBold,
     TextItalic,

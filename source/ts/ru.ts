@@ -87,6 +87,21 @@
     </message>
 </context>
 <context>
+    <name>FbHeadEdit</name>
+    <message>
+        <source>&amp;Append</source>
+        <translation type="unfinished">&amp;Добавить</translation>
+    </message>
+    <message>
+        <source>&amp;Modify</source>
+        <translation type="unfinished">&amp;Изменить</translation>
+    </message>
+    <message>
+        <source>&amp;Delete</source>
+        <translation type="unfinished">&amp;Удалить</translation>
+    </message>
+</context>
+<context>
     <name>FbHeadItem</name>
     <message>
         <source>#</source>
@@ -204,15 +219,15 @@
     <name>FbHeadView</name>
     <message>
         <source>&amp;Append</source>
-        <translation>&amp;Добавить</translation>
+        <translation type="obsolete">&amp;Добавить</translation>
     </message>
     <message>
         <source>&amp;Modify</source>
-        <translation>&amp;Изменить</translation>
+        <translation type="obsolete">&amp;Изменить</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation>&amp;Удалить</translation>
+        <translation type="obsolete">&amp;Удалить</translation>
     </message>
 </context>
 <context>
@@ -350,7 +365,7 @@
     </message>
     <message>
         <source>Contents</source>
-        <translation>Содержание</translation>
+        <translation type="obsolete">Содержание</translation>
     </message>
     <message>
         <source>Zoom out</source>
@@ -551,7 +566,7 @@
     </message>
     <message>
         <source>Pictures</source>
-        <translation>Иллюстрации</translation>
+        <translation type="obsolete">Иллюстрации</translation>
     </message>
     <message>
         <source>Paragraph</source>
@@ -559,7 +574,7 @@
     </message>
     <message>
         <source>Line end</source>
-        <translation>Конец строки</translation>
+        <translation type="obsolete">Конец строки</translation>
     </message>
     <message>
         <source>Clear format</source>
@@ -723,9 +738,14 @@
         <source>Fo&amp;rmat</source>
         <translation type="unfinished">Фо&amp;рмат</translation>
     </message>
-</context>
-<context>
-    <name>FbTextFrame</name>
+    <message>
+        <source>Contents</source>
+        <translation type="unfinished">Содержание</translation>
+    </message>
+    <message>
+        <source>Pictures</source>
+        <translation type="unfinished">Иллюстрации</translation>
+    </message>
     <message>
         <source>Web inspector</source>
         <translation type="unfinished"></translation>
@@ -846,6 +866,10 @@
     <message>
         <source>+ Date</source>
         <translation>+ Дата</translation>
+    </message>
+    <message>
+        <source>+ Simple text</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

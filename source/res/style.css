@@ -120,3 +120,6 @@ table, td, th {
   border: 1 solid gray; 
 }
 
+br {
+  display: none;
+}

@@ -355,12 +355,8 @@ void FbMainWindow::createActions()
     text->setAction(Fb::InsertText, act);
     menu->addAction(act);
 
-    act = new QAction(tr("Paragraph"), this);
+    act = new FbTextAction(tr("Paragraph"), QWebPage::InsertParagraphSeparator, text);
     text->setAction(Fb::InsertParag, act);
-    menu->addAction(act);
-
-    act = new QAction(tr("Line end"), this);
-    text->setAction(Fb::InsertLine, act);
     menu->addAction(act);
 
     menu = menuBar()->addMenu(tr("Fo&rmat"));

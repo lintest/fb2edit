@@ -141,7 +141,7 @@ FbSaveWriter::FbSaveWriter(FbTextEdit &view, QByteArray *array)
     , m_view(view)
 {
     if (QWebFrame * frame = m_view.page()->mainFrame()) {
-        m_style = frame->findFirstElement("html>head>style").toPlainText();
+        m_style = frame->findFirstElement("html>head>style#origin").toPlainText();
     }
 }
 

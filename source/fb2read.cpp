@@ -191,13 +191,14 @@ void FbReadHandler::RootHandler::writeHeader()
     if (!m_style.isEmpty()) {
         writer().writeStartElement("style");
         writer().writeAttribute("type", "text/css");
+        writer().writeAttribute("id", "origin");
         writer().writeCharacters(m_style);
         writer().writeEndElement();
     }
 
     writer().writeStartElement("style");
     writer().writeAttribute("type", "text/css");
-    writer().writeAttribute("id", "fb2edit");
+    writer().writeAttribute("id", "inline");
     writer().writeCharacters("");
     writer().writeEndElement();
 

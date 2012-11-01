@@ -410,7 +410,8 @@ void FbTextPage::loadFinished()
     if (!child.isNull()) element = child;
     element.select();
 
-    mainFrame()->findFirstElement("style#fb2edit").setInnerXml("p:after{content:' \\B6';}");
+    QString style = "p:after{display:inline;content:'\\A0\\B6';color:gray;}";
+    mainFrame()->findFirstElement("html>head>style#inline").setInnerXml(style);
 }
 
 void FbTextPage::fixContents()
