@@ -88,7 +88,7 @@ bool FbTextElement::Sublist::operator!() const
 bool FbTextElement::Sublist::operator <(const FbTextElement &element) const
 {
     if (element.isNull()) return true;
-    const QString name = element.nodeName();
+    const QString name = element.tagName();
     for (TypeList::const_iterator it = m_list.begin(); it != m_list.end(); it++) {
         if (it->name() == name) return m_pos < it;
     }

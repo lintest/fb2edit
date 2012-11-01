@@ -155,6 +155,7 @@ private slots:
     void insertAnnot();
     void insertStanza();
     void insertDate();
+    void insertText();
     void deleteNode();
 
     void moveUp();
@@ -183,6 +184,7 @@ private:
         *actionStanza,
         *actionImage,
         *actionAnnot,
+        *actionText,
         *actionDate,
         *actionCut,
         *actionCopy,

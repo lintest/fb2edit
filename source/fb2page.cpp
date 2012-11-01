@@ -38,6 +38,9 @@ FbTextPage::FbTextPage(QObject *parent)
     s->setAttribute(QWebSettings::ZoomTextOnly, true);
     s->setUserStyleSheetUrl(QUrl::fromLocalFile(":style.css"));
 
+    QString html = block("body", block("section", p()));
+    mainFrame()->setHtml(html, createUrl());
+
     setContentEditable(true);
     setNetworkAccessManager(new FbNetworkAccessManager(this));
     connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished()));
@@ -76,8 +79,7 @@ bool FbTextPage::load(const QString &filename, const QString &xml)
 
 void FbTextPage::onTimer()
 {
-    static int number = 0;
-    QUrl url(QString("fb2:/%1/").arg(number++));
+    QUrl url = createUrl();
     temp()->setPath(url.path());
     mainFrame()->setHtml(m_html, url);
 }
@@ -96,6 +98,12 @@ bool FbTextPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest
         return false;
     }
     return QWebPage::acceptNavigationRequest(frame, request, type);
+}
+
+QUrl FbTextPage::createUrl()
+{
+    static int number = 0;
+    return QString("fb2:/%1/").arg(number++);
 }
 
 QString FbTextPage::block(const QString &name)
@@ -156,6 +164,13 @@ FbTextElement FbTextPage::appendTitle(const FbTextElement &parent)
     QUndoCommand * command = new FbInsertCmd(element);
     push(command, tr("Append section"));
     return element;
+}
+
+FbTextElement FbTextPage::appendText(const FbTextElement &parent)
+{
+    FbTextElement element = parent;
+    element.appendInside(p());
+    return element.lastChild();
 }
 
 void FbTextPage::insertBody()

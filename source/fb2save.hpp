@@ -142,7 +142,7 @@ private:
     class BodyHandler : public TextHandler
     {
     public:
-        explicit BodyHandler(FbSaveWriter &writer, const QString &name, const QXmlAttributes &atts);
+        explicit BodyHandler(FbSaveWriter &writer, const QString &name);
     protected:
         virtual void EndTag(const QString &name);
     };

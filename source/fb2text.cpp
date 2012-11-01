@@ -497,7 +497,7 @@ void FbTextEdit::html(QString html)
     if (!m_thread) return;
     static int number = 0;
     QWebSettings::clearMemoryCaches();
-    QUrl url(QString("fb2:/%1/").arg(number++));
+    QUrl url = FbTextPage::createUrl();
     FbTextPage *page = m_thread->page();
     setPage(page);
     page->setParent(this);

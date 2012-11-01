@@ -464,6 +464,9 @@ void FbTreeView::initActions(QToolBar *toolbar)
     actionAuthor = act = new QAction(tr("+ Author"), this);
     connect(act, SIGNAL(triggered()), SLOT(insertAuthor()));
 
+    actionText = act = new QAction(tr("+ Simple text"), this);
+    connect(act, SIGNAL(triggered()), SLOT(insertText()));
+
     actionDate = act = new QAction(tr("+ Date"), this);
     connect(act, SIGNAL(triggered()), SLOT(insertDate()));
 
@@ -567,6 +570,7 @@ void FbTreeView::contextMenu(const QPoint &pos)
         menu.addAction(actionEpigraph);
         if (!e.hasChild("IMG")) menu.addAction(actionImage);
         if (!e.hasChild("FB:ANNOTATION")) menu.addAction(actionAnnot);
+        menu.addAction(actionText);
     }
 
     if (tag == "FB:POEM") {
@@ -693,6 +697,20 @@ void FbTreeView::insertTitle()
     if (element.hasTitle()) return;
     element = m_view.page()->appendTitle(element);
     append(index, element);
+}
+
+void FbTreeView::insertText()
+{
+    FbTreeModel * m = model();
+    if (!m) return;
+
+    QModelIndex index = currentIndex();
+    FbTreeItem * item = m->item(index);
+    if (!item) return;
+
+    FbTextElement element = item->element();
+    if (!element.isSection()) return;
+    m_view.page()->appendText(element).select();
 }
 
 void FbTreeView::insertAuthor()

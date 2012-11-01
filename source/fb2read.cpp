@@ -1,6 +1,7 @@
 #include <QtGui>
 #include <QtDebug>
 
+#include "fb2page.hpp"
 #include "fb2read.hpp"
 #include "fb2xml2.h"
 
@@ -19,8 +20,7 @@ void FbReadThread::run()
 {
 
     sleep(1);
-    static int number = 0;
-    QUrl url(QString("fb2:/%1/").arg(number++));
+    QUrl url = FbTextPage::createUrl();
     emit html(m_html, url);
     deleteLater();
 }

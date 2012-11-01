@@ -41,6 +41,8 @@ public:
 
     FbTextElement appendSection(const FbTextElement &parent);
     FbTextElement appendTitle(const FbTextElement &parent);
+    FbTextElement appendText(const FbTextElement &parent);
+    static QUrl createUrl();
 
 public slots:
     void html(const QString &html, const QUrl &url);

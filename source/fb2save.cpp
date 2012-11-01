@@ -387,15 +387,15 @@ FbSaveHandler::RootHandler::RootHandler(FbSaveWriter &writer, const QString &nam
 
 FbXmlHandler::NodeHandler * FbSaveHandler::RootHandler::NewTag(const QString &name, const QXmlAttributes &atts)
 {
-    return name == "body" ? new BodyHandler(m_writer, name, atts) : NULL;
+    return name == "body" ? new BodyHandler(m_writer, name) : NULL;
 }
 
 //---------------------------------------------------------------------------
 //  FbSaveHandler::BodyHandler
 //---------------------------------------------------------------------------
 
-FbSaveHandler::BodyHandler::BodyHandler(FbSaveWriter &writer, const QString &name, const QXmlAttributes &atts)
-    : TextHandler(writer, name, atts, "FictionBook")
+FbSaveHandler::BodyHandler::BodyHandler(FbSaveWriter &writer, const QString &name)
+    : TextHandler(writer, name, QXmlAttributes(), "FictionBook")
 {
     m_writer.writeAttribute("xmlns", "http://www.gribuser.ru/xml/fictionbook/2.0");
     m_writer.writeAttribute("xmlns:l", "http://www.w3.org/1999/xlink");
