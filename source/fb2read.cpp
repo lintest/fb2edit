@@ -9,6 +9,13 @@
 //  FbReadThread
 //---------------------------------------------------------------------------
 
+void FbReadThread::execute(QObject *parent, QXmlInputSource *source)
+{
+    FbReadThread *thread = new FbReadThread(parent, source);
+    connect(thread, SIGNAL(html(QObject*,QString)), parent, SLOT(html(QObject*,QString)));
+    thread->start();
+}
+
 FbReadThread::FbReadThread(QObject *parent, QXmlInputSource *source)
     : QThread(parent)
     , m_source(source)

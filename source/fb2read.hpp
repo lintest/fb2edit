@@ -15,7 +15,7 @@ class FbReadThread : public QThread
     Q_OBJECT
 
 public:
-    FbReadThread(QObject *parent, QXmlInputSource *source);
+    static void execute(QObject *parent, QXmlInputSource *source);
     ~FbReadThread();
 
 signals:
@@ -26,6 +26,7 @@ protected:
     void run();
 
 private:
+    explicit FbReadThread(QObject *parent, QXmlInputSource *source);
     bool parse();
 
 private:

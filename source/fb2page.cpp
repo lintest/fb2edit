@@ -58,15 +58,19 @@ FbNetworkAccessManager *FbTextPage::temp()
     return qobject_cast<FbNetworkAccessManager*>(networkAccessManager());
 }
 
+bool FbTextPage::read(const QString &html)
+{
+    QXmlInputSource *source = new QXmlInputSource();
+    source->setData(html);
+    FbReadThread::execute(this, source);
+    return true;
+}
+
 bool FbTextPage::read(QIODevice &device)
 {
     QXmlInputSource *source = new QXmlInputSource();
     source->setData(device.readAll());
-
-    FbReadThread *thread = new FbReadThread(this, source);
-    connect(thread, SIGNAL(html(QObject*,QString)), this, SLOT(html(QObject*,QString)));
-    thread->start();
-
+    FbReadThread::execute(this, source);
     return true;
 }
 

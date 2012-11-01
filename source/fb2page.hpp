@@ -29,6 +29,7 @@ class FbTextPage : public QWebPage
 public:
     explicit FbTextPage(QObject *parent = 0);
     FbNetworkAccessManager *temp();
+    bool read(const QString &html);
     bool read(QIODevice &device);
     void push(QUndoCommand * command, const QString &text = QString());
     FbTextElement element(const QString &location);
