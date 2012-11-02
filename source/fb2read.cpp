@@ -9,15 +9,16 @@
 //  FbReadThread
 //---------------------------------------------------------------------------
 
-void FbReadThread::execute(QObject *parent, QXmlInputSource *source)
+void FbReadThread::execute(QObject *parent, QXmlInputSource *source, QIODevice *device)
 {
-    FbReadThread *thread = new FbReadThread(parent, source);
+    FbReadThread *thread = new FbReadThread(parent, source, device);
     connect(thread, SIGNAL(html(QObject*,QString)), parent, SLOT(html(QObject*,QString)));
     thread->start();
 }
 
-FbReadThread::FbReadThread(QObject *parent, QXmlInputSource *source)
+FbReadThread::FbReadThread(QObject *parent, QXmlInputSource *source, QIODevice *device)
     : QThread(parent)
+    , m_device(device)
     , m_source(source)
 {
     m_temp = new FbNetworkAccessManager(this);
@@ -25,7 +26,8 @@ FbReadThread::FbReadThread(QObject *parent, QXmlInputSource *source)
 
 FbReadThread::~FbReadThread()
 {
-    delete m_source;
+    if (m_source) delete m_source;
+    if (m_device) delete m_device;
 }
 
 void FbReadThread::run()
@@ -55,7 +57,19 @@ bool FbReadThread::parse()
     reader.setLexicalHandler(&handler);
     reader.setErrorHandler(&handler);
 
+#ifdef FB2_USE_LIBXML2
+    if (m_device) {
+        return reader.parse(m_device);
+    } else {
+        return reader.parse(m_source);
+    }
+#else
+    if (m_device) {
+        m_source = new QXmlInputSource();
+        m_source->setData(m_device->readAll());
+    }
     return reader.parse(m_source);
+#endif
 }
 
 /*

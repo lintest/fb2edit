@@ -90,7 +90,7 @@ public:
 
     QString text() const { return toPlainText(); }
 
-    bool read(QIODevice &device);
+    bool read(QIODevice *device);
 
     void load(const QByteArray data)
         { setPlainText(QString::fromUtf8(data.data())); }

@@ -434,9 +434,10 @@ void FbCodeEdit::clipboardDataChanged()
     }
 }
 
-bool FbCodeEdit::read(QIODevice &device)
+bool FbCodeEdit::read(QIODevice *device)
 {
-    QByteArray data = device.readAll();
+    QByteArray data = device->readAll();
+    delete device;
     QXmlInputSource source;
     source.setData(data);
     setPlainText(source.data());

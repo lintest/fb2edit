@@ -122,9 +122,10 @@ void FbMainDock::setModeHtml()
 
 bool FbMainDock::load(const QString &filename)
 {
-    QFile file(filename);
-    if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        qCritical() << QObject::tr("Cannot read file %1: %2.").arg(filename).arg(file.errorString());
+    QFile *file = new QFile(filename);
+    if (!file->open(QFile::ReadOnly | QFile::Text)) {
+        qCritical() << QObject::tr("Cannot read file %1: %2.").arg(filename).arg(file->errorString());
+        delete file;
         return false;
     }
 

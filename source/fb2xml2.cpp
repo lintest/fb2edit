@@ -396,8 +396,8 @@ private:
 
     static QString C2S(const xmlChar* text, int size = -1);
 
-    bool parse(const QXmlInputSource* input);
-    bool parse(QIODevice& input);
+    bool parse(const QXmlInputSource *input);
+    bool parse(QIODevice *input);
     void process(xmlTextReaderPtr reader);
 
     QScopedPointer<XmlReaderLocator> locator;
@@ -483,7 +483,7 @@ int XmlReaderPrivate::onRead(void * context, char * buffer, int len)
     return device->read(buffer, len);
 }
 
-bool XmlReaderPrivate::parse(const QXmlInputSource* input)
+bool XmlReaderPrivate::parse(const QXmlInputSource *input)
 {
     QByteArray arr = input->data().toUtf8();
     int options = XML_PARSE_RECOVER | XML_PARSE_NOERROR | XML_PARSE_NOWARNING | XML_PARSE_NONET;
@@ -495,10 +495,10 @@ bool XmlReaderPrivate::parse(const QXmlInputSource* input)
     return true;
 }
 
-bool XmlReaderPrivate::parse(QIODevice& input)
+bool XmlReaderPrivate::parse(QIODevice *input)
 {
     int options = XML_PARSE_RECOVER | XML_PARSE_NOERROR | XML_PARSE_NOWARNING | XML_PARSE_NONET;
-    m_reader = xmlReaderForIO(&XmlReaderPrivate::onRead, NULL, &input, NULL, NULL, options);
+    m_reader = xmlReaderForIO(&XmlReaderPrivate::onRead, NULL, input, NULL, NULL, options);
     if (!m_reader) return false;
     xmlTextReaderSetErrorHandler(m_reader, &XmlReaderPrivate::onError, this);
     while (xmlTextReaderRead(m_reader) == 1) process(m_reader);
@@ -635,7 +635,7 @@ bool XmlReader::parse(const QXmlInputSource* input)
     return true;
 }
 
-bool XmlReader::parse(QIODevice& input)
+bool XmlReader::parse(QIODevice *input)
 {
     Q_D(XmlReader);
 

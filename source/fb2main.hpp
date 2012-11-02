@@ -15,12 +15,6 @@ class QWebInspector;
 QT_END_NAMESPACE
 
 class FbMainDock;
-class FbCodeEdit;
-class FbTreeView;
-class FbHeadEdit;
-class FbTextEdit;
-class FbTextFrame;
-class FbTextPage;
 
 class FbLogDock: public QDockWidget
 {

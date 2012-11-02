@@ -47,9 +47,11 @@ FbTextPage::FbTextPage(QObject *parent)
     connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished()));
     connect(this, SIGNAL(contentsChanged()), SLOT(fixContents()));
 
-    QFile file(":blank.fb2");
-    if (file.open(QFile::ReadOnly | QFile::Text)) {
+    QFile *file = new QFile(":blank.fb2");
+    if (file->open(QFile::ReadOnly | QFile::Text)) {
         read(file);
+    } else {
+        delete file;
     }
 }
 
@@ -62,15 +64,13 @@ bool FbTextPage::read(const QString &html)
 {
     QXmlInputSource *source = new QXmlInputSource();
     source->setData(html);
-    FbReadThread::execute(this, source);
+    FbReadThread::execute(this, source, 0);
     return true;
 }
 
-bool FbTextPage::read(QIODevice &device)
+bool FbTextPage::read(QIODevice *device)
 {
-    QXmlInputSource *source = new QXmlInputSource();
-    source->setData(device.readAll());
-    FbReadThread::execute(this, source);
+    FbReadThread::execute(this, 0, device);
     return true;
 }
 

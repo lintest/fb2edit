@@ -8,8 +8,6 @@
 #include "fb2code.hpp"
 #include "fb2dlgs.hpp"
 #include "fb2dock.hpp"
-#include "fb2page.hpp"
-#include "fb2read.hpp"
 #include "fb2save.hpp"
 #include "fb2text.hpp"
 #include "fb2utils.h"
@@ -44,13 +42,6 @@ FbMainWindow::FbMainWindow(const QString &filename, ViewMode mode)
     setCurrentFile(filename);
     mainDock->load(filename);
 }
-
-/*
-FbTextPage * FbMainWindow::page()
-{
-    return textFrame ? textFrame->view()->page() : 0;
-}
-*/
 
 void FbMainWindow::logMessage(const QString &message)
 {
@@ -138,8 +129,8 @@ bool FbMainWindow::fileSaveAs()
 
 void FbMainWindow::about()
 {
-    QString text = tr("The <b>fb2edit</b> is application for editing FB2-files.");
-    text += QString("<br>") += FbApplication::lastCommit();
+    QString text = tr("<b>fb2edit</b> is an application for creating and editing FB2-files.");
+    text += QString("<br>") += QString("<br>") += FbApplication::lastCommit();
     QMessageBox::about(this, tr("About fb2edit"), text);
 }
 
@@ -582,50 +573,6 @@ FbMainWindow *FbMainWindow::findFbMainWindow(const QString &fileName)
     return 0;
 }
 /*
-void FbMainWindow::viewText(FbTextPage *page)
-{
-    if (textFrame && centralWidget() == textFrame) return;
-
-    if (textFrame) textFrame->hideInspector();
-
-    if (codeEdit) {
-        QString xml = codeEdit->text();
-        page = new FbTextPage(this);
-        if (!page->load(QString(), xml)) {
-            delete page;
-            return;
-        }
-        isSwitched = true;
-    }
-
-    FB2DELETE(codeEdit);
-    FB2DELETE(headTree);
-    if (textFrame) {
-        createTextToolbar();
-    } else {
-        textFrame = new FbTextFrame(this, actionInspect);
-    }
-    setCentralWidget(textFrame);
-
-    FbTextEdit *textEdit = textFrame->view();
-
-    if (page) {
-        page->setParent(textEdit);
-        textEdit->setPage(page);
-    }
-
-    connect(textEdit, SIGNAL(loadFinished(bool)), SLOT(createTextToolbar()));
-    connect(textEdit->pageAction(QWebPage::Undo), SIGNAL(changed()), SLOT(undoChanged()));
-    connect(textEdit->pageAction(QWebPage::Redo), SIGNAL(changed()), SLOT(redoChanged()));
-
-    actionContents->setEnabled(true);
-    actionPictures->setEnabled(true);
-    actionInspect->setEnabled(true);
-
-    textEdit->setFocus();
-    viewTree();
-}
-
 void FbMainWindow::viewHead()
 {
     if (headTree && centralWidget() == headTree) return;
