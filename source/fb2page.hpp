@@ -35,7 +35,6 @@ public:
     FbTextElement element(const QString &location);
     FbTextElement current();
     QString location();
-    QString status();
 
     FbTextElement body();
     FbTextElement doc();
@@ -44,6 +43,9 @@ public:
     FbTextElement appendTitle(const FbTextElement &parent);
     FbTextElement appendText(const FbTextElement &parent);
     static QUrl createUrl();
+
+signals:
+    void status(const QString &text);
 
 public slots:
     void html(QObject *temp, const QString &html);
@@ -75,6 +77,7 @@ protected:
 private slots:
     void loadFinished();
     void fixContents();
+    void showStatus();
 
 private:
     FbActionMap m_actions;

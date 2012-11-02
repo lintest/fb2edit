@@ -46,6 +46,7 @@ FbTextPage::FbTextPage(QObject *parent)
     connect(this, SIGNAL(linkHovered(QString,QString,QString)), parent, SLOT(linkHovered(QString,QString,QString)));
     connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished()));
     connect(this, SIGNAL(contentsChanged()), SLOT(fixContents()));
+    connect(this, SIGNAL(selectionChanged()), SLOT(showStatus()));
 
     QFile *file = new QFile(":blank.fb2");
     if (file->open(QFile::ReadOnly | QFile::Text)) {
@@ -392,11 +393,12 @@ QString FbTextPage::location()
     return mainFrame()->evaluateJavaScript(javascript).toString();
 }
 
-QString FbTextPage::status()
+void FbTextPage::showStatus()
 {
     QString javascript = jScript("get_status.js");
-    QString status = mainFrame()->evaluateJavaScript(javascript).toString();
-    return status.replace("FB:", "");
+    QString text = mainFrame()->evaluateJavaScript(javascript).toString();
+    text.replace("FB:", "");
+    emit status(text);
 }
 
 void FbTextPage::loadFinished()

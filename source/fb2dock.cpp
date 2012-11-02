@@ -44,28 +44,32 @@ FbMainDock::FbMainDock(QWidget *parent)
     addWidget(textFrame);
     addWidget(m_head);
     addWidget(m_code);
+
+    connect(m_text->page(), SIGNAL(status(QString)), parent, SLOT(status(QString)));
 }
 
 void FbMainDock::switchMode(Fb::Mode mode)
 {
-    QString xml;
+    if (mode == m_mode) return;
     if (currentWidget() == m_code) {
-        switch (mode) {
-            case Fb::Text:
-            case Fb::Head:
+        QString xml = m_code->toPlainText();
+        switch (m_mode) {
+            case Fb::Code: m_text->page()->read(xml); break;
+            case Fb::Html: m_text->setHtml(xml, m_text->url()); break;
             default: ;
         }
     } else {
+        QString xml;
         switch (mode) {
             case Fb::Code: m_text->save(&xml); break;
             case Fb::Html: xml = m_text->toHtml(); break;
             default: ;
         }
+        if (!xml.isEmpty()) {
+            m_code->setPlainText(xml);
+        }
     }
     setMode(mode);
-    if (!xml.isEmpty()) {
-        m_code->setPlainText(xml);
-    }
 }
 
 void FbMainDock::setMode(Fb::Mode mode)

@@ -47,6 +47,7 @@ signals:
 
 public slots:
     void logMessage(const QString &message);
+    void status(const QString &text);
 
 private slots:
     void fileNew();
@@ -59,7 +60,6 @@ private slots:
     void logDestroyed();
     void logShowed();
 
-    void status(const QString &text);
     void openSettings();
 
 private:
