@@ -61,7 +61,8 @@ OTHER_FILES += \
     source/js/new_section1.js \
     source/js/section_get.js \
     source/js/section_new.js \
-    source/js/location.js
+    source/js/location.js \
+    source/res/mainicon.rc
 
 if (unix) {
 
@@ -74,3 +75,5 @@ if (unix) {
 FORMS += \
     source/fb2find.ui \
     source/fb2setup.ui
+
+win32:RC_FILE = source/res/icons.rc
