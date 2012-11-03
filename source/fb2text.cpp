@@ -335,6 +335,9 @@ void FbTextEdit::disconnectActions()
             a->disconnectAction();
         }
     }
+    viewContents(false);
+    viewPictures(false);
+    viewInspector(false);
 }
 
 void FbTextEdit::viewContents(bool show)
@@ -346,7 +349,7 @@ void FbTextEdit::viewContents(bool show)
         connect(dockTree, SIGNAL(visibilityChanged(bool)), act(Fb::ViewContents), SLOT(setChecked(bool)));
         connect(dockTree, SIGNAL(destroyed()), SLOT(treeDestroyed()));
         m_owner->addDockWidget(Qt::LeftDockWidgetArea, dockTree);
-    } else {
+    } else if (dockTree) {
         dockTree->deleteLater();
         dockTree = 0;
     }
@@ -361,7 +364,7 @@ void FbTextEdit::viewPictures(bool show)
         connect(dockImgs, SIGNAL(visibilityChanged(bool)), act(Fb::ViewPictures), SLOT(setChecked(bool)));
         connect(dockImgs, SIGNAL(destroyed()), SLOT(imgsDestroyed()));
         m_owner->addDockWidget(Qt::RightDockWidgetArea, dockImgs);
-    } else {
+    } else if (dockImgs) {
         dockImgs->deleteLater();
         dockImgs = 0;
     }
@@ -378,8 +381,8 @@ void FbTextEdit::viewInspector(bool show)
         dockInsp->setWidget(inspector);
         connect(dockInsp, SIGNAL(visibilityChanged(bool)), act(Fb::ViewInspector), SLOT(setChecked(bool)));
         m_owner->addDockWidget(Qt::BottomDockWidgetArea, dockInsp);
-    } else {
-        dockImgs->hide();
+    } else if (dockInsp) {
+        dockInsp->hide();
     }
 }
 

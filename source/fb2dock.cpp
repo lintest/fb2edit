@@ -46,6 +46,9 @@ FbMainDock::FbMainDock(QWidget *parent)
     addWidget(m_code);
 
     connect(m_text->page(), SIGNAL(status(QString)), parent, SLOT(status(QString)));
+    connect(m_head, SIGNAL(status(QString)), parent, SLOT(status(QString)));
+    connect(m_code, SIGNAL(status(QString)), parent, SLOT(status(QString)));
+    connect(this, SIGNAL(status(QString)), parent, SLOT(status(QString)));
 }
 
 void FbMainDock::switchMode(Fb::Mode mode)
@@ -82,6 +85,7 @@ void FbMainDock::setMode(Fb::Mode mode)
         case Fb::Code: setModeCode(); break;
         case Fb::Html: setModeHtml(); break;
     }
+    emit status(QString());
 }
 
 void FbMainDock::setModeText()
@@ -102,6 +106,7 @@ void FbMainDock::setModeHead()
     m_text->disconnectActions();
     m_code->disconnectActions();
     m_head->connectActions(m_tool);
+    m_head->updateTree();
 }
 
 void FbMainDock::setModeCode()

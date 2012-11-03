@@ -598,6 +598,8 @@ void FbHeadEdit::setAction(Fb::Actions index, QAction *action)
 void FbHeadEdit::connectActions(QToolBar *tool)
 {
     tool->clear();
+    tool->addAction(actionInsert);
+    tool->addAction(actionDelete);
 }
 
 void FbHeadEdit::disconnectActions()

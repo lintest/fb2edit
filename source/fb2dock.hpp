@@ -33,7 +33,8 @@ public:
     bool isModified() const;
 
 signals:
-    
+    void status(const QString &text);
+
 public slots:
 
 private:

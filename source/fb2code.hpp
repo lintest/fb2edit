@@ -99,6 +99,9 @@ public:
 
     bool isModified() const { return document()->isModified(); }
 
+signals:
+    void status(const QString &text);
+
 public slots:
     void find();
     void zoomIn();
