@@ -4,70 +4,12 @@
 #include <QByteArray>
 #include <QObject>
 #include <QPlainTextEdit>
-#include <QSyntaxHighlighter>
 #include <QTextCharFormat>
 #include <QColor>
 #include <QTextEdit>
 #include <QToolBar>
 
 #include "fb2mode.h"
-
-class FbHighlighter : public QSyntaxHighlighter
-{
-public:
-    FbHighlighter(QObject* parent);
-    FbHighlighter(QTextDocument* parent);
-    FbHighlighter(QTextEdit* parent);
-    ~FbHighlighter();
-
-    enum HighlightType
-    {
-        SyntaxChar,
-        ElementName,
-        Comment,
-        AttributeName,
-        AttributeValue,
-        Error,
-        Other
-    };
-
-    void setHighlightColor(HighlightType type, QColor color, bool foreground = true);
-    void setHighlightFormat(HighlightType type, QTextCharFormat format);
-
-protected:
-    void highlightBlock(const QString& rstrText);
-    int  processDefaultText(int i, const QString& rstrText);
-
-private:
-    void init();
-
-    QTextCharFormat fmtSyntaxChar;
-    QTextCharFormat fmtElementName;
-    QTextCharFormat fmtComment;
-    QTextCharFormat fmtAttributeName;
-    QTextCharFormat fmtAttributeValue;
-    QTextCharFormat fmtError;
-    QTextCharFormat fmtOther;
-
-    enum ParsingState
-    {
-        NoState = 0,
-        ExpectElementNameOrSlash,
-        ExpectElementName,
-        ExpectAttributeOrEndOfElement,
-        ExpectEqual,
-        ExpectAttributeValue
-    };
-
-    enum BlockState
-    {
-        NoBlock = -1,
-        InComment,
-        InElement
-    };
-
-    ParsingState state;
-};
 
 QT_BEGIN_NAMESPACE
 class QPaintEvent;
@@ -102,12 +44,6 @@ public:
 signals:
     void status(const QString &text);
 
-public slots:
-    void find();
-    void zoomIn();
-    void zoomOut();
-    void zoomReset();
-
 protected:
     void resizeEvent(QResizeEvent *event);
 
@@ -116,6 +52,11 @@ private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
     void highlightCurrentLine();
     void updateLineNumberArea(const QRect &, int);
+    void find();
+    void validate();
+    void zoomIn();
+    void zoomOut();
+    void zoomReset();
 
 private:
     class LineNumberArea : public QWidget
@@ -133,9 +74,9 @@ private:
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
     void setZoomRatio(qreal ratio);
+    void setCursor(int line, int column);
 
 private:
-    FbHighlighter *highlighter;
     QWidget *lineNumberArea;
     FbActionMap m_actions;
     qreal zoomRatio;

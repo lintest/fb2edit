@@ -25,6 +25,7 @@ enum Actions {
     TextSelect,
     EditFind,
     EditReplace,
+    CheckText,
     InsertImage,
     InsertNote,
     InsertLink,

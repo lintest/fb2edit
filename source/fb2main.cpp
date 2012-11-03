@@ -271,6 +271,10 @@ void FbMainWindow::createActions()
     code->setAction(Fb::EditReplace, act);
     menu->addAction(act);
 
+    act = new QAction(FbIcon("tools-check-spelling"), tr("&Check..."), this);
+    code->setAction(Fb::CheckText, act);
+    menu->addAction(act);
+
     menu->addSeparator();
 
     act = new QAction(FbIcon("preferences-desktop"), tr("&Settings"), this);

@@ -49,6 +49,7 @@ TRANSLATIONS = source/ts/ru.ts
 QT += xml
 QT += webkit
 QT += network
+QT += xmlpatterns
 
 OTHER_FILES += \
     source/res/style.css \

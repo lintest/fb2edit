@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XML Spy v4.4 U (http://www.xmlspy.com) by GribUser (Moscow) -->
 <xs:schema targetNamespace="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:genre="http://www.gribuser.ru/xml/fictionbook/2.0/genres" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
 	<xs:import namespace="http://www.w3.org/1999/xlink" schemaLocation="FictionBookLinks.xsd"/>
 	<xs:import namespace="http://www.gribuser.ru/xml/fictionbook/2.0/genres" schemaLocation="FictionBookGenres.xsd"/>
@@ -516,11 +515,9 @@
 					<xs:documentation>Genre of this book, with the optional match percentage</xs:documentation>
 				</xs:annotation>
 				<xs:complexType>
-					<xs:simpleContent>
-						<xs:extension base="genre:genreType">
-							<xs:attribute name="match" type="xs:integer" use="optional" default="100"/>
-						</xs:extension>
-					</xs:simpleContent>
+					<xs:complexContent>
+						<xs:extension base="authorType"/>
+					</xs:complexContent>
 				</xs:complexType>
 			</xs:element>
 			<xs:element name="author" maxOccurs="unbounded">

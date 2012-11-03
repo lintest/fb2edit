@@ -31,6 +31,7 @@
         <file>16x16/list-remove.png</file>
         <file>16x16/preferences-desktop.png</file>
         <file>16x16/text-x-generic.png</file>
+        <file>16x16/tools-check-spelling.png</file>
         <file>16x16/utilities-terminal.png</file>
         <file>16x16/window-close.png</file>
         <file>16x16/x-office-document.png</file>
@@ -68,6 +69,7 @@
         <file>24x24/list-remove.png</file>
         <file>24x24/preferences-desktop.png</file>
         <file>24x24/text-x-generic.png</file>
+        <file>24x24/tools-check-spelling.png</file>
         <file>24x24/utilities-terminal.png</file>
         <file>24x24/window-close.png</file>
         <file>24x24/x-office-document.png</file>

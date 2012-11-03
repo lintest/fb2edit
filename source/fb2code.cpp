@@ -1,5 +1,55 @@
 #include "fb2code.hpp"
+
+#include <QXmlSchema>
+#include <QAbstractMessageHandler>
+#include <QXmlSchemaValidator>
+
 #include "fb2dlgs.hpp"
+
+//---------------------------------------------------------------------------
+//  FbHighlighter
+//---------------------------------------------------------------------------
+
+class FbSchemaHandler : public QAbstractMessageHandler
+{
+    public:
+        FbSchemaHandler()
+            : QAbstractMessageHandler(0)
+        {
+        }
+
+        QString statusMessage() const
+        {
+            return m_description;
+        }
+
+        int line() const
+        {
+            return m_sourceLocation.line();
+        }
+
+        int column() const
+        {
+            return m_sourceLocation.column();
+        }
+
+    protected:
+        virtual void handleMessage(QtMsgType type, const QString &description,
+                                   const QUrl &identifier, const QSourceLocation &sourceLocation)
+        {
+            Q_UNUSED(type);
+            Q_UNUSED(identifier);
+
+            m_messageType = type;
+            m_description = description;
+            m_sourceLocation = sourceLocation;
+        }
+
+    private:
+        QtMsgType m_messageType;
+        QString m_description;
+        QSourceLocation m_sourceLocation;
+};
 
 //---------------------------------------------------------------------------
 //  FbHighlighter
@@ -7,6 +57,65 @@
 
 #include <QXmlInputSource>
 #include <QtGui>
+
+#include <QSyntaxHighlighter>
+
+class FbHighlighter : public QSyntaxHighlighter
+{
+public:
+    FbHighlighter(QObject* parent);
+    FbHighlighter(QTextDocument* parent);
+    FbHighlighter(QTextEdit* parent);
+    ~FbHighlighter();
+
+    enum HighlightType
+    {
+        SyntaxChar,
+        ElementName,
+        Comment,
+        AttributeName,
+        AttributeValue,
+        Error,
+        Other
+    };
+
+    void setHighlightColor(HighlightType type, QColor color, bool foreground = true);
+    void setHighlightFormat(HighlightType type, QTextCharFormat format);
+
+protected:
+    void highlightBlock(const QString& rstrText);
+    int  processDefaultText(int i, const QString& rstrText);
+
+private:
+    void init();
+
+    QTextCharFormat fmtSyntaxChar;
+    QTextCharFormat fmtElementName;
+    QTextCharFormat fmtComment;
+    QTextCharFormat fmtAttributeName;
+    QTextCharFormat fmtAttributeValue;
+    QTextCharFormat fmtError;
+    QTextCharFormat fmtOther;
+
+    enum ParsingState
+    {
+        NoState = 0,
+        ExpectElementNameOrSlash,
+        ExpectElementName,
+        ExpectAttributeOrEndOfElement,
+        ExpectEqual,
+        ExpectAttributeValue
+    };
+
+    enum BlockState
+    {
+        NoBlock = -1,
+        InComment,
+        InElement
+    };
+
+    ParsingState state;
+};
 
 static const QColor DEFAULT_SYNTAX_CHAR     = Qt::blue;
 static const QColor DEFAULT_ELEMENT_NAME    = Qt::darkRed;
@@ -345,7 +454,7 @@ qreal FbCodeEdit::zoomRatioMax = 5.0;
 FbCodeEdit::FbCodeEdit(QWidget *parent) : QPlainTextEdit(parent)
 {
     lineNumberArea = new LineNumberArea(this);
-    highlighter = new FbHighlighter(this);
+    FbHighlighter *highlighter = new FbHighlighter(this);
     highlighter->setDocument( document() );
 
     connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(updateLineNumberAreaWidth(int)));
@@ -379,6 +488,7 @@ void FbCodeEdit::connectActions(QToolBar *tool)
     act(Fb::EditUndo)->setEnabled(document()->isUndoAvailable());
     act(Fb::EditRedo)->setEnabled(document()->isRedoAvailable());
     act(Fb::EditFind)->setEnabled(true);
+    act(Fb::CheckText)->setEnabled(true);
 
     act(Fb::ZoomIn)->setEnabled(true);
     act(Fb::ZoomOut)->setEnabled(true);
@@ -394,6 +504,7 @@ void FbCodeEdit::connectActions(QToolBar *tool)
     connect(act(Fb::EditCopy), SIGNAL(triggered()), SLOT(copy()));
     connect(act(Fb::EditPaste), SIGNAL(triggered()), SLOT(paste()));
     connect(act(Fb::EditFind), SIGNAL(triggered()), SLOT(find()));
+    connect(act(Fb::CheckText), SIGNAL(triggered()), SLOT(validate()));
 
     connect(this, SIGNAL(copyAvailable(bool)), act(Fb::EditCut), SLOT(setEnabled(bool)));
     connect(this, SIGNAL(copyAvailable(bool)), act(Fb::EditCopy), SLOT(setEnabled(bool)));
@@ -564,4 +675,60 @@ void FbCodeEdit::setZoomRatio(qreal ratio)
         f.setPointSizeF(baseFontSize * zoomRatio);
         setFont(f);
     }
+}
+
+void FbCodeEdit::validate()
+{
+    FbSchemaHandler handler;
+
+    QXmlSchema schema;
+    schema.setMessageHandler(&handler);
+
+    QUrl url("qrc:/fb2/FictionBook2.1.xsd");
+    schema.load(url);
+
+//    QFile file(":/fb2/FictionBook2.1.xsd");
+//    if (!file.open(QFile::ReadOnly)) return;
+//    schema.load(&file);
+    if (!schema.isValid()) {
+        QFile file(":/fb2/FictionBook2.1.xsd");
+        file.open(QFile::ReadOnly);
+        QTextStream in(&file);
+        in.setCodec("UTF-8");
+        in.setAutoDetectUnicode(true);
+        setPlainText(in.readAll());
+        status(tr("Schema is not valid: ") + handler.statusMessage());
+        setCursor(handler.line(), handler.column());
+        return;
+    }
+
+    const QByteArray data = toPlainText().toUtf8();
+    QXmlSchemaValidator validator(schema);
+    if (!validator.validate(data)) {
+        setCursor(handler.line(), handler.column());
+        status(handler.statusMessage());
+    }
+}
+
+void FbCodeEdit::setCursor(int line, int column)
+{
+    moveCursor(QTextCursor::Start);
+    for (int i = 1; i < line; ++i)
+        moveCursor(QTextCursor::Down);
+
+    for (int i = 1; i < column; ++i)
+        moveCursor(QTextCursor::Right);
+
+    QList<QTextEdit::ExtraSelection> extraSelections;
+    QTextEdit::ExtraSelection selection;
+
+    const QColor lineColor = QColor(Qt::red).lighter(160);
+    selection.format.setBackground(lineColor);
+    selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+    selection.cursor = textCursor();
+    selection.cursor.clearSelection();
+    extraSelections.append(selection);
+
+    setExtraSelections(extraSelections);
+    setFocus();
 }
