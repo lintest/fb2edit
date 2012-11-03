@@ -598,6 +598,7 @@ void FbHeadEdit::setAction(Fb::Actions index, QAction *action)
 void FbHeadEdit::connectActions(QToolBar *tool)
 {
     tool->clear();
+    tool->addSeparator();
     tool->addAction(actionInsert);
     tool->addAction(actionDelete);
 }
@@ -610,13 +611,6 @@ void FbHeadEdit::disconnectActions()
 FbHeadModel * FbHeadEdit::model() const
 {
     return qobject_cast<FbHeadModel*>(QTreeView::model());
-}
-
-void FbHeadEdit::initToolbar(QToolBar &toolbar)
-{
-    toolbar.addSeparator();
-    toolbar.addAction(actionInsert);
-    toolbar.addAction(actionDelete);
 }
 
 void FbHeadEdit::updateTree()

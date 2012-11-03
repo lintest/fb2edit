@@ -411,24 +411,24 @@ void FbMainWindow::createActions()
 
     QActionGroup * viewGroup = new QActionGroup(this);
 
-    act = new FbModeAction(mainDock, Fb::Text, tr("&Text"));
+    act = new FbModeAction(mainDock, Fb::Text, FbIcon("x-office-document"), tr("&Text"));
     viewGroup->addAction(act);
     menu->addAction(act);
     tool->addAction(act);
     act->setChecked(true);
 
-    act = new FbModeAction(mainDock, Fb::Head, tr("&Head"));
+    act = new FbModeAction(mainDock, Fb::Head, FbIcon("document-properties"), tr("&Head"));
     viewGroup->addAction(act);
     menu->addAction(act);
     tool->addAction(act);
 
-    act = new FbModeAction(mainDock, Fb::Code, tr("&XML"));
+    act = new FbModeAction(mainDock, Fb::Code, FbIcon("text-x-generic"), tr("&XML"));
     viewGroup->addAction(act);
     menu->addAction(act);
     tool->addAction(act);
 
 #ifdef QT_DEBUG
-    act = new FbModeAction(mainDock, Fb::Html, tr("&HTML"));
+    act = new FbModeAction(mainDock, Fb::Html, FbIcon("text-html"), tr("&HTML"));
     viewGroup->addAction(act);
     menu->addAction(act);
 #endif // _DEBUG

@@ -15,6 +15,7 @@
         <file>16x16/edit-undo.png</file>
         <file>16x16/format-indent-less.png</file>
         <file>16x16/format-indent-more.png</file>
+        <file>16x16/format-justify-center.png</file>
         <file>16x16/format-text-bold.png</file>
         <file>16x16/format-text-italic.png</file>
         <file>16x16/format-text-strikethrough.png</file>
@@ -29,7 +30,10 @@
         <file>16x16/list-add.png</file>
         <file>16x16/list-remove.png</file>
         <file>16x16/preferences-desktop.png</file>
+        <file>16x16/text-x-generic.png</file>
+        <file>16x16/utilities-terminal.png</file>
         <file>16x16/window-close.png</file>
+        <file>16x16/x-office-document.png</file>
         <file>16x16/zoom-in.png</file>
         <file>16x16/zoom-original.png</file>
         <file>16x16/zoom-out.png</file>
@@ -48,6 +52,7 @@
         <file>24x24/edit-undo.png</file>
         <file>24x24/format-indent-less.png</file>
         <file>24x24/format-indent-more.png</file>
+        <file>24x24/format-justify-center.png</file>
         <file>24x24/format-text-bold.png</file>
         <file>24x24/format-text-italic.png</file>
         <file>24x24/format-text-strikethrough.png</file>
@@ -62,13 +67,12 @@
         <file>24x24/list-add.png</file>
         <file>24x24/list-remove.png</file>
         <file>24x24/preferences-desktop.png</file>
+        <file>24x24/text-x-generic.png</file>
+        <file>24x24/utilities-terminal.png</file>
         <file>24x24/window-close.png</file>
+        <file>24x24/x-office-document.png</file>
         <file>24x24/zoom-in.png</file>
         <file>24x24/zoom-original.png</file>
         <file>24x24/zoom-out.png</file>
-        <file>16x16/format-justify-center.png</file>
-        <file>24x24/format-justify-center.png</file>
-        <file>16x16/utilities-terminal.png</file>
-        <file>24x24/utilities-terminal.png</file>
     </qresource>
 </RCC>

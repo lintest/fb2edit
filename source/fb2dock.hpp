@@ -59,6 +59,7 @@ class FbModeAction : public QAction
 {
     Q_OBJECT
 public:
+    explicit FbModeAction(FbMainDock *parent, Fb::Mode mode, const QIcon &icon, const QString &text);
     explicit FbModeAction(FbMainDock *parent, Fb::Mode mode, const QString &text);
 
 private slots:

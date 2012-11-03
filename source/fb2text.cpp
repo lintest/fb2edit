@@ -260,9 +260,11 @@ void FbTextEdit::connectActions(QToolBar *tool)
         }
     }
 
-    connect(act(Fb::ViewContents), SIGNAL(triggered(bool)), this, SLOT(viewContents(bool)));
-    connect(act(Fb::ViewPictures), SIGNAL(triggered(bool)), this, SLOT(viewPictures(bool)));
-    connect(act(Fb::ViewInspector), SIGNAL(triggered(bool)), this, SLOT(viewInspector(bool)));
+    connect(act(Fb::EditFind), SIGNAL(triggered()), SLOT(find()));
+
+    connect(act(Fb::ViewContents), SIGNAL(triggered(bool)), SLOT(viewContents(bool)));
+    connect(act(Fb::ViewPictures), SIGNAL(triggered(bool)), SLOT(viewPictures(bool)));
+    connect(act(Fb::ViewInspector), SIGNAL(triggered(bool)), SLOT(viewInspector(bool)));
 
     connect(act(Fb::ZoomIn), SIGNAL(triggered()), SLOT(zoomIn()));
     connect(act(Fb::ZoomOut), SIGNAL(triggered()), SLOT(zoomOut()));

@@ -175,7 +175,6 @@ class FbHeadEdit : public QTreeView
 
 public:
     explicit FbHeadEdit(QWidget *parent, FbTextEdit *text);
-    void initToolbar(QToolBar &toolbar);
     FbHeadModel * model() const;
 
     void setAction(Fb::Actions index, QAction *action);

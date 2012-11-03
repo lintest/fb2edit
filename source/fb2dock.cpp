@@ -11,6 +11,15 @@
 //  FbModeAction
 //---------------------------------------------------------------------------
 
+FbModeAction::FbModeAction(FbMainDock *parent, Fb::Mode mode, const QIcon &icon, const QString &text)
+    : QAction(icon, text, parent)
+    , m_dock(parent)
+    , m_mode(mode)
+{
+    setCheckable(true);
+    connect(this, SIGNAL(triggered()), SLOT(switchMode()));
+}
+
 FbModeAction::FbModeAction(FbMainDock *parent, Fb::Mode mode, const QString &text)
     : QAction(text, parent)
     , m_dock(parent)
