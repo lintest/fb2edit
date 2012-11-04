@@ -63,7 +63,11 @@ OTHER_FILES += \
     source/js/section_get.js \
     source/js/section_new.js \
     source/js/location.js \
-    source/res/mainicon.rc
+    source/res/mainicon.rc \
+    3rdparty/fb2/FictionBookLinks.xsd \
+    3rdparty/fb2/FictionBookLang.xsd \
+    3rdparty/fb2/FictionBookGenres.xsd \
+    3rdparty/fb2/FictionBook2.1.xsd
 
 if (unix) {
 

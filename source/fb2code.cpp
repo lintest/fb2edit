@@ -686,19 +686,8 @@ void FbCodeEdit::validate()
 
     QUrl url("qrc:/fb2/FictionBook2.1.xsd");
     schema.load(url);
-
-//    QFile file(":/fb2/FictionBook2.1.xsd");
-//    if (!file.open(QFile::ReadOnly)) return;
-//    schema.load(&file);
     if (!schema.isValid()) {
-        QFile file(":/fb2/FictionBook2.1.xsd");
-        file.open(QFile::ReadOnly);
-        QTextStream in(&file);
-        in.setCodec("UTF-8");
-        in.setAutoDetectUnicode(true);
-        setPlainText(in.readAll());
         status(tr("Schema is not valid: ") + handler.statusMessage());
-        setCursor(handler.line(), handler.column());
         return;
     }
 
@@ -707,6 +696,8 @@ void FbCodeEdit::validate()
     if (!validator.validate(data)) {
         setCursor(handler.line(), handler.column());
         status(handler.statusMessage());
+    } else {
+        status(tr("Validation successful"));
     }
 }
 

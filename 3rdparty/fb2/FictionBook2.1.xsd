@@ -515,9 +515,11 @@
 					<xs:documentation>Genre of this book, with the optional match percentage</xs:documentation>
 				</xs:annotation>
 				<xs:complexType>
-					<xs:complexContent>
-						<xs:extension base="authorType"/>
-					</xs:complexContent>
+					<xs:simpleContent>
+						<xs:extension base="genre:genreType">
+							<xs:attribute name="match" type="xs:integer" use="optional" default="100"/>
+						</xs:extension>
+					</xs:simpleContent>
 				</xs:complexType>
 			</xs:element>
 			<xs:element name="author" maxOccurs="unbounded">
