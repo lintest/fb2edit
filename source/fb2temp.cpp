@@ -312,9 +312,8 @@ QVariant FbListModel::data(const QModelIndex &index, int role) const
 #include <QSplitter>
 #include <QScrollArea>
 
-FbListView::FbListView(FbNetworkAccessManager *files, QWidget *parent)
+FbListView::FbListView(QWidget *parent)
     : QTreeView(parent)
-    , m_files(*files)
 {
     setAllColumnsShowFocus(true);
 }
@@ -332,6 +331,18 @@ FbListModel * FbListView::model() const
 }
 
 //---------------------------------------------------------------------------
+//  FbListWidget::FbProxy
+//---------------------------------------------------------------------------
+
+QNetworkReply *FbListWidget::FbProxy::createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData)
+{
+    if (FbNetworkAccessManager * m = qobject_cast<FbNetworkAccessManager*>(m_page->networkAccessManager())) {
+        return m->createRequest(op, request, outgoingData);
+    }
+    return QNetworkAccessManager::createRequest(op, request, outgoingData);
+}
+
+//---------------------------------------------------------------------------
 //  FbListWidget
 //---------------------------------------------------------------------------
 
@@ -345,13 +356,16 @@ FbListWidget::FbListWidget(FbTextEdit *text, QWidget* parent)
 
     QSplitter *splitter = new QSplitter(Qt::Vertical, this);
 
-    m_list = new FbListView(text->files(), splitter);
+    m_list = new FbListView(splitter);
     splitter->addWidget(m_list);
 
     FbTextFrame *frame = new FbTextFrame(splitter);
     splitter->addWidget(frame);
 
+    FbProxy *proxy = new FbProxy(text->page(), this);
+
     m_view = new FbTextBase(frame);
+    m_view->page()->setNetworkAccessManager(proxy);
     frame->layout()->addWidget(m_view);
 
     splitter->setSizes(QList<int>() << 100 << 100);
@@ -365,10 +379,6 @@ FbListWidget::FbListWidget(FbTextEdit *text, QWidget* parent)
 
 void FbListWidget::loadFinished()
 {
-    if (m_view->page() && m_text->page()) {
-        m_view->page()->setNetworkAccessManager(m_text->page()->networkAccessManager());
-    }
-
     m_view->load(QUrl());
 
     m_list->setModel(new FbListModel(m_text, this));
