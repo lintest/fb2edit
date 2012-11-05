@@ -38,9 +38,11 @@ FbMainWindow::FbMainWindow(const QString &filename, ViewMode mode)
     createStatusBar();
     readSettings();
 
+    QString filepath = filename.isEmpty() ? QString(":blank.fb2") : filename;
+
     mainDock->setMode(Fb::Text);
     setCurrentFile(filename);
-    mainDock->load(filename);
+    mainDock->load(filepath);
 }
 
 void FbMainWindow::logMessage(const QString &message)

@@ -43,17 +43,9 @@ FbTextPage::FbTextPage(QObject *parent)
 
     setContentEditable(true);
     setNetworkAccessManager(new FbNetworkAccessManager(this));
-    connect(this, SIGNAL(linkHovered(QString,QString,QString)), parent, SLOT(linkHovered(QString,QString,QString)));
     connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished()));
     connect(this, SIGNAL(contentsChanged()), SLOT(fixContents()));
     connect(this, SIGNAL(selectionChanged()), SLOT(showStatus()));
-
-    QFile *file = new QFile(":blank.fb2");
-    if (file->open(QFile::ReadOnly | QFile::Text)) {
-        read(file);
-    } else {
-        delete file;
-    }
 }
 
 FbNetworkAccessManager *FbTextPage::temp()

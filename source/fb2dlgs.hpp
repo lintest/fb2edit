@@ -9,7 +9,9 @@ class FbTextEdit;
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
+class QLabel;
 class QLineEdit;
+class QTabWidget;
 class QToolBar;
 class QWebView;
 QT_END_NAMESPACE
@@ -71,12 +73,33 @@ private:
 class FbSetupDlg : public QDialog
 {
     Q_OBJECT
-
 public:
-    explicit FbSetupDlg(QWidget *parent = 0, Qt::WindowFlags f = 0);
-
+    explicit FbSetupDlg(QWidget *parent = 0);
 private:
     Ui::FbSetup * ui;
+};
+
+class FbImageDlg : public QDialog
+{
+    Q_OBJECT
+
+private:
+    class FbTab: public QWidget
+    {
+    public:
+        explicit FbTab(QWidget* parent);
+        QLabel *label;
+        QComboBox *combo;
+        QWebView *preview;
+    };
+
+public:
+    explicit FbImageDlg(QWidget *parent = 0);
+
+private:
+    QTabWidget *notebook;
+    FbTab *tabPict;
+    FbTab *tabFile;
 };
 
 #endif // FB2DLGS_H

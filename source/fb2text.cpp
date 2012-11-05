@@ -215,9 +215,11 @@ FbTextEdit::FbTextEdit(QWidget *parent, QObject *owner)
     , dockImgs(0)
     , dockInsp(0)
 {
+    FbTextPage * p = new FbTextPage(this);
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(contextMenu(QPoint)));
-    setPage(new FbTextPage(this));
+    connect(p, SIGNAL(linkHovered(QString,QString,QString)), SLOT(linkHovered(QString,QString,QString)));
+    setPage(p);
 }
 
 FbTextEdit::~FbTextEdit()
@@ -262,6 +264,10 @@ void FbTextEdit::connectActions(QToolBar *tool)
 
     connect(act(Fb::EditFind), SIGNAL(triggered()), SLOT(find()));
 
+    connect(act(Fb::InsertImage), SIGNAL(triggered()), SLOT(insertImage()));
+    connect(act(Fb::InsertLink), SIGNAL(triggered()), SLOT(insertLink()));
+    connect(act(Fb::InsertNote), SIGNAL(triggered()), SLOT(insertNote()));
+
     connect(act(Fb::ViewContents), SIGNAL(triggered(bool)), SLOT(viewContents(bool)));
     connect(act(Fb::ViewPictures), SIGNAL(triggered(bool)), SLOT(viewPictures(bool)));
     connect(act(Fb::ViewInspector), SIGNAL(triggered(bool)), SLOT(viewInspector(bool)));
@@ -271,13 +277,6 @@ void FbTextEdit::connectActions(QToolBar *tool)
     connect(act(Fb::ZoomReset), SIGNAL(triggered()), SLOT(zoomReset()));
 
     /*
-    connect(textPage, SIGNAL(selectionChanged()), SLOT(selectionChanged()));
-
-    connect(actionFind, SIGNAL(triggered()), textEdit, SLOT(find()));
-    connect(actionImage, SIGNAL(triggered()), textEdit, SLOT(insertImage()));
-    connect(actionNote, SIGNAL(triggered()), textEdit, SLOT(insertNote()));
-    connect(actionLink, SIGNAL(triggered()), textEdit, SLOT(insertLink()));
-
     connect(actionTitle, SIGNAL(triggered()), textPage, SLOT(insertTitle()));
     connect(actionAnnot, SIGNAL(triggered()), textPage, SLOT(insertAnnot()));
     connect(actionAuthor, SIGNAL(triggered()), textPage, SLOT(insertAuthor()));
@@ -289,15 +288,10 @@ void FbTextEdit::connectActions(QToolBar *tool)
     connect(actionDate, SIGNAL(triggered()), textPage, SLOT(insertDate()));
     connect(actionBody, SIGNAL(triggered()), textPage, SLOT(insertBody()));
 
-    connect(actionSimpleText, SIGNAL(triggered()), textPage, SLOT(insertText()));
-    connect(actionParaSeparator, SIGNAL(triggered()), textEdit->pageAction(QWebPage::InsertParagraphSeparator), SIGNAL(triggered()));
-    connect(actionLineSeparator, SIGNAL(triggered()), textEdit->pageAction(QWebPage::InsertLineSeparator), SIGNAL(triggered()));
-
     connect(actionSectionAdd, SIGNAL(triggered()), textPage, SLOT(createSection()));
     connect(actionSectionDel, SIGNAL(triggered()), textPage, SLOT(deleteSection()));
     connect(actionTextTitle, SIGNAL(triggered()), textPage, SLOT(createTitle()));
-
-*/
+    */
 
     tool->clear();
 
@@ -588,11 +582,14 @@ void FbTextEdit::find()
 
 void FbTextEdit::insertImage()
 {
+    FbImageDlg(this).exec();
+    return;
+
     QString filters;
-    filters += tr("Common Graphics (*.png *.jpg *.jpeg *.gif);;");
-    filters += tr("Portable Network Graphics (PNG) (*.png);;");
-    filters += tr("JPEG (*.jpg *.jpeg);;");
-    filters += tr("Graphics Interchange Format (*.gif);;");
+    filters += tr("Common Graphics (*.png *.jpg *.jpeg *.gif)") += ";;";
+    filters += tr("Portable Network Graphics (PNG) (*.png)") += ";;";
+    filters += tr("JPEG (*.jpg *.jpeg)") += ";;";
+    filters += tr("Graphics Interchange Format (*.gif)") += ";;";
     filters += tr("All Files (*)");
 
     QString path = QFileDialog::getOpenFileName(this, tr("Insert image..."), QString(), filters);
@@ -621,7 +618,7 @@ void FbTextEdit::insertLink()
 
 void FbTextEdit::execCommand(const QString &cmd, const QString &arg)
 {
-    QString javascript = QString("document.execCommand(\"%1\",false,\"%2\")").arg(cmd).arg(arg);
+    QString javascript = QString("document.exelayoutcCommand(\"%1\",false,\"%2\")").arg(cmd).arg(arg);
     page()->mainFrame()->evaluateJavaScript(javascript);
 }
 

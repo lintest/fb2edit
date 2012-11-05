@@ -9,7 +9,10 @@
 
 #include <QComboBox>
 #include <QDialogButtonBox>
+#include <QFrame>
+#include <QLabel>
 #include <QLineEdit>
+#include <QTabWidget>
 #include <QToolBar>
 #include <QWebFrame>
 #include <QWebPage>
@@ -156,9 +159,66 @@ void FbNoteDlg::loadFinished()
 //  FbSetupDlg
 //---------------------------------------------------------------------------
 
-FbSetupDlg::FbSetupDlg(QWidget *parent, Qt::WindowFlags f)
-    : QDialog(parent, f)
+FbSetupDlg::FbSetupDlg(QWidget *parent)
+    : QDialog(parent)
     , ui(new Ui::FbSetup)
 {
     ui->setupUi(this);
+}
+
+//---------------------------------------------------------------------------
+//  FbSetupDlg
+//---------------------------------------------------------------------------
+
+FbImageDlg::FbTab::FbTab(QWidget* parent)
+    : QWidget(parent)
+{
+    QGridLayout * layout = new QGridLayout(this);
+
+    label = new QLabel(this);
+    label->setText(tr("File name:"));
+    layout->addWidget(label, 0, 0, 1, 1);
+
+    combo = new QComboBox(this);
+    QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    combo->setSizePolicy(sizePolicy);
+    combo->setEditable(true);
+    layout->addWidget(combo, 0, 1, 1, 1);
+
+    QFrame *frame = new FbTextFrame(this);
+    frame->setMinimumSize(QSize(300, 200));
+    layout->addWidget(frame, 1, 0, 1, 2);
+
+    preview = new QWebView(this);
+    frame->layout()->addWidget(preview);
+    preview->load(QUrl("about:blank"));
+}
+
+FbImageDlg::FbImageDlg(QWidget *parent)
+    : QDialog(parent)
+{
+    setWindowTitle(tr("Insert picture"));
+
+    QBoxLayout *layout = new QBoxLayout(QBoxLayout::TopToBottom, this);
+
+    notebook = new QTabWidget(this);
+    notebook->addTab(tabPict = new FbTab(notebook), tr("Collection"));
+    notebook->addTab(tabFile = new FbTab(notebook), tr("New file"));
+    layout->addWidget(notebook);
+
+    QDialogButtonBox *buttons = new QDialogButtonBox(this);
+    buttons->setOrientation(Qt::Horizontal);
+    buttons->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+    layout->addWidget(buttons);
+
+    QObject::connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
+    QObject::connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
+
+    resize(minimumSizeHint());
+
+    QString style =
+        "QComboBox::drop-down{border:0px;margin:0px;}"
+        "QComboBox::down-arrow {image:url(qrc:/dots.png);}";
+    tabFile->combo->setStyleSheet(style);
+    tabPict->combo->setFocus();
 }
