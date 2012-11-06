@@ -9,6 +9,7 @@ class FbTextBase;
 class FbTextEdit;
 
 QT_BEGIN_NAMESPACE
+class QAbstractItemModel;
 class QLabel;
 class QLineEdit;
 class QTabWidget;
@@ -79,16 +80,22 @@ private:
     Ui::FbSetup * ui;
 };
 
-class FbImageCombo : public QComboBox
+#include <QVBoxLayout>
+#include <QToolButton>
+#include <QLineEdit>
+
+class FbComboCtrl : public QLineEdit
 {
     Q_OBJECT
 public:
-    explicit FbImageCombo(QWidget *parent = 0): QComboBox(parent) {}
-    void showPopup();
+    explicit FbComboCtrl(QWidget *parent = 0);
+    void setIcon(const QIcon &icon);
 signals:
     void popup();
-public slots:
-    void selectFile();
+protected:
+    void resizeEvent(QResizeEvent* event);
+private:
+    QToolButton *button;
 };
 
 class FbImageDlg : public QDialog
@@ -99,9 +106,10 @@ private:
     class FbTab: public QWidget
     {
     public:
-        explicit FbTab(QWidget* parent);
+        explicit FbTab(QWidget* parent, QAbstractItemModel *model = 0);
         QLabel *label;
         QComboBox *combo;
+        FbComboCtrl *edit;
         QWebView *preview;
     };
 
@@ -111,6 +119,7 @@ public:
 private slots:
     void pictureActivated(const QString & text);
     void notebookChanged(int index);
+    void selectFile();
 
 private:
     QTabWidget *notebook;

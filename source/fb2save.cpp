@@ -393,6 +393,7 @@ FbSaveHandler::RootHandler::RootHandler(FbSaveWriter &writer, const QString &nam
 
 FbXmlHandler::NodeHandler * FbSaveHandler::RootHandler::NewTag(const QString &name, const QXmlAttributes &atts)
 {
+    Q_UNUSED(atts);
     return name == "body" ? new BodyHandler(m_writer, name) : NULL;
 }
 

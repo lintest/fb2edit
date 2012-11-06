@@ -168,11 +168,42 @@ FbSetupDlg::FbSetupDlg(QWidget *parent)
 }
 
 //---------------------------------------------------------------------------
+//  FbComboCtrl
+//---------------------------------------------------------------------------
+
+FbComboCtrl::FbComboCtrl(QWidget *parent)
+    : QLineEdit(parent)
+{
+    button = new QToolButton(this);
+    button->setCursor(Qt::ArrowCursor);
+    button->setFocusPolicy(Qt::NoFocus);
+    connect(button, SIGNAL(clicked()), SIGNAL(popup()));
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->addWidget(button, 0, Qt::AlignRight);
+    layout->setSpacing(0);
+    layout->setMargin(0);
+}
+
+void FbComboCtrl::resizeEvent(QResizeEvent* event)
+{
+    QLineEdit::resizeEvent(event);
+    QMargins margins(0, 0, button->width(), 0);
+    setTextMargins(margins);
+}
+
+void FbComboCtrl::setIcon(const QIcon &icon)
+{
+    button->setIcon(icon);
+}
+
+//---------------------------------------------------------------------------
 //  FbImageDlg::FbTab
 //---------------------------------------------------------------------------
 
-FbImageDlg::FbTab::FbTab(QWidget* parent)
+FbImageDlg::FbTab::FbTab(QWidget* parent, QAbstractItemModel *model)
     : QWidget(parent)
+    , combo(0)
+    , edit(0)
 {
     QGridLayout * layout = new QGridLayout(this);
 
@@ -180,10 +211,17 @@ FbImageDlg::FbTab::FbTab(QWidget* parent)
     label->setText(tr("File name:"));
     layout->addWidget(label, 0, 0, 1, 1);
 
-    combo = new FbImageCombo(this);
+    QWidget *control;
+    if (model) {
+        control = combo = new QComboBox(this);
+        combo->setModel(model);
+    } else {
+        control = edit = new FbComboCtrl(this);
+    }
+
     QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    combo->setSizePolicy(sizePolicy);
-    layout->addWidget(combo, 0, 1, 1, 1);
+    control->setSizePolicy(sizePolicy);
+    layout->addWidget(control, 0, 1, 1, 1);
 
     QFrame *frame = new FbTextFrame(this);
     frame->setMinimumSize(QSize(300, 200));
@@ -191,32 +229,6 @@ FbImageDlg::FbTab::FbTab(QWidget* parent)
 
     preview = new QWebView(this);
     frame->layout()->addWidget(preview);
-}
-
-//---------------------------------------------------------------------------
-//  FbImageCombo
-//---------------------------------------------------------------------------
-
-void FbImageCombo::showPopup()
-{
-    QComboBox::showPopup();
-    if (isEditable()) {
-        emit popup();
-        QComboBox::hidePopup();
-    }
-}
-
-void FbImageCombo::selectFile()
-{
-    QString filters;
-    filters += tr("Common Graphics (*.png *.jpg *.jpeg *.gif)") += ";;";
-    filters += tr("Portable Network Graphics (PNG) (*.png)") += ";;";
-    filters += tr("JPEG (*.jpg *.jpeg)") += ";;";
-    filters += tr("Graphics Interchange Format (*.gif)") += ";;";
-    filters += tr("All Files (*)");
-
-    QString path = QFileDialog::getOpenFileName(this, tr("Insert image..."), QString(), filters);
-    if (!path.isEmpty()) setEditText(path);
 }
 
 //---------------------------------------------------------------------------
@@ -247,29 +259,22 @@ FbImageDlg::FbImageDlg(FbTextEdit *text)
     QUrl url = text->url();
 
     tabFile = new FbTab(notebook);
-    tabFile->combo->setEditable(true);
+    tabFile->edit->setIcon(FbIcon("document-open"));
     tabFile->preview->setHtml(QString(), url);
-    connect(tabFile->combo, SIGNAL(popup()), tabFile->combo, SLOT(selectFile()));
+    connect(tabFile->edit, SIGNAL(popup()), SLOT(selectFile()));
     notebook->addTab(tabFile, tr("Select file"));
 
     if (text->store()->count()) {
         FbListModel *model = new FbListModel(text, this);
-        tabPict = new FbTab(notebook);
+        tabPict = new FbTab(notebook, model);
         tabPict->preview->setHtml(QString(), url);
-        tabPict->combo->setModel(model);
         tabPict->combo->setCurrentIndex(0);
         tabPict->preview->page()->setNetworkAccessManager(text->page()->networkAccessManager());
         notebook->addTab(tabPict, tr("From collection"));
         connect(tabPict->combo, SIGNAL(activated(QString)), SLOT(pictureActivated(QString)));
-        tabPict->combo->setFocus();
     }
 
-    QString style =
-//      "QComboBox::drop-down{border:0px;margin:0px;}"
-        "QComboBox::down-arrow{image:url(:dots.png);}";
-    tabFile->combo->setStyleSheet(style);
-
-    tabFile->combo->setFocus();
+    tabFile->edit->setFocus();
     resize(minimumSizeHint());
 }
 
@@ -279,6 +284,19 @@ void FbImageDlg::notebookChanged(int index)
         disconnect(notebook, SIGNAL(currentChanged(int)), this, SLOT(notebookChanged(int)));
         if (tabPict) pictureActivated(tabPict->combo->itemText(0));
     }
+}
+
+void FbImageDlg::selectFile()
+{
+    QString filters;
+    filters += tr("Common Graphics (*.png *.jpg *.jpeg *.gif)") += ";;";
+    filters += tr("Portable Network Graphics (PNG) (*.png)") += ";;";
+    filters += tr("JPEG (*.jpg *.jpeg)") += ";;";
+    filters += tr("Graphics Interchange Format (*.gif)") += ";;";
+    filters += tr("All Files (*)");
+    QWidget *p = qobject_cast<QWidget*>(parent());
+    QString path = QFileDialog::getOpenFileName(p, tr("Insert image..."), QString(), filters);
+    if (!path.isEmpty()) tabFile->edit->setText(path);
 }
 
 void FbImageDlg::pictureActivated(const QString & text)
