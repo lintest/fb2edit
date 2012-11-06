@@ -81,4 +81,4 @@ FORMS += \
     source/fb2find.ui \
     source/fb2setup.ui
 
-win32:RC_FILE = source/res/icons.rc
+win32:RC_FILE = source/res/mainicon.rc
