@@ -388,7 +388,7 @@ void FbListWidget::loadFinished()
 
 void FbListWidget::showImage(const QString &name)
 {
-    QUrl url = m_text->page()->mainFrame()->url();
+    QUrl url = m_text->url();
     url.setFragment(name);
     QString html = QString("<img src=%1 valign=center align=center width=100%>").arg(url.toString());
     m_view->setHtml(html);

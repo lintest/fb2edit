@@ -52,6 +52,7 @@ QT += network
 QT += xmlpatterns
 
 OTHER_FILES += \
+    source/res/dots.png \
     source/res/style.css \
     source/res/blank.fb2 \
     source/js/export.js \

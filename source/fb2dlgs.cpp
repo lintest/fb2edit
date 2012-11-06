@@ -167,7 +167,7 @@ FbSetupDlg::FbSetupDlg(QWidget *parent)
 }
 
 //---------------------------------------------------------------------------
-//  FbSetupDlg
+//  FbImageDlg::FbTab
 //---------------------------------------------------------------------------
 
 FbImageDlg::FbTab::FbTab(QWidget* parent)
@@ -182,7 +182,6 @@ FbImageDlg::FbTab::FbTab(QWidget* parent)
     combo = new QComboBox(this);
     QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     combo->setSizePolicy(sizePolicy);
-    combo->setEditable(true);
     layout->addWidget(combo, 0, 1, 1, 1);
 
     QFrame *frame = new FbTextFrame(this);
@@ -191,19 +190,22 @@ FbImageDlg::FbTab::FbTab(QWidget* parent)
 
     preview = new QWebView(this);
     frame->layout()->addWidget(preview);
-    preview->load(QUrl("about:blank"));
 }
 
-FbImageDlg::FbImageDlg(QWidget *parent)
-    : QDialog(parent)
+//---------------------------------------------------------------------------
+//  FbImageDlg
+//---------------------------------------------------------------------------
+
+FbImageDlg::FbImageDlg(FbTextEdit *text)
+    : QDialog(text)
+    , tabFile(0)
+    , tabPict(0)
 {
     setWindowTitle(tr("Insert picture"));
 
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::TopToBottom, this);
 
     notebook = new QTabWidget(this);
-    notebook->addTab(tabPict = new FbTab(notebook), tr("Collection"));
-    notebook->addTab(tabFile = new FbTab(notebook), tr("New file"));
     layout->addWidget(notebook);
 
     QDialogButtonBox *buttons = new QDialogButtonBox(this);
@@ -211,14 +213,51 @@ FbImageDlg::FbImageDlg(QWidget *parent)
     buttons->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
     layout->addWidget(buttons);
 
-    QObject::connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
-    QObject::connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(buttons, SIGNAL(accepted()), SLOT(accept()));
+    connect(buttons, SIGNAL(rejected()), SLOT(reject()));
+    connect(notebook, SIGNAL(currentChanged(int)), SLOT(notebookChanged(int)));
 
-    resize(minimumSizeHint());
+    QUrl url = text->url();
+
+    tabFile = new FbTab(notebook);
+    tabFile->combo->setEditable(true);
+    tabFile->preview->setHtml(QString(), url);
+    notebook->addTab(tabFile, tr("New file"));
+
+    if (text->store()->count()) {
+        FbListModel *model = new FbListModel(text, this);
+        tabPict = new FbTab(notebook);
+        tabPict->preview->setHtml(QString(), url);
+        tabPict->combo->setModel(model);
+        tabPict->combo->setCurrentIndex(0);
+        tabPict->preview->page()->setNetworkAccessManager(text->page()->networkAccessManager());
+        notebook->addTab(tabPict, tr("Collection"));
+        connect(tabPict->combo, SIGNAL(activated(QString)), SLOT(pictureActivated(QString)));
+        tabPict->combo->setFocus();
+    }
 
     QString style =
-        "QComboBox::drop-down{border:0px;margin:0px;}"
-        "QComboBox::down-arrow {image:url(qrc:/dots.png);}";
+//      "QComboBox::drop-down{border:0px;margin:0px;}"
+        "QComboBox::down-arrow{image:url(:dots.png);}";
     tabFile->combo->setStyleSheet(style);
-    tabPict->combo->setFocus();
+
+    tabFile->combo->setFocus();
+    resize(minimumSizeHint());
 }
+
+void FbImageDlg::notebookChanged(int index)
+{
+    if (index) {
+        disconnect(notebook, SIGNAL(currentChanged(int)), this, SLOT(notebookChanged(int)));
+        if (tabPict) pictureActivated(tabPict->combo->itemText(0));
+    }
+}
+
+void FbImageDlg::pictureActivated(const QString & text)
+{
+    QUrl url = tabPict->preview->url();
+    url.setFragment(text);
+    QString html = QString("<img src=%1 valign=center align=center width=100%>").arg(url.toString());
+    tabPict->preview->setHtml(html, tabPict->preview->url());
+}
+

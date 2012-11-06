@@ -21,6 +21,8 @@ class FbFind;
 class FbSetup;
 }
 
+
+
 class FbCodeFindDlg : public QDialog
 {
     Q_OBJECT
@@ -94,12 +96,16 @@ private:
     };
 
 public:
-    explicit FbImageDlg(QWidget *parent = 0);
+    explicit FbImageDlg(FbTextEdit *text);
+
+private slots:
+    void pictureActivated(const QString & text);
+    void notebookChanged(int index);
 
 private:
     QTabWidget *notebook;
-    FbTab *tabPict;
     FbTab *tabFile;
+    FbTab *tabPict;
 };
 
 #endif // FB2DLGS_H
