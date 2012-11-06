@@ -8,7 +8,7 @@
 #include <QThread>
 #include <QXmlDefaultHandler>
 
-class FbNetworkAccessManager;
+class FbStore;
 
 class FbReadThread : public QThread
 {
@@ -20,7 +20,7 @@ public:
 
 signals:
     void binary(const QString &name, const QByteArray &data);
-    void html(QObject *temp, const QString &html);
+    void html(const QString &html, FbStore *store);
 
 protected:
     void run();
@@ -32,7 +32,7 @@ private:
 private:
     QIODevice *m_device;
     QXmlInputSource *m_source;
-    FbNetworkAccessManager *m_temp;
+    FbStore *m_store;
     QString m_html;
 };
 

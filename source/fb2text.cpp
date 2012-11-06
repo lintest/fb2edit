@@ -232,9 +232,9 @@ FbTextPage *FbTextEdit::page()
     return qobject_cast<FbTextPage*>(FbTextBase::page());
 }
 
-FbNetworkAccessManager *FbTextEdit::files()
+FbStore *FbTextEdit::store()
 {
-    return page()->temp();
+    return page()->manager()->store();
 }
 
 QAction * FbTextEdit::act(Fb::Actions index) const
@@ -599,7 +599,7 @@ void FbTextEdit::insertImage()
     if (!file.open(QIODevice::ReadOnly)) return;
 
     QByteArray data = file.readAll();
-    QString name = files()->add(path, data);
+    QString name = store()->add(path, data);
     execCommand("insertImage", name.prepend("#"));
 }
 

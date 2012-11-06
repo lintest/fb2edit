@@ -5,6 +5,7 @@
 #include <QUndoCommand>
 #include <QWebPage>
 
+class FbStore;
 class FbTextElement;
 class FbNetworkAccessManager;
 
@@ -28,7 +29,7 @@ class FbTextPage : public QWebPage
 
 public:
     explicit FbTextPage(QObject *parent = 0);
-    FbNetworkAccessManager *temp();
+    FbNetworkAccessManager *manager();
     bool read(const QString &html);
     bool read(QIODevice *device);
     void push(QUndoCommand * command, const QString &text = QString());
@@ -48,7 +49,7 @@ signals:
     void status(const QString &text);
 
 public slots:
-    void html(QObject *temp, const QString &html);
+    void html(const QString &html, FbStore *store);
     void insertBody();
     void insertTitle();
     void insertAnnot();

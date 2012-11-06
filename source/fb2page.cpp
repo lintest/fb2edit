@@ -48,7 +48,7 @@ FbTextPage::FbTextPage(QObject *parent)
     connect(this, SIGNAL(selectionChanged()), SLOT(showStatus()));
 }
 
-FbNetworkAccessManager *FbTextPage::temp()
+FbNetworkAccessManager *FbTextPage::manager()
 {
     return qobject_cast<FbNetworkAccessManager*>(networkAccessManager());
 }
@@ -67,17 +67,11 @@ bool FbTextPage::read(QIODevice *device)
     return true;
 }
 
-void FbTextPage::html(QObject *temp, const QString &html)
+void FbTextPage::html(const QString &html, FbStore *store)
 {
-    FbNetworkAccessManager *manager = qobject_cast<FbNetworkAccessManager*>(temp);
-    if (!manager) { temp->deleteLater(); return; }
-
-    QUrl url = FbTextPage::createUrl();
-    setNetworkAccessManager(manager);
-    manager->setPath(url.path());
-    manager->setParent(this);
-
     QWebSettings::clearMemoryCaches();
+    QUrl url = FbTextPage::createUrl();
+    manager()->setStore(url, store);
     mainFrame()->setHtml(html, url);
 
 }

@@ -12,7 +12,7 @@
 void FbReadThread::execute(QObject *parent, QXmlInputSource *source, QIODevice *device)
 {
     FbReadThread *thread = new FbReadThread(parent, source, device);
-    connect(thread, SIGNAL(html(QObject*,QString)), parent, SLOT(html(QObject*,QString)));
+    connect(thread, SIGNAL(html(QString, FbStore*)), parent, SLOT(html(QString, FbStore*)));
     thread->start();
 }
 
@@ -21,7 +21,7 @@ FbReadThread::FbReadThread(QObject *parent, QXmlInputSource *source, QIODevice *
     , m_device(device)
     , m_source(source)
 {
-    m_temp = new FbNetworkAccessManager(this);
+    m_store = new FbStore(this);
 }
 
 FbReadThread::~FbReadThread()
@@ -33,9 +33,9 @@ FbReadThread::~FbReadThread()
 void FbReadThread::run()
 {
     if (parse()) {
-        emit html(m_temp, m_html);
+        emit html(m_html, m_store);
     } else {
-        delete m_temp;
+        delete m_store;
     }
     deleteLater();
 }
@@ -45,7 +45,7 @@ bool FbReadThread::parse()
     QXmlStreamWriter writer(&m_html);
     FbReadHandler handler(writer);
 
-    connect(&handler, SIGNAL(binary(QString,QByteArray)), m_temp, SLOT(binary(QString,QByteArray)));
+    connect(&handler, SIGNAL(binary(QString,QByteArray)), m_store, SLOT(binary(QString,QByteArray)));
 
 #ifdef FB2_USE_LIBXML2
     XML2::XmlReader reader;

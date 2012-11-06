@@ -53,7 +53,8 @@ QByteArray FbBinary::data()
 //  FbStore
 //---------------------------------------------------------------------------
 
-FbStore::FbStore()
+FbStore::FbStore(QObject *parent)
+    : QObject(parent)
 {
 }
 
@@ -61,6 +62,11 @@ FbStore::~FbStore()
 {
     FbTemporaryIterator it(*this);
     while (it.hasNext()) delete it.next();
+}
+
+void FbStore::binary(const QString &name, const QByteArray &data)
+{
+    set(name, data);
 }
 
 QString FbStore::add(const QString &path, QByteArray &data)
@@ -197,47 +203,52 @@ qint64 FbImageReply::readData(char *data, qint64 maxSize)
 
 FbNetworkAccessManager::FbNetworkAccessManager(QObject *parent)
     : QNetworkAccessManager(parent)
+    , m_store(new FbStore(this))
 {
-//    QWebSettings::clearMemoryCaches();
 }
 
-void FbNetworkAccessManager::binary(const QString &name, const QByteArray &data)
+void FbNetworkAccessManager::setStore(const QUrl url, FbStore *store)
 {
-    m_files.set(name, data);
+    m_path = url.path();
+    if (m_store) delete m_store;
+    if (!store) store = new FbStore(this);
+    store->setParent(this);
+    m_store = store;
 }
 
 QNetworkReply * FbNetworkAccessManager::createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData)
 {
-    const QUrl &url = request.url();
-    const QString path = url.path();
-    if (url.scheme() == "fb2" && path == m_path) return imageRequest(op, request);
+    if (m_store) {
+        const QUrl &url = request.url();
+        const QString path = url.path();
+        if (url.scheme() == "fb2" && path == m_path) {
+            QString name = request.url().fragment();
+            QByteArray data = m_store->data(name);
+            return new FbImageReply(op, request, data);
+        }
+    }
     return QNetworkAccessManager::createRequest(op, request, outgoingData);
-}
-
-QNetworkReply * FbNetworkAccessManager::imageRequest(Operation op, const QNetworkRequest &request)
-{
-    QString name = request.url().fragment();
-    QByteArray data = m_files.data(name);
-    return new FbImageReply(op, request, data);
 }
 
 QVariant FbNetworkAccessManager::info(int row, int col) const
 {
+    if (!m_store) return QVariant();
     if (0 <= row && row < count()) {
-        FbBinary *file = m_files[row];
+        FbBinary *file = m_store->at(row);
         switch (col) {
             case 2: return file->type();
             case 3: return file->size();
         }
-        return m_files[row]->name();
+        return m_store->at(row)->name();
     }
     return QVariant();
 }
 
 QByteArray FbNetworkAccessManager::data(int index) const
 {
+    if (!m_store) return QByteArray();
     if (0 <= index && index < count()) {
-        return m_files[index]->data();
+        return m_store->at(index)->data();
     }
     return QByteArray();
 }
@@ -331,18 +342,6 @@ FbListModel * FbListView::model() const
 }
 
 //---------------------------------------------------------------------------
-//  FbListWidget::FbProxy
-//---------------------------------------------------------------------------
-
-QNetworkReply *FbListWidget::FbProxy::createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData)
-{
-    if (FbNetworkAccessManager * m = qobject_cast<FbNetworkAccessManager*>(m_page->networkAccessManager())) {
-        return m->createRequest(op, request, outgoingData);
-    }
-    return QNetworkAccessManager::createRequest(op, request, outgoingData);
-}
-
-//---------------------------------------------------------------------------
 //  FbListWidget
 //---------------------------------------------------------------------------
 
@@ -362,10 +361,8 @@ FbListWidget::FbListWidget(FbTextEdit *text, QWidget* parent)
     FbTextFrame *frame = new FbTextFrame(splitter);
     splitter->addWidget(frame);
 
-    FbProxy *proxy = new FbProxy(text->page(), this);
-
     m_view = new FbTextBase(frame);
-    m_view->page()->setNetworkAccessManager(proxy);
+    m_view->page()->setNetworkAccessManager(text->page()->networkAccessManager());
     frame->layout()->addWidget(m_view);
 
     splitter->setSizes(QList<int>() << 100 << 100);

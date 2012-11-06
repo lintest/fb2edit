@@ -75,7 +75,7 @@ public:
     virtual ~FbTextEdit();
 
     FbTextPage *page();
-    FbNetworkAccessManager *files();
+    FbStore *store();
     bool save(QIODevice *device, const QString &codec = QString());
     bool save(QByteArray *array);
     bool save(QString *string);

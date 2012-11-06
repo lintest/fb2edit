@@ -42,7 +42,7 @@ class FbStore : public QObject, private FbBinatyList
 {
     Q_OBJECT
 public:
-    explicit FbStore();
+    explicit FbStore(QObject *parent);
     virtual ~FbStore();
     QString add(const QString &path, QByteArray &data);
     bool exists(const QString &name) const;
@@ -50,8 +50,10 @@ public:
     const QString & set(const QString &name, QByteArray data, const QString &hash = QString());
     QString name(const QString &hash) const;
     QByteArray data(const QString &name) const;
+public slots:
+    void binary(const QString &name, const QByteArray &data);
 public:
-    inline FbBinary * operator[](int i) const { return FbBinatyList::operator[](i); }
+    inline FbBinary * at(int i) const { return FbBinatyList::at(i); }
     inline int count() const { return FbBinatyList::count(); }
 private:
     QString newName(const QString &path);
@@ -70,6 +72,31 @@ public:
 };
 
 #endif
+
+class FbNetworkAccessManager : public QNetworkAccessManager
+{
+    Q_OBJECT
+
+public:
+    explicit FbNetworkAccessManager(QObject *parent = 0);
+    void setStore(const QUrl url, FbStore *store);
+    FbStore *store() const { return m_store; }
+
+public:
+    QString add(const QString &path, QByteArray &data) { return m_store->add(path, data); }
+    bool exists(const QString &name) const { return m_store->exists(name); }
+    FbBinary * get(const QString &name) const { return m_store->get(name); }
+    int count() const { return m_store->count(); }
+    QByteArray data(int index) const;
+    QVariant info(int row, int col) const;
+
+protected:
+    virtual QNetworkReply *createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData = 0);
+
+private:
+    FbStore *m_store;
+    QString m_path;
+};
 
 class FbImageReply : public QNetworkReply
 {
@@ -128,17 +155,6 @@ class FbListWidget : public QWidget
     Q_OBJECT
 
 public:
-    class FbProxy : public QNetworkAccessManager
-    {
-    public:
-        FbProxy(QWebPage *page, QObject *parent): QNetworkAccessManager(parent), m_page(page) {}
-    protected:
-        virtual QNetworkReply *createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData = 0);
-    private:
-        QWebPage *m_page;
-    };
-
-public:
     explicit FbListWidget(FbTextEdit *text, QWidget* parent = 0);
 
     QSize sizeHint() const { return QSize(200,200); }
@@ -153,38 +169,6 @@ private:
     FbTextEdit *m_text;
     FbListView *m_list;
     QWebView *m_view;
-};
-
-class FbNetworkAccessManager : public QNetworkAccessManager
-{
-    Q_OBJECT
-
-public:
-    explicit FbNetworkAccessManager(QObject *parent = 0);
-    FbStore & files() { return m_files; }
-    void setPath(const QString &path) { m_path = path; }
-
-public slots:
-    void binary(const QString &name, const QByteArray &data);
-
-public:
-    QString add(const QString &path, QByteArray &data) { return m_files.add(path, data); }
-    bool exists(const QString &name) const { return m_files.exists(name); }
-    FbBinary * get(const QString &name) const { return m_files.get(name); }
-    int count() const { return m_files.count(); }
-    QByteArray data(int index) const;
-    QVariant info(int row, int col) const;
-
-protected:
-    virtual QNetworkReply *createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData = 0);
-
-private:
-    QNetworkReply *imageRequest(Operation op, const QNetworkRequest &request);
-
-private:
-    FbStore m_files;
-    QString m_path;
-    friend class FbListWidget::FbProxy;
 };
 
 #endif // FB2TEMP_H

@@ -199,9 +199,12 @@ QByteArray FbSaveWriter::downloadFile(const QUrl &url)
 
 QString FbSaveWriter::filename(const QString &path)
 {
+    FbStore *store = m_view.store();
+    if (!store) return QString();
+
     if (path.left(1) == "#") {
         QString name = path.mid(1);
-        if (m_view.files()->exists(name)) {
+        if (store->exists(name)) {
             m_names.append(name);
             return name;
         }
@@ -210,7 +213,7 @@ QString FbSaveWriter::filename(const QString &path)
         QUrl url = path;
         QByteArray data = downloadFile(url);
         if (data.size() == 0) return QString();
-        QString name = m_view.files()->add(url.path(), data);
+        QString name = store->add(url.path(), data);
         m_names.append(name);
         return name;
     }
@@ -237,11 +240,14 @@ void FbSaveWriter::writeStyle()
 
 void FbSaveWriter::writeFiles()
 {
+    FbStore *store = m_view.store();
+    if (!store) return;
+
     QStringListIterator it(m_names);
     while (it.hasNext()) {
         QString name = it.next();
         if (name.isEmpty()) continue;
-        FbBinary * file = m_view.files()->get(name);
+        FbBinary * file = store->get(name);
         if (!file) continue;
         writeStartElement("binary", 2);
         writeAttribute("id", name);
