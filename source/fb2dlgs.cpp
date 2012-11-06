@@ -9,6 +9,7 @@
 
 #include <QComboBox>
 #include <QDialogButtonBox>
+#include <QFileDialog>
 #include <QFrame>
 #include <QLabel>
 #include <QLineEdit>
@@ -179,7 +180,7 @@ FbImageDlg::FbTab::FbTab(QWidget* parent)
     label->setText(tr("File name:"));
     layout->addWidget(label, 0, 0, 1, 1);
 
-    combo = new QComboBox(this);
+    combo = new FbImageCombo(this);
     QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     combo->setSizePolicy(sizePolicy);
     layout->addWidget(combo, 0, 1, 1, 1);
@@ -190,6 +191,32 @@ FbImageDlg::FbTab::FbTab(QWidget* parent)
 
     preview = new QWebView(this);
     frame->layout()->addWidget(preview);
+}
+
+//---------------------------------------------------------------------------
+//  FbImageCombo
+//---------------------------------------------------------------------------
+
+void FbImageCombo::showPopup()
+{
+    QComboBox::showPopup();
+    if (isEditable()) {
+        emit popup();
+        QComboBox::hidePopup();
+    }
+}
+
+void FbImageCombo::selectFile()
+{
+    QString filters;
+    filters += tr("Common Graphics (*.png *.jpg *.jpeg *.gif)") += ";;";
+    filters += tr("Portable Network Graphics (PNG) (*.png)") += ";;";
+    filters += tr("JPEG (*.jpg *.jpeg)") += ";;";
+    filters += tr("Graphics Interchange Format (*.gif)") += ";;";
+    filters += tr("All Files (*)");
+
+    QString path = QFileDialog::getOpenFileName(this, tr("Insert image..."), QString(), filters);
+    if (!path.isEmpty()) setEditText(path);
 }
 
 //---------------------------------------------------------------------------
@@ -222,7 +249,8 @@ FbImageDlg::FbImageDlg(FbTextEdit *text)
     tabFile = new FbTab(notebook);
     tabFile->combo->setEditable(true);
     tabFile->preview->setHtml(QString(), url);
-    notebook->addTab(tabFile, tr("New file"));
+    connect(tabFile->combo, SIGNAL(popup()), tabFile->combo, SLOT(selectFile()));
+    notebook->addTab(tabFile, tr("Select file"));
 
     if (text->store()->count()) {
         FbListModel *model = new FbListModel(text, this);
@@ -231,7 +259,7 @@ FbImageDlg::FbImageDlg(FbTextEdit *text)
         tabPict->combo->setModel(model);
         tabPict->combo->setCurrentIndex(0);
         tabPict->preview->page()->setNetworkAccessManager(text->page()->networkAccessManager());
-        notebook->addTab(tabPict, tr("Collection"));
+        notebook->addTab(tabPict, tr("From collection"));
         connect(tabPict->combo, SIGNAL(activated(QString)), SLOT(pictureActivated(QString)));
         tabPict->combo->setFocus();
     }

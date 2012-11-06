@@ -2,13 +2,13 @@
 #define FB2DLGS_H
 
 #include <QDialog>
+#include <QComboBox>
 
 class FbCodeEdit;
 class FbTextBase;
 class FbTextEdit;
 
 QT_BEGIN_NAMESPACE
-class QComboBox;
 class QLabel;
 class QLineEdit;
 class QTabWidget;
@@ -20,8 +20,6 @@ namespace Ui {
 class FbFind;
 class FbSetup;
 }
-
-
 
 class FbCodeFindDlg : public QDialog
 {
@@ -79,6 +77,18 @@ public:
     explicit FbSetupDlg(QWidget *parent = 0);
 private:
     Ui::FbSetup * ui;
+};
+
+class FbImageCombo : public QComboBox
+{
+    Q_OBJECT
+public:
+    explicit FbImageCombo(QWidget *parent = 0): QComboBox(parent) {}
+    void showPopup();
+signals:
+    void popup();
+public slots:
+    void selectFile();
 };
 
 class FbImageDlg : public QDialog
