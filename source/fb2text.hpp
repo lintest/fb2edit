@@ -119,7 +119,7 @@ private:
     bool actionEnabled(QWebPage::WebAction action);
     bool actionChecked(QWebPage::WebAction action);
     void execCommand(const QString &cmd, const QString &arg);
-    FbTemporaryFile * file(const QString &name);
+    FbBinary * file(const QString &name);
     FbNoteView & noteView();
     QWebElement body();
     QWebElement doc();

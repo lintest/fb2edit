@@ -15,13 +15,13 @@ class FbTextEdit;
 
 class FbNetworkAccessManager;
 
-class FbTemporaryFile : public QTemporaryFile
+class FbBinary : public QTemporaryFile
 {
     Q_OBJECT
 public:
     static QString md5(const QByteArray &data);
 public:
-    explicit FbTemporaryFile(const QString &name);
+    explicit FbBinary(const QString &name);
     inline qint64 write(QByteArray &data);
     void setHash(const QString &hash) { m_hash = hash; }
     const QString & hash() const { return m_hash; }
@@ -36,23 +36,28 @@ private:
     qint64 m_size;
 };
 
-class FbTemporaryList : public QList<FbTemporaryFile*>
-{
-public:
-    explicit FbTemporaryList();
-    virtual ~FbTemporaryList();
+typedef QList<FbBinary*> FbBinatyList;
 
+class FbStore : public QObject, private FbBinatyList
+{
+    Q_OBJECT
+public:
+    explicit FbStore();
+    virtual ~FbStore();
     QString add(const QString &path, QByteArray &data);
     bool exists(const QString &name) const;
-    FbTemporaryFile * get(const QString &name) const;
+    FbBinary * get(const QString &name) const;
     const QString & set(const QString &name, QByteArray data, const QString &hash = QString());
     QString name(const QString &hash) const;
     QByteArray data(const QString &name) const;
+public:
+    inline FbBinary * operator[](int i) const { return FbBinatyList::operator[](i); }
+    inline int count() const { return FbBinatyList::count(); }
 private:
     QString newName(const QString &path);
 };
 
-typedef QListIterator<FbTemporaryFile*> FbTemporaryIterator;
+typedef QListIterator<FbBinary*> FbTemporaryIterator;
 
 #if 0
 
@@ -156,7 +161,7 @@ class FbNetworkAccessManager : public QNetworkAccessManager
 
 public:
     explicit FbNetworkAccessManager(QObject *parent = 0);
-    FbTemporaryList & files() { return m_files; }
+    FbStore & files() { return m_files; }
     void setPath(const QString &path) { m_path = path; }
 
 public slots:
@@ -165,7 +170,7 @@ public slots:
 public:
     QString add(const QString &path, QByteArray &data) { return m_files.add(path, data); }
     bool exists(const QString &name) const { return m_files.exists(name); }
-    FbTemporaryFile * get(const QString &name) const { return m_files.get(name); }
+    FbBinary * get(const QString &name) const { return m_files.get(name); }
     int count() const { return m_files.count(); }
     QByteArray data(int index) const;
     QVariant info(int row, int col) const;
@@ -177,7 +182,7 @@ private:
     QNetworkReply *imageRequest(Operation op, const QNetworkRequest &request);
 
 private:
-    FbTemporaryList m_files;
+    FbStore m_files;
     QString m_path;
     friend class FbListWidget::FbProxy;
 };

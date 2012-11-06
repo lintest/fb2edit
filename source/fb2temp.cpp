@@ -14,17 +14,17 @@
 #include "fb2text.hpp"
 
 //---------------------------------------------------------------------------
-//  FbTemporaryFile
+//  FbBinary
 //---------------------------------------------------------------------------
 
-FbTemporaryFile::FbTemporaryFile(const QString &name)
+FbBinary::FbBinary(const QString &name)
     : QTemporaryFile()
     , m_name(name)
     , m_size(0)
 {
 }
 
-qint64 FbTemporaryFile::write(QByteArray &data)
+qint64 FbBinary::write(QByteArray &data)
 {
     open();
     if (m_hash.isEmpty()) m_hash = md5(data);
@@ -36,12 +36,12 @@ qint64 FbTemporaryFile::write(QByteArray &data)
     return m_size;
 }
 
-QString FbTemporaryFile::md5(const QByteArray &data)
+QString FbBinary::md5(const QByteArray &data)
 {
     return QCryptographicHash::hash(data, QCryptographicHash::Md5).toBase64();
 }
 
-QByteArray FbTemporaryFile::data()
+QByteArray FbBinary::data()
 {
     open();
     QByteArray data = readAll();
@@ -50,26 +50,26 @@ QByteArray FbTemporaryFile::data()
 }
 
 //---------------------------------------------------------------------------
-//  FbTemporaryList
+//  FbStore
 //---------------------------------------------------------------------------
 
-FbTemporaryList::FbTemporaryList()
+FbStore::FbStore()
 {
 }
 
-FbTemporaryList::~FbTemporaryList()
+FbStore::~FbStore()
 {
     FbTemporaryIterator it(*this);
     while (it.hasNext()) delete it.next();
 }
 
-QString FbTemporaryList::add(const QString &path, QByteArray &data)
+QString FbStore::add(const QString &path, QByteArray &data)
 {
-    QString hash = FbTemporaryFile::md5(data);
+    QString hash = FbBinary::md5(data);
     QString name = this->name(hash);
     if (name.isEmpty()) {
         name = newName(path);
-        FbTemporaryFile * temp = new FbTemporaryFile(name);
+        FbBinary * temp = new FbBinary(name);
         temp->setHash(hash);
         temp->write(data);
         append(temp);
@@ -77,7 +77,7 @@ QString FbTemporaryList::add(const QString &path, QByteArray &data)
     return name;
 }
 
-QString FbTemporaryList::newName(const QString &path)
+QString FbStore::newName(const QString &path)
 {
     QFileInfo info(path);
     QString name = info.fileName();
@@ -91,50 +91,50 @@ QString FbTemporaryList::newName(const QString &path)
     }
 }
 
-FbTemporaryFile * FbTemporaryList::get(const QString &name) const
+FbBinary * FbStore::get(const QString &name) const
 {
     FbTemporaryIterator it(*this);
     while (it.hasNext()) {
-        FbTemporaryFile * file = it.next();
+        FbBinary * file = it.next();
         if (file->name() == name) return file;
     }
     return NULL;
 }
 
-QByteArray FbTemporaryList::data(const QString &name) const
+QByteArray FbStore::data(const QString &name) const
 {
     FbTemporaryIterator it(*this);
     while (it.hasNext()) {
-        FbTemporaryFile *file = it.next();
+        FbBinary *file = it.next();
         if (file->name() == name) return file->data();
     }
     return QByteArray();
 }
 
-const QString & FbTemporaryList::set(const QString &name, QByteArray data, const QString &hash)
+const QString & FbStore::set(const QString &name, QByteArray data, const QString &hash)
 {
-    FbTemporaryFile * file = get(name);
-    if (!file) append(file = new FbTemporaryFile(name));
+    FbBinary * file = get(name);
+    if (!file) append(file = new FbBinary(name));
     file->setHash(hash);
     file->write(data);
     return file->hash();
 }
 
-QString FbTemporaryList::name(const QString &hash) const
+QString FbStore::name(const QString &hash) const
 {
     FbTemporaryIterator it(*this);
     while (it.hasNext()) {
-        FbTemporaryFile *file = it.next();
+        FbBinary *file = it.next();
         if (file->hash() == hash) return file->name();
     }
     return QString();
 }
 
-bool FbTemporaryList::exists(const QString &name) const
+bool FbStore::exists(const QString &name) const
 {
     FbTemporaryIterator it(*this);
     while (it.hasNext()) {
-        FbTemporaryFile *file = it.next();
+        FbBinary *file = it.next();
         if (file->name() == name) return true;
     }
     return false;
@@ -224,7 +224,7 @@ QNetworkReply * FbNetworkAccessManager::imageRequest(Operation op, const QNetwor
 QVariant FbNetworkAccessManager::info(int row, int col) const
 {
     if (0 <= row && row < count()) {
-        FbTemporaryFile *file = m_files[row];
+        FbBinary *file = m_files[row];
         switch (col) {
             case 2: return file->type();
             case 3: return file->size();

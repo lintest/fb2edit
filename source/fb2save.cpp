@@ -241,7 +241,7 @@ void FbSaveWriter::writeFiles()
     while (it.hasNext()) {
         QString name = it.next();
         if (name.isEmpty()) continue;
-        FbTemporaryFile * file = m_view.files()->get(name);
+        FbBinary * file = m_view.files()->get(name);
         if (!file) continue;
         writeStartElement("binary", 2);
         writeAttribute("id", name);
