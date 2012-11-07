@@ -94,12 +94,16 @@ public:
     bool SubChecked();
     bool SupChecked();
 
+    QWebElement body();
+    QWebElement doc();
+
 protected:
     virtual void mouseMoveEvent(QMouseEvent *event);
 
 public slots:
     void viewContents(bool show);
     void viewPictures(bool show);
+    void viewFootnotes(bool show);
     void viewInspector(bool show);
     void insertImage();
     void insertNote();
@@ -111,6 +115,7 @@ private slots:
     void contextMenu(const QPoint &pos);
     void treeDestroyed();
     void imgsDestroyed();
+    void noteDestroyed();
     void zoomIn();
     void zoomOut();
     void zoomReset();
@@ -121,8 +126,6 @@ private:
     void execCommand(const QString &cmd, const QString &arg);
     FbBinary * file(const QString &name);
     FbNoteView & noteView();
-    QWebElement body();
-    QWebElement doc();
 
 private:
     QMainWindow *m_owner;
@@ -130,6 +133,7 @@ private:
     FbReadThread *m_thread;
     FbActionMap m_actions;
     QDockWidget *dockTree;
+    QDockWidget *dockNote;
     QDockWidget *dockImgs;
     QDockWidget *dockInsp;
     QPoint m_point;

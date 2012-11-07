@@ -8,7 +8,9 @@ HEADERS = \
     source/fb2dock.hpp \
     source/fb2head.hpp \
     source/fb2imgs.hpp \
+    source/fb2list.hpp \
     source/fb2main.hpp \
+    source/fb2note.hpp \
     source/fb2page.hpp \
     source/fb2read.hpp \
     source/fb2tree.hpp \
@@ -25,7 +27,9 @@ SOURCES = \
     source/fb2head.cpp \
     source/fb2html.cpp \
     source/fb2imgs.cpp \
+    source/fb2list.cpp \
     source/fb2main.cpp \
+    source/fb2note.cpp \
     source/fb2page.cpp \
     source/fb2read.cpp \
     source/fb2save.cpp \

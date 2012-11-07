@@ -13,6 +13,7 @@
 #include <QtDebug>
 
 #include "fb2dlgs.hpp"
+#include "fb2note.hpp"
 #include "fb2page.hpp"
 #include "fb2save.hpp"
 #include "fb2tree.hpp"
@@ -212,6 +213,7 @@ FbTextEdit::FbTextEdit(QWidget *parent, QObject *owner)
     , m_noteView(0)
     , m_thread(0)
     , dockTree(0)
+    , dockNote(0)
     , dockImgs(0)
     , dockInsp(0)
 {
@@ -270,6 +272,7 @@ void FbTextEdit::connectActions(QToolBar *tool)
 
     connect(act(Fb::ViewContents), SIGNAL(triggered(bool)), SLOT(viewContents(bool)));
     connect(act(Fb::ViewPictures), SIGNAL(triggered(bool)), SLOT(viewPictures(bool)));
+    connect(act(Fb::ViewFootnotes), SIGNAL(triggered(bool)), SLOT(viewFootnotes(bool)));
     connect(act(Fb::ViewInspector), SIGNAL(triggered(bool)), SLOT(viewInspector(bool)));
 
     connect(act(Fb::ZoomIn), SIGNAL(triggered()), SLOT(zoomIn()));
@@ -366,6 +369,21 @@ void FbTextEdit::viewPictures(bool show)
     }
 }
 
+void FbTextEdit::viewFootnotes(bool show)
+{
+    if (show) {
+        if (dockNote) { dockNote->show(); return; }
+        dockNote = new FbDockWidget(tr("Footnotes"), this);
+        dockNote->setWidget(new FbNotesWidget(this, m_owner));
+        connect(dockNote, SIGNAL(visibilityChanged(bool)), act(Fb::ViewFootnotes), SLOT(setChecked(bool)));
+        connect(dockNote, SIGNAL(destroyed()), SLOT(noteDestroyed()));
+        m_owner->addDockWidget(Qt::RightDockWidgetArea, dockNote);
+    } else if (dockNote) {
+        dockNote->deleteLater();
+        dockNote = 0;
+    }
+}
+
 void FbTextEdit::viewInspector(bool show)
 {
     if (show) {
@@ -408,6 +426,12 @@ void FbTextEdit::imgsDestroyed()
 {
     m_actions[Fb::ViewPictures]->setChecked(false);
     dockImgs = 0;
+}
+
+void FbTextEdit::noteDestroyed()
+{
+    m_actions[Fb::ViewFootnotes]->setChecked(false);
+    dockNote = 0;
 }
 
 FbNoteView & FbTextEdit::noteView()
@@ -593,7 +617,7 @@ void FbTextEdit::insertImage()
 
 void FbTextEdit::insertNote()
 {
-    FbNoteDlg dlg(*this);
+    FbNoteDlg dlg(this);
     dlg.exec();
 }
 

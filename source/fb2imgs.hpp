@@ -184,25 +184,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
 private:
-    FbNetworkAccessManager *files() const;
-
-private:
-    FbTextEdit *m_text;
-};
-
-class FbImgsView : public QTreeView
-{
-    Q_OBJECT
-
-public:
-    explicit FbImgsView(QWidget *parent = 0);
-    FbImgsModel *model() const;
-
-protected:
-    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
-
-signals:
-    void showImage(const QString &name);
+    FbNetworkAccessManager *manager;
 };
 
 class FbImgsWidget : public QWidget
@@ -214,14 +196,14 @@ public:
     QSize sizeHint() const { return QSize(200,200); }
 
 public slots:
-    void showImage(const QString &name);
+    void showCurrent(const QString &name);
 
 private slots:
     void loadFinished();
 
 private:
     FbTextEdit *m_text;
-    FbImgsView *m_list;
+    QTreeView *m_list;
     QWebView *m_view;
 };
 

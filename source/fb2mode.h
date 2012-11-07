@@ -54,6 +54,7 @@ enum Actions {
     SectionDel,
     ViewContents,
     ViewPictures,
+    ViewFootnotes,
     ViewInspector,
     ZoomIn,
     ZoomOut,

@@ -54,23 +54,6 @@ private:
     FbTextEdit & m_edit;
 };
 
-class FbNoteDlg : public QDialog
-{
-    Q_OBJECT
-    
-public:
-    explicit FbNoteDlg(FbTextEdit &view);
-
-private slots:
-    void loadFinished();
-
-private:
-    QComboBox *m_key;
-    FbTextBase *m_text;
-    QLineEdit *m_title;
-    QToolBar *m_toolbar;
-};
-
 class FbSetupDlg : public QDialog
 {
     Q_OBJECT

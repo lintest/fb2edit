@@ -9,12 +9,14 @@
 #include <QImageReader>
 #include <QLabel>
 #include <QLineEdit>
+#include <QSplitter>
 #include <QUrl>
 #include <QVBoxLayout>
 #include <QWebFrame>
 #include <QTabWidget>
 #include <QtDebug>
 
+#include "fb2list.hpp"
 #include "fb2page.hpp"
 #include "fb2text.hpp"
 #include "fb2utils.h"
@@ -442,8 +444,8 @@ QString FbImageDlg::result() const
 
 FbImgsModel::FbImgsModel(FbTextEdit *text, QObject *parent)
     : QAbstractListModel(parent)
-    , m_text(text)
 {
+    manager = qobject_cast<FbNetworkAccessManager*>(text->page()->networkAccessManager());
 }
 
 int FbImgsModel::columnCount(const QModelIndex &parent) const
@@ -454,9 +456,7 @@ int FbImgsModel::columnCount(const QModelIndex &parent) const
 
 int FbImgsModel::rowCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
-    FbNetworkAccessManager * f = files();
-    return f ? f->count() : 0;
+    return parent.isValid() ? 0 : manager->count();
 }
 
 QVariant FbImgsModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -471,22 +471,12 @@ QVariant FbImgsModel::headerData(int section, Qt::Orientation orientation, int r
     return QVariant();
 }
 
-FbNetworkAccessManager * FbImgsModel::files() const
-{
-    if (FbTextPage *page = qobject_cast<FbTextPage*>(m_text->page())) {
-        return qobject_cast<FbNetworkAccessManager*>(page->networkAccessManager());
-    } else {
-        return 0;
-    }
-}
-
 QVariant FbImgsModel::data(const QModelIndex &index, int role) const
 {
     if (index.isValid()) {
         switch (role) {
             case Qt::DisplayRole: {
-                FbNetworkAccessManager * f = files();
-                return f ? f->info(index.row(), index.column()) : QVariant();
+                return manager->info(index.row(), index.column());
             } break;
             case Qt::TextAlignmentRole: {
                 switch (index.column()) {
@@ -497,31 +487,6 @@ QVariant FbImgsModel::data(const QModelIndex &index, int role) const
         }
     }
     return QVariant();
-}
-
-//---------------------------------------------------------------------------
-//  FbImgsView
-//---------------------------------------------------------------------------
-
-#include <QSplitter>
-#include <QScrollArea>
-
-FbImgsView::FbImgsView(QWidget *parent)
-    : QTreeView(parent)
-{
-    setAllColumnsShowFocus(true);
-}
-
-void FbImgsView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
-{
-    QTreeView::currentChanged(current, previous);
-    QModelIndex index = model()->index(current.row(), 0);
-    emit showImage(model()->data(index).toString());
-}
-
-FbImgsModel * FbImgsView::model() const
-{
-    return qobject_cast<FbImgsModel*>(QTreeView::model());
 }
 
 //---------------------------------------------------------------------------
@@ -538,7 +503,7 @@ FbImgsWidget::FbImgsWidget(FbTextEdit *text, QWidget* parent)
 
     QSplitter *splitter = new QSplitter(Qt::Vertical, this);
 
-    m_list = new FbImgsView(splitter);
+    m_list = new FbListView(splitter);
     splitter->addWidget(m_list);
 
     FbTextFrame *frame = new FbTextFrame(splitter);
@@ -553,12 +518,13 @@ FbImgsWidget::FbImgsWidget(FbTextEdit *text, QWidget* parent)
     layout->addWidget(splitter);
 
     connect(m_text, SIGNAL(loadFinished(bool)), SLOT(loadFinished()));
-    connect(m_list, SIGNAL(showImage(QString)), SLOT(showImage(QString)));
+    connect(m_list, SIGNAL(showCurrent(QString)), SLOT(showCurrent(QString)));
     loadFinished();
 }
 
 void FbImgsWidget::loadFinished()
 {
+    if (QAbstractItemModel *m = m_list->model()) m->deleteLater();
     m_view->load(QUrl());
     m_list->setModel(new FbImgsModel(m_text, this));
     m_list->reset();
@@ -568,7 +534,7 @@ void FbImgsWidget::loadFinished()
     m_list->setColumnHidden(0, true);
 }
 
-void FbImgsWidget::showImage(const QString &name)
+void FbImgsWidget::showCurrent(const QString &name)
 {
     QUrl url = m_text->url();
     url.setFragment(name);

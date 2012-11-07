@@ -470,6 +470,11 @@ void FbMainWindow::createActions()
     act->setCheckable(true);
     menu->addAction(act);
 
+    act = new QAction(tr("&Footnotes"), this);
+    text->setAction(Fb::ViewFootnotes, act);
+    act->setCheckable(true);
+    menu->addAction(act);
+
     act = new QAction(tr("&Web inspector"), this);
     text->setAction(Fb::ViewInspector, act);
     act->setCheckable(true);
