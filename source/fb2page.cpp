@@ -390,16 +390,9 @@ void FbTextPage::showStatus()
 void FbTextPage::loadFinished()
 {
     mainFrame()->addToJavaScriptWindowObject("logger", &m_logger);
-    FbTextElement element = body().findFirst("fb\\:section");
-    if (element.isNull()) element = body().findFirst("fb\\:body");
-    if (element.isNull()) element = body();
-    FbTextElement child = element.firstChild();
-    if (child.isTitle()) child = child.nextSibling();
-    if (!child.isNull()) element = child;
-    element.select();
-
     QString style = "p:after{display:inline;content:'\\A0\\B6';color:gray;}";
     mainFrame()->findFirstElement("html>head>style#inline").setInnerXml(style);
+    body().select();
 }
 
 void FbTextPage::fixContents()

@@ -33,6 +33,17 @@
     </message>
 </context>
 <context>
+    <name>FbCodeEdit</name>
+    <message>
+        <source>Schema is not valid: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Validation successful</source>
+        <translation>Проверка выполнена успешно </translation>
+    </message>
+</context>
+<context>
     <name>FbCodeFindDlg</name>
     <message>
         <source>Complete words</source>
@@ -231,18 +242,76 @@
     </message>
 </context>
 <context>
-    <name>FbListModel</name>
+    <name>FbImageDlg</name>
     <message>
-        <source>File name</source>
-        <translation>Имя файла</translation>
+        <source>File name:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Size</source>
-        <translation>Размер</translation>
+        <source>Insert picture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>From collection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Common Graphics (*.png *.jpg *.jpeg *.gif)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Portable Network Graphics (PNG) (*.png)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JPEG (*.jpg *.jpeg)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Graphics Interchange Format (*.gif)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All Files (*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert image...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FbImgsModel</name>
+    <message>
+        <source>File name</source>
+        <translation type="unfinished">Имя файла</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>Тип</translation>
+        <translation type="unfinished">Тип</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="unfinished">Размер</translation>
+    </message>
+</context>
+<context>
+    <name>FbListModel</name>
+    <message>
+        <source>File name</source>
+        <translation type="obsolete">Имя файла</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="obsolete">Размер</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="obsolete">Тип</translation>
     </message>
 </context>
 <context>
@@ -333,10 +402,6 @@
     </message>
     <message>
         <source>Show the application&apos;s About box</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>The &lt;b&gt;fb2edit&lt;/b&gt; is application for editing FB2-files.</source>
         <translation></translation>
     </message>
     <message>
@@ -605,6 +670,18 @@
         <source>&amp;HTML</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&lt;b&gt;fb2edit&lt;/b&gt; is an application for creating and editing FB2-files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Check...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Footnotes</source>
+        <translation>&amp;Сноски</translation>
+    </message>
 </context>
 <context>
     <name>FbNodeDlg</name>
@@ -663,6 +740,21 @@
     </message>
 </context>
 <context>
+    <name>FbNotesModel</name>
+    <message>
+        <source>Title</source>
+        <translation>Заголовок</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Тип</translation>
+    </message>
+    <message>
+        <source>Link</source>
+        <translation>Ссылка</translation>
+    </message>
+</context>
+<context>
     <name>FbSaveDialog</name>
     <message>
         <source>Fiction book files (*.fb2)</source>
@@ -703,30 +795,6 @@
 <context>
     <name>FbTextEdit</name>
     <message>
-        <source>Common Graphics (*.png *.jpg *.jpeg *.gif);;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Portable Network Graphics (PNG) (*.png);;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>JPEG (*.jpg *.jpeg);;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Graphics Interchange Format (*.gif);;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All Files (*)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Insert image...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Insert hyperlink</source>
         <translation type="unfinished"></translation>
     </message>
@@ -749,6 +817,10 @@
     <message>
         <source>Web inspector</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Footnotes</source>
+        <translation>Сноски</translation>
     </message>
 </context>
 <context>

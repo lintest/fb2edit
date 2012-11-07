@@ -101,6 +101,13 @@ FbNotesModel::FbNotesModel(FbTextPage *page, QObject *parent)
 {
 }
 
+FbTextElement FbNotesModel::at(const QModelIndex &index) const
+{
+    int row = index.row();
+    if (row < 0 || row >= collection.count()) return QWebElement();
+    return collection.at(row);
+}
+
 int FbNotesModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
@@ -129,9 +136,7 @@ QVariant FbNotesModel::data(const QModelIndex &index, int role) const
     if (index.isValid()) {
         switch (role) {
             case Qt::DisplayRole: {
-                int row = index.row();
-                if (row < 0 || row >= collection.count()) return QVariant();
-                QWebElement element = collection[row];
+                QWebElement element = at(index);
                 switch (index.column()) {
                     case 1: return element.toPlainText();
                     case 2: return element.attribute("type");
@@ -178,7 +183,15 @@ FbNotesWidget::FbNotesWidget(FbTextEdit *text, QWidget* parent)
 
     connect(m_text, SIGNAL(loadFinished(bool)), SLOT(loadFinished()));
     connect(m_list, SIGNAL(showCurrent(QString)), SLOT(showCurrent(QString)));
+    connect(m_list, SIGNAL(activated(QModelIndex)), SLOT(activated(QModelIndex)));
     loadFinished();
+}
+
+void FbNotesWidget::activated(const QModelIndex &index)
+{
+    if (FbNotesModel *m = qobject_cast<FbNotesModel*>(m_list->model())) {
+        m->at(index).select();
+    }
 }
 
 void FbNotesWidget::loadFinished()

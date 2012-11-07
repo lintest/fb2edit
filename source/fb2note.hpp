@@ -19,6 +19,8 @@ class FbTextPage;
 class FbTextBase;
 class FbTextEdit;
 
+#include "fb2html.h"
+
 class FbNoteDlg : public QDialog
 {
     Q_OBJECT
@@ -42,6 +44,7 @@ class FbNotesModel : public QAbstractListModel
 
 public:
     explicit FbNotesModel(FbTextPage *page, QObject *parent = 0);
+    FbTextElement at(const QModelIndex &index) const;
 
 public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -62,10 +65,9 @@ public:
     explicit FbNotesWidget(FbTextEdit *text, QWidget* parent = 0);
     QSize sizeHint() const { return QSize(200,200); }
 
-public slots:
-    void showCurrent(const QString &name);
-
 private slots:
+    void activated(const QModelIndex &index);
+    void showCurrent(const QString &name);
     void loadFinished();
 
 private:
