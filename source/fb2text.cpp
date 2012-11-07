@@ -1,6 +1,6 @@
 #include "fb2text.hpp"
 
-#include <QBoxLayout>
+#include <QVBoxLayout>
 #include <QDockWidget>
 #include <QFileDialog>
 #include <QInputDialog>
@@ -632,7 +632,7 @@ FbTextFrame::FbTextFrame(QWidget *parent)
     setFrameShape(QFrame::StyledPanel);
     setFrameShadow(QFrame::Sunken);
 
-    QLayout * layout = new QBoxLayout(QBoxLayout::LeftToRight, this);
+    QLayout * layout = new QVBoxLayout(this);
     layout->setSpacing(0);
     layout->setMargin(0);
     setLayout(layout);

@@ -118,7 +118,7 @@ FbNoteDlg::FbNoteDlg(FbTextEdit &view)
     frame->setFrameShadow(QFrame::Sunken);
     gridLayout->addWidget(frame, 3, 0, 1, 2);
 
-    QLayout * frameLayout = new QBoxLayout(QBoxLayout::LeftToRight, frame);
+    QLayout * frameLayout = new QHBoxLayout(frame);
     frameLayout->setSpacing(0);
     frameLayout->setMargin(0);
 
@@ -178,7 +178,7 @@ FbComboCtrl::FbComboCtrl(QWidget *parent)
     button->setCursor(Qt::ArrowCursor);
     button->setFocusPolicy(Qt::NoFocus);
     connect(button, SIGNAL(clicked()), SIGNAL(popup()));
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    QHBoxLayout *layout = new QHBoxLayout(this);
     layout->addWidget(button, 0, Qt::AlignRight);
     layout->setSpacing(0);
     layout->setMargin(0);
@@ -242,7 +242,7 @@ FbImageDlg::FbImageDlg(FbTextEdit *text)
 {
     setWindowTitle(tr("Insert picture"));
 
-    QBoxLayout *layout = new QBoxLayout(QBoxLayout::TopToBottom, this);
+    QLayout *layout = new QVBoxLayout(this);
 
     notebook = new QTabWidget(this);
     layout->addWidget(notebook);
