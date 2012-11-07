@@ -1,14 +1,19 @@
-#ifndef FB2TEMP_H
-#define FB2TEMP_H
+#ifndef FB2IMGS_H
+#define FB2IMGS_H
 
 #include <QByteArray>
+#include <QDialog>
+#include <QComboBox>
 #include <QLabel>
+#include <QLineEdit>
 #include <QList>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QString>
 #include <QTemporaryFile>
+#include <QToolButton>
 #include <QTreeView>
+#include <QVBoxLayout>
 #include <QWebView>
 
 class FbTextEdit;
@@ -115,12 +120,62 @@ private:
     qint64 offset;
 };
 
-class FbListModel : public QAbstractListModel
+class FbComboCtrl : public QLineEdit
+{
+    Q_OBJECT
+public:
+    explicit FbComboCtrl(QWidget *parent = 0);
+    void setIcon(const QIcon &icon);
+signals:
+    void popup();
+protected:
+    void resizeEvent(QResizeEvent* event);
+private:
+    QToolButton *button;
+};
+
+class FbImageDlg : public QDialog
+{
+    Q_OBJECT
+
+private:
+    class FbTab: public QWidget
+    {
+    public:
+        explicit FbTab(QWidget* parent, QAbstractItemModel *model = 0);
+        QLabel *label;
+        QComboBox *combo;
+        FbComboCtrl *edit;
+        QWebView *preview;
+    };
+
+public:
+    explicit FbImageDlg(FbTextEdit *text);
+    QString result() const;
+
+private slots:
+    void pictureActivated(const QString & text);
+    void filenameChanged(const QString & text);
+    void notebookChanged(int index);
+    void selectFile();
+
+private:
+    void preview(QWebView *preview, const QUrl &url);
+    void clear(QWebView *preview);
+
+private:
+    FbTextEdit *owner;
+    QTabWidget *notebook;
+    FbTab *tabFile;
+    FbTab *tabPict;
+};
+
+class FbImgsModel : public QAbstractListModel
 {
     Q_OBJECT
 
 public:
-    explicit FbListModel(FbTextEdit *text, QObject *parent = 0);
+    explicit FbImgsModel(FbTextEdit *text, QObject *parent = 0);
 
 public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -135,13 +190,13 @@ private:
     FbTextEdit *m_text;
 };
 
-class FbListView : public QTreeView
+class FbImgsView : public QTreeView
 {
     Q_OBJECT
 
 public:
-    explicit FbListView(QWidget *parent = 0);
-    FbListModel *model() const;
+    explicit FbImgsView(QWidget *parent = 0);
+    FbImgsModel *model() const;
 
 protected:
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);
@@ -150,13 +205,12 @@ signals:
     void showImage(const QString &name);
 };
 
-class FbListWidget : public QWidget
+class FbImgsWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit FbListWidget(FbTextEdit *text, QWidget* parent = 0);
-
+    explicit FbImgsWidget(FbTextEdit *text, QWidget* parent = 0);
     QSize sizeHint() const { return QSize(200,200); }
 
 public slots:
@@ -167,8 +221,8 @@ private slots:
 
 private:
     FbTextEdit *m_text;
-    FbListView *m_list;
+    FbImgsView *m_list;
     QWebView *m_view;
 };
 
-#endif // FB2TEMP_H
+#endif // FB2IMGS_H

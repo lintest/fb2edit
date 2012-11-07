@@ -6,7 +6,7 @@
 
 #include "fb2read.hpp"
 #include "fb2save.hpp"
-#include "fb2temp.hpp"
+#include "fb2imgs.hpp"
 #include "fb2utils.h"
 #include "fb2html.h"
 #include "fb2xml2.h"

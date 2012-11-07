@@ -1,17 +1,28 @@
-#include "fb2temp.hpp"
+#include "fb2imgs.hpp"
 
 #include <QAbstractListModel>
 #include <QBuffer>
 #include <QCryptographicHash>
+#include <QDialogButtonBox>
+#include <QFileDialog>
 #include <QFileInfo>
 #include <QImageReader>
+#include <QLabel>
+#include <QLineEdit>
 #include <QUrl>
-#include <QWebFrame>
 #include <QVBoxLayout>
+#include <QWebFrame>
+#include <QTabWidget>
 #include <QtDebug>
 
 #include "fb2page.hpp"
 #include "fb2text.hpp"
+#include "fb2utils.h"
+
+static QString imgHtml(const QUrl &url)
+{
+    return QString("<img src=\"%1\" valign=center align=center width=100%>").arg(url.toString());
+}
 
 //---------------------------------------------------------------------------
 //  FbBinary
@@ -254,29 +265,201 @@ QByteArray FbNetworkAccessManager::data(int index) const
 }
 
 //---------------------------------------------------------------------------
-//  FbListModel
+//  FbComboCtrl
 //---------------------------------------------------------------------------
 
-FbListModel::FbListModel(FbTextEdit *text, QObject *parent)
+FbComboCtrl::FbComboCtrl(QWidget *parent)
+    : QLineEdit(parent)
+{
+    button = new QToolButton(this);
+    button->setCursor(Qt::ArrowCursor);
+    button->setFocusPolicy(Qt::NoFocus);
+    connect(button, SIGNAL(clicked()), SIGNAL(popup()));
+    QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->addWidget(button, 0, Qt::AlignRight);
+    layout->setSpacing(0);
+    layout->setMargin(0);
+}
+
+void FbComboCtrl::resizeEvent(QResizeEvent* event)
+{
+    QLineEdit::resizeEvent(event);
+    QMargins margins(0, 0, button->width(), 0);
+    setTextMargins(margins);
+}
+
+void FbComboCtrl::setIcon(const QIcon &icon)
+{
+    button->setIcon(icon);
+}
+
+//---------------------------------------------------------------------------
+//  FbImageDlg::FbTab
+//---------------------------------------------------------------------------
+
+FbImageDlg::FbTab::FbTab(QWidget* parent, QAbstractItemModel *model)
+    : QWidget(parent)
+    , combo(0)
+    , edit(0)
+{
+    QGridLayout * layout = new QGridLayout(this);
+
+    label = new QLabel(this);
+    label->setText(tr("File name:"));
+    layout->addWidget(label, 0, 0, 1, 1);
+
+    QWidget *control;
+    if (model) {
+        control = combo = new QComboBox(this);
+        combo->setModel(model);
+    } else {
+        control = edit = new FbComboCtrl(this);
+    }
+
+    QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    control->setSizePolicy(sizePolicy);
+    layout->addWidget(control, 0, 1, 1, 1);
+
+    QFrame *frame = new FbTextFrame(this);
+    frame->setMinimumSize(QSize(300, 200));
+    layout->addWidget(frame, 1, 0, 1, 2);
+
+    preview = new QWebView(this);
+    frame->layout()->addWidget(preview);
+}
+
+//---------------------------------------------------------------------------
+//  FbImageDlg
+//---------------------------------------------------------------------------
+
+FbImageDlg::FbImageDlg(FbTextEdit *text)
+    : QDialog(text)
+    , owner(text)
+    , tabFile(0)
+    , tabPict(0)
+{
+    setWindowTitle(tr("Insert picture"));
+
+    QLayout *layout = new QVBoxLayout(this);
+
+    notebook = new QTabWidget(this);
+    layout->addWidget(notebook);
+
+    QDialogButtonBox *buttons = new QDialogButtonBox(this);
+    buttons->setOrientation(Qt::Horizontal);
+    buttons->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+    layout->addWidget(buttons);
+
+    connect(buttons, SIGNAL(accepted()), SLOT(accept()));
+    connect(buttons, SIGNAL(rejected()), SLOT(reject()));
+    connect(notebook, SIGNAL(currentChanged(int)), SLOT(notebookChanged(int)));
+
+    tabFile = new FbTab(notebook);
+    tabFile->edit->setIcon(FbIcon("document-open"));
+    tabFile->preview->setHtml(QString());
+    connect(tabFile->edit, SIGNAL(textChanged(QString)), SLOT(filenameChanged(QString)));
+    connect(tabFile->edit, SIGNAL(popup()), SLOT(selectFile()));
+    notebook->addTab(tabFile, tr("Select file"));
+
+    if (text->store()->count()) {
+        FbImgsModel *model = new FbImgsModel(text, this);
+        tabPict = new FbTab(notebook, model);
+        tabPict->combo->setCurrentIndex(0);
+        tabPict->preview->setHtml(QString(), text->url());
+        tabPict->preview->page()->setNetworkAccessManager(text->page()->networkAccessManager());
+        notebook->addTab(tabPict, tr("From collection"));
+        connect(tabPict->combo, SIGNAL(activated(QString)), SLOT(pictureActivated(QString)));
+    }
+
+    tabFile->edit->setFocus();
+    resize(minimumSizeHint());
+}
+
+void FbImageDlg::notebookChanged(int index)
+{
+    if (index) {
+        disconnect(notebook, SIGNAL(currentChanged(int)), this, SLOT(notebookChanged(int)));
+        if (tabPict) pictureActivated(tabPict->combo->itemText(0));
+    }
+}
+
+void FbImageDlg::selectFile()
+{
+    QString filters;
+    filters += tr("Common Graphics (*.png *.jpg *.jpeg *.gif)") += ";;";
+    filters += tr("Portable Network Graphics (PNG) (*.png)") += ";;";
+    filters += tr("JPEG (*.jpg *.jpeg)") += ";;";
+    filters += tr("Graphics Interchange Format (*.gif)") += ";;";
+    filters += tr("All Files (*)");
+    QWidget *p = qobject_cast<QWidget*>(parent());
+    QString path = QFileDialog::getOpenFileName(p, tr("Insert image..."), QString(), filters);
+    if (path.isEmpty()) return;
+    tabFile->edit->setText(path);
+}
+
+void FbImageDlg::filenameChanged(const QString & text)
+{
+    if (QFileInfo(text).exists()) {
+        QUrl url = QUrl::fromLocalFile(text);
+        preview(tabFile->preview, url);
+    } else {
+        tabFile->preview->setHtml(QString());
+    }
+}
+
+void FbImageDlg::pictureActivated(const QString & text)
+{
+    QUrl url = tabPict->preview->url();
+    url.setFragment(text);
+    preview(tabPict->preview, url);
+}
+
+void FbImageDlg::preview(QWebView *preview, const QUrl &url)
+{
+    preview->setHtml(imgHtml(url), preview->url());
+}
+
+QString FbImageDlg::result() const
+{
+    if (tabPict && notebook->currentWidget() == tabPict) {
+        return tabPict->combo->currentText();
+    } else if (notebook->currentWidget() == tabFile) {
+        QString path = tabFile->edit->text();
+        QFile file(path);
+        if (file.open(QIODevice::ReadOnly)) {
+            QNetworkAccessManager *m = owner->page()->networkAccessManager();
+            FbNetworkAccessManager *manager = qobject_cast<FbNetworkAccessManager*>(m);
+            QByteArray data = file.readAll();
+            return manager->add(path, data);
+        }
+    }
+    return QString();
+}
+
+//---------------------------------------------------------------------------
+//  FbImgsModel
+//---------------------------------------------------------------------------
+
+FbImgsModel::FbImgsModel(FbTextEdit *text, QObject *parent)
     : QAbstractListModel(parent)
     , m_text(text)
 {
 }
 
-int FbListModel::columnCount(const QModelIndex &parent) const
+int FbImgsModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return 4;
 }
 
-int FbListModel::rowCount(const QModelIndex &parent) const
+int FbImgsModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     FbNetworkAccessManager * f = files();
     return f ? f->count() : 0;
 }
 
-QVariant FbListModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant FbImgsModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
@@ -288,7 +471,7 @@ QVariant FbListModel::headerData(int section, Qt::Orientation orientation, int r
     return QVariant();
 }
 
-FbNetworkAccessManager * FbListModel::files() const
+FbNetworkAccessManager * FbImgsModel::files() const
 {
     if (FbTextPage *page = qobject_cast<FbTextPage*>(m_text->page())) {
         return qobject_cast<FbNetworkAccessManager*>(page->networkAccessManager());
@@ -297,7 +480,7 @@ FbNetworkAccessManager * FbListModel::files() const
     }
 }
 
-QVariant FbListModel::data(const QModelIndex &index, int role) const
+QVariant FbImgsModel::data(const QModelIndex &index, int role) const
 {
     if (index.isValid()) {
         switch (role) {
@@ -317,35 +500,35 @@ QVariant FbListModel::data(const QModelIndex &index, int role) const
 }
 
 //---------------------------------------------------------------------------
-//  FbListView
+//  FbImgsView
 //---------------------------------------------------------------------------
 
 #include <QSplitter>
 #include <QScrollArea>
 
-FbListView::FbListView(QWidget *parent)
+FbImgsView::FbImgsView(QWidget *parent)
     : QTreeView(parent)
 {
     setAllColumnsShowFocus(true);
 }
 
-void FbListView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
+void FbImgsView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     QTreeView::currentChanged(current, previous);
     QModelIndex index = model()->index(current.row(), 0);
     emit showImage(model()->data(index).toString());
 }
 
-FbListModel * FbListView::model() const
+FbImgsModel * FbImgsView::model() const
 {
-    return qobject_cast<FbListModel*>(QTreeView::model());
+    return qobject_cast<FbImgsModel*>(QTreeView::model());
 }
 
 //---------------------------------------------------------------------------
-//  FbListWidget
+//  FbImgsWidget
 //---------------------------------------------------------------------------
 
-FbListWidget::FbListWidget(FbTextEdit *text, QWidget* parent)
+FbImgsWidget::FbImgsWidget(FbTextEdit *text, QWidget* parent)
     : QWidget(parent)
     , m_text(text)
 {
@@ -355,7 +538,7 @@ FbListWidget::FbListWidget(FbTextEdit *text, QWidget* parent)
 
     QSplitter *splitter = new QSplitter(Qt::Vertical, this);
 
-    m_list = new FbListView(splitter);
+    m_list = new FbImgsView(splitter);
     splitter->addWidget(m_list);
 
     FbTextFrame *frame = new FbTextFrame(splitter);
@@ -374,11 +557,10 @@ FbListWidget::FbListWidget(FbTextEdit *text, QWidget* parent)
     loadFinished();
 }
 
-void FbListWidget::loadFinished()
+void FbImgsWidget::loadFinished()
 {
     m_view->load(QUrl());
-
-    m_list->setModel(new FbListModel(m_text, this));
+    m_list->setModel(new FbImgsModel(m_text, this));
     m_list->reset();
     m_list->resizeColumnToContents(1);
     m_list->resizeColumnToContents(2);
@@ -386,10 +568,10 @@ void FbListWidget::loadFinished()
     m_list->setColumnHidden(0, true);
 }
 
-void FbListWidget::showImage(const QString &name)
+void FbImgsWidget::showImage(const QString &name)
 {
     QUrl url = m_text->url();
     url.setFragment(name);
-    QString html = QString("<img src=%1 valign=center align=center width=100%>").arg(url.toString());
-    m_view->setHtml(html);
+    m_view->setHtml(imgHtml(url));
 }
+

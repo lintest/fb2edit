@@ -2,7 +2,7 @@
 #define FB2SAVE_H
 
 #include "fb2xml.h"
-#include "fb2temp.hpp"
+#include "fb2imgs.hpp"
 
 #include <QByteArray>
 #include <QFileDialog>
@@ -14,7 +14,7 @@ class QComboBox;
 class QLabel;
 QT_END_NAMESPACE
 
-#include "fb2temp.hpp"
+#include "fb2imgs.hpp"
 
 class FbTextEdit;
 
@@ -80,6 +80,7 @@ public:
 private:
     QByteArray downloadFile(const QUrl &url);
     void writeContentType(const QString &name, QByteArray &data);
+    QString append(const QString &name);
 private:
     FbTextEdit &m_view;
     QStringList m_names;

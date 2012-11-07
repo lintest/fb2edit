@@ -2,7 +2,7 @@
 
 #include <QtDebug>
 
-#include "fb2temp.hpp"
+#include "fb2imgs.hpp"
 #include "fb2xml2.h"
 
 //---------------------------------------------------------------------------

@@ -356,7 +356,7 @@ void FbTextEdit::viewPictures(bool show)
     if (show) {
         if (dockImgs) { dockImgs->show(); return; }
         dockImgs = new FbDockWidget(tr("Pictures"), this);
-        dockImgs->setWidget(new FbListWidget(this, m_owner));
+        dockImgs->setWidget(new FbImgsWidget(this, m_owner));
         connect(dockImgs, SIGNAL(visibilityChanged(bool)), act(Fb::ViewPictures), SLOT(setChecked(bool)));
         connect(dockImgs, SIGNAL(destroyed()), SLOT(imgsDestroyed()));
         m_owner->addDockWidget(Qt::RightDockWidgetArea, dockImgs);
@@ -582,25 +582,13 @@ void FbTextEdit::find()
 
 void FbTextEdit::insertImage()
 {
-    FbImageDlg(this).exec();
-    return;
-
-    QString filters;
-    filters += tr("Common Graphics (*.png *.jpg *.jpeg *.gif)") += ";;";
-    filters += tr("Portable Network Graphics (PNG) (*.png)") += ";;";
-    filters += tr("JPEG (*.jpg *.jpeg)") += ";;";
-    filters += tr("Graphics Interchange Format (*.gif)") += ";;";
-    filters += tr("All Files (*)");
-
-    QString path = QFileDialog::getOpenFileName(this, tr("Insert image..."), QString(), filters);
-    if (path.isEmpty()) return;
-
-    QFile file(path);
-    if (!file.open(QIODevice::ReadOnly)) return;
-
-    QByteArray data = file.readAll();
-    QString name = store()->add(path, data);
-    execCommand("insertImage", name.prepend("#"));
+    FbImageDlg dlg(this);
+    if (dlg.exec()) {
+        QString name = dlg.result();
+        if (name.isEmpty()) return;
+        QUrl url; url.setFragment(name);
+        execCommand("insertImage", url.toString());
+    }
 }
 
 void FbTextEdit::insertNote()
@@ -618,7 +606,7 @@ void FbTextEdit::insertLink()
 
 void FbTextEdit::execCommand(const QString &cmd, const QString &arg)
 {
-    QString javascript = QString("document.exelayoutcCommand(\"%1\",false,\"%2\")").arg(cmd).arg(arg);
+    QString javascript = QString("document.execCommand(\"%1\",false,\"%2\")").arg(cmd).arg(arg);
     page()->mainFrame()->evaluateJavaScript(javascript);
 }
 

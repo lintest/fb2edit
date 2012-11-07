@@ -10,7 +10,7 @@
 #include <QWebView>
 
 #include "fb2mode.h"
-#include "fb2temp.hpp"
+#include "fb2imgs.hpp"
 
 QT_BEGIN_NAMESPACE
 class QMainWindow;

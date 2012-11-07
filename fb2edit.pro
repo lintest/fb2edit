@@ -7,10 +7,10 @@ HEADERS = \
     source/fb2dlgs.hpp \
     source/fb2dock.hpp \
     source/fb2head.hpp \
+    source/fb2imgs.hpp \
     source/fb2main.hpp \
     source/fb2page.hpp \
     source/fb2read.hpp \
-    source/fb2temp.hpp \
     source/fb2tree.hpp \
     source/fb2save.hpp \
     source/fb2text.hpp \
@@ -24,11 +24,11 @@ SOURCES = \
     source/fb2dock.cpp \
     source/fb2head.cpp \
     source/fb2html.cpp \
+    source/fb2imgs.cpp \
     source/fb2main.cpp \
     source/fb2page.cpp \
     source/fb2read.cpp \
     source/fb2save.cpp \
-    source/fb2temp.cpp \
     source/fb2tree.cpp \
     source/fb2xml.cpp \
     source/fb2xml2.cpp \
