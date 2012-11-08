@@ -1,7 +1,7 @@
 #ifndef FB2READ_H
 #define FB2READ_H
 
-#include "fb2xml.h"
+#include "fb2xml.hpp"
 
 #include <QByteArray>
 #include <QMutex>
@@ -36,7 +36,7 @@ private:
     QString m_html;
 };
 
-class FbReadHandler : public QObject, public FbXmlHandler
+class FbReadHandler : public FbXmlHandler
 {
     Q_OBJECT
 

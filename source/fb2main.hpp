@@ -16,6 +16,8 @@ QT_END_NAMESPACE
 
 class FbMainDock;
 
+class FbMessage;
+
 class FbLogDock: public QDockWidget
 {
     Q_OBJECT
@@ -46,6 +48,7 @@ signals:
     void showInspectorChecked(bool);
 
 public slots:
+    void log(const FbMessage &msg);
     void logMessage(const QString &message);
     void status(const QString &text);
 

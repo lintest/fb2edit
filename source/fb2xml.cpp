@@ -1,4 +1,4 @@
-#include "fb2xml.h"
+#include "fb2xml.hpp"
 #include <QtDebug>
 
 //---------------------------------------------------------------------------
@@ -99,30 +99,21 @@ bool FbXmlHandler::endElement(const QString & namespaceURI, const QString & loca
     return m_handler && m_handler->doEnd(qName.toLower(), found);
 }
 
-bool FbXmlHandler::error(const QXmlParseException& exception)
-{
-    qCritical() << QObject::tr("Parse error at line %1, column %2: %3")
-       .arg(exception.lineNumber())
-       .arg(exception.columnNumber())
-       .arg(exception.message().simplified());
-    return false;
-}
-
 bool FbXmlHandler::warning(const QXmlParseException& exception)
 {
-    qWarning() << QObject::tr("Parse error at line %1, column %2: %3")
-       .arg(exception.lineNumber())
-       .arg(exception.columnNumber())
-       .arg(exception.message().simplified());
+    emit log(FbMessage(exception, FbMessage::Warring));
+    return true;
+}
+
+bool FbXmlHandler::error(const QXmlParseException& exception)
+{
+    emit log(FbMessage(exception, FbMessage::Error));
     return false;
 }
 
 bool FbXmlHandler::fatalError(const QXmlParseException &exception)
 {
-    qCritical() << QObject::tr("Parse error at line %1, column %2: %3")
-       .arg(exception.lineNumber())
-       .arg(exception.columnNumber())
-       .arg(exception.message().simplified());
+    emit log(FbMessage(exception, FbMessage::Fatal));
     return false;
 }
 
@@ -130,4 +121,3 @@ QString FbXmlHandler::errorString() const
 {
     return m_error;
 }
-

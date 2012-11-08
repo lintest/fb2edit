@@ -8,6 +8,7 @@
 #include "fb2code.hpp"
 #include "fb2dlgs.hpp"
 #include "fb2dock.hpp"
+#include "fb2logs.hpp"
 #include "fb2save.hpp"
 #include "fb2text.hpp"
 #include "fb2utils.h"
@@ -43,6 +44,11 @@ FbMainWindow::FbMainWindow(const QString &filename, ViewMode mode)
     mainDock->setMode(Fb::Text);
     setCurrentFile(filename);
     mainDock->load(filepath);
+}
+
+void FbMainWindow::log(const FbMessage &msg)
+{
+    logMessage(msg.msg());
 }
 
 void FbMainWindow::logMessage(const QString &message)

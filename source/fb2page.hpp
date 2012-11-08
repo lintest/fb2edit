@@ -9,6 +9,7 @@ class FbStore;
 class FbTextElement;
 class FbNetworkAccessManager;
 
+#include "fb2logs.hpp"
 #include "fb2mode.h"
 
 class FbTextLogger : public QObject
@@ -47,6 +48,7 @@ public:
 
 signals:
     void status(const QString &text);
+    void log(const FbMessage &msg);
 
 public slots:
     void html(const QString &html, FbStore *store);

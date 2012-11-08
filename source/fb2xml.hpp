@@ -6,6 +6,8 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
+#include "fb2logs.hpp"
+
 #define FB2_BEGIN_KEYLIST private: enum Keyword {
 
 #define FB2_END_KEYLIST None }; \
@@ -25,8 +27,10 @@ x::KeywordHash::KeywordHash() {
 
 #define FB2_KEY(key,str) insert(str,key);
 
-class FbXmlHandler : public QXmlDefaultHandler
+class FbXmlHandler : public QObject, public QXmlDefaultHandler
 {
+    Q_OBJECT
+
 public:
     explicit FbXmlHandler();
     virtual ~FbXmlHandler();
@@ -37,6 +41,9 @@ public:
     bool warning(const QXmlParseException& exception);
     bool fatalError(const QXmlParseException &exception);
     QString errorString() const;
+
+signals:
+    void log(const FbMessage &msg);
 
 protected:
     class NodeHandler

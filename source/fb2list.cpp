@@ -8,6 +8,7 @@ FbListView::FbListView(QWidget *parent)
     : QTreeView(parent)
 {
     setAllColumnsShowFocus(true);
+    setRootIsDecorated(false);
 }
 
 void FbListView::currentChanged(const QModelIndex &current, const QModelIndex &previous)

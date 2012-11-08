@@ -1,7 +1,7 @@
 #ifndef FB2SAVE_H
 #define FB2SAVE_H
 
-#include "fb2xml.h"
+#include "fb2xml.hpp"
 #include "fb2imgs.hpp"
 
 #include <QByteArray>
@@ -42,7 +42,7 @@ private:
     QLabel * label;
 };
 
-class FbHtmlHandler : public QObject, public FbXmlHandler
+class FbHtmlHandler : public FbXmlHandler
 {
     Q_OBJECT
 

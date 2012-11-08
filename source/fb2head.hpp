@@ -20,7 +20,7 @@ class QLineEdit;
 QT_END_NAMESPACE
 
 #include "fb2mode.h"
-#include "fb2xml.h"
+#include "fb2xml.hpp"
 
 class FbTextEdit;
 
