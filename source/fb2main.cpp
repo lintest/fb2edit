@@ -46,9 +46,9 @@ FbMainWindow::FbMainWindow(const QString &filename, ViewMode mode)
     mainDock->load(filepath);
 }
 
-void FbMainWindow::log(const FbMessage &msg)
+void FbMainWindow::log(const QXmlParseException &exception)
 {
-    logMessage(msg.msg());
+    logMessage(exception.message().simplified());
 }
 
 void FbMainWindow::logMessage(const QString &message)

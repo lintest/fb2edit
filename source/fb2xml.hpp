@@ -43,7 +43,7 @@ public:
     QString errorString() const;
 
 signals:
-    void log(const FbMessage &msg);
+    void log(const QXmlParseException &exception);
 
 protected:
     class NodeHandler

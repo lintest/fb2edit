@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QDockWidget>
+#include <QXmlParseException>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -48,7 +49,7 @@ signals:
     void showInspectorChecked(bool);
 
 public slots:
-    void log(const FbMessage &msg);
+    void log(const QXmlParseException &exception);
     void logMessage(const QString &message);
     void status(const QString &text);
 

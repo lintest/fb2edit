@@ -101,19 +101,19 @@ bool FbXmlHandler::endElement(const QString & namespaceURI, const QString & loca
 
 bool FbXmlHandler::warning(const QXmlParseException& exception)
 {
-    emit log(FbMessage(exception, FbMessage::Warring));
+    emit log(exception);
     return true;
 }
 
 bool FbXmlHandler::error(const QXmlParseException& exception)
 {
-    emit log(FbMessage(exception, FbMessage::Error));
+    emit log(exception);
     return false;
 }
 
 bool FbXmlHandler::fatalError(const QXmlParseException &exception)
 {
-    emit log(FbMessage(exception, FbMessage::Fatal));
+    emit log(exception);
     return false;
 }
 

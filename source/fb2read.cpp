@@ -46,7 +46,7 @@ bool FbReadThread::parse()
     FbReadHandler handler(writer);
 
     connect(&handler, SIGNAL(binary(QString,QByteArray)), m_store, SLOT(binary(QString,QByteArray)));
-//    connect(&handler, SIGNAL(log(FbMessage)), parent(), SIGNAL(log(FbMessage)));
+    connect(&handler, SIGNAL(log(QXmlParseException)), parent(), SIGNAL(log(QXmlParseException)));
 
 #ifdef FB2_USE_LIBXML2
     XML2::XmlReader reader;

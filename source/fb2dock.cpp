@@ -54,7 +54,7 @@ FbMainDock::FbMainDock(QWidget *parent)
     addWidget(m_head);
     addWidget(m_code);
 
-    connect(m_text->page(), SIGNAL(log(FbMessage)), parent, SLOT(log(FbMessage)));
+    connect(m_text->page(), SIGNAL(log(QXmlParseException)), parent, SLOT(log(QXmlParseException)));
     connect(m_text->page(), SIGNAL(status(QString)), parent, SLOT(status(QString)));
     connect(m_head, SIGNAL(status(QString)), parent, SLOT(status(QString)));
     connect(m_code, SIGNAL(status(QString)), parent, SLOT(status(QString)));

@@ -47,8 +47,8 @@ public:
     static QUrl createUrl();
 
 signals:
+    void log(const QXmlParseException &exception);
     void status(const QString &text);
-    void log(const FbMessage &msg);
 
 public slots:
     void html(const QString &html, FbStore *store);
