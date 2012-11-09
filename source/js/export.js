@@ -1,5 +1,10 @@
+var selection = document.getSelection();
+var anchorNode = selection.anchorNode;
+var focusNode = selection.baseNode;
 (f = function(node) {
     if (node.nodeName === "#text") {
+        if (anchorNode === node) handler.onAnchor(selection.anchorOffset);
+        if (focusNode === node) handler.onFocus(selection.focusOffset);
         handler.onTxt(node.data);
     } else if (node.nodeName === "#comment") {
         handler.onCom(node.data);

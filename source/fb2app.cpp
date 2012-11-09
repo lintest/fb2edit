@@ -68,7 +68,5 @@ int main(int argc, char *argv[])
 
     qInstallMsgHandler(fb2MessageHandler);
 
-    qRegisterMetaType<QXmlParseException>("QXmlParseException");
-
     return app.exec();
 }

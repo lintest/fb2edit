@@ -49,7 +49,9 @@ signals:
     void showInspectorChecked(bool);
 
 public slots:
-    void log(const QXmlParseException &exception);
+    void warning(int row, int col, const QString &msg);
+    void error(int row, int col, const QString &msg);
+    void fatal(int row, int col, const QString &msg);
     void logMessage(const QString &message);
     void status(const QString &text);
 

@@ -43,7 +43,9 @@ public:
     QString errorString() const;
 
 signals:
-    void log(const QXmlParseException &exception);
+    void warning(int row, int col, const QString &msg);
+    void error(int row, int col, const QString &msg);
+    void fatal(int row, int col, const QString &msg);
 
 protected:
     class NodeHandler

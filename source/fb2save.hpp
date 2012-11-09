@@ -89,10 +89,16 @@ private:
 
 class FbSaveHandler : public FbHtmlHandler
 {
+    Q_OBJECT
+
 public:
     explicit FbSaveHandler(FbSaveWriter &writer);
     virtual bool comment(const QString& ch);
     bool save();
+
+public slots:
+    void onAnchor(int offset);
+    void onFocus(int offset);
 
 private:
     class TextHandler : public NodeHandler
@@ -180,6 +186,8 @@ private:
 
 private:
     FbSaveWriter & m_writer;
+    int m_anchor;
+    int m_focus;
 };
 
 #endif // FB2SAVE_H

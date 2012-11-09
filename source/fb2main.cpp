@@ -46,9 +46,19 @@ FbMainWindow::FbMainWindow(const QString &filename, ViewMode mode)
     mainDock->load(filepath);
 }
 
-void FbMainWindow::log(const QXmlParseException &exception)
+void FbMainWindow::warning(int row, int col, const QString &msg)
 {
-    logMessage(exception.message().simplified());
+    logMessage(msg.simplified());
+}
+
+void FbMainWindow::error(int row, int col, const QString &msg)
+{
+    logMessage(msg.simplified());
+}
+
+void FbMainWindow::fatal(int row, int col, const QString &msg)
+{
+    logMessage(msg.simplified());
 }
 
 void FbMainWindow::logMessage(const QString &message)

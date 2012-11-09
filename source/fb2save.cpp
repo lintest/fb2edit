@@ -495,6 +495,8 @@ void FbSaveHandler::ParagHandler::start()
 FbSaveHandler::FbSaveHandler(FbSaveWriter &writer)
     : FbHtmlHandler()
     , m_writer(writer)
+    , m_anchor(-1)
+    , m_focus(-1)
 {
 }
 
@@ -502,6 +504,16 @@ bool FbSaveHandler::comment(const QString& ch)
 {
     m_writer.writeComment(ch);
     return true;
+}
+
+void FbSaveHandler::onAnchor(int offset)
+{
+    m_anchor = offset;
+}
+
+void FbSaveHandler::onFocus(int offset)
+{
+    m_focus = offset;
 }
 
 FbXmlHandler::NodeHandler * FbSaveHandler::CreateRoot(const QString &name, const QXmlAttributes &atts)
