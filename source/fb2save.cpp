@@ -139,6 +139,9 @@ void FbHtmlHandler::onEnd(const QString &name)
 FbSaveWriter::FbSaveWriter(FbTextEdit &view, QByteArray *array)
     : QXmlStreamWriter(array)
     , m_view(view)
+    , m_string(0)
+    , m_anchor(0)
+    , m_focus(0)
 {
     if (QWebFrame * frame = m_view.page()->mainFrame()) {
         m_style = frame->findFirstElement("html>head>style#origin").toPlainText();
@@ -148,12 +151,18 @@ FbSaveWriter::FbSaveWriter(FbTextEdit &view, QByteArray *array)
 FbSaveWriter::FbSaveWriter(FbTextEdit &view, QIODevice *device)
     : QXmlStreamWriter(device)
     , m_view(view)
+    , m_string(0)
+    , m_anchor(0)
+    , m_focus(0)
 {
 }
 
 FbSaveWriter::FbSaveWriter(FbTextEdit &view, QString *string)
     : QXmlStreamWriter(string)
     , m_view(view)
+    , m_string(string)
+    , m_anchor(0)
+    , m_focus(0)
 {
 }
 
@@ -162,6 +171,15 @@ void FbSaveWriter::writeComment(const QString &ch)
     writeLineEnd();
     QXmlStreamWriter::writeComment(ch);
 
+}
+
+void FbSaveWriter::writeStartDocument()
+{
+    if (device()) {
+        QXmlStreamWriter::writeStartDocument();
+    } else if (m_string) {
+        m_string->append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    }
 }
 
 void FbSaveWriter::writeStartElement(const QString &name, int level)
@@ -286,6 +304,16 @@ void FbSaveWriter::writeContentType(const QString &name, QByteArray &data)
     }
     type.prepend("image/");
     writeAttribute("content-type", type);
+}
+
+void FbSaveWriter::setAnchor(int offset)
+{
+    if (m_string) m_anchor = m_string->length() + offset;
+}
+
+void FbSaveWriter::setFocus(int offset)
+{
+    if (m_string) m_focus = m_string->length() + offset;
 }
 
 //---------------------------------------------------------------------------
@@ -495,8 +523,6 @@ void FbSaveHandler::ParagHandler::start()
 FbSaveHandler::FbSaveHandler(FbSaveWriter &writer)
     : FbHtmlHandler()
     , m_writer(writer)
-    , m_anchor(-1)
-    , m_focus(-1)
 {
 }
 
@@ -508,12 +534,12 @@ bool FbSaveHandler::comment(const QString& ch)
 
 void FbSaveHandler::onAnchor(int offset)
 {
-    m_anchor = offset;
+    m_writer.setAnchor(offset);
 }
 
 void FbSaveHandler::onFocus(int offset)
 {
-    m_focus = offset;
+    m_writer.setFocus(offset);
 }
 
 FbXmlHandler::NodeHandler * FbSaveHandler::CreateRoot(const QString &name, const QXmlAttributes &atts)
@@ -551,8 +577,8 @@ bool FbSaveHandler::save()
     QWebFrame *frame = page->mainFrame();
     if (!frame) return false;
 
-    if (page->isModified()) setDocumentInfo(frame);
     m_writer.writeStartDocument();
+    if (page->isModified()) setDocumentInfo(frame);
     QString javascript = jScript("export.js");
     frame->addToJavaScriptWindowObject("handler", this);
     frame->evaluateJavaScript(javascript);

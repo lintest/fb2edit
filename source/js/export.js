@@ -1,6 +1,6 @@
 var selection = document.getSelection();
 var anchorNode = selection.anchorNode;
-var focusNode = selection.baseNode;
+var focusNode = selection.focusNode;
 (f = function(node) {
     if (node.nodeName === "#text") {
         if (anchorNode === node) handler.onAnchor(selection.anchorOffset);

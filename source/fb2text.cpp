@@ -529,13 +529,12 @@ bool FbTextEdit::save(QByteArray *array)
     return FbSaveHandler(writer).save();
 }
 
-bool FbTextEdit::save(QString *string)
+bool FbTextEdit::save(QString *string, int &anchor, int &focus)
 {
-    // Use class QByteArray instead QString
-    // to store information about encoding.
-    QByteArray data;
-    bool ok = save(&data);
-    if (ok) *string = QString::fromUtf8(data.data());
+    FbSaveWriter writer(*this, string);
+    bool ok = FbSaveHandler(writer).save();
+    anchor = writer.anchor();
+    focus = writer.focus();
     return ok;
 }
 

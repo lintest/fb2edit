@@ -71,12 +71,18 @@ public:
     explicit FbSaveWriter(FbTextEdit &view, QString *string);
     FbTextEdit & view() { return m_view; }
     QString filename(const QString &src);
+    void writeStartDocument();
     void writeStartElement(const QString &name, int level);
     void writeEndElement(int level);
     void writeComment(const QString &ch);
     void writeLineEnd();
     void writeFiles();
     void writeStyle();
+public:
+    int anchor() const { return m_anchor; }
+    int focus() const { return m_focus; }
+    void setAnchor(int offset);
+    void setFocus(int offset);
 private:
     QByteArray downloadFile(const QUrl &url);
     void writeContentType(const QString &name, QByteArray &data);
@@ -84,7 +90,10 @@ private:
 private:
     FbTextEdit &m_view;
     QStringList m_names;
+    QString *m_string;
     QString m_style;
+    int m_anchor;
+    int m_focus;
 };
 
 class FbSaveHandler : public FbHtmlHandler
@@ -186,8 +195,6 @@ private:
 
 private:
     FbSaveWriter & m_writer;
-    int m_anchor;
-    int m_focus;
 };
 
 #endif // FB2SAVE_H

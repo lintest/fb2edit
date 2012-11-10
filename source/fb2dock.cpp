@@ -74,14 +74,21 @@ void FbMainDock::switchMode(Fb::Mode mode)
             default: ;
         }
     } else {
-        QString xml;
         switch (mode) {
-            case Fb::Code: m_text->save(&xml); break;
-            case Fb::Html: xml = m_text->toHtml(); break;
+            case Fb::Code: {
+                QString xml; int anchor, focus;
+                m_text->save(&xml, anchor, focus);
+                m_code->setPlainText(xml);
+                QTextCursor cursor = m_code->textCursor();
+                if (anchor > 0) cursor.setPosition(anchor, QTextCursor::MoveAnchor);
+                if (focus > 0) cursor.setPosition(focus, QTextCursor::KeepAnchor);
+                m_code->setTextCursor(cursor);
+            } break;
+            case Fb::Html: {
+                QString html = m_text->toHtml();
+                m_code->setPlainText(html);
+            } break;
             default: ;
-        }
-        if (!xml.isEmpty()) {
-            m_code->setPlainText(xml);
         }
     }
     setMode(mode);

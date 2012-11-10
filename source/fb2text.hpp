@@ -77,8 +77,8 @@ public:
     FbTextPage *page();
     FbStore *store();
     bool save(QIODevice *device, const QString &codec = QString());
+    bool save(QString *string, int &anchor, int &focus);
     bool save(QByteArray *array);
-    bool save(QString *string);
     QString toHtml();
 
     QAction * act(Fb::Actions index) const;
