@@ -1,27 +1,24 @@
 #include "fb2logs.hpp"
 
+#include "fb2utils.h"
+
 //---------------------------------------------------------------------------
-//  FbLogItem
+//  FbLogModel::FbLogItem
 //---------------------------------------------------------------------------
 
-FbLogItem::FbLogItem(Level level, int row, int col, const QString &msg)
-    : m_level(level)
-    , m_msg(msg)
-    , m_row(row)
-    , m_col(col)
+QVariant FbLogModel::FbLogItem::icon() const
 {
-}
-
-FbLogItem::FbLogItem(Level level, const QString &msg)
-    : m_level(level)
-    , m_msg(msg)
-    , m_row(0)
-    , m_col(0)
-{
+    switch (m_type) {
+        case QtDebugMsg: return FbIcon("dialog-information");
+        case QtWarningMsg: return FbIcon("dialog-warning");
+        case QtCriticalMsg: return FbIcon("dialog-error");
+        case QtFatalMsg: return FbIcon("dialog-error");
+    }
+    return QVariant();
 }
 
 //---------------------------------------------------------------------------
-//  FbLogList
+//  FbLogModel
 //---------------------------------------------------------------------------
 
 FbLogModel::FbLogModel(QObject *parent)
@@ -35,6 +32,10 @@ QVariant FbLogModel::data(const QModelIndex &index, int role) const
     int row = index.row();
     if (row < 0) return QVariant();
     if (row >= m_list.count()) return QVariant();
+    switch (role) {
+        case Qt::DisplayRole: return m_list.at(row)->msg();
+        case Qt::DecorationRole: return m_list.at(row)->icon();
+    }
     return QVariant();
 }
 
@@ -44,6 +45,21 @@ int FbLogModel::rowCount(const QModelIndex &parent) const
     return m_list.count();
 }
 
+void FbLogModel::add(QtMsgType type, int row, int col, const QString &msg)
+{
+    int count = m_list.count();
+    QModelIndex parent = QModelIndex();
+    beginInsertRows(parent, count, count);
+    m_list.append(new FbLogItem(type, row, col, msg));
+    endInsertRows();
+    emit changeCurrent(createIndex(count, 0));
+}
+
+void FbLogModel::add(QtMsgType type, const QString &msg)
+{
+    add(type, 0, 0, msg);
+}
+
 //---------------------------------------------------------------------------
 //  FbLogList
 //---------------------------------------------------------------------------
@@ -51,7 +67,7 @@ int FbLogModel::rowCount(const QModelIndex &parent) const
 FbLogList::FbLogList(QWidget *parent)
     : QListView(parent)
 {
-    setModel(new FbLogModel(this));
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setViewMode(ListMode);
 }
 
@@ -61,14 +77,18 @@ FbLogList::FbLogList(QWidget *parent)
 
 FbLogDock::FbLogDock(const QString &title, QWidget *parent, Qt::WindowFlags flags)
     : QDockWidget(title, parent, flags)
+    , m_model(new FbLogModel(this))
     , m_list(new FbLogList(this))
 {
+    m_list->setModel(m_model);
+    connect(m_model, SIGNAL(changeCurrent(QModelIndex)), m_list, SLOT(setCurrentIndex(QModelIndex)));
     setFeatures(QDockWidget::AllDockWidgetFeatures);
     setAttribute(Qt::WA_DeleteOnClose);
     setWidget(m_list);
 }
 
-void FbLogDock::append(const QString &message)
+void FbLogDock::append(QtMsgType type, const QString &message)
 {
+    m_model->add(type, message);
 }
 

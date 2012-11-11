@@ -3,6 +3,7 @@
 #include <QTranslator>
 
 #include "fb2app.hpp"
+#include "fb2logs.hpp"
 #include "fb2main.hpp"
 
 #ifndef PACKAGE_NAME
@@ -38,7 +39,7 @@ void FbApplication::handleMessage(QtMsgType type, const char *msg)
         abort();
     }
     */
-    emit logMessage( QString::fromUtf8(msg));
+    emit logMessage(type, QString::fromUtf8(msg));
 }
 
 static void fb2MessageHandler(QtMsgType type, const char *msg)

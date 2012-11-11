@@ -49,27 +49,27 @@ FbMainWindow::FbMainWindow(const QString &filename, ViewMode mode)
 
 void FbMainWindow::warning(int row, int col, const QString &msg)
 {
-    logMessage(msg.simplified());
+    logMessage(QtWarningMsg, msg.simplified());
 }
 
 void FbMainWindow::error(int row, int col, const QString &msg)
 {
-    logMessage(msg.simplified());
+    logMessage(QtCriticalMsg, msg.simplified());
 }
 
 void FbMainWindow::fatal(int row, int col, const QString &msg)
 {
-    logMessage(msg.simplified());
+    logMessage(QtFatalMsg, msg.simplified());
 }
 
-void FbMainWindow::logMessage(const QString &message)
+void FbMainWindow::logMessage(QtMsgType type, const QString &message)
 {
     if (!logDock) {
         logDock = new FbLogDock(tr("Message log"), this);
         connect(logDock, SIGNAL(destroyed()), SLOT(logDestroyed()));
         addDockWidget(Qt::BottomDockWidgetArea, logDock);
     }
-    logDock->append(message);
+    logDock->append(type, message);
 }
 
 void FbMainWindow::logDestroyed()

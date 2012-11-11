@@ -16,7 +16,7 @@ public:
     static QString lastCommit();
 
 signals:
-    void logMessage(const QString &message);
+    void logMessage(QtMsgType type, const QString &message);
 };
 
 

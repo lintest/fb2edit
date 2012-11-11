@@ -20,6 +20,8 @@ class FbLogDock;
 
 class FbMainDock;
 
+#include "fb2logs.hpp"
+
 class FbMainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -38,7 +40,7 @@ public slots:
     void warning(int row, int col, const QString &msg);
     void error(int row, int col, const QString &msg);
     void fatal(int row, int col, const QString &msg);
-    void logMessage(const QString &message);
+    void logMessage(QtMsgType type, const QString &message);
     void status(const QString &text);
 
 private slots:
