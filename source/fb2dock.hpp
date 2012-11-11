@@ -29,13 +29,15 @@ public:
     void switchMode(Fb::Mode mode);
     void setMode(Fb::Mode mode);
     void setTool(QToolBar *tool) { m_tool = tool; }
+    void addAction(Fb::Mode mode, QAction *action);
     void addMenu(QMenu *menu);
     bool isModified() const;
 
 signals:
     void status(const QString &text);
 
-public slots:
+private slots:
+    void error(int row, int col);
 
 private:
     void enableMenu(bool value);
@@ -46,6 +48,7 @@ private:
 
 private:
     QFrame *textFrame;
+    QMap<Fb::Mode, QAction*> m_actions;
     QList<QMenu*> m_menus;
     FbTextEdit *m_text;
     FbHeadEdit *m_head;

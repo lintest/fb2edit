@@ -47,10 +47,10 @@ public:
     static QUrl createUrl();
 
 signals:
+    void status(const QString &text);
     void warning(int row, int col, const QString &msg);
     void error(int row, int col, const QString &msg);
     void fatal(int row, int col, const QString &msg);
-    void status(const QString &text);
 
 public slots:
     void html(const QString &html, FbStore *store);

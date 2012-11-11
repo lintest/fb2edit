@@ -251,7 +251,7 @@ QAction * FbTextEdit::pAct(QWebPage::WebAction index) const
 
 void FbTextEdit::setAction(Fb::Actions index, QAction *action)
 {
-    m_actions[index] = action;
+    m_actions.insert(index, action);
 }
 
 void FbTextEdit::connectActions(QToolBar *tool)

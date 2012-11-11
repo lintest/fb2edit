@@ -41,6 +41,8 @@ public:
 
     bool isModified() const { return document()->isModified(); }
 
+    void setCursor(int line, int column);
+
 signals:
     void status(const QString &text);
 
@@ -74,7 +76,6 @@ private:
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
     void setZoomRatio(qreal ratio);
-    void setCursor(int line, int column);
 
 private:
     QWidget *lineNumberArea;

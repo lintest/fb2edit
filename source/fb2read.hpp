@@ -21,6 +21,7 @@ public:
 signals:
     void binary(const QString &name, const QByteArray &data);
     void html(const QString &html, FbStore *store);
+    void error();
 
 protected:
     void run();

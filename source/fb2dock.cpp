@@ -57,6 +57,8 @@ FbMainDock::FbMainDock(QWidget *parent)
     connect(m_text->page(), SIGNAL(warning(int,int,QString)), parent, SLOT(warning(int,int,QString)));
     connect(m_text->page(), SIGNAL(error(int,int,QString)), parent, SLOT(error(int,int,QString)));
     connect(m_text->page(), SIGNAL(fatal(int,int,QString)), parent, SLOT(fatal(int,int,QString)));
+    connect(m_text->page(), SIGNAL(error(int,int,QString)), SLOT(error(int,int)));
+    connect(m_text->page(), SIGNAL(fatal(int,int,QString)), SLOT(error(int,int)));
     connect(m_text->page(), SIGNAL(status(QString)), parent, SLOT(status(QString)));
     connect(m_head, SIGNAL(status(QString)), parent, SLOT(status(QString)));
     connect(m_code, SIGNAL(status(QString)), parent, SLOT(status(QString)));
@@ -104,6 +106,7 @@ void FbMainDock::setMode(Fb::Mode mode)
         case Fb::Code: setModeCode(); break;
         case Fb::Html: setModeHtml(); break;
     }
+    m_actions[mode]->setChecked(true);
     emit status(QString());
 }
 
@@ -148,6 +151,12 @@ void FbMainDock::setModeHtml()
     m_code->connectActions(m_tool);
 }
 
+void FbMainDock::error(int row, int col)
+{
+    m_code->setCursor(row, col);
+    setMode(Fb::Code);
+}
+
 bool FbMainDock::load(const QString &filename)
 {
     QFile *file = new QFile(filename);
@@ -187,6 +196,11 @@ bool FbMainDock::isModified() const
     if (current == m_head) return m_text->isModified();
     if (current == m_code) return m_code->isModified();
     return false;
+}
+
+void FbMainDock::addAction(Fb::Mode mode, QAction *action)
+{
+    m_actions.insert(mode, action);
 }
 
 void FbMainDock::addMenu(QMenu *menu)
