@@ -1,68 +1,74 @@
 #include "fb2logs.hpp"
 
 //---------------------------------------------------------------------------
-//  FbMessage
+//  FbLogItem
 //---------------------------------------------------------------------------
 
-class FbMessagePrivate
-{
-public:
-    FbMessagePrivate()
-        : level(FbMessage::Message), row(-1), col(-1)
-    {
-    }
-
-    FbMessagePrivate(const FbMessagePrivate &other)
-        : level(other.level), msg(other.msg), row(other.row), col(other.col)
-    {
-    }
-private:
-    friend class FbMessage;
-    FbMessage::Level level;
-    QString msg;
-    int row;
-    int col;
-};
-
-FbMessage::FbMessage()
-    : d(new FbMessagePrivate)
+FbLogItem::FbLogItem(Level level, int row, int col, const QString &msg)
+    : m_level(level)
+    , m_msg(msg)
+    , m_row(row)
+    , m_col(col)
 {
 }
 
-FbMessage::FbMessage(const FbMessage &other)
-    : d(new FbMessagePrivate(*other.d))
+FbLogItem::FbLogItem(Level level, const QString &msg)
+    : m_level(level)
+    , m_msg(msg)
+    , m_row(0)
+    , m_col(0)
 {
 }
 
-FbMessage::FbMessage(const QXmlParseException &error, Level level)
-    : d(new FbMessagePrivate)
+//---------------------------------------------------------------------------
+//  FbLogList
+//---------------------------------------------------------------------------
+
+FbLogModel::FbLogModel(QObject *parent)
+    : QAbstractListModel(parent)
 {
-    d->level = level;
-    d->msg = error.message().simplified();
-    d->row = error.lineNumber();
-    d->col = error.columnNumber();
+    foreach (FbLogItem *item, m_list) delete item;
 }
 
-FbMessage::~FbMessage()
+QVariant FbLogModel::data(const QModelIndex &index, int role) const
+{
+    int row = index.row();
+    if (row < 0) return QVariant();
+    if (row >= m_list.count()) return QVariant();
+    return QVariant();
+}
+
+int FbLogModel::rowCount(const QModelIndex &parent) const
+{
+    if (parent.isValid()) return 0;
+    return m_list.count();
+}
+
+//---------------------------------------------------------------------------
+//  FbLogList
+//---------------------------------------------------------------------------
+
+FbLogList::FbLogList(QWidget *parent)
+    : QListView(parent)
+{
+    setModel(new FbLogModel(this));
+    setViewMode(ListMode);
+}
+
+//---------------------------------------------------------------------------
+//  FbLogDock
+//---------------------------------------------------------------------------
+
+FbLogDock::FbLogDock(const QString &title, QWidget *parent, Qt::WindowFlags flags)
+    : QDockWidget(title, parent, flags)
+    , m_list(new FbLogList(this))
+{
+    setFeatures(QDockWidget::AllDockWidgetFeatures);
+    setAttribute(Qt::WA_DeleteOnClose);
+    setWidget(m_list);
+}
+
+void FbLogDock::append(const QString &message)
 {
 }
 
-QString FbMessage::msg() const
-{
-    return d->msg;
-}
-
-int FbMessage::level() const
-{
-    return d->level;
-}
-
-int FbMessage::row() const
-{
-    return d->row;
-}
-
-int FbMessage::col() const
-{
-    return d->col;
-}

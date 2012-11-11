@@ -1,10 +1,12 @@
+#include "fb2main.hpp"
+
 #include <QtGui>
 #include <QtDebug>
 #include <QTreeView>
 #include <QWebFrame>
 
 #include "fb2app.hpp"
-#include "fb2main.hpp"
+#include "fb2logs.hpp"
 #include "fb2code.hpp"
 #include "fb2dlgs.hpp"
 #include "fb2dock.hpp"
@@ -21,8 +23,7 @@ FbMainWindow::FbMainWindow(const QString &filename, ViewMode mode)
     : QMainWindow()
     , noteEdit(0)
     , toolEdit(0)
-    , inspector(0)
-    , messageEdit(0)
+    , logDock(0)
     , isSwitched(false)
     , isUntitled(true)
 {
@@ -63,27 +64,17 @@ void FbMainWindow::fatal(int row, int col, const QString &msg)
 
 void FbMainWindow::logMessage(const QString &message)
 {
-    if (!messageEdit) {
-        messageEdit = new QTextEdit(this);
-        connect(messageEdit, SIGNAL(destroyed()), SLOT(logDestroyed()));
-        QDockWidget * dock = new FbLogDock(tr("Message log"), this);
-        dock->setAttribute(Qt::WA_DeleteOnClose);
-        dock->setFeatures(QDockWidget::AllDockWidgetFeatures);
-        dock->setWidget(messageEdit);
-        addDockWidget(Qt::BottomDockWidgetArea, dock);
-        messageEdit->setMaximumHeight(80);
+    if (!logDock) {
+        logDock = new FbLogDock(tr("Message log"), this);
+        connect(logDock, SIGNAL(destroyed()), SLOT(logDestroyed()));
+        addDockWidget(Qt::BottomDockWidgetArea, logDock);
     }
-    messageEdit->append(message);
-}
-
-void FbMainWindow::logShowed()
-{
-    messageEdit->setMaximumHeight(QWIDGETSIZE_MAX);
+    logDock->append(message);
 }
 
 void FbMainWindow::logDestroyed()
 {
-    messageEdit = NULL;
+    logDock = NULL;
 }
 
 void FbMainWindow::closeEvent(QCloseEvent *event)

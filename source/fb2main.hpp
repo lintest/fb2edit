@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QDockWidget>
+#include <QListView>
 #include <QXmlParseException>
 
 QT_BEGIN_NAMESPACE
@@ -15,24 +16,9 @@ class QTreeView;
 class QWebInspector;
 QT_END_NAMESPACE
 
+class FbLogDock;
+
 class FbMainDock;
-
-class FbMessage;
-
-class FbLogDock: public QDockWidget
-{
-    Q_OBJECT
-
-public:
-    explicit FbLogDock(const QString &title, QWidget *parent = 0, Qt::WindowFlags flags = 0)
-        : QDockWidget(title, parent, flags) {}
-
-    QSize sizeHint() const {
-        QSize sh = QDockWidget::sizeHint();
-        sh.setHeight(40);
-        return sh;
-    }
-};
 
 class FbMainWindow : public QMainWindow
 {
@@ -64,7 +50,6 @@ private slots:
     void about();
     void documentWasModified();
     void logDestroyed();
-    void logShowed();
 
     void openSettings();
 
@@ -88,8 +73,7 @@ private:
     FbMainDock *mainDock;
     QTextEdit *noteEdit;
     QToolBar *toolEdit;
-    QWebInspector *inspector;
-    QTextEdit *messageEdit;
+    FbLogDock *logDock;
     QString curFile;
     bool isSwitched;
     bool isUntitled;
