@@ -27,13 +27,14 @@ FbMainWindow::FbMainWindow(const QString &filename, ViewMode mode)
     , isSwitched(false)
     , isUntitled(true)
 {
-    connect(qApp, SIGNAL(logMessage(QString)), SLOT(logMessage(QString)));
+    connect(qApp, SIGNAL(logMessage(QtMsgType, QString)), SLOT(logMessage(QtMsgType, QString)));
 
     setUnifiedTitleAndToolBarOnMac(true);
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowIcon(QIcon(":icon.ico"));
 
     mainDock = new FbMainDock(this);
+    connect(mainDock, SIGNAL(modificationChanged(bool)), SLOT(textChanged(bool)));
     setCentralWidget(mainDock);
 
     createActions();
@@ -143,12 +144,7 @@ void FbMainWindow::about()
     QMessageBox::about(this, tr("About fb2edit"), text);
 }
 
-void FbMainWindow::documentWasModified()
-{
-//    setModified(isSwitched || codeEdit->isModified());
-}
-
-void FbMainWindow::setModified(bool modified)
+void FbMainWindow::textChanged(bool modified)
 {
     QFileInfo info = windowFilePath();
     QString title = info.fileName();
@@ -575,7 +571,7 @@ void FbMainWindow::setCurrentFile(const QString &filename)
         curFile = info.canonicalFilePath();
     }
     setWindowFilePath(curFile);
-    setModified(false);
+    textChanged(false);
 }
 
 QString FbMainWindow::appTitle() const

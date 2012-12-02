@@ -221,6 +221,7 @@ FbTextEdit::FbTextEdit(QWidget *parent, QObject *owner)
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(contextMenu(QPoint)));
     connect(p, SIGNAL(linkHovered(QString,QString,QString)), SLOT(linkHovered(QString,QString,QString)));
+    connect(p->undoStack(), SIGNAL(cleanChanged(bool)), SLOT(cleanChanged(bool)));
     setPage(p);
 }
 
@@ -459,6 +460,11 @@ void FbTextEdit::mouseMoveEvent(QMouseEvent *event)
 {
     m_point = event->pos();
     QWebView::mouseMoveEvent(event);
+}
+
+void FbTextEdit::cleanChanged(bool clean)
+{
+    emit modificationChanged(!clean);
 }
 
 void FbTextEdit::contextMenu(const QPoint &pos)

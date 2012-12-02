@@ -50,7 +50,7 @@ private slots:
     bool fileSaveAs();
 
     void about();
-    void documentWasModified();
+    void textChanged(bool modified);
     void logDestroyed();
 
     void openSettings();
@@ -66,7 +66,6 @@ private:
     void createStatusBar();
     void readSettings();
     void writeSettings();
-    void setModified(bool modified);
     bool maybeSave();
     bool saveFile(const QString &fileName, const QString &codec = QString());
     void setCurrentFile(const QString &fileName = QString());

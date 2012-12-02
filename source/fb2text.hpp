@@ -97,6 +97,9 @@ public:
     QWebElement body();
     QWebElement doc();
 
+signals:
+    void modificationChanged(bool changed);
+
 protected:
     virtual void mouseMoveEvent(QMouseEvent *event);
 
@@ -113,6 +116,7 @@ public slots:
 private slots:
     void linkHovered(const QString &link, const QString &title, const QString &textContent);
     void contextMenu(const QPoint &pos);
+    void cleanChanged(bool clean);
     void treeDestroyed();
     void imgsDestroyed();
     void noteDestroyed();

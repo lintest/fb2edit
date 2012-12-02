@@ -34,9 +34,11 @@ public:
     bool isModified() const;
 
 signals:
+    void modificationChanged(bool changed);
     void status(const QString &text);
 
 private slots:
+    void textChanged(bool changed);
     void error(int row, int col);
 
 private:

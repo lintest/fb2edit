@@ -60,6 +60,9 @@ FbMainDock::FbMainDock(QWidget *parent)
     connect(m_text->page(), SIGNAL(error(int,int,QString)), SLOT(error(int,int)));
     connect(m_text->page(), SIGNAL(fatal(int,int,QString)), SLOT(error(int,int)));
     connect(m_text->page(), SIGNAL(status(QString)), parent, SLOT(status(QString)));
+    connect(m_text, SIGNAL(modificationChanged(bool)), SLOT(textChanged(bool)));
+    connect(m_head, SIGNAL(modificationChanged(bool)), SLOT(textChanged(bool)));
+    connect(m_code, SIGNAL(modificationChanged(bool)), SLOT(textChanged(bool)));
     connect(m_head, SIGNAL(status(QString)), parent, SLOT(status(QString)));
     connect(m_code, SIGNAL(status(QString)), parent, SLOT(status(QString)));
     connect(this, SIGNAL(status(QString)), parent, SLOT(status(QString)));
@@ -68,6 +71,7 @@ FbMainDock::FbMainDock(QWidget *parent)
 void FbMainDock::switchMode(Fb::Mode mode)
 {
     if (mode == m_mode) return;
+    isSwitched = isModified();
     if (currentWidget() == m_code) {
         QString xml = m_code->toPlainText();
         switch (m_mode) {
@@ -186,6 +190,11 @@ bool FbMainDock::save(QIODevice *device, const QString &codec)
         m_text->save(device, codec);
     }
     return true;
+}
+
+void FbMainDock::textChanged(bool changed)
+{
+    emit modificationChanged(isSwitched || changed);
 }
 
 bool FbMainDock::isModified() const

@@ -182,6 +182,7 @@ public:
     void disconnectActions();
 
 signals:
+    void modificationChanged(bool changed);
     void status(const QString &text);
 
 public slots:
