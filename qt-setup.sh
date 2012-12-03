@@ -5,7 +5,7 @@
 #                                                                #
 ##################################################################
 
-QT4_VERSION="4.8.3"   # Version Qt4
+QT4_VERSION="4.8.4"   # Version Qt4
 
 ##################################################################
 # Detect project version
@@ -33,17 +33,18 @@ BUILD_DIR=`pwd`
 ##################################################################
 
 cd "${BUILD_DIR}"
-#rm -rf "${QT4_FILENAME}"
-#wget -c "http://releases.qt-project.org/qt4/source/${QT4_FILENAME}.tar.gz"
-#tar -xvzf "${QT4_FILENAME}.tar.gz"
+rm -rf "${QT4_FILENAME}"
+wget -c "http://releases.qt-project.org/qt4/source/${QT4_FILENAME}.tar.gz"
+tar -xvzf "${QT4_FILENAME}.tar.gz"
 cd "${QT4_FILENAME}"
 
 ./configure -prefix /usr/i686-w64-mingw32/usr \
   -opensource -release -confirm-license \
+  -static -no-qt3support -no-3dnow -no-phonon -no-multimedia -no-webkit \
+  -nomake examples -nomake demos -nomake tools -nomake translations -nomake docs \
   -xplatform win32-g++ -device-option CROSS_COMPILE=i686-w64-mingw32-
 #  -webkit -qt-sql-sqlite -qt-zlib -qt-libpng -qt-libjpeg \
 #  -dont-process -no-qt3support -no-multimedia -no-audio-backend -no-phonon \
-#  -nomake examples -nomake demos -nomake tools -nomake translations -nomake docs \
 #  -no-opengl -no-qt3support -no-declarative -no-multimedia -no-audio-backend -no-phonon \
 #  -no-dbus -no-script -no-scripttools  \
 #  -no-opengl -no-qt3support -no-declarative -no-multimedia -no-audio-backend -no-phonon \
@@ -51,7 +52,7 @@ cd "${QT4_FILENAME}"
 #  -I /usr/i686-w64-mingw32/include \
 #  -L /usr/i686-w64-mingw32/lib \
 
-#make
+make
 
 #sudo make install
 
