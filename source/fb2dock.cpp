@@ -102,7 +102,6 @@ void FbMainDock::switchMode(Fb::Mode mode)
 
 void FbMainDock::setMode(Fb::Mode mode)
 {
-    if (mode == m_mode) return;
     enableMenu(mode == Fb::Text);
     switch (m_mode = mode) {
         case Fb::Text: setModeText(); break;
