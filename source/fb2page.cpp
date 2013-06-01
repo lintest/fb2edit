@@ -36,7 +36,7 @@ FbTextPage::FbTextPage(QObject *parent)
     s->setAttribute(QWebSettings::PrivateBrowsingEnabled, true);
     s->setAttribute(QWebSettings::PluginsEnabled, false);
     s->setAttribute(QWebSettings::ZoomTextOnly, true);
-    s->setUserStyleSheetUrl(QUrl::fromLocalFile(":style.css"));
+    s->setUserStyleSheetUrl(QUrl("qrc:style.css"));
 
     QString html = block("body", block("section", p()));
     mainFrame()->setHtml(html, createUrl());

@@ -7,7 +7,7 @@
 #
 
 Name:           fb2edit
-Version:        0.0.6
+Version:        0.0.8
 Release:        0
 License:        GPL-3.0
 Summary:        FB2 Files Editor
