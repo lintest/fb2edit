@@ -213,12 +213,6 @@ void FbReadHandler::RootHandler::writeHeader()
         writer().writeEndElement();
     }
 
-    writer().writeStartElement("style");
-    writer().writeAttribute("type", "text/css");
-    writer().writeAttribute("id", "inline");
-    writer().writeCharacters("");
-    writer().writeEndElement();
-
     writer().writeEndElement();
 
     writer().writeStartElement("body");

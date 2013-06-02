@@ -463,11 +463,9 @@ FbCodeEdit::FbCodeEdit(QWidget *parent) : QPlainTextEdit(parent)
 
     zoomRatio = 1;
 
-    #ifdef Q_WS_WIN
-    setFont(QFont("Courier New", baseFontSize));
-    #else
-    setFont(QFont("Monospace", baseFontSize));
-    #endif
+    QFont f("Monospace", baseFontSize);
+    f.setStyleHint(f.TypeWriter, f.PreferDefault);
+    setFont(f);
 
     updateLineNumberAreaWidth(0);
     highlightCurrentLine();

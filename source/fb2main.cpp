@@ -166,6 +166,7 @@ void FbMainWindow::createActions()
 
     menu = menuBar()->addMenu(tr("&File"));
     tool = addToolBar(tr("File"));
+    tool->setIconSize(QSize(24, 24));
     tool->setMovable(false);
 
     act = new QAction(FbIcon("document-new"), tr("&New"), this);
@@ -501,6 +502,7 @@ void FbMainWindow::createActions()
     menu->addAction(act);
 
     toolEdit = tool = addToolBar(tr("Edit"));
+    tool->setIconSize(QSize(24, 24));
     tool->setMovable(false);
     tool->addSeparator();
     mainDock->setTool(tool);

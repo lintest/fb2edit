@@ -85,6 +85,9 @@ private slots:
     void showStatus();
 
 private:
+    QUrl getStyleSheetUrl();
+
+private:
     FbActionMap m_actions;
     FbTextLogger m_logger;
     QString m_html;

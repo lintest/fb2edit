@@ -36,7 +36,7 @@ FbTextPage::FbTextPage(QObject *parent)
     s->setAttribute(QWebSettings::PrivateBrowsingEnabled, true);
     s->setAttribute(QWebSettings::PluginsEnabled, false);
     s->setAttribute(QWebSettings::ZoomTextOnly, true);
-    s->setUserStyleSheetUrl(QUrl("qrc:style.css"));
+    s->setUserStyleSheetUrl(getStyleSheetUrl());
 
     QString html = block("body", block("section", p()));
     mainFrame()->setHtml(html, createUrl());
@@ -46,6 +46,19 @@ FbTextPage::FbTextPage(QObject *parent)
     connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished()));
     connect(this, SIGNAL(contentsChanged()), SLOT(fixContents()));
     connect(this, SIGNAL(selectionChanged()), SLOT(showStatus()));
+}
+
+QUrl FbTextPage::getStyleSheetUrl()
+{
+    QFile file(":style.css");
+    if (!file.open(QFile::ReadOnly)) return QUrl();
+
+    QTextStream in( &file );
+    in.setCodec( "UTF-8" );
+    in.setAutoDetectUnicode( true );
+
+    QString str = in.readAll().append("p:after{display:inline;content:'\\A0\\B6';color:gray;}");
+    return QString(str.toLatin1().toBase64()).prepend("data:text/css;charset=utf-8;base64,");
 }
 
 FbNetworkAccessManager *FbTextPage::manager()
@@ -390,8 +403,6 @@ void FbTextPage::showStatus()
 void FbTextPage::loadFinished()
 {
     mainFrame()->addToJavaScriptWindowObject("logger", &m_logger);
-    QString style = "p:after{display:inline;content:'\\A0\\B6';color:gray;}";
-    mainFrame()->findFirstElement("html>head>style#inline").setInnerXml(style);
     body().select();
 }
 
