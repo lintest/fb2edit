@@ -22,18 +22,7 @@ FbIcon::FbIcon(const QString &name)
 QString jScript(const QString &filename)
 {
 
-#ifdef QT_DEBUG
-    QString filepath = qApp->arguments().first();
-    #ifdef Q_OS_WIN
-    filepath += "/..";
-    #endif
-    filepath += "/../../fb2edit/source/js/";
-    filepath += filename;
-    filepath = QDir::cleanPath(filepath);
-#else
-    QString filepath = ":/js/";
-    filepath += filename;
-#endif // QT_DEBUG
+    QString filepath = ":/js/" + filename;
 
     // TODO: throw an exception instead of
     // returning an empty string

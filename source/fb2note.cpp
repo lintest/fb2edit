@@ -45,6 +45,7 @@ FbNoteDlg::FbNoteDlg(FbTextBase *text)
     gridLayout->addWidget(m_title, 1, 1, 1, 1);
 
     m_toolbar = new QToolBar(this);
+    m_toolbar->setIconSize(QSize(24, 24));
     gridLayout->addWidget(m_toolbar, 2, 0, 1, 2);
 
     QFrame * frame = new QFrame(this);
