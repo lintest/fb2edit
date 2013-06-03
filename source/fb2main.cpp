@@ -110,6 +110,7 @@ void FbMainWindow::fileOpen()
 
     if (isUntitled && !isWindowModified()) {
         mainDock->load(filename);
+        setCurrentFile(filename);
     } else {
         FbMainWindow * other = new FbMainWindow(filename, FB2);
         other->mainDock->load(filename);
