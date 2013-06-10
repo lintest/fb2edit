@@ -1,6 +1,6 @@
 #!/bin/sh
 
-LIST="quantal precise oneiric natty"
+LIST="saucy raring quantal precise"
 
 NUMBER=1
 
