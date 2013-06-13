@@ -119,6 +119,7 @@ void FbHtmlHandler::onNew(const QString &name)
 
 void FbHtmlHandler::onTxt(const QString &text)
 {
+    m_lastTextLength = text.length();
     characters(text);
 }
 
@@ -534,12 +535,12 @@ bool FbSaveHandler::comment(const QString& ch)
 
 void FbSaveHandler::onAnchor(int offset)
 {
-    m_writer.setAnchor(offset);
+    m_writer.setAnchor(offset - m_lastTextLength);
 }
 
 void FbSaveHandler::onFocus(int offset)
 {
-    m_writer.setFocus(offset);
+    m_writer.setFocus(offset - m_lastTextLength);
 }
 
 FbXmlHandler::NodeHandler * FbSaveHandler::CreateRoot(const QString &name, const QXmlAttributes &atts)

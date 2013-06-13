@@ -4,9 +4,9 @@
     var focusNode = selection.focusNode;
     var f = function(node) {
         if (node.nodeName === "#text") {
+            handler.onTxt(node.data);
             if (anchorNode === node) handler.onAnchor(selection.anchorOffset);
             if (focusNode === node) handler.onFocus(selection.focusOffset);
-            handler.onTxt(node.data);
         } else if (node.nodeName === "#comment") {
             handler.onCom(node.data);
         } else {

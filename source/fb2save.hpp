@@ -47,7 +47,7 @@ class FbHtmlHandler : public FbXmlHandler
     Q_OBJECT
 
 public:
-    explicit FbHtmlHandler() {}
+    explicit FbHtmlHandler(): m_lastTextLength(0) {}
 
 public slots:
     void onAttr(const QString &name, const QString &value);
@@ -55,6 +55,9 @@ public slots:
     void onEnd(const QString &name);
     void onTxt(const QString &text);
     void onCom(const QString &text);
+
+protected:
+    int m_lastTextLength;
 
 private:
     static QString local(const QString &name);
