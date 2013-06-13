@@ -113,6 +113,11 @@ public slots:
     void insertLink();
     void find();
 
+#ifdef QT_DEBUG
+public slots:
+    void exportHtml();
+#endif // QT_DEBUG
+
 private slots:
     void linkHovered(const QString &link, const QString &title, const QString &textContent);
     void contextMenu(const QPoint &pos);

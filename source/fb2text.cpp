@@ -340,6 +340,38 @@ void FbTextEdit::disconnectActions()
     viewInspector(false);
 }
 
+#ifdef QT_DEBUG
+void FbTextEdit::exportHtml()
+{
+    FbSaveDialog dlg(this, tr("Save As..."));
+    dlg.selectFile("filename.htm");
+    if (!dlg.exec()) return;
+    QString fileName = dlg.fileName();
+    if (fileName.isEmpty()) return;
+
+    QFile file(fileName);
+    if (!file.open(QFile::WriteOnly)) return;
+    QTextStream out(&file);
+    out.setCodec("UTF-8");
+    out << toHtml();
+
+    QFileInfo fileInfo(fileName);
+    QString dirName = fileInfo.path() + "/" + fileInfo.completeBaseName() + "/";
+    QDir().mkpath(dirName);
+
+    FbNetworkAccessManager *m = qobject_cast<FbNetworkAccessManager*>(page()->networkAccessManager());
+    if (!m) return;
+
+    int count = m->count();
+    for (int i = 0; i < count; i++) {
+        QFile file(dirName + m->info(i, 0).toString());
+        if (file.open(QFile::WriteOnly)) {
+            file.write(m->data(i));
+        }
+    }
+}
+#endif // QT_DEBUG
+
 void FbTextEdit::viewContents(bool show)
 {
     if (show) {

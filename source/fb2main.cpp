@@ -198,6 +198,12 @@ void FbMainWindow::createActions()
     connect(act, SIGNAL(triggered()), this, SLOT(fileSaveAs()));
     menu->addAction(act);
 
+#ifdef QT_DEBUG
+    act = new QAction(tr("&Export HTML"), this);
+    connect(act, SIGNAL(triggered()), text, SLOT(exportHtml()));
+    menu->addAction(act);
+#endif // QT_DEBUG
+
     menu->addSeparator();
 
     act = new QAction(FbIcon("window-close"), tr("&Close"), this);
@@ -446,7 +452,7 @@ void FbMainWindow::createActions()
     mainDock->addAction(Fb::Html, act);
     viewGroup->addAction(act);
     menu->addAction(act);
-#endif // _DEBUG
+#endif // QT_DEBUG
 
     menu->addSeparator();
 
