@@ -37,14 +37,14 @@ FbTextAction::FbTextAction(const QIcon &icon, const QString &text, QWebPage::Web
 {
 }
 
-QAction * FbTextAction::action(QWebPage::WebAction action)
+QAction * FbTextAction::action()
 {
     return m_parent->pageAction(m_action);
 }
 
 void FbTextAction::updateAction()
 {
-    if (QAction * act = action(m_action)) {
+    if (QAction * act = action()) {
         if (isCheckable()) setChecked(act->isChecked());
         setEnabled(act->isEnabled());
     }
@@ -52,7 +52,7 @@ void FbTextAction::updateAction()
 
 void FbTextAction::connectAction()
 {
-    if (QAction * act = action(m_action)) {
+    if (QAction * act = action()) {
         connect(this, SIGNAL(triggered(bool)), act, SIGNAL(triggered(bool)));
         connect(act, SIGNAL(changed()), this, SLOT(updateAction()));
         if (isCheckable()) setChecked(act->isChecked());
@@ -65,7 +65,7 @@ void FbTextAction::connectAction()
 
 void FbTextAction::disconnectAction()
 {
-    QAction * act = action(m_action);
+    QAction * act = action();
     disconnect(act, 0, this, 0);
     disconnect(this, 0, act, 0);
 }

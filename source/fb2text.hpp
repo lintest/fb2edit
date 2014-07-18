@@ -169,7 +169,7 @@ private slots:
     void updateAction();
 
 private:
-    QAction * action(QWebPage::WebAction action);
+    QAction * action();
 
 private:
     QWebPage::WebAction m_action;

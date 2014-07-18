@@ -27,6 +27,7 @@ FbMainWindow::FbMainWindow(const QString &filename, ViewMode mode)
     , isSwitched(false)
     , isUntitled(true)
 {
+    Q_UNUSED(mode);
     connect(qApp, SIGNAL(logMessage(QtMsgType, QString)), SLOT(logMessage(QtMsgType, QString)));
 
     setUnifiedTitleAndToolBarOnMac(true);
@@ -50,16 +51,22 @@ FbMainWindow::FbMainWindow(const QString &filename, ViewMode mode)
 
 void FbMainWindow::warning(int row, int col, const QString &msg)
 {
+    Q_UNUSED(row);
+    Q_UNUSED(col);
     logMessage(QtWarningMsg, msg.simplified());
 }
 
 void FbMainWindow::error(int row, int col, const QString &msg)
 {
+    Q_UNUSED(row);
+    Q_UNUSED(col);
     logMessage(QtCriticalMsg, msg.simplified());
 }
 
 void FbMainWindow::fatal(int row, int col, const QString &msg)
 {
+    Q_UNUSED(row);
+    Q_UNUSED(col);
     logMessage(QtFatalMsg, msg.simplified());
 }
 
@@ -164,6 +171,7 @@ void FbMainWindow::createActions()
     FbTextEdit *text = mainDock->text();
     FbHeadEdit *head = mainDock->head();
     FbCodeEdit *code = mainDock->code();
+    Q_UNUSED(head)
 
     menu = menuBar()->addMenu(tr("&File"));
     tool = addToolBar(tr("File"));
