@@ -1,4 +1,10 @@
-fb2edit (0.0.7-squeeze1ubuntu1) UNRELEASED; urgency=low
+fb2edit (0.0.9-squeeze1) UNRELEASED; urgency=low
+
+  * Update release
+
+ -- Denis Kandrashin <mail@lintest.ru>  Fri, 18 Jul 2014 21:52:16 +0400
+
+fb2edit (0.0.8-squeeze1) UNRELEASED; urgency=low
 
   * Update release
 
