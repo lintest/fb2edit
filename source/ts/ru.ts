@@ -418,7 +418,7 @@
     </message>
     <message>
         <source>Save &amp;As...</source>
-        <translation>Сохрать &amp;как...</translation>
+        <translation>Сохранить &amp;как...</translation>
     </message>
     <message>
         <source>Paste the clipboard&apos;s contents into the current selection</source>
