@@ -23,6 +23,9 @@
 #include <QWebPage>
 #include <QtDebug>
 
+#define XMLAutoFormatting
+//#define ImgTypePrint
+
 //---------------------------------------------------------------------------
 //  FbSaveDialog
 //---------------------------------------------------------------------------
@@ -147,6 +150,9 @@ FbSaveWriter::FbSaveWriter(FbTextEdit &view, QByteArray *array)
     if (QWebFrame * frame = m_view.page()->mainFrame()) {
         m_style = frame->findFirstElement("html>head>style#origin").toPlainText();
     }
+#ifdef XMLAutoFormatting
+    setAutoFormatting(true);
+#endif
 }
 
 FbSaveWriter::FbSaveWriter(FbTextEdit &view, QIODevice *device)
@@ -156,6 +162,9 @@ FbSaveWriter::FbSaveWriter(FbTextEdit &view, QIODevice *device)
     , m_anchor(0)
     , m_focus(0)
 {
+#ifdef XMLAutoFormatting
+    setAutoFormatting(true);
+#endif
 }
 
 FbSaveWriter::FbSaveWriter(FbTextEdit &view, QString *string)
@@ -165,6 +174,9 @@ FbSaveWriter::FbSaveWriter(FbTextEdit &view, QString *string)
     , m_anchor(0)
     , m_focus(0)
 {
+#ifdef XMLAutoFormatting
+    setAutoFormatting(true);
+#endif
 }
 
 void FbSaveWriter::writeComment(const QString &ch)
@@ -185,21 +197,29 @@ void FbSaveWriter::writeStartDocument()
 
 void FbSaveWriter::writeStartElement(const QString &name, int level)
 {
+#ifndef XMLAutoFormatting
+    Q_UNUSED(level)
     if (level) writeLineEnd();
     for (int i = 1; i < level; i++) writeCharacters("  ");
+#endif
     QXmlStreamWriter::writeStartElement(name);
 }
 
 void FbSaveWriter::writeEndElement(int level)
 {
+#ifndef XMLAutoFormatting
+    Q_UNUSED(level)
     if (level) writeLineEnd();
     for (int i = 1; i < level; i++) writeCharacters("  ");
+#endif
     QXmlStreamWriter::writeEndElement();
 }
 
 void FbSaveWriter::writeLineEnd()
 {
+#ifndef XMLAutoFormatting
     writeCharacters("\n");
+#endif
 }
 
 QByteArray FbSaveWriter::downloadFile(const QUrl &url)
@@ -299,6 +319,9 @@ void FbSaveWriter::writeContentType(const QString &name, QByteArray &data)
     QBuffer buffer(&data);
     buffer.open(QIODevice::ReadOnly);
     QString type = QImageReader::imageFormat(&buffer);
+#ifdef ImgTypePrint
+    qCritical()<<"Img type: "<< type;
+#endif
     if (type.isEmpty()) {
         qCritical() << QObject::tr("Unknown image format: %1").arg(name);
         return;
