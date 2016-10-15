@@ -283,7 +283,7 @@ void FbReadHandler::TextHandler::Init(const QString &name, const QXmlAttributes 
     Keyword key = toKeyword(name);
     writer().writeStartElement(m_tag);
     int count = atts.count();
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count; ++i) {
         QString name = atts.qName(i);
         switch (key) {
             case Anchor: { if (atts.localName(i) == "href") name = "href"; break; }

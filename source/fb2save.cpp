@@ -45,7 +45,7 @@ FbSaveDialog::FbSaveDialog(QWidget *parent, const QString &caption, const QStrin
 void FbSaveDialog::init()
 {
     QMap<QString, QString> codecMap;
-    foreach (int mib, QTextCodec::availableMibs()) {
+    for (const int &mib: QTextCodec::availableMibs()) {
         QTextCodec *codec = QTextCodec::codecForMib(mib);
 
         QString sortKey = codec->name().toUpper();
@@ -74,7 +74,7 @@ void FbSaveDialog::init()
     setNameFilters(filters);
 
     combo = new QComboBox(this);
-    foreach (QString codec, codecMap) {
+    for (const QString &codec: codecMap) {
         combo->addItem(codec);
     }
     combo->setCurrentIndex(0);
@@ -89,7 +89,7 @@ void FbSaveDialog::init()
 
 QString FbSaveDialog::fileName() const
 {
-    foreach (QString filename, selectedFiles()) {
+    for (const QString &filename: selectedFiles()) {
         return filename;
     }
     return QString();
@@ -200,7 +200,7 @@ void FbSaveWriter::writeStartElement(const QString &name, int level)
 #ifndef XMLAutoFormatting
     Q_UNUSED(level)
     if (level) writeLineEnd();
-    for (int i = 1; i < level; i++) writeCharacters("  ");
+    for (int i = 1; i < level; ++i) writeCharacters("  ");
 #endif
     QXmlStreamWriter::writeStartElement(name);
 }
@@ -210,7 +210,7 @@ void FbSaveWriter::writeEndElement(int level)
 #ifndef XMLAutoFormatting
     Q_UNUSED(level)
     if (level) writeLineEnd();
-    for (int i = 1; i < level; i++) writeCharacters("  ");
+    for (int i = 1; i < level; ++i) writeCharacters("  ");
 #endif
     QXmlStreamWriter::writeEndElement();
 }
@@ -275,8 +275,9 @@ void FbSaveWriter::writeStyle()
     writeCharacters(postfix);
 
     QStringList list = m_style.split("}", QString::SkipEmptyParts);
-    foreach (const QString &str, list) {
-        QString line = str.simplified();
+    QString line;
+    for (const QString &str: list) {
+        line = str.simplified();
         if (line.isEmpty()) continue;
         writeCharacters("  " + line + "}" + postfix);
     }
@@ -388,7 +389,7 @@ FbSaveHandler::TextHandler::TextHandler(TextHandler *parent, const QString &name
 void FbSaveHandler::TextHandler::writeAtts(const QXmlAttributes &atts)
 {
     int count = atts.count();
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count; ++i) {
         QString name = atts.qName(i);
         QString value = atts.value(i);
         if (m_tag == "image") {
@@ -493,7 +494,7 @@ FbSaveHandler::ParagHandler::ParagHandler(TextHandler *parent, const QString &na
     , m_empty(true)
 {
     int count = atts.count();
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count; ++i) {
         QString qName = atts.qName(i);
         QString value = atts.value(i);
         if (qName == "fb:class") {

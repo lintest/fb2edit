@@ -16,7 +16,7 @@ class FbReadThread : public QThread
 
 public:
     static void execute(QObject *parent, QXmlInputSource *source, QIODevice *device);
-    ~FbReadThread();
+    virtual ~FbReadThread();
 
 signals:
     void binary(const QString &name, const QByteArray &data);

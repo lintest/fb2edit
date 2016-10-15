@@ -30,7 +30,7 @@ FbTreeItem::FbTreeItem(QWebElement &element, FbTreeItem *parent, int number)
 
 FbTreeItem::~FbTreeItem()
 {
-    foreach (FbTreeItem * item, m_list) {
+    for (FbTreeItem * item: m_list) {
         delete item;
     }
 }
@@ -90,7 +90,7 @@ QString FbTreeItem::selector() const
         QWebElement child = parent.firstChild();
         int index = -1;
         while (!child.isNull()) {
-            index++;
+            ++index;
             if (child == element) break;
             child = child.nextSibling();
         }
@@ -107,10 +107,10 @@ FbTreeItem * FbTreeItem::content(int number) const
     FbTextElement element = m_element.firstChild();
     while (number-- > 0) element = element.nextSibling();
     FbTreeList::const_iterator it;
-    for (it = m_list.constBegin(); it != m_list.constEnd(); it++) {
+    for (it = m_list.constBegin(); it != m_list.constEnd(); ++it) {
         if ((*it)->element() == element) return *it;
     }
-    return 0;
+    return nullptr;
 }
 
 //---------------------------------------------------------------------------
@@ -307,7 +307,7 @@ bool FbTreeModel::removeRows(int row, int count, const QModelIndex &parent)
     if (!owner) return false;
     int last = row + count - 1;
     beginRemoveRows(parent, row, last);
-    for (int i = last; i >= row; i--) {
+    for (int i = last; i >= row; --i) {
         if (FbTreeItem * child = owner->takeAt(i)) {
             QUndoCommand * command = new FbDeleteCmd(child->element());
             m_view.page()->push(command, "Delete element");
@@ -326,11 +326,11 @@ void FbTreeModel::update(FbTreeItem &owner)
 
     int pos = 0;
     QModelIndex index = this->index(&owner);
-    for (FbElementList::iterator it = list.begin(); it != list.end(); it++) {
-        FbTreeItem * child = 0;
+    for (FbElementList::iterator it = list.begin(); it != list.end(); ++it) {
+        FbTreeItem * child = nullptr;
         QWebElement element = *it;
         int count = owner.count();
-        for (int i = pos; i < count; i++) {
+        for (int i = pos; i < count; ++i) {
             if (owner.item(i)->element() == element) {
                 child = owner.item(i);
                 if (i > pos) {
@@ -355,13 +355,13 @@ void FbTreeModel::update(FbTreeItem &owner)
             endInsertRows();
             update(*child);
         }
-        pos++;
+        ++pos;
     }
 
     int last = owner.count() - 1;
     if (pos <= last) {
         beginRemoveRows(index, pos, last);
-        for (int i = last; i >= pos; i--) delete owner.takeAt(i);
+        for (int i = last; i >= pos; --i) delete owner.takeAt(i);
         endRemoveRows();
     }
 }
@@ -564,7 +564,7 @@ void FbTreeView::contextMenu(const QPoint &pos)
         if (!e.hasTitle()) menu.addAction(actionTitle);
         menu.addAction(actionEpigraph);
     }
-
+    else
     if (tag == "FB:SECTION") {
         if (!e.hasTitle()) menu.addAction(actionTitle);
         menu.addAction(actionEpigraph);
@@ -572,7 +572,7 @@ void FbTreeView::contextMenu(const QPoint &pos)
         if (!e.hasChild("FB:ANNOTATION")) menu.addAction(actionAnnot);
         menu.addAction(actionText);
     }
-
+    else
     if (tag == "FB:POEM") {
         if (!e.hasTitle()) menu.addAction(actionTitle);
         menu.addAction(actionEpigraph);
@@ -580,15 +580,15 @@ void FbTreeView::contextMenu(const QPoint &pos)
         menu.addAction(actionAuthor);
         if (!e.hasChild("date")) menu.addAction(actionDate);
     }
-
+    else
     if (tag == "FB:STANZA") {
         if (!e.hasTitle()) menu.addAction(actionTitle);
     }
-
+    else
     if (tag == "FB:EPIGRAPH") {
         menu.addAction(actionAuthor);
     }
-
+    else
     if (tag == "FB:CITE") {
         menu.addAction(actionAuthor);
     }

@@ -600,7 +600,7 @@ FbMainWindow *FbMainWindow::findFbMainWindow(const QString &fileName)
 {
     QString canonicalFilePath = QFileInfo(fileName).canonicalFilePath();
 
-    foreach (QWidget *widget, qApp->topLevelWidgets()) {
+    for (QWidget *widget: qApp->topLevelWidgets()) {
         FbMainWindow *mainWin = qobject_cast<FbMainWindow *>(widget);
         if (mainWin && mainWin->curFile == canonicalFilePath)
             return mainWin;

@@ -70,7 +70,7 @@ FbTextElement::Sublist::Sublist(const TypeList &list, const QString &name)
 {
     while (m_pos != list.end()) {
         if (m_pos->name() == name) break;
-        m_pos++;
+        ++m_pos;
     }
 }
 
@@ -88,7 +88,7 @@ bool FbTextElement::Sublist::operator <(const FbTextElement &element) const
 {
     if (element.isNull()) return true;
     const QString name = element.tagName();
-    for (TypeList::const_iterator it = m_list.begin(); it != m_list.end(); it++) {
+    for (TypeList::const_iterator it = m_list.begin(); it != m_list.end(); ++it) {
         if (it->name() == name) return m_pos < it;
     }
     return false;
@@ -142,7 +142,7 @@ int FbTextElement::childIndex() const
     FbElementList::const_iterator it;
     for (it = list.constBegin(); it != list.constEnd(); ++it) {
         if (*it == *this) return result;
-        result++;
+        ++result;
     }
     return -1;
 }
@@ -161,7 +161,7 @@ const FbTextElement::TypeList * FbTextElement::subtypes() const
 bool FbTextElement::hasSubtype(const QString &style) const
 {
     if (const TypeList * list = subtypes()) {
-        for (TypeList::const_iterator item = list->begin(); item != list->end(); item++) {
+        for (TypeList::const_iterator item = list->begin(); item != list->end(); ++item) {
             if (item->name() == style) return true;
         }
     }
@@ -170,7 +170,7 @@ bool FbTextElement::hasSubtype(const QString &style) const
 
 FbTextElement::TypeList::const_iterator FbTextElement::subtype(const TypeList &list, const QString &style)
 {
-    for (TypeList::const_iterator item = list.begin(); item != list.end(); item++) {
+    for (TypeList::const_iterator item = list.begin(); item != list.end(); ++item) {
         if (item->name() == style) return item;
     }
     return list.end();
@@ -253,7 +253,7 @@ int FbTextElement::index() const
     FbTextElement prior = *this;
     while (!prior.isNull()) {
         prior = prior.previousSibling();
-        result++;
+        ++result;
     }
     return result;
 }
@@ -263,7 +263,7 @@ FbTextElement FbTextElement::child(int index) const
     FbTextElement result = firstChild();
     while (index > 0) {
         result = result.nextSibling();
-        index--;
+        --index;
     }
     return index ? FbTextElement() : result;
 }
