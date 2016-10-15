@@ -57,6 +57,10 @@ QT += webkit
 QT += network
 QT += xmlpatterns
 
+CONFIG += c++11
+QMAKE_CXXFLAGS += -std=c++11
+DEFINES += QT_USE_QSTRINGBUILDER
+
 OTHER_FILES += \
     source/res/style.css \
     source/res/blank.fb2 \
