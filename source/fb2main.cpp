@@ -105,7 +105,9 @@ void FbMainWindow::fileNew()
 void FbMainWindow::fileOpen()
 {
     QString filename = QFileDialog::getOpenFileName(this, tr("Open file"), QString(), "Fiction book files (*.fb2)");
-    if (filename.isEmpty()) return;
+    if (filename.isEmpty()) {
+        return;
+    }
 
     FbMainWindow * existing = findFbMainWindow(filename);
     if (existing) {
@@ -118,6 +120,7 @@ void FbMainWindow::fileOpen()
     if (isUntitled && !isWindowModified()) {
         mainDock->load(filename);
         setCurrentFile(filename);
+        isUntitled = false;
     } else {
         FbMainWindow * other = new FbMainWindow(filename, FB2);
         other->mainDock->load(filename);
@@ -129,7 +132,9 @@ void FbMainWindow::fileOpen()
 bool FbMainWindow::fileSave()
 {
     if (isUntitled) {
-        return fileSaveAs();
+        bool success = fileSaveAs();
+        isUntitled = success;
+        return success;
     } else {
         return saveFile(curFile);
     }
