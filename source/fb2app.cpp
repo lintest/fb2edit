@@ -21,12 +21,12 @@ QString FbApplication::lastCommit()
 #endif  // PACKAGE_VERSION
 }
 
-void FbApplication::handleMessage(QtMsgType type, const char *msg)
+void FbApplication::handleMessage(QtMsgType type, const QString& msg)
 {
-    emit logMessage(type, QString::fromUtf8(msg));
+    emit logMessage(type, msg);
 }
 
-static void fb2MessageHandler(QtMsgType type, const char *msg)
+static void fb2MessageHandler(QtMsgType type, const QMessageLogContext&, const QString& msg)
 {
     ((FbApplication*)qApp)->handleMessage(type, msg);
 }
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     }
     if (count == 1) (new FbMainWindow)->show();
 
-    qInstallMsgHandler(fb2MessageHandler);
+    qInstallMessageHandler(fb2MessageHandler);
 
     return app.exec();
 }

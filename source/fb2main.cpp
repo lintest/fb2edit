@@ -4,6 +4,9 @@
 #include <QtDebug>
 #include <QTreeView>
 #include <QWebFrame>
+#include <QMessageBox>
+#include <QMenuBar>
+#include <QStatusBar>
 
 #include "fb2app.hpp"
 #include "fb2logs.hpp"
