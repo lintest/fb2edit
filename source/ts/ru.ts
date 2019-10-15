@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="ru_RU">
+<TS version="2.1" language="ru_RU">
 <context>
     <name>FbAuthorDlg</name>
     <message>
@@ -36,11 +36,11 @@
     <name>FbCodeEdit</name>
     <message>
         <source>Schema is not valid: </source>
-        <translation type="unfinished"></translation>
+        <translation>Схема некорректна: </translation>
     </message>
     <message>
         <source>Validation successful</source>
-        <translation>Проверка выполнена успешно </translation>
+        <translation>Проверка выполнена успешно</translation>
     </message>
 </context>
 <context>
@@ -82,7 +82,7 @@
     </message>
     <message>
         <source>&amp;Case sensitive </source>
-        <translation>С &amp;учетом регистра</translation>
+        <translation>С &amp;учётом регистра</translation>
     </message>
     <message>
         <source>&amp;Highlights all</source>
@@ -101,15 +101,15 @@
     <name>FbHeadEdit</name>
     <message>
         <source>&amp;Append</source>
-        <translation type="unfinished">&amp;Добавить</translation>
+        <translation>&amp;Добавить</translation>
     </message>
     <message>
         <source>&amp;Modify</source>
-        <translation type="unfinished">&amp;Изменить</translation>
+        <translation>&amp;Изменить</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation type="unfinished">&amp;Удалить</translation>
+        <translation>&amp;Удалить</translation>
     </message>
 </context>
 <context>
@@ -215,15 +215,15 @@
     </message>
     <message>
         <source>Can edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Можно редактировать</translation>
     </message>
     <message>
         <source>Min</source>
-        <translation type="unfinished"></translation>
+        <translation>Мин</translation>
     </message>
     <message>
         <source>Max</source>
-        <translation type="unfinished"></translation>
+        <translation>Макс</translation>
     </message>
 </context>
 <context>
@@ -245,58 +245,58 @@
     <name>FbImageDlg</name>
     <message>
         <source>File name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя файла:</translation>
     </message>
     <message>
         <source>Insert picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Вставить изображение</translation>
     </message>
     <message>
         <source>Select file</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать файл</translation>
     </message>
     <message>
         <source>From collection</source>
-        <translation type="unfinished"></translation>
+        <translation>Из коллекции</translation>
     </message>
     <message>
         <source>Common Graphics (*.png *.jpg *.jpeg *.gif)</source>
-        <translation type="unfinished"></translation>
+        <translation>Все графические форматы (*.png *.jpg *.jpeg *.gif)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (PNG) (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Network Graphics (PNG) (*.png)</translation>
     </message>
     <message>
         <source>JPEG (*.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
+        <translation>JPEG (*.jpg *.jpeg)</translation>
     </message>
     <message>
         <source>Graphics Interchange Format (*.gif)</source>
-        <translation type="unfinished"></translation>
+        <translation>Graphics Interchange Format (*.gif)</translation>
     </message>
     <message>
         <source>All Files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Все файлы (*)</translation>
     </message>
     <message>
         <source>Insert image...</source>
-        <translation type="unfinished"></translation>
+        <translation>Вставить изображение...</translation>
     </message>
 </context>
 <context>
     <name>FbImgsModel</name>
     <message>
         <source>File name</source>
-        <translation type="unfinished">Имя файла</translation>
+        <translation>Имя файла</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Тип</translation>
+        <translation>Тип</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished">Размер</translation>
+        <translation>Размер</translation>
     </message>
 </context>
 <context>
@@ -406,7 +406,7 @@
     </message>
     <message>
         <source>&amp;About</source>
-        <translation>&amp;О программе...</translation>
+        <translation>&amp;О программе</translation>
     </message>
     <message>
         <source>&amp;Close</source>
@@ -494,7 +494,7 @@
     </message>
     <message>
         <source>About fb2edit</source>
-        <translation>О программе...</translation>
+        <translation>О программе</translation>
     </message>
     <message>
         <source>&amp;Settings</source>
@@ -643,7 +643,7 @@
     </message>
     <message>
         <source>Clear format</source>
-        <translation>&amp;Очистить формат</translation>
+        <translation>Очистить формат</translation>
     </message>
     <message>
         <source>Paste (no style)</source>
@@ -668,41 +668,45 @@
     </message>
     <message>
         <source>&amp;HTML</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;HTML</translation>
     </message>
     <message>
         <source>&lt;b&gt;fb2edit&lt;/b&gt; is an application for creating and editing FB2-files.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;fb2edit&lt;/b&gt; это приложение для создания и редактирования файлов FB2.</translation>
     </message>
     <message>
         <source>&amp;Check...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Проверить...</translation>
     </message>
     <message>
         <source>&amp;Footnotes</source>
         <translation>&amp;Сноски</translation>
+    </message>
+    <message>
+        <source>&amp;Export HTML</source>
+        <translation>&amp;Экспорт в HTML</translation>
     </message>
 </context>
 <context>
     <name>FbNodeDlg</name>
     <message>
         <source>Insert tag</source>
-        <translation type="unfinished"></translation>
+        <translation>Вставить тэг</translation>
     </message>
     <message>
         <source>Tag name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Название тэга:</translation>
     </message>
 </context>
 <context>
     <name>FbNodeEditDlg</name>
     <message>
         <source>Modify tag</source>
-        <translation type="unfinished"></translation>
+        <translation>Изменить тэг</translation>
     </message>
     <message>
         <source>Value:</source>
-        <translation type="unfinished"></translation>
+        <translation>Значение:</translation>
     </message>
 </context>
 <context>
@@ -758,22 +762,22 @@
     <name>FbSaveDialog</name>
     <message>
         <source>Fiction book files (*.fb2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Файлы Fiction book (*.fb2)</translation>
     </message>
     <message>
         <source>Any files (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Все файлы (*.*)</translation>
     </message>
     <message>
         <source>&amp;Encoding</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Кодировка</translation>
     </message>
 </context>
 <context>
     <name>FbSetup</name>
     <message>
         <source>Settings</source>
-        <translation type="unfinished">Настройки</translation>
+        <translation>Настройки</translation>
     </message>
     <message>
         <source>Tab 1</source>
@@ -781,11 +785,11 @@
     </message>
     <message>
         <source>Default font:</source>
-        <translation type="unfinished"></translation>
+        <translation>Шрифт по умолчанию:</translation>
     </message>
     <message>
         <source>Style file name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Название файла со стилями:</translation>
     </message>
     <message>
         <source>Tab 2</source>
@@ -796,77 +800,81 @@
     <name>FbTextEdit</name>
     <message>
         <source>Insert hyperlink</source>
-        <translation type="unfinished"></translation>
+        <translation>Вставить гиперссылку</translation>
     </message>
     <message>
         <source>URL:</source>
-        <translation type="unfinished"></translation>
+        <translation>URL:</translation>
     </message>
     <message>
         <source>Fo&amp;rmat</source>
-        <translation type="unfinished">Фо&amp;рмат</translation>
+        <translation>Фо&amp;рмат</translation>
     </message>
     <message>
         <source>Contents</source>
-        <translation type="unfinished">Содержание</translation>
+        <translation>Содержание</translation>
     </message>
     <message>
         <source>Pictures</source>
-        <translation type="unfinished">Иллюстрации</translation>
+        <translation>Иллюстрации</translation>
     </message>
     <message>
         <source>Web inspector</source>
-        <translation type="unfinished"></translation>
+        <translation>Инспектор</translation>
     </message>
     <message>
         <source>Footnotes</source>
         <translation>Сноски</translation>
+    </message>
+    <message>
+        <source>Save As...</source>
+        <translation>Сохранить как...</translation>
     </message>
 </context>
 <context>
     <name>FbTextPage</name>
     <message>
         <source>Append section</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить секцию</translation>
     </message>
     <message>
         <source>Append body</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить тело</translation>
     </message>
     <message>
         <source>Insert title</source>
-        <translation type="unfinished"></translation>
+        <translation>Вставить заголовок</translation>
     </message>
     <message>
         <source>Insert subtitle</source>
-        <translation type="unfinished"></translation>
+        <translation>Вставить подзаголовок</translation>
     </message>
     <message>
         <source>Insert poem</source>
-        <translation type="unfinished"></translation>
+        <translation>Вставить стих</translation>
     </message>
     <message>
         <source>Append stanza</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить строфу</translation>
     </message>
     <message>
         <source>Insert epigraph</source>
-        <translation type="unfinished"></translation>
+        <translation>Вставить эпиграф</translation>
     </message>
     <message>
         <source>Create &lt;%1&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Создать &lt;%1&gt;</translation>
     </message>
     <message>
         <source>Remove section</source>
-        <translation type="unfinished">Удалить секцию</translation>
+        <translation>Удалить секцию</translation>
     </message>
 </context>
 <context>
     <name>FbTreeModel</name>
     <message>
         <source>Move section</source>
-        <translation type="unfinished"></translation>
+        <translation>Переместить секцию</translation>
     </message>
 </context>
 <context>
@@ -941,86 +949,82 @@
     </message>
     <message>
         <source>+ Simple text</source>
-        <translation type="unfinished"></translation>
+        <translation>+ Простой текст</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
         <source>The file is not an FB2 file.</source>
-        <translation></translation>
+        <translation>Файл не является файлом FB2.</translation>
     </message>
     <message>
         <source>Cannot read file %1: %2.</source>
         <translation></translation>
     </message>
     <message>
-        <source>Parse error at line %1, column %2: %3</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>The tag &lt;html&gt; was not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Тэг &lt;html&gt; не найден.</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation type="unfinished">&amp;Отменить</translation>
+        <translation>&amp;Отменить</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation type="unfinished">&amp;Повторить</translation>
+        <translation>&amp;Повторить</translation>
     </message>
     <message>
         <source>Cu&amp;t</source>
-        <translation type="unfinished">Вы&amp;резать</translation>
+        <translation>Вы&amp;резать</translation>
     </message>
     <message>
         <source>Cut the current selection&apos;s contents to the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Вырезать выделенное содержимое в буфер обмена</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished">&amp;Копировать</translation>
+        <translation>&amp;Копировать</translation>
     </message>
     <message>
         <source>Copy the current selection&apos;s contents to the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Скопировать выделенное содержимое в буфер обмена</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation type="unfinished">&amp;Вставить</translation>
+        <translation>&amp;Вставить</translation>
     </message>
     <message>
         <source>Paste the clipboard&apos;s contents into the current selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Вставить содержимое буфера обмена в текущее выделение</translation>
     </message>
     <message>
         <source>&amp;Bold</source>
-        <translation type="unfinished">&amp;Жирный</translation>
+        <translation>&amp;Жирный</translation>
     </message>
     <message>
         <source>&amp;Italic</source>
-        <translation type="unfinished">&amp;Курсив</translation>
+        <translation>&amp;Курсив</translation>
     </message>
     <message>
         <source>&amp;Strikethrough</source>
-        <translation type="unfinished">&amp;Зачеркнутый</translation>
+        <translation>&amp;Зачёркнутый</translation>
     </message>
     <message>
         <source>Su&amp;perscript</source>
-        <translation type="unfinished">&amp;Верхний индекс</translation>
+        <translation>&amp;Верхний индекс</translation>
     </message>
     <message>
         <source>Su&amp;bscript</source>
-        <translation type="unfinished">&amp;Нижний индекс</translation>
+        <translation>&amp;Нижний индекс</translation>
     </message>
     <message>
         <source>Unknown image format: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Неизвестный формат изображения: %1</translation>
     </message>
     <message>
         <source>Clear format</source>
-        <translation type="unfinished">&amp;Очистить формат</translation>
+        <translation>Очистить формат</translation>
     </message>
 </context>
 </TS>
