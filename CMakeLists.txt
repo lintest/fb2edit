@@ -7,21 +7,29 @@
 #
 #########################################################
 
-cmake_minimum_required(VERSION 2.6.0)
+cmake_minimum_required(VERSION 3.1.0)
 
 project(fb2edit)
-set(PACKAGE_VERSION "0.0.9")
+set(PACKAGE_VERSION "0.1.0")
 set(PACKAGE_VENDOR "LinTest")
 set(PACKAGE_NAME ${PROJECT_NAME})
 set(PACKAGE_STRING "${PROJECT_NAME} ${PACKAGE_VERSION}")
-set(PACKAGE_BUGREPORT "mail@lintest.ru")
+set(PACKAGE_BUGREPORT "lav@etersoft.ru")
 
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+if(CMAKE_VERSION VERSION_LESS "3.7.0")
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)
+endif()
+    
 message( STATUS "PACKAGE_NAME = ${PACKAGE_STRING}")
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/3rdparty/cmake)
 
-find_program( QT_QMAKE_EXECUTABLE NAMES qmake4 qmake-qt4 qmake-mac )
-find_package( Qt4 4.6.0 COMPONENTS QtCore QtGui QtNetwork QtWebkit QtXml QtXmlPatterns REQUIRED )
+#find_program( QT_QMAKE_EXECUTABLE NAMES qmake5 qmake-qt5 qmake-mac )
+find_package( Qt5 5.5.0 COMPONENTS Core Gui Network Widgets WebKitWidgets Xml XmlPatterns LinguistTools REQUIRED )
 find_package( LibXML2 )
 
 file( GLOB FB2_HEAD source/*.hpp     )
@@ -29,7 +37,7 @@ file( GLOB FB2_SRCS source/*.cpp     )
 file( GLOB FB2_UIS  source/*.ui      )
 file( GLOB FB2_TSS  source/ts/*.ts   )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GTK_PKG_FLAGS}")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GTK_PKG_FLAGS}")
 
 if(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/.git)
     exec_program("git --git-dir=${CMAKE_SOURCE_DIR}/.git log --format=%ai//%h%d -1" OUTPUT_VARIABLE COMMIT_INFO)
@@ -50,21 +58,26 @@ set(CMAKE_IN_SOURCE_BUILD TRUE)
 
 add_definitions(-Wall -g)
 
-qt4_wrap_ui(UI_HEADERS ${FB2_UIS})
-qt4_wrap_cpp(MOC_SRCS ${FB2_HEAD})
-qt4_add_resources(RCC_SRCS ${FB2_RES})
-qt4_add_translation(QMS_FILES ${FB2_TSS})
+qt5_wrap_ui(UI_HEADERS ${FB2_UIS})
+qt5_wrap_cpp(MOC_SRCS ${FB2_HEAD})
+qt5_add_resources(RCC_SRCS ${FB2_RES})
+qt5_add_translation(QMS_FILES ${FB2_TSS})
+
+message( STATUS "PACKAGE_NAME_ = ${CMAKE_PREFIX_PATH}")
 
 add_executable(fb2edit ${FB2_SRCS} ${FB2_HEAD} ${UI_HEADERS} ${MOC_SRCS} ${RCC_SRCS} ${QMS_FILES})
 
-include(${QT_USE_FILE})
+#include(${QT_USE_FILE})
+#include_directories(${QT_INCLUDES})
 include_directories(${CMAKE_BINARY_DIR})
-target_link_libraries(fb2edit ${QT_LIBRARIES})
-add_definitions(${QT_DEFINITIONS})
+target_link_libraries(fb2edit PUBLIC
+    Qt5::Core Qt5::Gui Qt5::Network Qt5::Widgets Qt5::WebKitWidgets Qt5::Xml Qt5::XmlPatterns
+    ${LIBXML2_LIBRARIES}
+    )
+#add_definitions(${QT_DEFINITIONS})
 
+include_directories(${LIBXML2_INCLUDE_DIRS})
 if (LIBXML2_FOUND) 
-    include_directories(${LIBXML2_INCLUDE_DIRS})
-    target_link_libraries(fb2edit ${LIBXML2_LIBRARIES})
     add_definitions(${LIBXML2_DEFINITIONS})
     add_definitions(-DFB2_USE_LIBXML2)
 endif (LIBXML2_FOUND) 
