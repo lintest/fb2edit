@@ -235,13 +235,13 @@ void FbHighlighter::highlightBlock(const QString& text)
             return;
         }
     }
-
-    for (; i < text.length(); i++)
+    const int len = text.length();
+    for (; i < len; ++i)
     {
         switch (text.at(i).toAscii())
         {
         case '<':
-            brackets++;
+            ++brackets;
             if (brackets == 1)
             {
                 setFormat(i, 1, fmtSyntaxChar);
@@ -255,7 +255,7 @@ void FbHighlighter::highlightBlock(const QString& text)
             break;
 
         case '>':
-            brackets--;
+            --brackets;
             if (brackets == 0)
             {
                 setFormat(i, 1, fmtSyntaxChar);
@@ -345,7 +345,7 @@ void FbHighlighter::highlightBlock(const QString& text)
                     setFormat(iLength - 3, 3, fmtSyntaxChar);
                     i += iLength - 2; // skip comment
                     state = NoState;
-                    brackets--;
+                    --brackets;
                 }
                 else
                 {

@@ -122,8 +122,9 @@ QString FbScheme::type() const
     QString result = attribute("type");
     if (!result.isEmpty()) return result;
     FbScheme child = firstChildElement("xs:complexType").firstChildElement();
+    QString tag;
     while (!child.isNull()) {
-        QString tag = child.tagName();
+        tag = child.tagName();
         if (tag == "xs:complexContent" || tag == "xs:simpleContent") {
             return child.firstChildElement("xs:extension").attribute("base");
         }
@@ -231,7 +232,7 @@ FbHeadItem::FbHeadItem(QWebElement &element, FbHeadItem *parent)
 
 FbHeadItem::~FbHeadItem()
 {
-    foreach (FbHeadItem * item, m_list) {
+    for (FbHeadItem * item: m_list) {
         delete item;
     }
 }
@@ -319,7 +320,7 @@ QString FbHeadItem::value() const
         } break;
         case Cover: {
             QString text;
-            foreach (FbHeadItem * item, m_list) {
+            for (FbHeadItem * item: m_list) {
                 if (item->m_name == "image") {
                     if (!text.isEmpty()) text += ", ";
                     text += item->value();
@@ -381,7 +382,7 @@ bool FbHeadItem::canEditExtra() const
 
 QString FbHeadItem::sub(const QString &key) const
 {
-    foreach (FbHeadItem * item, m_list) {
+    for (FbHeadItem * item: m_list) {
         if (item->m_name == key) return item->value();
     }
     return QString();
@@ -424,13 +425,13 @@ void FbHeadModel::expand(QTreeView *view)
 {
     QModelIndex parent = QModelIndex();
     int count = rowCount(parent);
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count; ++i) {
         QModelIndex child = index(i, 0, parent);
         FbHeadItem *node = item(child);
         if (!node) continue;
         view->expand(child);
         int count = rowCount(child);
-        for (int j = 0; j < count; j++) {
+        for (int j = 0; j < count; ++j) {
             QModelIndex ch = index(j, 0, child);
             FbHeadItem *node = item(ch);
             if (node) view->expand(ch);

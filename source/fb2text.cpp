@@ -259,7 +259,7 @@ void FbTextEdit::connectActions(QToolBar *tool)
 {
     m_actions.connect();
 
-    foreach (QAction *action, m_actions) {
+    for (QAction *action: m_actions) {
         if (FbTextAction *a = qobject_cast<FbTextAction*>(action)) {
             a->connectAction();
         }
@@ -330,7 +330,7 @@ void FbTextEdit::connectActions(QToolBar *tool)
 void FbTextEdit::disconnectActions()
 {
     m_actions.disconnect();
-    foreach (QAction *action, m_actions) {
+    for (QAction *action: m_actions) {
         if (FbTextAction *a = qobject_cast<FbTextAction*>(action)) {
             a->disconnectAction();
         }
@@ -363,7 +363,7 @@ void FbTextEdit::exportHtml()
     if (!m) return;
 
     int count = m->count();
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count; ++i) {
         QFile file(dirName + m->info(i, 0).toString());
         if (file.open(QFile::WriteOnly)) {
             file.write(m->data(i));

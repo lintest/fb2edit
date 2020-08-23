@@ -8,7 +8,7 @@
 QString FbXmlHandler::NodeHandler::Value(const QXmlAttributes &attributes, const QString &name)
 {
     int count = attributes.count();
-    for (int i = 0; i < count; i++ ) {
+    for (int i = 0; i < count; ++i ) {
         if (attributes.localName(i).compare(name, Qt::CaseInsensitive) == 0) {
             return attributes.value(i);
         }

@@ -218,7 +218,7 @@ void FbMainDock::addMenu(QMenu *menu)
 
 void FbMainDock::enableMenu(bool value)
 {
-    foreach (QMenu *menu, m_menus) {
+    for (QMenu *menu: m_menus) {
         menu->setEnabled(value);
     }
 }

@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     app.installTranslator(&translator);
 
     int count = app.arguments().count();
-    for (int i = 1; i < count; i++) {
+    for (int i = 1; i < count; ++i) {
         QString arg = app.arguments().at(i);
         (new FbMainWindow(arg))->show();
     }

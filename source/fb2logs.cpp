@@ -24,7 +24,7 @@ QVariant FbLogModel::FbLogItem::icon() const
 FbLogModel::FbLogModel(QObject *parent)
     : QAbstractListModel(parent)
 {
-    foreach (FbLogItem *item, m_list) delete item;
+    for (FbLogItem *item: m_list) delete item;
 }
 
 QVariant FbLogModel::data(const QModelIndex &index, int role) const

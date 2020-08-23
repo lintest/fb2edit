@@ -1,5 +1,5 @@
 var baseNode = document.getSelection().baseNode;
-if (baseNode === null) ''; else {
+if (baseNode === null) return ''; else {
 	(f = function(node){
 		var tag = node.tagName;
 		if (tag === 'BODY') return '';

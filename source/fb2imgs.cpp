@@ -103,7 +103,7 @@ QString FbStore::newName(const QString &path)
     if (!exists(name)) return name;
     QString base = info.baseName();
     QString suff = info.suffix();
-    for (int i = 1; ; i++) {
+    for (int i = 1; ; ++i) {
         QString name = QString("%1(%2).%3").arg(base).arg(i).arg(suff);
         if (exists(name)) continue;
         return name;
