@@ -9,6 +9,7 @@
 QVariant FbLogModel::FbLogItem::icon() const
 {
     switch (m_type) {
+        case QtInfoMsg: return QVariant();
         case QtDebugMsg: return FbIcon("dialog-information");
         case QtWarningMsg: return FbIcon("dialog-warning");
         case QtCriticalMsg: return FbIcon("dialog-error");

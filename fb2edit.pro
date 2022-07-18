@@ -52,8 +52,9 @@ TARGET = fb2edit
 
 TRANSLATIONS = source/ts/ru.ts
 
+QT += widgets
 QT += xml
-QT += webkit
+QT += webkitwidgets
 QT += network
 QT += xmlpatterns
 

@@ -11,7 +11,7 @@ public:
     FbApplication(int &argc, char **argv, int = QT_VERSION)
         : QApplication(argc, argv, QT_VERSION) {}
 
-    void handleMessage(QtMsgType type, const char *msg);
+    void handleMessage(QtMsgType type, const QString& msg);
 
     static QString lastCommit();
 
