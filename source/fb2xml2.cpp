@@ -3,10 +3,6 @@
 #ifdef FB2_USE_LIBXML2
 
 #include <cstring>
-#include <libxml/tree.h>
-#include <libxml/parser.h>
-#include <libxml/HTMLparser.h>
-#include <libxml/xmlreader.h>
 #include <QtDebug>
 
 namespace XML2 {
@@ -15,134 +11,83 @@ namespace XML2 {
 //  XML2::XmlReader
 //---------------------------------------------------------------------------
 
-class XmlReaderLocator : public QXmlLocator {
-public:
-    XmlReaderLocator(XmlReader* r) : reader(r) {}
-    virtual int columnNumber(void) const;
-    virtual int lineNumber(void) const;
-private:
-    XmlReader* reader;
-};
-
 class XmlReaderPrivate {
 public:
     ~XmlReaderPrivate(void) {}
 private:
     XmlReaderPrivate(XmlReader* reader);
 
-    static void onError(void *arg, const char *msg, xmlParserSeverities severity, xmlTextReaderLocatorPtr locator);
-    static int onRead(void * context, char * buffer, int len);
-
-    static QString C2S(const xmlChar* text, int size = -1);
-
     bool parse(const QXmlInputSource *input);
     bool parse(QIODevice *input);
-    void process(xmlTextReaderPtr reader);
+    bool process(QXmlStreamReader& reader);
 
-    QScopedPointer<XmlReaderLocator> locator;
     Q_DECLARE_PUBLIC(XmlReader)
     XmlReader* q_ptr;
 
-    QXmlEntityResolver* entityresolver;
-    QXmlDTDHandler*     dtdhandler;
-    QXmlContentHandler* contenthandler;
-    QXmlErrorHandler*   errorhandler;
-    QXmlLexicalHandler* lexicalhandler;
-    QXmlDeclHandler*    declhandler;
-
-    xmlTextReaderPtr m_reader;
-
-    friend class XmlReaderLocator;
+    FbXmlHandler* contenthandler;
+    FbXmlHandler* errorhandler;
+    FbXmlHandler* lexicalhandler;
 };
 
 XmlReaderPrivate::XmlReaderPrivate(XmlReader* reader)
-    : q_ptr(reader), entityresolver(0), dtdhandler(0), contenthandler(0), errorhandler(0), lexicalhandler(0), declhandler(0), m_reader(0)
+    : q_ptr(reader)
+    , contenthandler(nullptr)
+    , errorhandler(nullptr)
+    , lexicalhandler(nullptr)
 {
-    this->locator.reset(new XmlReaderLocator(reader));
 }
 
-QString XmlReaderPrivate::C2S(const xmlChar* text, int size)
+bool XmlReaderPrivate::process(QXmlStreamReader &reader)
 {
-    return QString::fromLocal8Bit(reinterpret_cast<const char*>(text), size);
-}
+    while (!reader.atEnd()) {
+        reader.readNext();
 
-void XmlReaderPrivate::onError(void * arg, const char * msg, xmlParserSeverities severity, xmlTextReaderLocatorPtr locator)
-{
-    XmlReaderPrivate* r = reinterpret_cast<XmlReaderPrivate*>(arg);
-    if (r->errorhandler) {
-        QXmlParseException e(QString::fromLocal8Bit(msg), xmlTextReaderGetParserColumnNumber(r->m_reader), xmlTextReaderGetParserLineNumber(r->m_reader));
-        switch (severity) {
-            case XML_PARSER_SEVERITY_VALIDITY_WARNING: r->errorhandler->warning(e); break;
-            case XML_PARSER_SEVERITY_VALIDITY_ERROR: r->errorhandler->error(e); break;
-            case XML_PARSER_SEVERITY_WARNING: r->errorhandler->warning(e); break;
-            case XML_PARSER_SEVERITY_ERROR: r->errorhandler->error(e); break;
+        if (reader.hasError()) {
+            return errorhandler->error(reader.errorString(), reader.lineNumber(), reader.columnNumber());
+        }
+
+        switch (reader.tokenType()) {
+        case QXmlStreamReader::StartElement:
+            if (!contenthandler->startElement(reader.namespaceUri().toString(), reader.name().toString(),
+                                              reader.qualifiedName().toString(), reader.attributes())) {
+                return false;
+            }
+            break;
+        case QXmlStreamReader::EndElement:
+            if (!contenthandler->endElement(reader.namespaceUri().toString(), reader.name().toString(),
+                                            reader.qualifiedName().toString())) {
+                return false;
+            }
+        case QXmlStreamReader::Characters:
+            if (!contenthandler->characters(reader.text().toString())) {
+                return false;
+            }
+            break;
+        case QXmlStreamReader::Comment:
+            if (lexicalhandler && !lexicalhandler->comment(reader.text().toString())) {
+                return false;
+            }
+            break;
+        default:
+            break;
         }
     }
-}
 
-void XmlReaderPrivate::process(xmlTextReaderPtr reader)
-{
-    if (!contenthandler) return;
-    switch (xmlTextReaderNodeType(reader)) {
-        case XML_READER_TYPE_ELEMENT: {
-            QString localName = C2S(xmlTextReaderConstLocalName(reader));
-            QString qName = C2S(xmlTextReaderConstName(reader));
-            bool empty = xmlTextReaderIsEmptyElement(reader);
-            QXmlAttributes atts;
-            while (xmlTextReaderMoveToNextAttribute(reader)) {
-                QString localName = C2S(xmlTextReaderConstLocalName(reader));
-                QString qName = C2S(xmlTextReaderConstName(reader));
-                QString value = C2S(xmlTextReaderConstValue(reader));
-                atts.append(qName, "", localName, value);
-            }
-            contenthandler->startElement("", localName, qName, atts);
-            if (empty) contenthandler->endElement("", localName, qName);
-        } break;
-        case XML_READER_TYPE_TEXT: {
-            QString value = C2S(xmlTextReaderConstValue(reader));
-            contenthandler->characters(value);
-        } break;
-        case XML_READER_TYPE_END_ELEMENT: {
-            QString localName = C2S(xmlTextReaderConstLocalName(reader));
-            QString qName = C2S(xmlTextReaderConstName(reader));
-            contenthandler->endElement("", localName, qName);
-        } break;
-        case XML_READER_TYPE_COMMENT: {
-            if (lexicalhandler) {
-                QString value = C2S(xmlTextReaderConstValue(reader));
-                lexicalhandler->comment(value);
-            }
-        } break;
-    }
-}
-
-int XmlReaderPrivate::onRead(void * context, char * buffer, int len)
-{
-    QIODevice *device = reinterpret_cast<QIODevice*>(context);
-    return device->read(buffer, len);
+    return !reader.isEndDocument();
 }
 
 bool XmlReaderPrivate::parse(const QXmlInputSource *input)
 {
-    QByteArray arr = input->data().toUtf8();
-    int options = XML_PARSE_RECOVER | XML_PARSE_NOERROR | XML_PARSE_NOWARNING | XML_PARSE_NONET;
-    m_reader = xmlReaderForMemory(arr.constData(), arr.size(), NULL, NULL, options);
-    if (!m_reader) return false;
-    xmlTextReaderSetErrorHandler(m_reader, &XmlReaderPrivate::onError, this);
-    while (xmlTextReaderRead(m_reader) == 1) process(m_reader);
-    xmlFreeTextReader(m_reader);
-    return true;
+    QXmlStreamReader reader(input->data().toUtf8());
+
+    return process(reader);
 }
 
 bool XmlReaderPrivate::parse(QIODevice *input)
 {
-    int options = XML_PARSE_RECOVER | XML_PARSE_NOERROR | XML_PARSE_NOWARNING | XML_PARSE_NONET;
-    m_reader = xmlReaderForIO(&XmlReaderPrivate::onRead, NULL, input, NULL, NULL, options);
-    if (!m_reader) return false;
-    xmlTextReaderSetErrorHandler(m_reader, &XmlReaderPrivate::onError, this);
-    while (xmlTextReaderRead(m_reader) == 1) process(m_reader);
-    xmlFreeTextReader(m_reader);
-    return true;
+    QXmlStreamReader reader(input);
+
+    return process(reader);
 }
 
 XmlReader::XmlReader(void)
@@ -184,76 +129,40 @@ bool XmlReader::hasProperty(const QString&) const
     return false;
 }
 
-void XmlReader::setEntityResolver(QXmlEntityResolver* handler)
-{
-    Q_D(XmlReader);
-    d->entityresolver = handler;
-}
-
-QXmlEntityResolver* XmlReader::entityResolver(void) const
-{
-    const XmlReaderPrivate* d = this->d_func();
-    return d->entityresolver;
-}
-
-void XmlReader::setDTDHandler(QXmlDTDHandler* handler)
-{
-    Q_D(XmlReader);
-    d->dtdhandler = handler;
-}
-
-QXmlDTDHandler* XmlReader::DTDHandler(void) const
-{
-    const XmlReaderPrivate* d = this->d_func();
-    return d->dtdhandler;
-}
-
-void XmlReader::setContentHandler(QXmlContentHandler* handler)
+void XmlReader::setContentHandler(FbXmlHandler* handler)
 {
     Q_D(XmlReader);
     d->contenthandler = handler;
 }
 
-QXmlContentHandler* XmlReader::contentHandler(void) const
+FbXmlHandler* XmlReader::contentHandler(void) const
 {
     const XmlReaderPrivate* d = this->d_func();
     return d->contenthandler;
 }
 
-void XmlReader::setErrorHandler(QXmlErrorHandler* handler)
+void XmlReader::setErrorHandler(FbXmlHandler* handler)
 {
     Q_D(XmlReader);
     d->errorhandler = handler;
 }
 
-QXmlErrorHandler* XmlReader::errorHandler(void) const
+FbXmlHandler* XmlReader::errorHandler(void) const
 {
     const XmlReaderPrivate* d = this->d_func();
     return d->errorhandler;
 }
 
-void XmlReader::setLexicalHandler(QXmlLexicalHandler* handler)
+void XmlReader::setLexicalHandler(FbXmlHandler* handler)
 {
     Q_D(XmlReader);
     d->lexicalhandler = handler;
 }
 
-QXmlLexicalHandler* XmlReader::lexicalHandler(void) const
+FbXmlHandler* XmlReader::lexicalHandler(void) const
 {
     const XmlReaderPrivate* d = this->d_func();
     return d->lexicalhandler;
-}
-
-void XmlReader::setDeclHandler(QXmlDeclHandler* handler)
-{
-    Q_D(XmlReader);
-    d->declhandler = handler;
-}
-
-QXmlDeclHandler* XmlReader::declHandler(void) const
-{
-    const XmlReaderPrivate* d = this->d_func();
-    return d->declhandler;
 }
 
 bool XmlReader::parse(const QXmlInputSource& input)
@@ -265,10 +174,6 @@ bool XmlReader::parse(const QXmlInputSource* input)
 {
     Q_D(XmlReader);
 
-    if (d->contenthandler) {
-        d->contenthandler->setDocumentLocator(d->locator.data());
-    }
-
     d->parse(input);
 
     return true;
@@ -278,23 +183,9 @@ bool XmlReader::parse(QIODevice *input)
 {
     Q_D(XmlReader);
 
-    if (d->contenthandler) {
-        d->contenthandler->setDocumentLocator(d->locator.data());
-    }
-
     d->parse(input);
 
     return true;
-}
-
-int XmlReaderLocator::columnNumber(void) const
-{
-    return xmlTextReaderGetParserColumnNumber(this->reader->d_func()->m_reader);
-}
-
-int XmlReaderLocator::lineNumber(void) const
-{
-    return xmlTextReaderGetParserLineNumber(this->reader->d_func()->m_reader);
 }
 
 } // namespace XML2

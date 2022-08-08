@@ -71,7 +71,7 @@ private:
     public:
         explicit RootHandler(FbReadHandler &owner, const QString &name);
     protected:
-        virtual NodeHandler * NewTag(const QString & name, const QXmlAttributes &atts);
+        virtual NodeHandler * NewTag(const QString & name, const QXmlStreamAttributes &atts);
         virtual void EndTag(const QString &name);
     private:
         void writeScript(const QString &src);
@@ -107,14 +107,14 @@ private:
             Code,
        FB2_END_KEYLIST
     public:
-        explicit TextHandler(FbReadHandler &owner, const QString &name, const QXmlAttributes &atts, const QString &tag);
-        explicit TextHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts, const QString &tag);
+        explicit TextHandler(FbReadHandler &owner, const QString &name, const QXmlStreamAttributes &atts, const QString &tag);
+        explicit TextHandler(TextHandler *parent, const QString &name, const QXmlStreamAttributes &atts, const QString &tag);
     protected:
-        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
+        virtual NodeHandler * NewTag(const QString &name, const QXmlStreamAttributes &atts);
         virtual void TxtTag(const QString &text);
         virtual void EndTag(const QString &name);
     protected:
-        void Init(const QString &name, const QXmlAttributes &atts);
+        void Init(const QString &name, const QXmlStreamAttributes &atts);
         bool isNotes() const;
     protected:
         TextHandler *m_parent;
@@ -126,7 +126,7 @@ private:
     class BinaryHandler : public BaseHandler
     {
     public:
-        explicit BinaryHandler(FbReadHandler &owner, const QString &name, const QXmlAttributes &atts);
+        explicit BinaryHandler(FbReadHandler &owner, const QString &name, const QXmlStreamAttributes &atts);
     protected:
         virtual void TxtTag(const QString &text);
         virtual void EndTag(const QString &name);
@@ -139,7 +139,7 @@ signals:
     void binary(const QString &name, const QByteArray &data);
 
 protected:
-    virtual NodeHandler * CreateRoot(const QString &name, const QXmlAttributes &atts);
+    virtual NodeHandler * CreateRoot(const QString &name, const QXmlStreamAttributes &atts);
 
 private:
     void addFile(const QString &name, const QByteArray &data);

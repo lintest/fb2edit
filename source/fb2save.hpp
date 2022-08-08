@@ -63,7 +63,7 @@ private:
     static QString local(const QString &name);
 
 private:
-    QXmlAttributes m_atts;
+    QXmlStreamAttributes m_atts;
 };
 
 class FbSaveWriter : public QXmlStreamWriter
@@ -130,15 +130,15 @@ private:
             Code,
        FB2_END_KEYLIST
     public:
-        explicit TextHandler(FbSaveWriter &writer, const QString &name, const QXmlAttributes &atts, const QString &tag);
-        explicit TextHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts, const QString &tag);
+        explicit TextHandler(FbSaveWriter &writer, const QString &name, const QXmlStreamAttributes &atts, const QString &tag);
+        explicit TextHandler(TextHandler *parent, const QString &name, const QXmlStreamAttributes &atts, const QString &tag);
         const QString & tag() { return m_tag; }
     protected:
-        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
+        virtual NodeHandler * NewTag(const QString &name, const QXmlStreamAttributes &atts);
         virtual void TxtTag(const QString &text);
         virtual void EndTag(const QString &name);
     protected:
-        virtual void writeAtts(const QXmlAttributes &atts);
+        virtual void writeAtts(const QXmlStreamAttributes &atts);
         virtual int nextLevel() const;
     protected:
         FbSaveWriter &m_writer;
@@ -153,7 +153,7 @@ private:
     public:
         explicit RootHandler(FbSaveWriter &writer, const QString &name);
     protected:
-        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
+        virtual NodeHandler * NewTag(const QString &name, const QXmlStreamAttributes &atts);
     protected:
         FbSaveWriter &m_writer;
     };
@@ -169,15 +169,15 @@ private:
     class SpanHandler : public TextHandler
     {
     public:
-        explicit SpanHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts);
+        explicit SpanHandler(TextHandler *parent, const QString &name, const QXmlStreamAttributes &atts);
     };
 
     class ParagHandler : public TextHandler
     {
     public:
-        explicit ParagHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts);
+        explicit ParagHandler(TextHandler *parent, const QString &name, const QXmlStreamAttributes &atts);
     protected:
-        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &atts);
+        virtual NodeHandler * NewTag(const QString &name, const QXmlStreamAttributes &atts);
         virtual void TxtTag(const QString &text);
         virtual void EndTag(const QString &name);
     private:
@@ -185,13 +185,13 @@ private:
         void start();
     private:
         const QString m_parent;
-        QXmlAttributes m_atts;
+        QXmlStreamAttributes m_atts;
         QString m_class;
         bool m_empty;
     };
 
 protected:
-    virtual NodeHandler * CreateRoot(const QString &name, const QXmlAttributes &atts);
+    virtual NodeHandler * CreateRoot(const QString &name, const QXmlStreamAttributes &atts);
 
 private:
     void setDocumentInfo(QWebFrame *frame);
