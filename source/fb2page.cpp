@@ -68,8 +68,7 @@ FbNetworkAccessManager *FbTextPage::manager()
 
 bool FbTextPage::read(const QString &html)
 {
-    QXmlInputSource *source = new QXmlInputSource();
-    source->setData(html);
+    QString *source = new QString(html);
     FbReadThread::execute(this, source, 0);
     return true;
 }

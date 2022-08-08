@@ -31,8 +31,8 @@ public:
     FbXmlHandler* lexicalHandler(void) const;
 
     bool parse(QIODevice *input);
-    bool parse(const QXmlInputSource&);
-    bool parse(const QXmlInputSource*);
+    bool parse(const QString&);
+    bool parse(const QString*);
 
 
 private:

@@ -9,14 +9,14 @@
 //  FbReadThread
 //---------------------------------------------------------------------------
 
-void FbReadThread::execute(QObject *parent, QXmlInputSource *source, QIODevice *device)
+void FbReadThread::execute(QObject *parent, QString *source, QIODevice *device)
 {
     FbReadThread *thread = new FbReadThread(parent, source, device);
     connect(thread, SIGNAL(html(QString, FbStore*)), parent, SLOT(html(QString, FbStore*)));
     thread->start();
 }
 
-FbReadThread::FbReadThread(QObject *parent, QXmlInputSource *source, QIODevice *device)
+FbReadThread::FbReadThread(QObject *parent, QString *source, QIODevice *device)
     : QThread(parent)
     , m_device(device)
     , m_source(source)
@@ -367,7 +367,7 @@ void FbReadHandler::BinaryHandler::EndTag(const QString &name)
 //  FbReadHandler
 //---------------------------------------------------------------------------
 
-bool FbReadHandler::load(QObject *page, QXmlInputSource &source, QString &html)
+bool FbReadHandler::load(QObject *page, QString &source, QString &html)
 {
     QXmlStreamWriter writer(&html);
     FbReadHandler handler(writer);

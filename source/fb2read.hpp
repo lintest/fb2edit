@@ -15,7 +15,7 @@ class FbReadThread : public QThread
     Q_OBJECT
 
 public:
-    static void execute(QObject *parent, QXmlInputSource *source, QIODevice *device);
+    static void execute(QObject *parent, QString *source, QIODevice *device);
     virtual ~FbReadThread();
 
 signals:
@@ -27,12 +27,12 @@ protected:
     void run();
 
 private:
-    explicit FbReadThread(QObject *parent, QXmlInputSource *source, QIODevice *device);
+    explicit FbReadThread(QObject *parent, QString *source, QIODevice *device);
     bool parse();
 
 private:
     QIODevice *m_device;
-    QXmlInputSource *m_source;
+    QString *m_source;
     FbStore *m_store;
     QString m_html;
 };
@@ -42,7 +42,7 @@ class FbReadHandler : public FbXmlHandler
     Q_OBJECT
 
 public:
-    static bool load(QObject *page, QXmlInputSource &source, QString &html);
+    static bool load(QObject *page, QString &source, QString &html);
     explicit FbReadHandler(QXmlStreamWriter &writer);
     virtual ~FbReadHandler();
     virtual bool comment(const QString& ch);

@@ -17,7 +17,7 @@ public:
 private:
     XmlReaderPrivate(XmlReader* reader);
 
-    bool parse(const QXmlInputSource *input);
+    bool parse(const QString *input);
     bool parse(QIODevice *input);
     bool process(QXmlStreamReader& reader);
 
@@ -76,9 +76,9 @@ bool XmlReaderPrivate::process(QXmlStreamReader &reader)
     return !reader.isEndDocument();
 }
 
-bool XmlReaderPrivate::parse(const QXmlInputSource *input)
+bool XmlReaderPrivate::parse(const QString *input)
 {
-    QXmlStreamReader reader(input->data().toUtf8());
+    QXmlStreamReader reader(*input);
 
     return process(reader);
 }
@@ -165,12 +165,12 @@ FbXmlHandler* XmlReader::lexicalHandler(void) const
     return d->lexicalhandler;
 }
 
-bool XmlReader::parse(const QXmlInputSource& input)
+bool XmlReader::parse(const QString& input)
 {
     return this->parse(&input);
 }
 
-bool XmlReader::parse(const QXmlInputSource* input)
+bool XmlReader::parse(const QString* input)
 {
     Q_D(XmlReader);
 
