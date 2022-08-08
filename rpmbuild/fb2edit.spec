@@ -26,7 +26,6 @@ BuildRequires:  pkgconfig(QtGui) >= 4.6.0
 BuildRequires:  pkgconfig(QtNetwork) >= 4.6.0
 BuildRequires:  pkgconfig(QtWebKit) >= 4.6.0
 BuildRequires:  pkgconfig(QtXml) >= 4.6.0
-BuildRequires:  pkgconfig(libxml-2.0)
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %if 0%{?suse_version}

@@ -50,32 +50,20 @@ bool FbReadThread::parse()
     connect(&handler, SIGNAL(error(int,int,QString)), parent(), SIGNAL(error(int,int,QString)));
     connect(&handler, SIGNAL(fatal(int,int,QString)), parent(), SIGNAL(fatal(int,int,QString)));
 
-#ifdef FB2_USE_LIBXML2
     XML2::XmlReader reader;
-#else
-    QXmlSimpleReader reader;
-#endif
 
     reader.setContentHandler(&handler);
     reader.setLexicalHandler(&handler);
     reader.setErrorHandler(&handler);
 
-#ifdef FB2_USE_LIBXML2
     if (m_device) {
         return reader.parse(m_device);
     } else {
         return reader.parse(m_source);
     }
-#else
-    if (m_device) {
-        m_source = new QXmlInputSource();
-        m_source->setData(m_device->readAll());
-    }
-    return reader.parse(m_source);
-#endif
 }
 
-/*
+#if 0
 FbReadThread::FbReadThread(QObject *parent, const QString &filename, const QString &xml)
     : QThread(parent)
     , m_temp(0)
@@ -98,8 +86,6 @@ void FbReadThread::run()
     if (parse()) emit html(m_html);
 }
 
-#ifdef FB2_USE_LIBXML2
-
 bool FbReadThread::parse()
 {
     QXmlStreamWriter writer(&m_html);
@@ -121,35 +107,7 @@ bool FbReadThread::parse()
         return reader.parse(source);
     }
 }
-
-#else
-
-bool FbReadThread::parse()
-{
-    QXmlStreamWriter writer(&m_html);
-    FbReadHandler handler(*this, writer);
-    connect(&handler, SIGNAL(binary(QString,QByteArray)), this, SLOT(data(QString,QByteArray)));
-    QXmlSimpleReader reader;
-    reader.setContentHandler(&handler);
-    reader.setLexicalHandler(&handler);
-    reader.setErrorHandler(&handler);
-    QXmlInputSource source;
-    if (m_xml.isEmpty()) {
-        QFile file(m_filename);
-        if (!file.open(QFile::ReadOnly | QFile::Text)) {
-            qCritical() << QObject::tr("Cannot read file %1: %2.").arg(m_filename).arg(file.errorString());
-            return false;
-        }
-        source.setData(file.readAll());
-    } else {
-        source.setData(m_xml);
-    }
-    return reader.parse(source);
-}
-
 #endif
-
-*/
 
 //---------------------------------------------------------------------------
 //  FbReadHandler::RootHandler
@@ -373,11 +331,7 @@ bool FbReadHandler::load(QObject *page, QString &source, QString &html)
 
     connect(&handler, SIGNAL(binary(QString,QByteArray)), page, SLOT(binary(QString,QByteArray)));
 
-#ifdef FB2_USE_LIBXML2
     XML2::XmlReader reader;
-#else
-    QXmlSimpleReader reader;
-#endif
 
     reader.setContentHandler(&handler);
     reader.setLexicalHandler(&handler);

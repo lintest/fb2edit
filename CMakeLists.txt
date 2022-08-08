@@ -30,7 +30,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/3rdparty/cmake)
 
 #find_program( QT_QMAKE_EXECUTABLE NAMES qmake5 qmake-qt5 qmake-mac )
 find_package( Qt5 5.5.0 COMPONENTS Core Gui Network Widgets WebKitWidgets Xml XmlPatterns LinguistTools REQUIRED )
-find_package( LibXML2 )
 
 file( GLOB FB2_HEAD source/*.hpp     )
 file( GLOB FB2_SRCS source/*.cpp     )
@@ -72,16 +71,9 @@ add_executable(fb2edit ${FB2_SRCS} ${FB2_HEAD} ${UI_HEADERS} ${MOC_SRCS} ${RCC_S
 include_directories(${CMAKE_BINARY_DIR})
 target_link_libraries(fb2edit PUBLIC
     Qt5::Core Qt5::Gui Qt5::Network Qt5::Widgets Qt5::WebKitWidgets Qt5::Xml Qt5::XmlPatterns
-    ${LIBXML2_LIBRARIES}
     )
 #add_definitions(${QT_DEFINITIONS})
 
-include_directories(${LIBXML2_INCLUDE_DIRS})
-if (LIBXML2_FOUND) 
-    add_definitions(${LIBXML2_DEFINITIONS})
-    add_definitions(-DFB2_USE_LIBXML2)
-endif (LIBXML2_FOUND) 
-   
 #############################################################################
 # You can change the install location by 
 # running cmake like this:

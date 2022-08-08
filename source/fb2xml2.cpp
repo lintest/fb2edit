@@ -1,7 +1,5 @@
 #include "fb2xml2.h"
 
-#ifdef FB2_USE_LIBXML2
-
 #include <cstring>
 #include <QtDebug>
 
@@ -189,5 +187,3 @@ bool XmlReader::parse(QIODevice *input)
 }
 
 } // namespace XML2
-
-#endif // FB2_USE_LIBXML2

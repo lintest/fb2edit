@@ -1,8 +1,6 @@
 #ifndef FB2XML2_H
 #define FB2XML2_H
 
-#ifdef FB2_USE_LIBXML2
-
 #include <QtXml>
 #include "fb2xml.hpp"
 
@@ -42,7 +40,5 @@ private:
 };
 
 } // namespace XML2
-
-#endif // FB2_USE_LIBXML2
 
 #endif // FB2XML2_H

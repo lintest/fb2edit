@@ -26,11 +26,10 @@ mkdir ../osc_${PROJECT}
 mv ../*squeeze* ../osc_${PROJECT}
 cp ../${PROJECT}_${VERSION}.orig.tar.bz2 ../osc_${PROJECT}
 
-cat ../../debian/control | sed 's/libxml2-dev/libqtwebkit-dev, libxml2-dev/' > debian/control
+cat ../../debian/control | sed 's/cdbs/cdbs, libqtwebkit-dev/' > debian/control
 for DISTRIB in $LIST;
 do
   echo "${PROJECT} (${VERSION}-${DISTRIB}${NUMBER}) ${DISTRIB}; urgency=low" > debian/changelog
   cat ../../debian/changelog | sed '1d'>> debian/changelog
   debuild -S -sa
 done
-
