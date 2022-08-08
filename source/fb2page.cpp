@@ -370,7 +370,7 @@ FbTextElement FbTextPage::current()
 FbTextElement FbTextPage::element(const QString &location)
 {
     if (location.isEmpty()) return FbTextElement();
-    QStringList list = location.split(",", QString::SkipEmptyParts);
+    QStringList list = location.split(",", Qt::SkipEmptyParts);
     QStringListIterator iterator(list);
     QWebElement result = doc();
     while (iterator.hasNext()) {

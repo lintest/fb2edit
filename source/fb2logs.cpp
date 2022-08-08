@@ -83,7 +83,7 @@ FbLogDock::FbLogDock(const QString &title, QWidget *parent, Qt::WindowFlags flag
 {
     m_list->setModel(m_model);
     connect(m_model, SIGNAL(changeCurrent(QModelIndex)), m_list, SLOT(setCurrentIndex(QModelIndex)));
-    setFeatures(QDockWidget::AllDockWidgetFeatures);
+    setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable);
     setAttribute(Qt::WA_DeleteOnClose);
     setWidget(m_list);
 }

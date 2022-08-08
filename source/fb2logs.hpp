@@ -68,7 +68,7 @@ class FbLogDock: public QDockWidget
     Q_OBJECT
 
 public:
-    explicit FbLogDock(const QString &title, QWidget *parent = 0, Qt::WindowFlags flags = 0);
+    explicit FbLogDock(const QString &title, QWidget *parent = 0, Qt::WindowFlags flags = {});
     void append(QtMsgType type, const QString &message);
 
 private:

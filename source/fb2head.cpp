@@ -536,7 +536,7 @@ bool FbHeadModel::setData(const QModelIndex &index, const QVariant &value, int r
 
 Qt::ItemFlags FbHeadModel::flags(const QModelIndex &index) const
 {
-    if (!index.isValid()) return 0;
+    if (!index.isValid()) return Qt::NoItemFlags;
     Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     if (canEdit(index)) flags |= Qt::ItemIsEditable;
     return flags;

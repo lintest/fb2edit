@@ -359,8 +359,7 @@ void FbReadHandler::BinaryHandler::TxtTag(const QString &text)
 void FbReadHandler::BinaryHandler::EndTag(const QString &name)
 {
     Q_UNUSED(name);
-    QByteArray in; in.append(m_text);
-    if (!m_file.isEmpty()) m_owner.addFile(m_file, QByteArray::fromBase64(in));
+    if (!m_file.isEmpty()) m_owner.addFile(m_file, QByteArray::fromBase64(m_text.toUtf8()));
 }
 
 //---------------------------------------------------------------------------

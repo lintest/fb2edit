@@ -65,7 +65,7 @@ void FbSaveDialog::init()
     }
 
     setAcceptMode(AcceptSave);
-    setConfirmOverwrite(true);
+    setOption(DontConfirmOverwrite, false);
     setDefaultSuffix("fb2");
 
     QStringList filters;
@@ -274,7 +274,7 @@ void FbSaveWriter::writeStyle()
     writeAttribute("type", "text/css");
     writeCharacters(postfix);
 
-    QStringList list = m_style.split("}", QString::SkipEmptyParts);
+    QStringList list = m_style.split("}", Qt::SkipEmptyParts);
     QString line;
     for (const QString &str: list) {
         line = str.simplified();
