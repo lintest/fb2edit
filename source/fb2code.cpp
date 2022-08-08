@@ -548,9 +548,7 @@ bool FbCodeEdit::read(QIODevice *device)
 {
     QByteArray data = device->readAll();
     delete device;
-    QXmlInputSource source;
-    source.setData(data);
-    setPlainText(source.data());
+    setPlainText(data);
     return true;
 }
 
@@ -563,7 +561,7 @@ int FbCodeEdit::lineNumberAreaWidth()
         ++digits;
     }
 
-    int space = 3 + fontMetrics().width(QLatin1Char('9')) * digits;
+    int space = 3 + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits;
 
     return space;
 }

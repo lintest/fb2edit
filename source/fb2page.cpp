@@ -68,8 +68,7 @@ FbNetworkAccessManager *FbTextPage::manager()
 
 bool FbTextPage::read(const QString &html)
 {
-    QXmlInputSource *source = new QXmlInputSource();
-    source->setData(html);
+    QString *source = new QString(html);
     FbReadThread::execute(this, source, 0);
     return true;
 }
@@ -371,7 +370,7 @@ FbTextElement FbTextPage::current()
 FbTextElement FbTextPage::element(const QString &location)
 {
     if (location.isEmpty()) return FbTextElement();
-    QStringList list = location.split(",", QString::SkipEmptyParts);
+    QStringList list = location.split(",", Qt::SkipEmptyParts);
     QStringListIterator iterator(list);
     QWebElement result = doc();
     while (iterator.hasNext()) {

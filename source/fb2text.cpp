@@ -77,7 +77,7 @@ void FbTextAction::disconnectAction()
 FbDockWidget::FbDockWidget(const QString &title, QWidget *parent, Qt::WindowFlags flags)
     : QDockWidget(title, parent, flags)
 {
-    setFeatures(QDockWidget::AllDockWidgetFeatures);
+    setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable);
     setAttribute(Qt::WA_DeleteOnClose);
 }
 
@@ -424,7 +424,7 @@ void FbTextEdit::viewInspector(bool show)
         QWebInspector *inspector = new QWebInspector(this);
         inspector->setPage(page());
         dockInsp = new QDockWidget(tr("Web inspector"), this);
-        dockInsp->setFeatures(QDockWidget::AllDockWidgetFeatures);
+        dockInsp->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable);
         dockInsp->setWidget(inspector);
         connect(dockInsp, SIGNAL(visibilityChanged(bool)), act(Fb::ViewInspector), SLOT(setChecked(bool)));
         m_owner->addDockWidget(Qt::BottomDockWidgetArea, dockInsp);

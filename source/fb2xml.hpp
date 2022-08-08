@@ -2,11 +2,9 @@
 #define FB2XML_H
 
 #include <QHash>
-#include <QXmlDefaultHandler>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-#include "fb2logs.hpp"
 
 #define FB2_BEGIN_KEYLIST private: enum Keyword {
 
@@ -27,19 +25,20 @@ x::KeywordHash::KeywordHash() {
 
 #define FB2_KEY(key,str) insert(str,key);
 
-class FbXmlHandler : public QObject, public QXmlDefaultHandler
+class FbXmlHandler : public QObject
 {
     Q_OBJECT
 
 public:
     explicit FbXmlHandler();
     virtual ~FbXmlHandler();
-    bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &attributes);
+    bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlStreamAttributes &attributes);
     bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName);
     bool characters(const QString &str);
-    bool error(const QXmlParseException& exception);
-    bool warning(const QXmlParseException& exception);
-    bool fatalError(const QXmlParseException &exception);
+    bool comment(const QString &){return true;}
+    bool error(const QString &msg, int row, int col);
+    bool warning(const QString &msg, int row, int col);
+    bool fatalError(const QString &msg, int row, int col);
     QString errorString() const;
 
 signals:
@@ -51,16 +50,16 @@ protected:
     class NodeHandler
     {
     public:
-        static QString Value(const QXmlAttributes &attributes, const QString &name);
+        static QString Value(const QXmlStreamAttributes &attributes, const QString &name);
         explicit NodeHandler(const QString &name)
             : m_name(name), m_handler(0), m_closed(false) {}
         virtual ~NodeHandler()
             { if (m_handler) delete m_handler; }
-        bool doStart(const QString &name, const QXmlAttributes &attributes);
+        bool doStart(const QString &name, const QXmlStreamAttributes &attributes);
         bool doText(const QString &text);
         bool doEnd(const QString &name, bool & found);
     protected:
-        virtual NodeHandler * NewTag(const QString &name, const QXmlAttributes &attributes)
+        virtual NodeHandler * NewTag(const QString &name, const QXmlStreamAttributes &attributes)
             { Q_UNUSED(name); Q_UNUSED(attributes); return NULL; }
         virtual void TxtTag(const QString &text)
             { Q_UNUSED(text); }
@@ -75,7 +74,7 @@ protected:
     };
 
 protected:
-    virtual NodeHandler * CreateRoot(const QString &name, const QXmlAttributes &attributes) = 0;
+    virtual NodeHandler * CreateRoot(const QString &name, const QXmlStreamAttributes &attributes) = 0;
     static bool isWhiteSpace(const QString &str);
 
 protected:

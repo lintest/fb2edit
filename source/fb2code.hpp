@@ -37,7 +37,7 @@ public:
     void load(const QByteArray data)
         { setPlainText(QString::fromUtf8(data.data())); }
 
-    bool findText(const QString &exp, QTextDocument::FindFlags options = 0);
+    bool findText(const QString &exp, QTextDocument::FindFlags options = {});
 
     bool isModified() const { return document()->isModified(); }
 

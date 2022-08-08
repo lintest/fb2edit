@@ -5,18 +5,17 @@
 //  FbXmlHandler::NodeHandler
 //---------------------------------------------------------------------------
 
-QString FbXmlHandler::NodeHandler::Value(const QXmlAttributes &attributes, const QString &name)
+QString FbXmlHandler::NodeHandler::Value(const QXmlStreamAttributes &attributes, const QString &name)
 {
-    int count = attributes.count();
-    for (int i = 0; i < count; ++i ) {
-        if (attributes.localName(i).compare(name, Qt::CaseInsensitive) == 0) {
-            return attributes.value(i);
+    for (const auto& attr : attributes) {
+        if (attr.name().compare(name, Qt::CaseInsensitive) == 0) {
+            return attr.value().toString();
         }
     }
     return QString();
 }
 
-bool FbXmlHandler::NodeHandler::doStart(const QString &name, const QXmlAttributes &attributes)
+bool FbXmlHandler::NodeHandler::doStart(const QString &name, const QXmlStreamAttributes &attributes)
 {
     if (m_handler) return m_handler->doStart(name, attributes);
     m_handler = NewTag(name, attributes);
@@ -57,7 +56,7 @@ bool FbXmlHandler::NodeHandler::doEnd(const QString &name, bool & exists)
 //---------------------------------------------------------------------------
 
 FbXmlHandler::FbXmlHandler()
-    : QXmlDefaultHandler()
+    : QObject()
     , m_handler(0)
 {
 }
@@ -67,10 +66,8 @@ FbXmlHandler::~FbXmlHandler()
     if (m_handler) delete m_handler;
 }
 
-bool FbXmlHandler::startElement(const QString & namespaceURI, const QString & localName, const QString &qName, const QXmlAttributes &attributes)
+bool FbXmlHandler::startElement(const QString &, const QString &, const QString &qName, const QXmlStreamAttributes &attributes)
 {
-    Q_UNUSED(namespaceURI);
-    Q_UNUSED(localName);
     const QString name = qName.toLower();
     if (m_handler) return m_handler->doStart(name, attributes);
     m_handler = CreateRoot(name, attributes);
@@ -99,21 +96,21 @@ bool FbXmlHandler::endElement(const QString & namespaceURI, const QString & loca
     return m_handler && m_handler->doEnd(qName.toLower(), found);
 }
 
-bool FbXmlHandler::warning(const QXmlParseException& exception)
+bool FbXmlHandler::warning(const QString &msg, int row, int col)
 {
-    emit warning(exception.lineNumber(), exception.columnNumber(), exception.message());
+    emit warning(row, col, msg);
     return true;
 }
 
-bool FbXmlHandler::error(const QXmlParseException& exception)
+bool FbXmlHandler::error(const QString &msg, int row, int col)
 {
-    emit error(exception.lineNumber(), exception.columnNumber(), exception.message());
+    emit error(row, col, msg);
     return false;
 }
 
-bool FbXmlHandler::fatalError(const QXmlParseException &exception)
+bool FbXmlHandler::fatalError(const QString &msg, int row, int col)
 {
-    emit fatal(exception.lineNumber(), exception.columnNumber(), exception.message());
+    emit fatal(row, col, msg);
     return false;
 }
 

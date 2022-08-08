@@ -80,14 +80,6 @@ OTHER_FILES += \
     3rdparty/fb2/FictionBookGenres.xsd \
     3rdparty/fb2/FictionBook2.1.xsd
 
-if (unix) {
-
-    DEFINES += FB2_USE_LIBXML2
-    INCLUDEPATH += /usr/include/libxml2
-    LIBS += -lxml2
-
-}
-
 FORMS += \
     source/fb2find.ui \
     source/fb2setup.ui

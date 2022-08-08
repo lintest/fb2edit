@@ -25,7 +25,7 @@ class FbDockWidget : public QDockWidget
 {
     Q_OBJECT
 public:
-    explicit FbDockWidget(const QString &title, QWidget *parent = 0, Qt::WindowFlags flags = 0);
+    explicit FbDockWidget(const QString &title, QWidget *parent = 0, Qt::WindowFlags flags = {});
 };
 
 class FbTextBase : public QWebView

@@ -65,7 +65,7 @@ void FbSaveDialog::init()
     }
 
     setAcceptMode(AcceptSave);
-    setConfirmOverwrite(true);
+    setOption(DontConfirmOverwrite, false);
     setDefaultSuffix("fb2");
 
     QStringList filters;
@@ -111,7 +111,7 @@ QString FbHtmlHandler::local(const QString &name)
 
 void FbHtmlHandler::onAttr(const QString &name, const QString &value)
 {
-    m_atts.append(name, "", local(name), value);
+    m_atts.append(name, local(name), value);
 }
 
 void FbHtmlHandler::onNew(const QString &name)
@@ -274,7 +274,7 @@ void FbSaveWriter::writeStyle()
     writeAttribute("type", "text/css");
     writeCharacters(postfix);
 
-    QStringList list = m_style.split("}", QString::SkipEmptyParts);
+    QStringList list = m_style.split("}", Qt::SkipEmptyParts);
     QString line;
     for (const QString &str: list) {
         line = str.simplified();
@@ -362,7 +362,7 @@ FB2_BEGIN_KEYHASH(FbSaveHandler::TextHandler)
     FB2_KEY( Code    , "tt"     );
 FB2_END_KEYHASH
 
-FbSaveHandler::TextHandler::TextHandler(FbSaveWriter &writer, const QString &name, const QXmlAttributes &atts, const QString &tag)
+FbSaveHandler::TextHandler::TextHandler(FbSaveWriter &writer, const QString &name, const QXmlStreamAttributes &atts, const QString &tag)
     : NodeHandler(name)
     , m_writer(writer)
     , m_tag(tag)
@@ -374,7 +374,7 @@ FbSaveHandler::TextHandler::TextHandler(FbSaveWriter &writer, const QString &nam
     writeAtts(atts);
 }
 
-FbSaveHandler::TextHandler::TextHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts, const QString &tag)
+FbSaveHandler::TextHandler::TextHandler(TextHandler *parent, const QString &name, const QXmlStreamAttributes &atts, const QString &tag)
     : NodeHandler(name)
     , m_writer(parent->m_writer)
     , m_tag(tag)
@@ -386,12 +386,11 @@ FbSaveHandler::TextHandler::TextHandler(TextHandler *parent, const QString &name
     writeAtts(atts);
 }
 
-void FbSaveHandler::TextHandler::writeAtts(const QXmlAttributes &atts)
+void FbSaveHandler::TextHandler::writeAtts(const QXmlStreamAttributes &atts)
 {
-    int count = atts.count();
-    for (int i = 0; i < count; ++i) {
-        QString name = atts.qName(i);
-        QString value = atts.value(i);
+    for (const auto& attr : atts) {
+        QString name = attr.qualifiedName().toString();
+        QString value = attr.value().toString();
         if (m_tag == "image") {
             if (name == "src") {
                 name = "l:href";
@@ -404,7 +403,7 @@ void FbSaveHandler::TextHandler::writeAtts(const QXmlAttributes &atts)
     }
 }
 
-FbXmlHandler::NodeHandler * FbSaveHandler::TextHandler::NewTag(const QString &name, const QXmlAttributes &atts)
+FbXmlHandler::NodeHandler * FbSaveHandler::TextHandler::NewTag(const QString &name, const QXmlStreamAttributes &atts)
 {
     m_hasChild = true;
     QString tag = QString();
@@ -451,7 +450,7 @@ FbSaveHandler::RootHandler::RootHandler(FbSaveWriter &writer, const QString &nam
 {
 }
 
-FbXmlHandler::NodeHandler * FbSaveHandler::RootHandler::NewTag(const QString &name, const QXmlAttributes &atts)
+FbXmlHandler::NodeHandler * FbSaveHandler::RootHandler::NewTag(const QString &name, const QXmlStreamAttributes &atts)
 {
     Q_UNUSED(atts);
     return name == "body" ? new BodyHandler(m_writer, name) : NULL;
@@ -462,7 +461,7 @@ FbXmlHandler::NodeHandler * FbSaveHandler::RootHandler::NewTag(const QString &na
 //---------------------------------------------------------------------------
 
 FbSaveHandler::BodyHandler::BodyHandler(FbSaveWriter &writer, const QString &name)
-    : TextHandler(writer, name, QXmlAttributes(), "FictionBook")
+    : TextHandler(writer, name, QXmlStreamAttributes(), "FictionBook")
 {
     m_writer.writeAttribute("xmlns", "http://www.gribuser.ru/xml/fictionbook/2.0");
     m_writer.writeAttribute("xmlns:l", "http://www.w3.org/1999/xlink");
@@ -479,7 +478,7 @@ void FbSaveHandler::BodyHandler::EndTag(const QString &name)
 //  FbSaveHandler::SpanHandler
 //---------------------------------------------------------------------------
 
-FbSaveHandler::SpanHandler::SpanHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts)
+FbSaveHandler::SpanHandler::SpanHandler(TextHandler *parent, const QString &name, const QXmlStreamAttributes &atts)
     : TextHandler(parent, name, atts, Value(atts, "class") == "Apple-style-span" ? "" : "style")
 {
 }
@@ -488,24 +487,23 @@ FbSaveHandler::SpanHandler::SpanHandler(TextHandler *parent, const QString &name
 //  FbSaveHandler::ParagHandler
 //---------------------------------------------------------------------------
 
-FbSaveHandler::ParagHandler::ParagHandler(TextHandler *parent, const QString &name, const QXmlAttributes &atts)
+FbSaveHandler::ParagHandler::ParagHandler(TextHandler *parent, const QString &name, const QXmlStreamAttributes &atts)
     : TextHandler(parent, name, atts, "")
     , m_parent(parent->tag())
     , m_empty(true)
 {
-    int count = atts.count();
-    for (int i = 0; i < count; ++i) {
-        QString qName = atts.qName(i);
-        QString value = atts.value(i);
+    for (const auto& attr : atts) {
+        QString qName = attr.qualifiedName().toString();
+        QString value = attr.value().toString();
         if (qName == "fb:class") {
             m_class = value;
         } else {
-            m_atts.append(qName, "", "", value);
+            m_atts.append(qName, value);
         }
     }
 }
 
-FbXmlHandler::NodeHandler * FbSaveHandler::ParagHandler::NewTag(const QString &name, const QXmlAttributes &atts)
+FbXmlHandler::NodeHandler * FbSaveHandler::ParagHandler::NewTag(const QString &name, const QXmlStreamAttributes &atts)
 {
     if (m_empty && name != "br") start();
     return TextHandler::NewTag(name, atts);
@@ -567,7 +565,7 @@ void FbSaveHandler::onFocus(int offset)
     m_writer.setFocus(offset - m_lastTextLength);
 }
 
-FbXmlHandler::NodeHandler * FbSaveHandler::CreateRoot(const QString &name, const QXmlAttributes &atts)
+FbXmlHandler::NodeHandler * FbSaveHandler::CreateRoot(const QString &name, const QXmlStreamAttributes &atts)
 {
     Q_UNUSED(atts);
     if (name == "html") return new RootHandler(m_writer, name);

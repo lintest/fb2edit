@@ -41,7 +41,7 @@ void FbCodeFindDlg::find()
 {
     QString text = ui->editText->text();
     if (text.isEmpty()) return;
-    QTextDocument::FindFlags options = 0;
+    QTextDocument::FindFlags options;
     if (ui->radioUp->isChecked()) options |= QTextDocument::FindBackward;
     if (ui->checkCase->isChecked()) options |= QTextDocument::FindCaseSensitively;
     if (ui->checkHigh->isChecked()) options |= QTextDocument::FindWholeWords;
